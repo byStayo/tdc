@@ -1,0 +1,379 @@
+# The Daily Consensus – AI Agent Rules
+
+**Purpose:**  
+These rules are displayed to the AI in each chat to provide consistent context and guidance for building **The Daily Consensus** dashboard. The overarching goal is to create a functional, user-friendly website/application that analyzes trading data, news sentiment, and market indicators.
+
+---
+
+## 1. Project Overview
+
+1. **Dashboard Name:** The Daily Consensus  
+2. **Core Objective:**  
+   - Provide a unified interface for retail or professional traders to access:
+     - Professional Trader Analysis  
+     - Media Analysis (Twitter, Mainstream Media bias)  
+     - AI Analysis (data-driven predictions)  
+     - Major Support & Resistance levels  
+     - Smart Money Analysis (Darkpool, Gamma levels)  
+     - Technical Analysis (price action, TPO, Market Profile, Elliott Waves, etc.)  
+   - Offer a suite of subscription plans (Weekly, Monthly, Yearly)  
+   - Guarantee ROI or money back, continuously add new features, and keep users informed of updates.
+
+3. **Key Website Sections:**  
+   - **Header/Navigation:** “The Daily Consensus,” Trending News, Login, Pricing, My Account, Twitter  
+   - **Hero/Marketing:** Taglines like “Stop Guessing and Start Trading with Certainty”  
+   - **Features Overview:** Summaries of each analysis type (Professional Trader, Media, AI, etc.)  
+   - **Pricing Plans:** Weekly ($19), Monthly ($38, 50% off), Yearly ($349, 60% off)  
+   - **Footer:** Links to Terms of Use, Contact, Services, FAQ, Privacy Policy, plus social media icons
+
+---
+
+## 2. Content & Functionality Goals
+
+1. **Professional Trader Analysis**  
+   - Multiple institutional traders with at least 38 years of experience  
+   - Offer trade convictions, top picks, and rationale  
+
+2. **Media Analysis**  
+   - Monitor FinTwit (financial Twitter), Jim Cramer, Nancy Pelosi trades, etc.  
+   - Highlight potential biases, e.g., contrarian signals  
+
+3. **AI Analysis**  
+   - Data predictions driven purely by math-based models  
+   - “Unbiased” approach that complements human trader insights  
+
+4. **Major Support/Resistance Levels**  
+   - Identify key price levels from technical patterns and the derivatives market  
+
+5. **Smart Money Analysis**  
+   - Darkpool activity, Gamma levels  
+   - Actionable signals from large institutional flows  
+
+6. **Technical Analysis**  
+   - Price action, TPO (Time Price Opportunity), Market Profile, Elliott Waves, MMA, Williams AD, etc.
+
+7. **Subscription Tiers**  
+   - Weekly ($19), Monthly ($38, 50% discount), Yearly ($349, 60% discount)  
+   - All tiers include daily consensus reports, major index signals, multiple bias reports, AI analytics, dark pool positioning, technical analysis, etc.
+
+8. **Guarantees & Future Features**  
+   - 1-month ROI guarantee, money-back guarantee  
+   - Upcoming: News, Investment Fund, ETF, more buy/sell signals, intraday updates, mobile app
+
+---
+
+## 3. Guidelines for the AI Agent
+
+1. **Always Provide Complete Code:**  
+   - If a user requests HTML/CSS/JS or any other scripts, return a fully self-contained snippet they can copy and run immediately.  
+   - Include minimal inline documentation or comments, ensuring maintainability.
+
+2. **Consistent & Modern UI Recommendations:**  
+   - Follow best practices in responsive web design (mobile-first where possible).  
+   - Use neutral color schemes, ensuring text contrast and clarity.  
+
+3. **User-Focused Explanations:**  
+   - Each code delivery should come with a short explanation or usage instructions (e.g., “Save as `index.html` and open in browser”).  
+
+4. **Actionable Responses:**  
+   - Provide step-by-step instructions when guiding the user to set up or modify the dashboard.  
+   - If asked to integrate advanced features (e.g., hooking up AI data models or dynamic charts), outline the technical steps or references to relevant libraries.
+
+5. **Error Handling & Future Expansion:**  
+   - When possible, mention how code can be expanded or integrated with frameworks (React, Vue, Node.js, etc.), but do not assume or enforce any single stack unless asked.  
+   - Suggest how to incorporate real-time data sources if the user expresses interest.
+
+6. **Respect the Project Roadmap:**  
+   - If the user asks for new features or a pivot from the original plan, adapt while maintaining core functionalities (Professional Trader Analysis, AI data predictions, etc.).  
+   - Always try to keep the final goal in mind: a clear, user-friendly dashboard that “Pays for Itself.”
+
+7. **Maintain Marketing/Branding Elements:**  
+   - Keep the site references to “The Daily Consensus,” the ROI guarantee, new features in progress, and the subscription tiers.  
+
+8. **Security & Privacy Considerations:**  
+   - If any code interacts with user accounts or personal data, remind the user about best practices (HTTPS, encryption of passwords, compliance with GDPR, etc.).  
+   - Provide disclaimers for financial data usage or risk disclaimers if needed (e.g., “Not financial advice”).
+
+---
+
+## 4. Example Usage
+
+1. **HTML/CSS Landing Page** – Outline the structure for all the site sections: Hero, Features, Pricing, Footer.  
+2. **Dashboard Components** – Provide snippet or framework-based approach (React, Vue) that shows how to integrate each data analysis module.  
+3. **API Integration** – If data from social media or financial APIs is requested, show how to fetch, parse, and display in the dashboard.  
+4. **Chat-Based Support** – If the user requests a chatbot interface, incorporate a quick form or chat widget for user Q&A.
+
+---
+
+## 5. Communication Tone
+
+- **Clarity and Brevity**: Keep responses straightforward, easy to follow.  
+- **Professional**: Focus on action items, no unnecessary fluff.  
+- **Solution-Oriented**: Always propose a next step or solution if an issue arises.
+
+
+# Cursor Rules: UI-First, User-Centric Development for The Daily Consensus
+
+**Objective:**  
+Adopt a **UI-first development approach** that prioritizes user experience, simplicity, and intuitiveness above all else. Every feature, design, and functionality must start with a perfect UI, ensuring users—regardless of age or experience—can seamlessly interact with and benefit from the dashboard.
+
+---
+
+## Fundamental Principles:
+
+1. **Design the UI First**:
+   - All development begins with designing and finalizing the **UI**.
+   - The **UI must be perfect**, intuitive, and fully functional with mock data or placeholders before backend development begins.
+   - Backend development serves the UI, not the other way around. Build the backend **only after** the UI is finalized and tested.
+
+2. **Light/Dark Mode**:
+   - Include a **light/dark mode toggle** in every design.
+   - Make it simple and accessible, ensuring both modes are easy on the eyes and user-friendly.
+
+3. **Intuitive and User-Centric**:
+   - The UI must be **100% intuitive**, allowing anyone—from a child to a grandparent—to use and understand the dashboard effortlessly.
+   - Use clear labels, tooltips, visual cues, and structured workflows to guide users without requiring prior knowledge.
+   - Features must prioritize **simplicity**, functionality, and ease of understanding.
+
+4. **Prioritize User Needs**:
+   - Every feature must focus on what the user needs to make decisions confidently.
+   - Avoid unnecessary complexity. Keep interfaces clean, straightforward, and purposeful.
+   - Regularly test the UI with mock data to ensure it delivers the best possible user experience.
+
+---
+
+## Development Workflow:
+
+1. **UI Design and Testing**:
+   - Begin by designing a fully functional UI with:
+     - All workflows, buttons, and visual elements clearly defined.
+     - Mock data or placeholders to simulate real interactions.
+   - Ensure the UI is:
+     - Responsive on all devices (desktop, tablet, mobile).
+     - Tested extensively for usability and intuitiveness.
+     - Aligned with a light/dark mode design system.
+
+2. **Backend Development**:
+   - Start backend development **only after the UI is finalized**.
+   - Build the backend to connect seamlessly to the UI, replacing placeholders with real data.
+   - Ensure the backend supports all features dictated by the UI.
+
+3. **Integration and Optimization**:
+   - Integrate the backend with the UI to deliver real-time functionality.
+   - Test the entire system to ensure:
+     - Smooth performance across devices.
+     - Accurate data rendering in light and dark modes.
+   - Optimize for speed, scalability, and user experience.
+
+4. **Final Testing and Documentation**:
+   - Validate the complete system (UI + backend) for full functionality and intuitiveness.
+   - Document every feature for both users and developers, ensuring:
+     - Clear instructions for users of all ages and skill levels.
+     - Comprehensive developer notes for future maintenance and enhancements.
+
+---
+
+## Persistent Reminders for Every Session and Prompt:
+
+1. **UI-First Priority**:
+   - Always design and refine the UI before backend development.
+   - Ensure the UI reflects exactly what the user wants and needs.
+
+2. **Light/Dark Mode**:
+   - Include a toggle for light and dark modes in every design.
+   - Do not overthink this feature—it must be simple, effective, and seamless.
+
+3. **User Intuition Above All Else**:
+   - The UI must cater to **everyone**, regardless of age or experience.
+   - If someone with no prior knowledge loads the dashboard, they should be able to:
+     - Navigate effortlessly.
+     - Understand features easily.
+     - Make confident trading decisions without frustration.
+
+4. **Simplicity and Accessibility**:
+   - Avoid complexity for complexity's sake.
+   - Every feature and design must focus on clarity, ease of use, and accessibility.
+
+5. **Seamless Integration**:
+   - Ensure the backend supports the UI’s workflows and features without disruption.
+   - Test and validate every feature to guarantee a polished, user-ready product.
+
+---
+
+## Implementation Commitment:
+
+> **Every design, feature, and decision must follow these rules, ensuring The Daily Consensus is user-first, UI-driven, and universally intuitive. Light/dark mode is mandatory. Perfection in user experience is non-negotiable. These rules are active in every chat, message, and prompt.**
+
+---
+
+**End of Rules**  
+
+Use these rules to guide all AI-driven responses for building and enhancing *The Daily Consensus* dashboard. Each chat should reference the above goals, structure, and standards to ensure a consistently high-quality, user-focused experience.
+
+
+# The Daily Consensus Dashboard Enhancement Meta-Prompt
+
+## Objective
+Transform the current dashboard into a professional-grade trading analysis platform through 25 precisely planned iterations, each focusing on specific aspects of enhancement while maintaining a cohesive design system.
+
+## Iteration Structure (25 Steps)
+
+### Foundation Phase (Iterations 1-5)
+1. Core Layout & Grid System
+2. Typography System & Hierarchy
+3. Color System & Theme Variables
+4. Spacing & Alignment System
+5. Component Architecture Review
+
+### Visual Enhancement Phase (Iterations 6-10)
+6. Card Design & Shadows
+7. Interactive States & Animations
+8. Data Visualization Components
+9. Loading States & Transitions
+10. Error States & Feedback
+
+### Content Optimization Phase (Iterations 11-15)
+11. Conviction Levels Refinement
+12. Signal Strength Card Enhancement
+13. Support/Resistance Level Display
+14. Gamma Levels Visualization
+15. Volume Analysis Presentation
+
+### User Experience Phase (Iterations 16-20)
+16. Responsive Behavior
+17. Performance Optimization
+18. Accessibility Improvements
+19. Interactive Tooltips
+20. Navigation & Controls
+
+### Polish Phase (Iterations 21-25)
+21. Animation Refinement
+22. Micro-interactions
+23. Edge Cases & Error Prevention
+24. Cross-browser Compatibility
+25. Final Integration & Testing
+
+## Per-Iteration Instructions
+
+For each iteration:
+1. **Analysis**: Review current state
+2. **Planning**: Define specific changes
+3. **Implementation**: Make precise CSS/JS updates
+4. **Validation**: Verify improvements
+5. **Documentation**: Note changes for next iteration
+
+## Technical Requirements
+
+### CSS Guidelines
+- Use CSS custom properties for theme values
+- Implement mobile-first responsive design
+- Maintain BEM naming convention
+- Optimize performance with GPU acceleration
+- Ensure cross-browser compatibility
+
+### JavaScript Guidelines
+- Maintain clean component structure
+- Implement efficient state management
+- Optimize render performance
+- Handle all possible states (loading, error, empty)
+- Ensure proper event handling
+
+### Quality Standards
+- Maintain 60fps animations
+- Ensure sub-100ms interaction response
+- Meet WCAG 2.1 AA standards
+- Support latest 2 versions of major browsers
+- Optimize bundle size
+
+## Design System Integration
+
+### Typography
+- Clear hierarchy with defined sizes
+- Consistent line heights
+- Proper font weights
+- Optimal character spacing
+- Responsive scaling
+
+### Colors
+- Professional trading platform palette
+- Clear status indicators
+- Accessible contrast ratios
+- Consistent hover states
+- Theme compatibility
+
+### Spacing
+- Consistent grid system
+- Proper component padding
+- Responsive margins
+- Balanced white space
+- Proper information density
+
+### Components
+- Modular architecture
+- Reusable patterns
+- Consistent styling
+- Clear state handling
+- Proper documentation
+
+## Per-Component Focus
+
+### Conviction Levels
+- Clear visual hierarchy
+- Intuitive percentage display
+- Smooth bar animations
+- Proper spacing
+- Mobile optimization
+
+### Signal Strength
+- Prominent display
+- Clear status indication
+- Proper emphasis
+- Responsive layout
+- Interactive elements
+
+### Support/Resistance
+- Clear level distinction
+- Proper number formatting
+- Intuitive grouping
+- Responsive tables
+- Mobile-friendly display
+
+### Gamma Analysis
+- Clear data presentation
+- Proper number scaling
+- Intuitive visualizations
+- Interactive elements
+- Responsive design
+
+### Volume Analysis
+- Clear data grouping
+- Proper level indication
+- Interactive elements
+- Mobile optimization
+- Proper spacing
+
+## Validation Criteria
+
+For each iteration:
+1. Visual consistency
+2. Performance metrics
+3. Accessibility compliance
+4. Cross-browser compatibility
+5. Mobile responsiveness
+
+## Expected Deliverables
+
+Each iteration should provide:
+1. Updated CSS code
+2. Updated JavaScript code
+3. Performance metrics
+4. Browser compatibility report
+5. Accessibility audit
+
+## Success Metrics
+
+- Pixel-perfect implementation
+- Sub-100ms interaction time
+- 60fps animations
+- WCAG 2.1 AA compliance
+- 100% browser compatibility

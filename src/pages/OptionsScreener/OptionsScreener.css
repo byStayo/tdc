@@ -1,0 +1,345 @@
+/* Options Screener page specific styles */
+.options-screener-page {
+  position: relative;
+  min-height: 100vh;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* Custom styles for the chat interface */
+.chat-messages {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Any custom styles not covered by Material-UI can be added here */
+
+/* Controls Panel */
+.controls-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-switch button,
+.ticker-input button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.mode-switch button:hover,
+.ticker-input button:hover {
+  background: var(--primary-dark);
+}
+
+.ticker-input {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.ticker-input input {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  min-width: 200px;
+}
+
+/* Filters Panel */
+.filters-panel {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.input-group label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.input-group input {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+/* Recommendations Panel */
+.recommendations-panel {
+  margin-bottom: var(--spacing-lg);
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.recommendation-card {
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  box-shadow: var(--shadow-sm);
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+}
+
+.recommendation-card.selected {
+  border: 2px solid var(--mui-palette-primary-main);
+  background-color: var(--mui-palette-action-selected);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.strategy-type {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.score {
+  color: var(--text-secondary);
+}
+
+.card-body p {
+  margin: var(--spacing-xs) 0;
+}
+
+.greeks {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+/* Options Chain */
+.options-chain {
+  margin-bottom: var(--spacing-lg);
+  overflow-x: auto;
+}
+
+.options-chain table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+}
+
+.options-chain th,
+.options-chain td {
+  padding: var(--spacing-sm);
+  text-align: right;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.options-chain th {
+  background: var(--background-dark);
+  color: var(--text-primary);
+  font-weight: bold;
+  text-align: center;
+}
+
+.options-chain tr:hover {
+  background: var(--background-hover);
+  cursor: pointer;
+}
+
+.options-chain tr.selected {
+  background: var(--primary-light);
+}
+
+/* Chart Panel */
+.chart-panel {
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Beginner Mode */
+.beginner-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.chat-interface {
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.chat-input {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.chat-input input {
+  flex: 1;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+/* Expert Mode */
+.expert-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+  text-align: center;
+  padding: var(--spacing-lg);
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  margin: var(--spacing-lg) 0;
+}
+
+.error {
+  color: var(--error);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .options-screener-page {
+    padding: var(--spacing-md);
+  }
+
+  .controls-panel {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .options-chain {
+    margin: 0 -var(--spacing-md);
+  }
+}
+
+/* Chart customizations */
+.recharts-wrapper {
+  margin: 0 auto;
+}
+
+.recharts-default-tooltip {
+  background-color: var(--mui-palette-background-paper) !important;
+  border: 1px solid var(--mui-palette-divider) !important;
+  border-radius: 8px;
+  padding: 1rem !important;
+  box-shadow: var(--mui-shadows-8) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--mui-palette-text-primary) !important;
+  font-weight: 600;
+  margin-bottom: 0.5rem !important;
+}
+
+.recharts-tooltip-item {
+  color: var(--mui-palette-text-secondary) !important;
+  padding: 0.25rem 0 !important;
+}
+
+.recharts-tooltip-item-name {
+  font-weight: 500 !important;
+}
+
+.recharts-tooltip-item-value {
+  font-weight: 600 !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--mui-palette-text-secondary) !important;
+  font-size: 0.75rem !important;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--mui-palette-divider) !important;
+  stroke-opacity: 0.5 !important;
+}
+
+.recharts-pie-label-text {
+  fill: var(--mui-palette-text-primary) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .options-screener-page {
+    padding: 1rem !important;
+  }
+
+  .recharts-wrapper {
+    margin: 0 -1rem;
+  }
+
+  .recharts-cartesian-axis-tick-value {
+    font-size: 0.7rem !important;
+  }
+
+  .recharts-pie-label-text {
+    font-size: 0.7rem !important;
+  }
+} 

@@ -1,0 +1,242 @@
+.data-table-container {
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+/* Table header */
+.data-table-header {
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.data-table-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* Table content */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+/* Table head */
+.data-table th {
+  background-color: var(--background-elevated);
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Table body */
+.data-table td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  transition: background-color 0.2s ease;
+}
+
+/* Row hover effect */
+.data-table tr:hover {
+  background-color: var(--background-hover);
+}
+
+/* Conviction levels styling */
+.conviction-strong-buy {
+  color: var(--success);
+}
+
+.conviction-buy {
+  color: var(--success);
+}
+
+.conviction-hold {
+  color: var(--warning);
+}
+
+.conviction-sell {
+  color: var(--error);
+}
+
+.conviction-strong-sell {
+  color: var(--error);
+}
+
+/* Score column */
+.score-cell {
+  font-family: monospace;
+  font-size: 1.1em;
+  font-weight: 600;
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--background-elevated);
+}
+
+/* Description column */
+.description-cell {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* Pagination */
+.data-table-pagination {
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--background-elevated);
+}
+
+.rows-per-page {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.rows-per-page select {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--background-paper);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rows-per-page select:hover {
+  border-color: var(--text-secondary);
+}
+
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.pagination-button {
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: var(--action-hover);
+}
+
+.pagination-button:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+/* Loading state */
+.data-table-loading {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Empty state */
+.data-table-empty {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .data-table-container {
+    border-radius: var(--border-radius-md);
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--spacing-sm);
+  }
+
+  .description-cell {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .data-table-container {
+    border-radius: var(--border-radius-sm);
+  }
+
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th {
+    white-space: nowrap;
+  }
+
+  .description-cell {
+    max-width: 200px;
+  }
+
+  .data-table-pagination {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-sm);
+  }
+}
+
+/* Print styles */
+@media print {
+  .data-table-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .data-table th {
+    background-color: #f5f5f5;
+    color: #000;
+  }
+
+  .data-table td {
+    color: #000;
+  }
+
+  .data-table-pagination {
+    display: none;
+  }
+} 

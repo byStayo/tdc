@@ -1,0 +1,215 @@
+/* Sidebar container */
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  position: fixed;
+  height: 100vh;
+  z-index: var(--z-index-drawer);
+  background: none !important;
+  transition: transform var(--transition-duration) var(--transition-timing);
+}
+
+.sidebar-paper {
+  width: var(--sidebar-width);
+  height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background: none !important;
+  border-right: none;
+  transition: width var(--transition-duration) var(--transition-timing);
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--spacing-md) var(--spacing-lg);
+  min-height: var(--header-height);
+  background: transparent;
+}
+
+.sidebar-logo {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  transition: opacity var(--transition-duration) var(--transition-timing);
+}
+
+.sidebar-logo:hover {
+  opacity: 0.9;
+}
+
+.sidebar-nav {
+  padding: 0;
+}
+
+.MuiList-root {
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+.MuiListItem-root {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.MuiListItemButton-root {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  min-height: 48px;
+  color: var(--text-secondary);
+  transition: all var(--transition-duration) var(--transition-timing);
+  margin: 0;
+  border-radius: 0;
+  background: transparent !important;
+  width: 100%;
+}
+
+.MuiListItemButton-root:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.MuiListItemButton-root.active {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+  color: var(--text-primary);
+  font-weight: 500;
+  width: 100%;
+}
+
+.MuiListItemButton-root.Mui-selected {
+  background-color: transparent !important;
+}
+
+.MuiListItemButton-root.Mui-selected:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.MuiListItemButton-root .MuiListItemIcon-root {
+  color: var(--text-secondary);
+  min-width: 40px;
+  transition: color var(--transition-duration) var(--transition-timing);
+}
+
+.MuiListItemButton-root:hover .MuiListItemIcon-root,
+.MuiListItemButton-root.active .MuiListItemIcon-root {
+  color: var(--text-primary);
+}
+
+.MuiListItemButton-root .MuiListItemText-primary {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.nested-list {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.nested-list .MuiListItemButton-root {
+  padding-left: calc(var(--spacing-lg) + var(--spacing-xl));
+  width: 100%;
+}
+
+.bottom-divider {
+  margin: var(--spacing-sm) 0;
+  background-color: var(--divider);
+}
+
+.account-info {
+  margin-top: auto;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--divider);
+  background: transparent;
+}
+
+.account-info-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.account-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--hover-background);
+  color: var(--text-primary);
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.account-avatar:hover {
+  background-color: var(--selected-background);
+}
+
+.account-name {
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.account-email {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+}
+
+.bottom-nav {
+  padding: var(--spacing-sm) 0;
+}
+
+/* Dark mode specific styles */
+.sidebar.dark .sidebar-paper {
+  background: transparent;
+}
+
+/* Light mode specific styles */
+.sidebar.light .sidebar-paper {
+  background: transparent;
+}
+
+/* Mobile styles */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .sidebar-paper {
+    box-shadow: var(--box-shadow);
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar {
+    display: none;
+  }
+}
+
+.MuiPaper-root,
+.MuiDrawer-paper,
+.MuiDrawer-paperAnchorLeft,
+.MuiDrawer-paperAnchorDockedLeft {
+  background: none !important;
+} 

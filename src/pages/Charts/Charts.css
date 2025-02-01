@@ -1,0 +1,77 @@
+.charts {
+  min-height: 100vh;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* Any custom styles not covered by Material-UI can be added here */
+
+/* Charts page specific styles */
+.charts-page {
+  position: relative;
+  min-height: 100vh;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* Chart customizations */
+.recharts-wrapper {
+  margin: 0 auto;
+}
+
+.recharts-default-tooltip {
+  background-color: var(--mui-palette-background-paper) !important;
+  border: 1px solid var(--mui-palette-divider) !important;
+  border-radius: 8px;
+  padding: 1rem !important;
+  box-shadow: var(--mui-shadows-8) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--mui-palette-text-primary) !important;
+  font-weight: 600;
+  margin-bottom: 0.5rem !important;
+}
+
+.recharts-tooltip-item {
+  color: var(--mui-palette-text-secondary) !important;
+  padding: 0.25rem 0 !important;
+}
+
+.recharts-tooltip-item-name {
+  font-weight: 500 !important;
+}
+
+.recharts-tooltip-item-value {
+  font-weight: 600 !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--mui-palette-text-secondary) !important;
+  font-size: 0.75rem !important;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--mui-palette-divider) !important;
+  stroke-opacity: 0.5 !important;
+}
+
+.recharts-legend-item-text {
+  color: var(--mui-palette-text-primary) !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .charts-page {
+    padding: 1rem !important;
+  }
+
+  .recharts-wrapper {
+    margin: 0 -1rem;
+  }
+
+  .recharts-cartesian-axis-tick-value {
+    font-size: 0.7rem !important;
+  }
+} 

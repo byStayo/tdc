@@ -1,0 +1,314 @@
+/* Market Snapshot page specific styles */
+.market-snapshot-page {
+  position: relative;
+  min-height: 100vh;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--mui-palette-background-default);
+  transition: background-color 0.3s ease;
+}
+
+/* Search and Add section */
+.search-section {
+  position: relative;
+  background: var(--mui-palette-background-paper);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--mui-shadows-2);
+  transition: all 0.3s ease;
+  border: 1px solid var(--mui-palette-divider);
+}
+
+.search-section:hover {
+  box-shadow: var(--mui-shadows-4);
+}
+
+.controls-panel {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.input-group label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.input-row {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.input-group input {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--background-light);
+  color: var(--text-primary);
+  font-size: 1rem;
+  min-width: 250px;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.add-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color var(--transition-normal);
+}
+
+.add-button:hover {
+  background: var(--primary-color-dark);
+}
+
+.snapshots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+/* Snapshot cards */
+.snapshot-card {
+  position: relative;
+  background: var(--mui-palette-background-paper);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--mui-shadows-2);
+  transition: all 0.3s ease;
+  border: 1px solid var(--mui-palette-divider);
+  height: 100%;
+}
+
+.snapshot-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--mui-shadows-8);
+}
+
+.snapshot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.snapshot-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.market-status {
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.market-status.open {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.market-status.closed {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.ticker-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.ticker {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.asset-type {
+  padding: 2px 8px;
+  background: rgba(33, 150, 243, 0.1);
+  color: var(--primary-color);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.price-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--spacing-md);
+}
+
+.current-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.current-price .label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.current-price .value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.price-change {
+  font-weight: 500;
+}
+
+.price-change.positive {
+  color: #4CAF50;
+}
+
+.price-change.negative {
+  color: #f44336;
+}
+
+.session-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-row .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.detail-row .value {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.remove-button {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: all var(--transition-normal);
+}
+
+.remove-button:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: var(--error-color);
+}
+
+/* Loading and Error states */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background: var(--mui-palette-background-paper);
+  border-radius: 16px;
+  box-shadow: var(--mui-shadows-2);
+  border: 1px solid var(--mui-palette-divider);
+  margin-top: 24px;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 32px;
+  background: var(--mui-palette-background-paper);
+  border-radius: 16px;
+  box-shadow: var(--mui-shadows-2);
+  border: 1px solid var(--mui-palette-divider);
+  text-align: center;
+}
+
+/* Asset type specific styles */
+.snapshot-card.stocks {
+  border-left: 4px solid var(--mui-palette-success-main);
+}
+
+.snapshot-card.options {
+  border-left: 4px solid var(--mui-palette-warning-main);
+}
+
+.snapshot-card.indices {
+  border-left: 4px solid var(--mui-palette-info-main);
+}
+
+.snapshot-card.forex {
+  border-left: 4px solid var(--mui-palette-secondary-main);
+}
+
+.snapshot-card.crypto {
+  border-left: 4px solid var(--mui-palette-primary-main);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .market-snapshot-page {
+    padding: 16px;
+  }
+
+  .search-section {
+    padding: 16px;
+  }
+
+  .snapshot-card {
+    padding: 16px;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .market-snapshot-page {
+    background: var(--mui-palette-background-default);
+  }
+
+  .search-section,
+  .snapshot-card,
+  .loading-container,
+  .error-container {
+    background: var(--mui-palette-background-paper);
+    border-color: var(--mui-palette-divider);
+  }
+} 

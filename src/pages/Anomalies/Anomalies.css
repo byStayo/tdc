@@ -1,0 +1,252 @@
+.anomalies-page {
+  min-height: 100vh;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.controls-panel {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.input-group label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.input-group input,
+.input-group select {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--background-light);
+  color: var(--text-primary);
+  font-size: 1rem;
+  min-width: 200px;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: 1fr;
+}
+
+.dashboard-panel {
+  background: var(--background-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-panel.large {
+  min-height: 500px;
+}
+
+.dashboard-panel h2 {
+  margin: 0 0 var(--spacing-lg);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.chart-container {
+  height: 400px;
+  margin-top: var(--spacing-md);
+}
+
+.custom-tooltip {
+  background: var(--background-dark);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.custom-tooltip p {
+  margin: var(--spacing-xs) 0;
+  color: var(--text-primary);
+}
+
+.custom-tooltip .date {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.anomalies-list {
+  margin-top: var(--spacing-md);
+}
+
+.anomaly-cards {
+  display: grid;
+  gap: var(--spacing-md);
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+.anomaly-card {
+  background: var(--background-dark);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.anomaly-card:hover,
+.anomaly-card.selected {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.anomaly-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.anomaly-header .date {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.anomaly-types {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.anomaly-type {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.anomaly-type.volume {
+  background: rgba(33, 150, 243, 0.1);
+  color: #2196f3;
+}
+
+.anomaly-type.trades {
+  background: rgba(156, 39, 176, 0.1);
+  color: #9c27b0;
+}
+
+.anomaly-type.price {
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+.anomaly-details {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-item .label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.detail-item .value {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.detail-item .value.positive {
+  color: var(--success-color);
+}
+
+.detail-item .value.negative {
+  color: var(--error-color);
+}
+
+.detail-item .baseline {
+  margin-left: var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.z-scores {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.z-score {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: var(--text-secondary);
+}
+
+.error-message {
+  color: var(--error-color);
+  padding: var(--spacing-md);
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-md) 0;
+}
+
+.no-anomalies {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .anomalies-page {
+    padding: var(--spacing-md);
+  }
+
+  .controls-panel {
+    flex-direction: column;
+  }
+
+  .input-group input,
+  .input-group select {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .dashboard-panel {
+    padding: var(--spacing-md);
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* Any custom styles not covered by Material-UI can be added here */ 

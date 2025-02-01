@@ -1,0 +1,121 @@
+/* Loading State */
+.loading-state {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.loading-state .MuiCircularProgress-root {
+  animation: rotate 1.4s linear infinite;
+}
+
+.loading-state .MuiTypography-root {
+  animation: fadeIn 0.3s ease-in-out 0.1s both;
+}
+
+/* Error State */
+.error-state {
+  animation: slideUp 0.3s ease-in-out;
+}
+
+.error-state .MuiSvgIcon-root {
+  animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.error-state .MuiTypography-root {
+  animation: fadeIn 0.3s ease-in-out 0.1s both;
+}
+
+.error-state .MuiButton-root {
+  animation: fadeIn 0.3s ease-in-out 0.2s both;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* Dark Mode Styles */
+.dark .loading-state {
+  background-color: var(--dark-background);
+  color: var(--dark-text);
+}
+
+.dark .error-state {
+  background-color: var(--dark-error-background);
+  color: var(--dark-error-text);
+}
+
+/* Light Mode Styles */
+.light .loading-state {
+  background-color: var(--light-background);
+  color: var(--light-text);
+}
+
+.light .error-state {
+  background-color: var(--light-error-background);
+  color: var(--light-error-text);
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+  .loading-state,
+  .error-state {
+    padding: 16px;
+  }
+  
+  .loading-state .MuiCircularProgress-root,
+  .error-state .MuiSvgIcon-root {
+    transform: scale(0.8);
+  }
+  
+  .loading-state .MuiTypography-root,
+  .error-state .MuiTypography-root {
+    font-size: 90%;
+  }
+  
+  .error-state .MuiButton-root {
+    font-size: 90%;
+    padding: 6px 16px;
+  }
+} 

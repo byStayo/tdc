@@ -1,0 +1,230 @@
+.market-overview {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.market-overview-header {
+  margin-bottom: var(--spacing-lg);
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+}
+
+.market-overview-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.market-overview-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* Refresh button */
+.refresh-button {
+  color: var(--text-secondary);
+  transition: all 0.3s ease !important;
+}
+
+.refresh-button:hover:not(:disabled) {
+  color: var(--text-primary);
+  background-color: var(--action-hover);
+  transform: rotate(180deg);
+}
+
+.refresh-button:disabled {
+  color: var(--text-disabled);
+}
+
+/* Grid layout */
+.market-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Card styling */
+.market-overview-card {
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.market-overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--text-secondary);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.card-icon {
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.market-overview-card:hover .card-icon {
+  color: var(--text-primary);
+}
+
+/* Conviction table section */
+.conviction-section {
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-xl);
+  overflow: hidden;
+}
+
+.conviction-header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--background-elevated);
+}
+
+.conviction-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.conviction-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-xs);
+}
+
+/* Info tooltip */
+.info-tooltip {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: help;
+  transition: all 0.2s ease;
+  padding: 4px;
+}
+
+.info-tooltip:hover {
+  color: var(--text-primary);
+  background-color: var(--action-hover);
+}
+
+/* Loading state customization */
+.market-overview .loading-skeleton {
+  height: 100%;
+  min-height: 200px;
+}
+
+.market-overview .loading-skeleton-item {
+  height: 100% !important;
+  min-height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .market-overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .market-overview-header {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 900px) {
+  .market-overview-title {
+    font-size: 1.5rem;
+  }
+
+  .market-overview-subtitle {
+    font-size: 0.9375rem;
+  }
+
+  .market-overview-card {
+    padding: var(--spacing-md);
+  }
+
+  .conviction-header {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 600px) {
+  .market-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .market-overview-title {
+    font-size: 1.25rem;
+  }
+
+  .market-overview-header {
+    padding: var(--spacing-sm);
+  }
+
+  .market-overview-card {
+    padding: var(--spacing-sm);
+  }
+
+  .conviction-header {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Print styles */
+@media print {
+  .market-overview-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .conviction-section {
+    break-inside: avoid;
+    border: 1px solid #000;
+  }
+
+  .refresh-button,
+  .info-tooltip {
+    display: none;
+  }
+} 
