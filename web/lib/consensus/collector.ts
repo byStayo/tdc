@@ -5,6 +5,7 @@ import { collectMarketCalendars } from "./calendars.ts";
 import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPolicyRates } from "./policy.ts";
+import { collectHoldings } from "./holdings.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
 import { clamp } from "./engine.ts";
@@ -893,6 +894,7 @@ export async function collectSnapshot(
     capital,
     privateFunds,
     policyRates,
+    holdings,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -905,6 +907,7 @@ export async function collectSnapshot(
     collectCapital((url) => publicText(url, fetcher)),
     collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
     collectPolicyRates((url) => publicText(url, fetcher)),
+    collectHoldings((url) => publicText(url, fetcher)),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -919,6 +922,7 @@ export async function collectSnapshot(
       ...capital,
       privateFunds,
       ...policyRates,
+      ...holdings.signals,
       ...missingSignals(issuedAt),
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
@@ -936,7 +940,8 @@ export async function collectSnapshot(
       ...marketCalendars.catalysts,
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 26,
+    ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
+    sourcesAttempted: MACRO_SERIES.length + 28,
     collectionErrors: signals
       .filter(
         (signal) =>

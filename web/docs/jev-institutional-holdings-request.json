@@ -1,0 +1,33 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add an original SEC institutional holdings view to the visual morning dashboard, using verified Berkshire Hathaway and Bridgewater quarterly filings.",
+    "existing": "Next16 React19, MorningBoard dark/light design tokens --panel --text --text-muted --accent --border. 390px phone. Existing two-column cards, horizontal bars, section eyebrows, source-drawer buttons, and six instrument/daily-weekly-monthly selectors.",
+    "data": "Two named managers. Each has original SEC current and prior-quarter reporting periods, filing date, report-value total, non-option share value, five largest disclosed share positions by reported value, remaining positions, excluded options/principal values and source provenance. June30 holdings filed August14 are delayed facts, not daily flows. No directional vote or inference about current intent.",
+    "catalog": [
+      "two manager cards with horizontal allocation bars",
+      "manager tabs with one allocation view",
+      "compact comparison table with expandable largest positions"
+    ],
+    "constraints": [
+      "Use only verified numeric data; no provider logo or screenshot",
+      "Keep report date and filing date visible together; label shares of reported non-option positions, not total AUM",
+      "No green/red buy/sell signals or quarter-value change framed as performance",
+      "Show broad equity context on MARKET/SPY/QQQ/IWM/DIA; hide for TLT rather than imply its holdings",
+      "Place immediately after CFTC positioning and before capital panels; no changes to first-screen consensus",
+      "Top five share allocations, remainder and direct SEC links; source evidence expands through existing drawer",
+      "Phone stack, 44px keyboard targets, reduced-motion compatibility, source-age state"
+    ]
+  },
+  "questions": {
+    "holdings_layout": {
+      "type": "choice",
+      "instructions": "Choose the best scan-friendly presentation of these two delayed filing samples without implying a complete institutional market feed.",
+      "criteria": {
+        "paired_allocation_cards": "Two equal manager cards with dated reported-value total and five compact horizontal percentage bars plus remainder; stack on mobile.",
+        "single_manager_tabs": "One larger panel with manager buttons, the same source dates and bars; only one manager visible at a time.",
+        "comparison_table": "Manager/date/value comparison table with disclosure for each portfolio, prioritizing summary numbers over always-visible holdings."
+      }
+    }
+  }
+}

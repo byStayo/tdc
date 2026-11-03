@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T08-30-55-634Z",
-  "issuedAt": "2026-11-03T08:30:55.634Z",
-  "cutoff": "2026-11-03T08:30:55.634Z",
+  "id": "2026-11-03T08-48-02-469Z",
+  "issuedAt": "2026-11-03T08:48:02.469Z",
+  "cutoff": "2026-11-03T08:48:02.469Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-1.1.0",
   "signals": [
@@ -29084,6 +29084,136 @@
         "weekly": null,
         "monthly": null
       }
+    },
+    {
+      "id": "sec-holdings-berkshire",
+      "family": "institutions",
+      "title": "Berkshire Hathaway · disclosed share holdings",
+      "shortLabel": "Berkshire Hathaway 13F",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ],
+      "status": "available",
+      "summary": "Berkshire Hathaway reported 29 non-option share positions for 2026-06-30, filed 2026-08-14. This selected filing is delayed broad-equity context.",
+      "source": {
+        "name": "SEC EDGAR · Form 13F",
+        "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
+        "observedAt": "2026-06-30",
+        "releasedAt": "2026-08-14",
+        "retrievedAt": "2026-11-03T08:45:00.106Z",
+        "frequency": "quarterly holdings",
+        "sha256": "d1fc785d975f0425b11cd3720f9333c1a8c34ed9a4a3ab1371eb2d6bc6c6e5d5",
+        "attribution": "Berkshire Hathaway; original filing via SEC EDGAR",
+        "usage": "Selected factual aggregates and largest positions derived from public SEC filings; original documents linked. No personal contact or signature information is republished."
+      },
+      "methodology": "Original current and preceding-quarter 13F-HR cover and information tables reconcile by entry count and reported dollar value. Non-option SH rows aggregate by security identifier and class. Five largest positions are ranked by disclosed value; their weights use the non-option share subtotal. Each manager is separate; no directional vote or cross-manager market total.",
+      "limitation": "Quarter-end positions can lag publication by 45 days and do not cover the complete portfolio, cash or shorts. Changes in disclosed value mix price and position changes; they are not returns or capital flows. Amendments/notices require reconciliation. These two selected managers do not represent all institutions or an ETF's holdings.",
+      "series": [
+        {
+          "date": "2026-03-31",
+          "value": 263.09570357
+        },
+        {
+          "date": "2026-06-30",
+          "value": 299.253556246
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Reported non-option shares",
+          "value": 299.253556246,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Distinct share positions",
+          "value": 29,
+          "unit": "positions",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Other reported value excluded",
+          "value": 0,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 150,
+      "unit": "USD billion"
+    },
+    {
+      "id": "sec-holdings-bridgewater",
+      "family": "institutions",
+      "title": "Bridgewater Associates · disclosed share holdings",
+      "shortLabel": "Bridgewater Associates 13F",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ],
+      "status": "available",
+      "summary": "Bridgewater Associates reported 997 non-option share positions for 2026-06-30, filed 2026-08-14. This selected filing is delayed broad-equity context.",
+      "source": {
+        "name": "SEC EDGAR · Form 13F",
+        "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
+        "observedAt": "2026-06-30",
+        "releasedAt": "2026-08-14",
+        "retrievedAt": "2026-11-03T08:45:01.550Z",
+        "frequency": "quarterly holdings",
+        "sha256": "05261c97a9122da8f29af1bd8317b50802924d9bc9da070487b432777730baab",
+        "attribution": "Bridgewater Associates; original filing via SEC EDGAR",
+        "usage": "Selected factual aggregates and largest positions derived from public SEC filings; original documents linked. No personal contact or signature information is republished."
+      },
+      "methodology": "Original current and preceding-quarter 13F-HR cover and information tables reconcile by entry count and reported dollar value. Non-option SH rows aggregate by security identifier and class. Five largest positions are ranked by disclosed value; their weights use the non-option share subtotal. Each manager is separate; no directional vote or cross-manager market total.",
+      "limitation": "Quarter-end positions can lag publication by 45 days and do not cover the complete portfolio, cash or shorts. Changes in disclosed value mix price and position changes; they are not returns or capital flows. Amendments/notices require reconciliation. These two selected managers do not represent all institutions or an ETF's holdings.",
+      "series": [
+        {
+          "date": "2026-03-31",
+          "value": 22.404547213
+        },
+        {
+          "date": "2026-06-30",
+          "value": 24.37608653
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Reported non-option shares",
+          "value": 24.37608653,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Distinct share positions",
+          "value": 997,
+          "unit": "positions",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Other reported value excluded",
+          "value": 0,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 150,
+      "unit": "USD billion"
     }
   ],
   "catalysts": [
@@ -29684,7 +29814,7 @@
       "importance": "major"
     }
   ],
-  "sourcesAttempted": 38,
+  "sourcesAttempted": 40,
   "collectionErrors": [
     "gdelt-finance-news: A current financial-news sample is unavailable.",
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
@@ -30318,5 +30448,233 @@
       }
     ]
   },
-  "forecasts": []
+  "forecasts": [],
+  "holdings": [
+    {
+      "id": "berkshire",
+      "cik": "0001067983",
+      "name": "Berkshire Hathaway",
+      "current": {
+        "accession": "0001193125-26-352200",
+        "period": "2026-06-30",
+        "filedAt": "2026-08-14",
+        "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
+        "coverUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/primary_doc.xml",
+        "tableUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.xml",
+        "retrievedAt": "2026-11-03T08:45:00.106Z",
+        "hashes": {
+          "submissions": "db47454ac805a156e17ade1897b59959c8917377fa526936960a7ef89119ca00",
+          "index": "55b791cd90a12c4fe10c0d13471853e3e53ccbede45157b4264092aa0f5674f9",
+          "cover": "7e7b3a8f87a290f56454b6ecaacd2cb4639af97a36d0c4064ee3d78be0d56723",
+          "table": "6a2798aa0fa9731c33b0f0b748229eaf7cdf118f9c46fd5a4a9a3de6979d4d95"
+        },
+        "rowCount": 89,
+        "reportedValueUSD": 299253556246,
+        "shareValueUSD": 299253556246,
+        "sharePositions": 29,
+        "excludedValueUSD": 0,
+        "remainingValueUSD": 93811549722,
+        "confidentialOmitted": false,
+        "top": [
+          {
+            "issuer": "APPLE INC",
+            "securityClass": "COM",
+            "valueUSD": 65950296923,
+            "shares": 227917808
+          },
+          {
+            "issuer": "AMERICAN EXPRESS CO",
+            "securityClass": "COM",
+            "valueUSD": 51282319275,
+            "shares": 151610700
+          },
+          {
+            "issuer": "COCA COLA CO",
+            "securityClass": "COM",
+            "valueUSD": 32508000000,
+            "shares": 400000000
+          },
+          {
+            "issuer": "ALPHABET INC",
+            "securityClass": "CAP STK CL A",
+            "valueUSD": 28157599351,
+            "shares": 78791167
+          },
+          {
+            "issuer": "BANK OF AMER CORP",
+            "securityClass": "COM",
+            "valueUSD": 27543790975,
+            "shares": 483394015
+          }
+        ]
+      },
+      "previous": {
+        "accession": "0001193125-26-226661",
+        "period": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.html",
+        "coverUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/primary_doc.xml",
+        "tableUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.xml",
+        "retrievedAt": "2026-11-03T08:45:00.718Z",
+        "hashes": {
+          "submissions": "db47454ac805a156e17ade1897b59959c8917377fa526936960a7ef89119ca00",
+          "index": "77d2fa9f5f3b1320dc3d904ec00cef7d24ad39045cb4b9c392dd2d989c526a79",
+          "cover": "a3898f9f1e9defe28e9bed8cebafa83ed5a468bb2bbe758984039364dc1355fd",
+          "table": "47b2bdae43512763cbd6459b6980827fc0a4fdc05515b4609950a7ab52b55316"
+        },
+        "rowCount": 90,
+        "reportedValueUSD": 263095703570,
+        "shareValueUSD": 263095703570,
+        "sharePositions": 29,
+        "excludedValueUSD": 0,
+        "remainingValueUSD": 86476695891,
+        "confidentialOmitted": false,
+        "top": [
+          {
+            "issuer": "APPLE INC",
+            "securityClass": "COM",
+            "valueUSD": 57843260493,
+            "shares": 227917808
+          },
+          {
+            "issuer": "AMERICAN EXPRESS CO",
+            "securityClass": "COM",
+            "valueUSD": 45859204536,
+            "shares": 151610700
+          },
+          {
+            "issuer": "COCA COLA CO",
+            "securityClass": "COM",
+            "valueUSD": 30420000000,
+            "shares": 400000000
+          },
+          {
+            "issuer": "BANK AMERICA CORP",
+            "securityClass": "COM",
+            "valueUSD": 25039178044,
+            "shares": 513624165
+          },
+          {
+            "issuer": "CHEVRON CORPORATION",
+            "securityClass": "COM",
+            "valueUSD": 17457364606,
+            "shares": 84375856
+          }
+        ]
+      }
+    },
+    {
+      "id": "bridgewater",
+      "cik": "0001350694",
+      "name": "Bridgewater Associates",
+      "current": {
+        "accession": "0001350694-26-000003",
+        "period": "2026-06-30",
+        "filedAt": "2026-08-14",
+        "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
+        "coverUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/primary_doc.xml",
+        "tableUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/infotable.xml",
+        "retrievedAt": "2026-11-03T08:45:01.550Z",
+        "hashes": {
+          "submissions": "561ad21bd94fe46c40c1278a5d98c0ff4c7d160a69d301bd696a70a3b07ffa21",
+          "index": "011280fc4b3fbb1565fe5bfa3b8d5cdf61ca3fda4f282f4a8f1b9ef769a1d628",
+          "cover": "19fd9584282951edf38431a1371a3f97ae28ab2ee77774e51dd02511a608eb8c",
+          "table": "c7153d8ba40fa905c682dd52fdfb78e1daf856f88dd62cb6adfe44df5f2e9be4"
+        },
+        "rowCount": 997,
+        "reportedValueUSD": 24376086530,
+        "shareValueUSD": 24376086530,
+        "sharePositions": 997,
+        "excludedValueUSD": 0,
+        "remainingValueUSD": 16400472649,
+        "confidentialOmitted": false,
+        "top": [
+          {
+            "issuer": "STATE STR SPDR S&P 500 ETF T",
+            "securityClass": "TR UNIT",
+            "valueUSD": 3973046405,
+            "shares": 5320308
+          },
+          {
+            "issuer": "ISHARES TR",
+            "securityClass": "CORE S&P500 ETF",
+            "valueUSD": 2248381963,
+            "shares": 3002286
+          },
+          {
+            "issuer": "NVIDIA CORPORATION",
+            "securityClass": "COM",
+            "valueUSD": 773586958,
+            "shares": 3866195
+          },
+          {
+            "issuer": "BROADCOM INC",
+            "securityClass": "COM",
+            "valueUSD": 497845413,
+            "shares": 1317923
+          },
+          {
+            "issuer": "AMAZON COM INC",
+            "securityClass": "COM",
+            "valueUSD": 482753142,
+            "shares": 2025481
+          }
+        ]
+      },
+      "previous": {
+        "accession": "0001350694-26-000002",
+        "period": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/0001350694-26-000002-index.html",
+        "coverUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/primary_doc.xml",
+        "tableUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.xml",
+        "retrievedAt": "2026-11-03T08:45:02.183Z",
+        "hashes": {
+          "submissions": "561ad21bd94fe46c40c1278a5d98c0ff4c7d160a69d301bd696a70a3b07ffa21",
+          "index": "5d2bd98436839e203169308a54998679de1bef2b4e457dafe6a312af8067d4f9",
+          "cover": "5a80db0901edc9bf522e2fc3c44fcf1c4b70a4b7e706bdbb1f33266931285020",
+          "table": "3d12419747dd9e36a859dc2fff527d3adec43ab3385dab53958d59639244f872"
+        },
+        "rowCount": 993,
+        "reportedValueUSD": 22404547213,
+        "shareValueUSD": 22404547213,
+        "sharePositions": 993,
+        "excludedValueUSD": 0,
+        "remainingValueUSD": 15508950702,
+        "confidentialOmitted": false,
+        "top": [
+          {
+            "issuer": "STATE STR SPDR S&P 500 ETF T",
+            "securityClass": "TR UNIT",
+            "valueUSD": 2838644353,
+            "shares": 4364862
+          },
+          {
+            "issuer": "ISHARES TR",
+            "securityClass": "CORE S&P500 ETF",
+            "valueUSD": 1750004460,
+            "shares": 2679084
+          },
+          {
+            "issuer": "AMAZON COM INC",
+            "securityClass": "COM",
+            "valueUSD": 914036840,
+            "shares": 4388711
+          },
+          {
+            "issuer": "NVIDIA CORPORATION",
+            "securityClass": "COM",
+            "valueUSD": 818459723,
+            "shares": 4693003
+          },
+          {
+            "issuer": "ALPHABET INC",
+            "securityClass": "CAP STK CL A",
+            "valueUSD": 574451135,
+            "shares": 1997674
+          }
+        ]
+      }
+    }
+  ]
 }

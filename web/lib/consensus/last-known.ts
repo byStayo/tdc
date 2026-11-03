@@ -10,6 +10,7 @@ export function retainLastKnown(
   if (previous.issuedAt >= snapshot.issuedAt)
     throw new Error("Previous edition must precede collection");
   let retainedNews = false;
+  const retainedHoldings = new Set<string>();
   const signals = snapshot.signals.map((signal) => {
     if (signal.status !== "unavailable") return signal;
     const prior = previous.signals.find((item) => item.id === signal.id);
@@ -23,6 +24,12 @@ export function retainLastKnown(
     )
       return signal;
     if (prior.id === "gdelt-finance-news") retainedNews = true;
+    if (prior.id.startsWith("sec-holdings-")) {
+      if (signal.failureKind !== "transport") return signal;
+      const id = prior.id.slice("sec-holdings-".length);
+      if (!previous.holdings?.some((item) => item.id === id)) return signal;
+      retainedHoldings.add(id);
+    }
     return {
       ...prior,
       collectionNote:
@@ -33,5 +40,17 @@ export function retainLastKnown(
     ...snapshot,
     signals,
     ...(retainedNews ? { news: previous.news } : {}),
+    ...(retainedHoldings.size
+      ? {
+          holdings: [
+            ...(snapshot.holdings ?? []).filter(
+              (item) => !retainedHoldings.has(item.id),
+            ),
+            ...(previous.holdings ?? []).filter((item) =>
+              retainedHoldings.has(item.id),
+            ),
+          ].sort((a, b) => a.id.localeCompare(b.id)),
+        }
+      : {}),
   };
 }

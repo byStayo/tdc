@@ -35,6 +35,7 @@ import type {
 } from "@/lib/consensus/types";
 import styles from "./MorningBoard.module.css";
 import MorningMarket from "./MorningMarket";
+import InstitutionalHoldings from "./InstitutionalHoldings";
 
 const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
@@ -1626,6 +1627,14 @@ export default function MorningBoard({
                 </div>
               </section>
             </div>
+            {instrument !== "TLT" && snapshot.holdings && (
+              <InstitutionalHoldings
+                holdings={snapshot.holdings}
+                signals={snapshot.signals}
+                reference={reference}
+                onInspect={() => setFamily("institutions")}
+              />
+            )}
             <CapitalPanels
               signals={snapshot.signals}
               now={reference}

@@ -1,0 +1,19 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "holdings_layout": {
+      "type": "choice",
+      "choice": "paired_allocation_cards",
+      "confidence": 0.74,
+      "probabilities": {
+        "paired_allocation_cards": 0.83,
+        "single_manager_tabs": 0.01,
+        "comparison_table": 0.16
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 772,
+    "output_tokens": 51
+  }
+}

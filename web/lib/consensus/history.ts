@@ -13,6 +13,7 @@ import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
+import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
   reviewedSignals,
@@ -60,6 +61,8 @@ export function validateSnapshot(snapshot: Snapshot): void {
       !["available", "unavailable", "stale", "not_formed"].includes(
         signal.status,
       ) ||
+      (signal.failureKind !== undefined &&
+        !["transport", "validation"].includes(signal.failureKind)) ||
       !instant(signal.source.retrievedAt) ||
       Date.parse(signal.source.retrievedAt) > Date.parse(snapshot.cutoff)
     )
@@ -209,6 +212,27 @@ export function validateSnapshot(snapshot: Snapshot): void {
     )
       throw new Error("Invalid as-issued model forecast");
   }
+  const holdingSignals = snapshot.signals.filter(
+    (s) => s.id.startsWith("sec-holdings-") && s.status === "available",
+  );
+  if (snapshot.holdings) {
+    validateHoldings(snapshot.holdings, snapshot.cutoff);
+    if (
+      holdingSignals.length !== snapshot.holdings.length ||
+      snapshot.holdings.some((item) => {
+        const signal = holdingSignals.find(
+          (s) => s.id === `sec-holdings-${item.id}`,
+        );
+        return (
+          !signal ||
+          JSON.stringify({ ...signal, collectionNote: undefined }) !==
+            JSON.stringify(holdingsSignal(item))
+        );
+      })
+    )
+      throw new Error("Institutional holdings and signal evidence disagree");
+  } else if (holdingSignals.length)
+    throw new Error("Institutional holdings require original report evidence");
   const reviews = snapshot.signals.filter((signal) =>
     signal.id.startsWith("review-"),
   );
@@ -279,6 +303,12 @@ export function observationDigest(snapshot: Snapshot): string {
     catalysts: snapshot.catalysts,
     forecasts: snapshot.forecasts ?? [],
     news: snapshot.news ?? null,
+    holdings:
+      snapshot.holdings?.map((item) => ({
+        ...item,
+        current: { ...item.current, retrievedAt: null, hashes: null },
+        previous: { ...item.previous, retrievedAt: null, hashes: null },
+      })) ?? [],
     review: snapshot.review
       ? {
           ...snapshot.review,

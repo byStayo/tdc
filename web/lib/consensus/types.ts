@@ -59,6 +59,7 @@ export interface Signal {
   methodology: string;
   limitation: string;
   collectionNote?: string;
+  failureKind?: "transport" | "validation";
   series: Point[];
   metrics: Metric[];
   scores: Record<Horizon, number | null>;
@@ -119,6 +120,7 @@ export interface Snapshot {
   forecasts?: import("./model").Forecast[];
   news?: import("./news").NewsPulse;
   review?: import("./reviewed").ReviewPacket;
+  holdings?: import("./holdings").InstitutionalHoldings[];
 }
 export interface HistoryEntry {
   id: string;
