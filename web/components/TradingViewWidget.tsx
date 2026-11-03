@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink as ExternalLinkIcon, RefreshCw } from "lucide-react";
 import { ExternalLink } from "./ui";
-import { EMBEDS, providerSymbol, type WidgetKind } from "@/lib/tradingview-config";
+import {
+  EMBEDS,
+  providerSymbol,
+  type WidgetKind,
+  type WidgetHorizon,
+} from "@/lib/tradingview-config";
 export { providerSymbol, usesBroadMarketNews } from "@/lib/tradingview-config";
 
 export default function TradingViewWidget({
@@ -11,15 +16,20 @@ export default function TradingViewWidget({
   symbol,
   theme,
   newsScope = "symbol",
+  horizon = "daily",
+  lazy = false,
 }: {
   kind: WidgetKind;
   symbol: string;
   theme: "dark" | "light";
   newsScope?: "symbol" | "market";
+  horizon?: WidgetHorizon;
+  lazy?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [retry, setRetry] = useState(0);
+  const [visible, setVisible] = useState(!lazy);
   const mappedSymbol = providerSymbol(symbol);
   const broadNews = kind === "news" && newsScope === "market";
   const widgetTitle = broadNews
@@ -31,21 +41,42 @@ export default function TradingViewWidget({
       : `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(mappedSymbol)}`;
 
   useEffect(() => {
+    if (!lazy || typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    if (visible || !host.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "250px" },
+    );
+    observer.observe(host.current);
+    return () => observer.disconnect();
+  }, [lazy, visible]);
+
+  useEffect(() => {
     const root = host.current;
-    if (!root) return;
+    if (!root || !visible) return;
     let disposed = false;
     setState("loading");
     // An async script in the parent document can finish after its container is
     // removed. An owned child document is cancelled as a unit during navigation.
     const frame = document.createElement("iframe");
     frame.title = `${widgetTitle} hosted by TradingView`;
-    frame.src = `/widgets/${kind}?${new URLSearchParams({ symbol, theme, newsScope })}`;
+    frame.src = `/widgets/${kind}?${new URLSearchParams({ symbol, theme, newsScope, horizon })}`;
     frame.style.width = "100%";
     frame.style.height = "100%";
     frame.style.border = "0";
     const children = new Set<HTMLIFrameElement>();
     let observer: MutationObserver | undefined;
-    const ready = () => { if (!disposed) setState("ready"); };
+    const ready = () => {
+      if (!disposed) setState("ready");
+    };
     const documentLoaded = () => {
       if (disposed) return;
       const document = frame.contentDocument;
@@ -85,7 +116,7 @@ export default function TradingViewWidget({
       frame.removeEventListener("load", documentLoaded);
       frame.remove();
     };
-  }, [kind, symbol, newsScope, theme, retry, widgetTitle]);
+  }, [kind, symbol, newsScope, theme, horizon, retry, widgetTitle, visible]);
 
   return (
     <div className={`provider-widget provider-widget-${kind}`}>

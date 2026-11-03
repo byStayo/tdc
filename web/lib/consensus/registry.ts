@@ -285,7 +285,7 @@ const REQUIRED_FEEDS: {
     family: "technicals",
     title: "Trend, Fibonacci & opening range",
     reason:
-      "Independent price calculations are unavailable. Hosted market charts remain available in the research desk.",
+      "Independent price calculations are unavailable. Current hosted charts are displayed in the morning view and research desk, separately from the saved consensus.",
     url: "https://thedailyconsensus.com/research-desk",
   },
   {

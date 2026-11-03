@@ -38,8 +38,19 @@ export function newYorkTimestamp(dateTime: string): string | null {
 }
 
 export function newYorkDate(at: string): string {
+  return localDate(at, "America/New_York");
+}
+
+export const CALENDAR_ZONES = [
+  "America/New_York",
+  "Europe/London",
+  "Europe/Berlin",
+  "Asia/Tokyo",
+] as const;
+export type CalendarZone = (typeof CALENDAR_ZONES)[number];
+export function localDate(at: string, timeZone: CalendarZone): string {
   const p = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/New_York",
+    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -48,8 +59,13 @@ export function newYorkDate(at: string): string {
   return `${v.year}-${v.month}-${v.day}`;
 }
 
-export function eventUpcoming(at: string, cutoff: string, days = 70): boolean {
-  const day = newYorkDate(cutoff);
+export function eventUpcoming(
+  at: string,
+  cutoff: string,
+  days = 70,
+  dateZone: CalendarZone = "America/New_York",
+): boolean {
+  const day = localDate(cutoff, dateZone);
   if (at.length === 10)
     return (
       !!publicDate(at) &&

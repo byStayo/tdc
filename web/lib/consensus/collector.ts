@@ -936,7 +936,7 @@ export async function collectSnapshot(
       ...marketCalendars.catalysts,
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 23,
+    sourcesAttempted: MACRO_SERIES.length + 26,
     collectionErrors: signals
       .filter(
         (signal) =>

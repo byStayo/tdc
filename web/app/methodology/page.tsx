@@ -158,6 +158,49 @@ export default function Methodology() {
                 positioning or implied volatility.
               </li>
               <li>
+                International policy calendars from the{" "}
+                <a
+                  href="https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Bank of England
+                </a>
+                ,{" "}
+                <a
+                  href="https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ECB
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Bank of Japan
+                </a>
+                . Decision days are separate from minutes and opinions.
+                Date-only events retain their London, Frankfurt or Tokyo date;
+                no exact time is inferred.
+              </li>
+              <li>
+                Current price charts and technical summaries are hosted by{" "}
+                <a
+                  href="https://www.tradingview.com/widget-docs/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  TradingView
+                </a>
+                . Provider timestamps and delays apply. The market overview uses
+                SPY as its named benchmark. These current displays do not
+                contribute to saved consensus scores and are hidden when reading
+                a past edition.
+              </li>
+              <li>
                 Official Federal Reserve, ECB, Bank of England and Bank of Japan
                 release feeds. Headlines are linked to their publishers. This is
                 a selected policy-news sample, not the entire news cycle.

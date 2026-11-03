@@ -73,6 +73,8 @@ export interface Catalyst {
   source: string;
   kind: "release" | "scheduled" | "expiry";
   importance: "context" | "major";
+  /** Local calendar date only. Timestamped events carry their offset in `at`. */
+  dateZone?: import("./time.ts").CalendarZone;
 }
 export interface FamilyDefinition {
   id: Family;

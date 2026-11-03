@@ -12,6 +12,7 @@ import { resolve, dirname } from "node:path";
 import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
+import { CALENDAR_ZONES } from "./time.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
   reviewedSignals,
@@ -118,7 +119,10 @@ export function validateSnapshot(snapshot: Snapshot): void {
     if (
       !date(catalyst.at) ||
       !catalyst.title ||
-      new URL(catalyst.url).protocol !== "https:"
+      new URL(catalyst.url).protocol !== "https:" ||
+      (catalyst.dateZone !== undefined &&
+        (catalyst.at.length !== 10 ||
+          !CALENDAR_ZONES.includes(catalyst.dateZone)))
     )
       throw new Error("Invalid catalyst");
     if (

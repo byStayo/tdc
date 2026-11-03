@@ -34,6 +34,7 @@ import type {
   Snapshot,
 } from "@/lib/consensus/types";
 import styles from "./MorningBoard.module.css";
+import MorningMarket from "./MorningMarket";
 
 const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
@@ -667,8 +668,16 @@ function CapitalPanels({
 }
 
 function eventLabel(item: Catalyst) {
+  const zone =
+    item.dateZone === "Asia/Tokyo"
+      ? "Tokyo"
+      : item.dateZone === "Europe/London"
+        ? "London"
+        : item.dateZone === "Europe/Berlin"
+          ? "Frankfurt"
+          : null;
   return item.at.length === 10
-    ? `${date(item.at)} · date only`
+    ? `${date(item.at)} · ${zone ? `${zone} date` : "date only"}`
     : `${date(item.at)} · ${time(item.at)} ET`;
 }
 function NewsPanel({
@@ -1020,14 +1029,16 @@ export default function MorningBoard({
     [horizon, setHorizon] = useState<Horizon>("daily");
   const [family, setFamily] = useState<Family | null>(null),
     [tab, setTab] = useState<"morning" | "signals" | "history">("morning"),
-    [theme, setTheme] = useState("dark");
+    [theme, setTheme] = useState<"dark" | "light">("dark");
   const [now, setNow] = useState(initial.issuedAt),
     [historyError, setHistoryError] = useState(""),
     [loading, setLoading] = useState(false);
   const issueRequest = useRef(0);
   useEffect(() => {
     setNow(new Date().toISOString());
-    setTheme(document.documentElement.dataset.theme ?? "dark");
+    setTheme(
+      document.documentElement.dataset.theme === "light" ? "light" : "dark",
+    );
     const timer = setInterval(() => setNow(new Date().toISOString()), 60000);
     return () => clearInterval(timer);
   }, []);
@@ -1068,7 +1079,9 @@ export default function MorningBoard({
   );
   const scheduled = snapshot.catalysts
     .filter(
-      (item) => item.kind !== "release" && eventUpcoming(item.at, reference),
+      (item) =>
+        item.kind !== "release" &&
+        eventUpcoming(item.at, reference, 70, item.dateZone),
     )
     .sort((a, b) => a.at.localeCompare(b.at));
   const reported = current.filter(
@@ -1387,9 +1400,9 @@ export default function MorningBoard({
                   Full calendar · {scheduled.length} upcoming events
                 </summary>
                 <p className={styles.muted}>
-                  Times are Eastern when supplied. A date without a time is
-                  deliberately left date-only. Schedules can change; check the
-                  linked source.
+                  Exact times are shown in Eastern. International date-only
+                  events keep their labelled local date. Schedules can change;
+                  check the linked source.
                 </p>
                 <div className={styles.calendarGrid}>
                   {scheduled.map((item) => (
@@ -1415,6 +1428,12 @@ export default function MorningBoard({
               snapshot={snapshot}
               instrument={instrument}
               reference={reference}
+            />
+            <MorningMarket
+              instrument={instrument}
+              horizon={horizon}
+              theme={theme}
+              historical={historical}
             />
             <div className={styles.sectionHeading}>
               <div>

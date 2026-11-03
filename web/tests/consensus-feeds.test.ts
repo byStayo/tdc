@@ -68,7 +68,7 @@ test("failed calendar sources stay unavailable without directional scores", asyn
     throw new Error("offline");
   });
   assert.equal(r.catalysts.length, 0);
-  assert.equal(r.signals.length, 3);
+  assert.equal(r.signals.length, 6);
   assert.ok(
     r.signals.every(
       (x) =>

@@ -2,6 +2,12 @@ import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
 import type { Catalyst, Signal } from "./types.ts";
 import { eventUpcoming, newYorkDate, newYorkTimestamp } from "./time.ts";
+import {
+  INTERNATIONAL_CALENDARS,
+  boeEvents,
+  ecbEvents,
+  bojEvents,
+} from "./international-calendars.ts";
 
 export interface PublicDocument {
   text: string;
@@ -169,6 +175,22 @@ export async function collectMarketCalendars(
   fetchText: FetchText,
 ): Promise<{ signals: Signal[]; catalysts: Catalyst[] }> {
   const sources = [
+    ...(
+      [
+        ["boe", "Bank of England", boeEvents],
+        ["ecb", "European Central Bank", ecbEvents],
+        ["boj", "Bank of Japan", bojEvents],
+      ] as const
+    ).map(([key, provider, parse]) => ({
+      id: `${key}-calendar`,
+      name: `${provider} policy calendar`,
+      provider,
+      url: INTERNATIONAL_CALENDARS[key],
+      citation: INTERNATIONAL_CALENDARS[key],
+      parse,
+      limitation:
+        "Official local calendar dates, not predicted decisions. Date-only events keep their London, Frankfurt or Tokyo date. Japan's minutes and opinions are labelled separately from policy decisions; exact release times are not inferred from a general convention.",
+    })),
     {
       id: "fomc-calendar",
       name: "FOMC meeting calendar",
