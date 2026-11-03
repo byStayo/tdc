@@ -1,5 +1,13 @@
 import type { Horizon, Instrument, Outcome, Snapshot } from "./types.ts";
 import { calculateConsensus } from "./engine.ts";
+import { newYorkDate } from "./time.ts";
+import { publicDate } from "../public-normalization.ts";
+import { INSTRUMENTS } from "./types.ts";
+
+const canonicalInstant = (value: string) =>
+  Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+const sessionDate = (value: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(value) && publicDate(value) === value;
 
 export const SESSION_HORIZONS: Record<Horizon, number> = {
   daily: 1,
@@ -28,6 +36,13 @@ export function evaluateOutcome(
 ): Outcome | null {
   if (!prices.source || !prices.adjustment || !prices.expectedSessions.length)
     throw new Error("Price provenance and exchange calendar required");
+  if (
+    !INSTRUMENTS.includes(prices.instrument) ||
+    prices.instrument === "MARKET" ||
+    !canonicalInstant(now) ||
+    !canonicalInstant(snapshot.issuedAt)
+  )
+    throw new Error("Invalid outcome instrument or timestamp");
   const sourceURL = new URL(prices.source);
   if (
     sourceURL.protocol !== "https:" ||
@@ -47,16 +62,19 @@ export function evaluateOutcome(
   if (
     new Set(prices.expectedSessions).size !== prices.expectedSessions.length ||
     prices.expectedSessions.some(
-      (day, i) => i > 0 && day <= prices.expectedSessions[i - 1],
+      (day, i) =>
+        !sessionDate(day) || (i > 0 && day <= prices.expectedSessions[i - 1]),
     )
   )
     throw new Error("Exchange calendar must be ordered and unique");
   for (const row of sessions) {
     if (
       ![row.open, row.close].every((n) => Number.isFinite(n) && n > 0) ||
-      !Number.isFinite(Date.parse(row.openAt)) ||
-      !Number.isFinite(Date.parse(row.closeAt)) ||
+      !canonicalInstant(row.openAt) ||
+      !canonicalInstant(row.closeAt) ||
       row.openAt >= row.closeAt ||
+      newYorkDate(row.openAt) !== row.session ||
+      newYorkDate(row.closeAt) !== row.session ||
       !prices.expectedSessions.includes(row.session)
     )
       throw new Error("Invalid price session");

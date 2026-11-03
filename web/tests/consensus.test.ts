@@ -25,7 +25,12 @@ import {
   blsEvents,
   secQuarters,
 } from "../lib/consensus/collector.ts";
-import { publishSnapshot, validateSnapshot } from "../lib/consensus/history.ts";
+import {
+  publishSnapshot,
+  validateSnapshot,
+  observationDigest,
+} from "../lib/consensus/history.ts";
+import { retainLastKnown } from "../lib/consensus/last-known.ts";
 import { evaluateOutcome, performance } from "../lib/consensus/evaluation.ts";
 import {
   trainCandidate,
@@ -64,6 +69,62 @@ const snapshot = (): Snapshot => ({
   catalysts: [],
   sourcesAttempted: 1,
   collectionErrors: [],
+});
+
+test("outages preserve prior observations without resetting freshness or manufacturing new evidence", () => {
+  const prior = snapshot(),
+    next = {
+      ...snapshot(),
+      id: "2026-11-10T12-00-00-000Z",
+      issuedAt: "2026-11-10T12:00:00.000Z",
+      cutoff: "2026-11-10T12:00:00.000Z",
+    };
+  next.signals = [
+    {
+      ...signal(),
+      status: "unavailable",
+      series: [],
+      metrics: [],
+      scores: { daily: null, weekly: null, monthly: null },
+    },
+  ];
+  const retained = retainLastKnown(next, prior);
+  validateSnapshot(retained);
+  assert.equal(
+    retained.signals[0].source.retrievedAt,
+    prior.signals[0].source.retrievedAt,
+  );
+  assert.equal(retained.signals[0].source.observedAt, "2026-11-02");
+  assert.match(retained.signals[0].collectionNote!, /Refresh unavailable/);
+  assert.equal(effectiveStatus(retained.signals[0], next.cutoff), "stale");
+  assert.equal(
+    calculateConsensus(retained.signals, "SPY", "daily", next.cutoff).score,
+    null,
+  );
+  assert.equal(observationDigest(retained), observationDigest(prior));
+});
+
+test("last-known fallback does not restore withdrawn calendars or override successful new data", () => {
+  const prior = snapshot(),
+    next = {
+      ...snapshot(),
+      id: "2026-11-04T12-00-00-000Z",
+      issuedAt: "2026-11-04T12:00:00.000Z",
+      cutoff: "2026-11-04T12:00:00.000Z",
+    };
+  prior.signals[0].source.frequency = "scheduled events";
+  next.signals = [
+    {
+      ...signal(),
+      status: "unavailable",
+      series: [],
+      scores: { daily: null, weekly: null, monthly: null },
+    },
+  ];
+  assert.equal(retainLastKnown(next, prior).signals[0].status, "unavailable");
+  next.signals = [{ ...signal(), series: [{ date: "2026-11-03", value: 5 }] }];
+  assert.equal(retainLastKnown(next, prior).signals[0].series[0].value, 5);
+  assert.throws(() => retainLastKnown(prior, next));
 });
 
 test("options math matches an independent Black-Scholes benchmark and inverts volatility", () => {
@@ -305,14 +366,14 @@ test("outcomes wait for the correct future session and reject missing entry sess
     ],
   };
   assert.equal(
-    evaluateOutcome(snapshot(), evidence, "daily", "2026-11-03T20:00:00Z"),
+    evaluateOutcome(snapshot(), evidence, "daily", "2026-11-03T20:00:00.000Z"),
     null,
   );
   const outcome = evaluateOutcome(
     snapshot(),
     evidence,
     "daily",
-    "2026-11-04T22:00:00Z",
+    "2026-11-04T22:00:00.000Z",
   )!;
   assert.ok(Math.abs(outcome.returnPct - 2) < 1e-8);
   assert.equal(outcome.abstained, true);
@@ -322,13 +383,51 @@ test("outcomes wait for the correct future session and reject missing entry sess
       snapshot(),
       { ...evidence, sessions: evidence.sessions.slice(1) },
       "daily",
-      "2026-11-04T22:00:00Z",
+      "2026-11-04T22:00:00.000Z",
     ),
     null,
   );
   assert.equal(
-    evaluateOutcome(snapshot(), evidence, "weekly", "2026-11-04T22:00:00Z"),
+    evaluateOutcome(snapshot(), evidence, "weekly", "2026-11-04T22:00:00.000Z"),
     null,
+  );
+  assert.throws(
+    () =>
+      evaluateOutcome(
+        snapshot(),
+        {
+          ...evidence,
+          sessions: [
+            { ...evidence.sessions[0], openAt: "2026-11-03T09:30:00-05:00" },
+          ],
+        },
+        "daily",
+        "2026-11-04T22:00:00.000Z",
+      ),
+    /Invalid price session/,
+  );
+  assert.throws(
+    () =>
+      evaluateOutcome(
+        snapshot(),
+        {
+          ...evidence,
+          sessions: [{ ...evidence.sessions[0], session: "2026-11-04" }],
+        },
+        "daily",
+        "2026-11-04T22:00:00.000Z",
+      ),
+    /Invalid price session/,
+  );
+  assert.throws(
+    () =>
+      evaluateOutcome(
+        snapshot(),
+        { ...evidence, expectedSessions: ["2026-02-30"] },
+        "daily",
+        "2026-11-04T22:00:00.000Z",
+      ),
+    /Exchange calendar/,
   );
   assert.equal(performance([outcome]).accuracy, null);
   assert.throws(() => performance([outcome, outcome]), /Duplicate/);

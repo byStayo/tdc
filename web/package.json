@@ -13,6 +13,7 @@
     "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
     "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
     "consensus:research-fx": "node --experimental-strip-types scripts/research-fx-models.ts",
+    "consensus:finra-private": "node --experimental-strip-types scripts/collect-finra-private.ts",
     "editorial:collect": "node --experimental-strip-types scripts/collect-editorial-evidence.ts",
     "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts"
   },

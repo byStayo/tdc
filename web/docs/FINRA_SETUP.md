@@ -1,0 +1,15 @@
+# FINRA public-data connection
+
+Implementation is ready for private verification; no live FINRA query has succeeded yet. Public dashboard coverage remains missing until real data and the distribution conditions are verified.
+
+The [Public credential costs $0/month](https://developer.finra.org/fees). Create an **Individual** account through the [FINRA developer console instructions](https://developer.finra.org/docs), then create a credential of type **Public**, not Firm/Organization. Check the displayed fee is $0. A test/mock credential returns synthetic data and does not satisfy this requirement. The user must set the account password and API client secret in FINRA's own forms and review its terms.
+
+Configure `FINRA_CLIENT_ID` and `FINRA_CLIENT_SECRET` as sensitive server environment variables in the existing Vercel project or the local publisher's secure environment. Never paste them in chat, committed files or browser code. The subscription publisher can retrieve configured Vercel variables into an ignored local environment file without logging values. Run `npm run consensus:finra-private` after securely loading the variables. The result is private `.consensus/finra-private/latest.json`, outside the public archive and deployment. Missing credentials exit before any request.
+
+The collector uses the documented FINRA OAuth token endpoint and one bounded weeklySummary Query API request for SPY, QQQ, IWM, DIA and TLT. It selects only ATS_W_SMBL and OTC_W_SMBL totals, preserves their distinction, matches the week, rejects future/revised-after-cutoff observations and incomplete pairs, checks truncation, and never logs tokens or server error bodies. The query covers 90 days and at most500 rows. It does not enroll in a paid plan or perform retries after rate limits.
+
+Before public release, comply with [FINRA's specific Equity Data terms](https://developer.finra.org/specific-terms-equity-data): FINRA attribution, no end-user data fee, non-commercial personal/professional use, no further redistribution, and reasonable end-user compliance measures. The raw or derivative FINRA data must not be committed to this public Git repository or the unrestricted downloadable snapshot archive. An appropriately separated, terms-governed display must be implemented and checked before publication. A credential alone is insufficient.
+
+Weekly off-exchange volume is delayed, not live dark-pool buying pressure. ATS/non-ATS totals do not identify buyer/seller direction, named institutions, short interest or dealer inventory. These observations will be context with no directional vote unless a separately validated interpretation is developed.
+
+Verified documentation on November3,2026: [metadata](https://api.finra.org/metadata/group/otcMarket/name/weeklySummary), [OAuth/query/field documentation](https://developer.finra.org/docs), [fees](https://developer.finra.org/fees), [equity terms](https://developer.finra.org/specific-terms-equity-data). Unit tests use explicitly synthetic fixtures; they are not live-source evidence.

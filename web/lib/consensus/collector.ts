@@ -2,6 +2,8 @@ import { collectNews } from "./news.ts";
 import { newYorkTimestamp } from "./time.ts";
 export { newYorkTimestamp } from "./time.ts";
 import { collectMarketCalendars } from "./calendars.ts";
+import { collectCapital } from "./capital.ts";
+import { collectPrivateFunds } from "./private-funds.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
 import { clamp } from "./engine.ts";
@@ -30,6 +32,8 @@ const HOSTS = new Set([
   "www.bankofengland.co.uk",
   "www.bls.gov",
   "data.sec.gov",
+  "www.sec.gov",
+  "ticdata.treasury.gov",
   "www.treasurydirect.gov",
   "www.optionseducation.org",
 ]);
@@ -884,6 +888,8 @@ export async function collectSnapshot(
     results,
     marketCalendars,
     news,
+    capital,
+    privateFunds,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -893,6 +899,8 @@ export async function collectSnapshot(
     earnings(fetcher),
     collectMarketCalendars((url) => publicText(url, fetcher)),
     collectNews(fetcher),
+    collectCapital((url) => publicText(url, fetcher)),
+    collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -904,6 +912,8 @@ export async function collectSnapshot(
       ...results,
       ...marketCalendars.signals,
       news.signal,
+      ...capital,
+      privateFunds,
       ...missingSignals(issuedAt),
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
@@ -921,7 +931,7 @@ export async function collectSnapshot(
       ...marketCalendars.catalysts,
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 15,
+    sourcesAttempted: MACRO_SERIES.length + 19,
     collectionErrors: signals
       .filter(
         (signal) =>

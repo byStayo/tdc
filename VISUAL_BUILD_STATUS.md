@@ -17,8 +17,8 @@ The user rejected the earlier research-desk definition of completion on November
 ## Known constraints
 Free public service and free providers; no new purchases or API credits. Codex subscription writes saved editions. Existing TypeSafe credential supports UI decisions. Some raw prices/options/social APIs may require separate authorized access or redistribution rights. Continue all independent work; record exact blockers. Never scrape hosted widgets into the model.
 
-## Current source release
-Production remains f58df645, Git HEAD cee8541 before this build. New work stays on codex/daily-consensus-relaunch. Private backups remain outside Git. No new agent delegation is authorized by the loaded skills; root owns implementation.
+## Baseline before the visual build
+Historical baseline only: production was f58df645 and Git HEAD cee8541 before this build. The later release records below supersede these versions. New work stays on codex/daily-consensus-relaunch. Private backups remain outside Git. No new agent delegation is authorized by the loaded skills; root owns implementation.
 
 
 ## November 3, 06:30 UTC build progress
@@ -50,3 +50,18 @@ GDELT public raw-batch distribution succeeds independently of the DOC API429. Th
 Connected FOMC calendar, Treasury announcements and OCC/OIC expiration dates. Official data gives November20monthly expiration and December9FOMC conclusion. Exact auction deadlines use Eastern/DST; date-only FOMC/expiry facts are not assigned invented times. The full calendar shows22upcoming events alongside the three-event morning rail. This adds real calendar coverage without pretending options risk is measured.
 
 Jev selected a tone distribution with cited stories and inline calendar expansion; request/answers/usage saved. Typecheck,57tests and production build pass. Browser confirmed actual news counts, expiry/FOMC dates, earlier edition integrity/isolation and no new console errors. New edition06:49:15UTC prepared;43/56inputs observed. Public release verification follows before marking this increment deployed. Full goal remains ACTIVE.
+
+News/calendar increment is now live:commit941167c4e6174e0130185c5f77d769d0023ecdba, deploymentdpl_H6MHU43CGcwid3iUfQffuTSfWbo8 READY. Normal public HTTPS returns the expected06:49:15edition. Browser verifies26news stories/13publishers,22calendar events,November20expiry, phone390px/document390px/news panel356px, and no new console errors/warnings. Screenshot saved privately as recovery/visual-news-mobile-2026-11-03.png. Goal remains ACTIVE; do not republish unchanged observations.
+
+
+## Capital-flow and resilience increment prepared · 07:11 UTC
+
+The next edition is `2026-11-03T07-11-18-623Z`, SHA256 `abbfec413dd590c4a2c244e41427bed81f362e5dfd78871cf4a685a612d38088`. Real Treasury SLT tables add six monthly cross-border signals: total US securities, Treasury/agency/corporate/equity components, and US purchases abroad. August2026 net inward long-term transactions are $279.161bn, with no daily vote. SEC supporting workbook discovery adds 51 quarters of private-equity gross assets, matched NAV and fund counts. Its actual linked latest period is2025Q3 and is prominently marked stale; assets do not fill the private-investment-flow gap.
+
+Jev selected paired capital panels; request, model, probabilities and usage are saved in web/docs/jev-capital-*.json. A production-build browser verifies the actual $279.2bn flow figure, component signs, SEC September30,2025 period, stale label, $7.96T gross/$7.29T net and25,155funds; source dialog and Escape work with no new console errors.
+
+A GDELT refresh failed. The last verified26-story batch remains with its original06:45observation and06:49retrieval evidence, plus a visible refresh notice. The new fallback preserves source ages and hashes, never revives calendars, and does not create an edition from refresh timestamps alone. Normal stale limits exclude old observations from voting. Evaluation now rejects mixed/noncanonical timestamp strings and mismatched New York session dates.
+
+Current edition:63tracked;49current, one stale private-equity aggregate,13missing. Coverage51.3%, abstain=true. Prospective outcomes0, active models0. FINRA's bounded private OAuth/query collector and parser tests are implemented; actual credentials are missing and a single user setup request is pending. Do not repeat that request. Never commit or publish FINRA raw/derived data to this unrestricted archive before its separate distribution conditions are met. No paid account or agreement was accepted.
+
+Latest verification:68tests and typecheck passed before final build. Public deployment and mobile verification follow. The full goal remains ACTIVE. Outstanding requirements are enumerated in web/docs/VISUAL_PRODUCT.md; do not claim the full product or old proprietary model is delivered. No DNS, mail, LinkedIn, private backup or subscription changes.

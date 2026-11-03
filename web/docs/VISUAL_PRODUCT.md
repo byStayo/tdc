@@ -24,5 +24,20 @@ The user wants to open the site with morning coffee and understand the complete 
 ## UI constraints
 Existing Next16/React19 stack, local design tokens and brand. Dense enough to scan, spacious enough to understand. Original visual primitives become accessible SVG charts, contribution bars, sparklines and source details. Daily default; weekly/monthly and historical dates are first-class views. Missing inputs stay distinguishable from neutral observations. A single morning verdict must show its coverage beside it. Readers may inspect every contribution. Preserve reduced motion, contrast,390px layout,44px controls and keyboard access.
 
+## Current evidence ledger · November3
+
+| Requirement | Actual evidence | Remaining boundary |
+| --- | --- | --- |
+| Visual morning view | Responsive live board, six instruments, three horizons, source drawers, Treasury/liquidity/FX/positioning/news charts, calendar and history. Jev decisions saved. | Price levels/options/social panels need real permitted inputs. |
+| Social/retail | Source requirements and nonrepresentative-sample safeguards. | No live X, Instagram or representative retail feed. |
+| Institutions |12 CFTC futures-category observations. FINRA private collector/query/parser and failure tests. | FINRA credential requested; public display conditions still apply. No claim of live dark-pool buying/selling. |
+| Options and technicals | OPEX dates; tested IV/gamma/Fibonacci/pivot/range calculations. | No validated redistributable US price/option chain. Math functions are not a live integration. |
+| Binary/news/analysts |22 official calendar dates and26-story news sample with hashes, deduplication and tone bins. | Instrument impact review, analyst revisions and prediction probabilities remain missing. |
+| Earnings | Three SEC company quarterly revenue series and YoY comparisons. | Index-wide earnings calendar, EPS surprises, expectations and guidance review. |
+| Macro/international |12 FRED government series, seven ECB FX crosses, four official policy feeds, Treasury SLT cross-border flows. | International equity prices; broader official release calendars and actual private investment flows. SEC private-equity assets are old/stale context. |
+| Consensus/history | Equal capped families, visible coverage, abstention and immutable hashed editions. | Current coverage about51%; trading verdict withheld. Weekly/monthly selectors are context windows, not qualified return forecasts. |
+| Evaluation/improvement | Per-horizon outcomes with calendar/provenance checks, chronological train/validation/test and promotion/rollback pipeline. Nine actual ECB historical experiments. | No resolved prospective labels or promoted model; none of nine experiments beat the declared gate. No overnight invented track record. |
+| Operations | Subscription weekday publisher and build heartbeat active; locked publication; latest verified observations retained through source failure without refreshing their age. | Full goal remains open until real integrations and behavior pass the matrix. |
+
 ## Model and publication rules
 No paid-model request on a page read. Separate collection, deterministic calculations, semantic annotation, consensus, publication and later evaluation. Save every input timestamp and model version. Use actual daily publications to learn prospectively; reconstructed history is a separate research dataset. Initial rule weights are declared priors, not learned reliability. Do not claim all requirements complete until real integrations and end-to-end behavior are verified; list blocked sources explicitly.

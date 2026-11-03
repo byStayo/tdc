@@ -323,10 +323,10 @@ const REQUIRED_FEEDS: {
   {
     id: "private-capital",
     family: "capital",
-    title: "Private equity & cross-border flows",
+    title: "Private-equity investment flows",
     reason:
-      "Private-capital and cross-border series are not integrated. Bank credit is a separate, lagged measure and does not fill this gap.",
-    url: "https://home.treasury.gov/data/treasury-international-capital-tic-system",
+      "Private-equity capital calls, distributions and investment flows are not integrated. SEC assets and Treasury cross-border transactions are separate lagged context.",
+    url: "https://www.sec.gov/data-research/investment-management-data/division-investment-management-private-fund-statistics",
   },
 ];
 

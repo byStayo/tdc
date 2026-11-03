@@ -265,6 +265,9 @@ function SourceDrawer({
               </span>
             </div>
             <p>{signal.summary}</p>
+            {signal.collectionNote && (
+              <p className={styles.finePrint}>{signal.collectionNote}</p>
+            )}
             {signal.series.length > 1 && (
               <Sparkline series={signal.series} label={signal.title} large />
             )}
@@ -470,6 +473,176 @@ function Liquidity({ signals }: { signals: Signal[] }) {
   );
 }
 
+function CapitalPanels({
+  signals,
+  now,
+  onInspect,
+}: {
+  signals: Signal[];
+  now: string;
+  onInspect: () => void;
+}) {
+  const inward = signals.find((s) => s.id === "tic-for_lt_total"),
+    outward = signals.find((s) => s.id === "tic-us_lt_total"),
+    privateEquity = signals.find((s) => s.id === "sec-private-equity-assets");
+  if (!inward && !privateEquity) return null;
+  const latest = inward?.series.at(-1),
+    out = outward?.series.find((p) => p.date === latest?.date),
+    net = latest && out ? latest.value - out.value : null,
+    rows = [
+      ["for_lt_treas", "Treasuries"],
+      ["for_lt_agcy", "Agency bonds"],
+      ["for_lt_corp", "Corporate bonds"],
+      ["for_lt_eqty", "Equities"],
+    ].map(([key, label]) => ({
+      label,
+      value:
+        signals
+          .find((s) => s.id === `tic-${key}`)
+          ?.series.find((p) => p.date === latest?.date)?.value ?? null,
+    })),
+    scale = Math.max(1, ...rows.map((row) => Math.abs(row.value ?? 0))),
+    gross = privateEquity?.metrics.find((m) => m.label === "Gross asset value"),
+    nav = privateEquity?.metrics.find((m) => m.label === "Net asset value"),
+    count = privateEquity?.metrics.find((m) => m.label === "Reported funds"),
+    month = latest
+      ? new Date(`${latest.date}T12:00:00Z`).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+          timeZone: "UTC",
+        })
+      : null;
+  return (
+    <div className={`${styles.twoColumns} ${styles.capitalPanels}`}>
+      <section className={styles.panel} aria-label="Cross-border capital flows">
+        <div className={styles.panelHead}>
+          <h3>Where capital is moving</h3>
+          <button onClick={onInspect} aria-label="Inspect capital-flow sources">
+            <ArrowUpRight size={18} />
+          </button>
+        </div>
+        <p className={styles.panelSubtitle}>
+          {month ?? "Awaiting monthly data"} · Treasury cross-border
+          transactions
+        </p>
+        {inward && effectiveStatus(inward, now) === "stale" && (
+          <span className={styles.status}>Stale observation</span>
+        )}
+        <div className={styles.bigValue}>
+          {net === null ? "—" : `$${number(Math.abs(net), 1)}`}
+          <small>{net === null ? "" : "billion"}</small>
+        </div>
+        <p className={styles.panelSubtitle}>
+          {net === null
+            ? "No aligned inward and outward observations"
+            : `Net ${net >= 0 ? "inward" : "outward"} long-term securities transactions`}
+        </p>
+        <div
+          className={styles.flowBars}
+          aria-label="Foreign net purchases of US securities in billions of dollars"
+        >
+          {rows.map((row) => (
+            <div key={row.label}>
+              <span>{row.label}</span>
+              <div className={styles.flowTrack} aria-hidden="true">
+                <i
+                  style={{
+                    left:
+                      row.value !== null && row.value < 0
+                        ? `${50 - (Math.abs(row.value) / scale) * 50}%`
+                        : "50%",
+                    width:
+                      row.value === null
+                        ? "0%"
+                        : `${(Math.abs(row.value) / scale) * 50}%`,
+                    background:
+                      row.value !== null && row.value < 0
+                        ? "var(--text-muted)"
+                        : "var(--accent)",
+                  }}
+                />
+              </div>
+              <strong>
+                {row.value === null
+                  ? "—"
+                  : `${row.value >= 0 ? "+" : "−"}${number(Math.abs(row.value), 1)}`}
+              </strong>
+            </div>
+          ))}
+        </div>
+        <p className={styles.finePrint}>
+          Bars show foreign net purchases of US assets ($bn).{" "}
+          {latest && out
+            ? `Total $${number(latest.value, 1)}bn, less $${number(out.value, 1)}bn of US net purchases abroad.`
+            : "Both totals must share a reporting month."}{" "}
+          Negative means net sales.
+        </p>
+        <p className={styles.finePrint}>
+          Lagged monthly flows, excluding short-term and banking flows. Changes
+          in asset values are separate. No daily directional vote.
+        </p>
+      </section>
+      <section
+        className={styles.panel}
+        aria-label="Private-equity reported assets"
+      >
+        <div className={styles.panelHead}>
+          <h3>The private-capital backdrop</h3>
+          <button
+            onClick={onInspect}
+            aria-label="Inspect private-equity sources"
+          >
+            <ArrowUpRight size={18} />
+          </button>
+        </div>
+        <p className={styles.panelSubtitle}>
+          {gross
+            ? `Period ended ${datedYear(gross.date)}`
+            : "Awaiting reported aggregates"}{" "}
+          · SEC Form PF
+        </p>
+        <span className={styles.status}>
+          {privateEquity
+            ? effectiveStatus(privateEquity, now) === "stale"
+              ? "Stale · historical context"
+              : privateEquity.status === "available"
+                ? "Reported asset stock"
+                : "Unavailable"
+            : "Unavailable"}
+        </span>
+        <div className={styles.bigValue}>
+          {gross ? `$${number(gross.value / 1000, 2)}` : "—"}
+          <small>{gross ? "trillion gross assets" : ""}</small>
+        </div>
+        {privateEquity && (
+          <Sparkline
+            series={privateEquity.series}
+            label="SEC reported aggregate private-equity gross assets in billions of dollars"
+            large
+          />
+        )}
+        <div className={styles.chartFoot}>
+          <span>
+            {nav
+              ? `$${number(nav.value / 1000, 2)}T net assets`
+              : "Net assets unavailable"}
+          </span>
+          <span>
+            {count
+              ? `${number(count.value, 0)} reported funds`
+              : "Fund count unavailable"}
+          </span>
+        </div>
+        <p className={styles.finePrint}>
+          Assets are not capital calls, distributions or today's investment
+          flows. Most advisers report annually; the source is published with a
+          substantial lag. No directional vote.
+        </p>
+      </section>
+    </div>
+  );
+}
+
 function eventLabel(item: Catalyst) {
   return item.at.length === 10
     ? `${date(item.at)} · date only`
@@ -478,9 +651,11 @@ function eventLabel(item: Catalyst) {
 function NewsPanel({
   pulse,
   onInspect,
+  collectionNote,
 }: {
   pulse: NewsPulse;
   onInspect: () => void;
+  collectionNote?: string;
 }) {
   const bins = [
     {
@@ -521,6 +696,7 @@ function NewsPanel({
         {pulse.storyCount} sampled stories · {pulse.publishers} publishers ·
         English-language global coverage
       </p>
+      {collectionNote && <p className={styles.finePrint}>{collectionNote}</p>}
       <div
         className={styles.newsDistribution}
         role="img"
@@ -1187,10 +1363,19 @@ export default function MorningBoard({
                 </div>
               </section>
             </div>
+            <CapitalPanels
+              signals={snapshot.signals}
+              now={now}
+              onInspect={() => setFamily("capital")}
+            />
             {snapshot.news && (
               <NewsPanel
                 pulse={snapshot.news}
                 onInspect={() => setFamily("news")}
+                collectionNote={
+                  snapshot.signals.find((s) => s.id === "gdelt-finance-news")
+                    ?.collectionNote
+                }
               />
             )}
             {!!reported.length && (

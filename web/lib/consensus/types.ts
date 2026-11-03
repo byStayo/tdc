@@ -58,6 +58,7 @@ export interface Signal {
   source: Provenance;
   methodology: string;
   limitation: string;
+  collectionNote?: string;
   series: Point[];
   metrics: Metric[];
   scores: Record<Horizon, number | null>;

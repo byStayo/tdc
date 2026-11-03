@@ -1573,6 +1573,53 @@
 .newsPanel {
   margin-top: 18px;
 }
+.capitalPanels {
+  margin-top: 18px;
+}
+.flowBars {
+  margin: 24px 0 20px;
+  display: grid;
+  gap: 15px;
+}
+.flowBars > div {
+  display: grid;
+  grid-template-columns: 110px minmax(50px, 1fr) 58px;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.flowBars strong {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+.flowBars > div > span {
+  color: var(--text-secondary);
+}
+.flowTrack {
+  position: relative;
+  height: 14px;
+}
+.flowTrack::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  bottom: -4px;
+  border-left: 1px solid var(--text-muted);
+}
+.flowTrack i {
+  display: block;
+  height: 100%;
+  position: absolute;
+  border-radius: 2px;
+}
+@media (max-width: 420px) {
+  .flowBars > div {
+    grid-template-columns: 90px minmax(30px, 1fr) 48px;
+    gap: 8px;
+  }
+}
 .newsDistribution {
   display: flex;
   overflow: hidden;

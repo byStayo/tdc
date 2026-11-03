@@ -5,9 +5,18 @@ import { collectSnapshot } from "../lib/consensus/collector.ts";
 import { publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot } from "../lib/consensus/model.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
+import { retainLastKnown } from "../lib/consensus/last-known.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const snapshot = await collectSnapshot();
+let snapshot = await collectSnapshot();
+try {
+  const previous = JSON.parse(
+    await readFile(resolve(root, "lib/consensus/current.json"), "utf8"),
+  );
+  snapshot = retainLastKnown(snapshot, previous);
+} catch (error) {
+  if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+}
 const registry = JSON.parse(
   await readFile(resolve(root, "lib/consensus/models.json"), "utf8"),
 ) as { models: ActiveModel[] };

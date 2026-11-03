@@ -206,6 +206,7 @@ export function observationDigest(snapshot: Snapshot): string {
     engine: snapshot.engineVersion,
     signals: snapshot.signals.map((signal) => ({
       ...signal,
+      collectionNote: undefined,
       metrics: signal.metrics.map((metric) => ({
         ...metric,
         date:
