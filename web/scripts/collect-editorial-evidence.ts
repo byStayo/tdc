@@ -81,14 +81,30 @@ async function collectCFTC(fetcher: Fetcher): Promise<EditorialSource[]> {
   url.searchParams.set('$limit', '100'); url.searchParams.set('$order', 'report_date_as_yyyy_mm_dd DESC');
   url.searchParams.set('$where', `cftc_contract_market_code in (${PUBLIC_CONTRACT_CODES.map(code => `'${code}'`).join(',')})`);
   url.searchParams.set('$select', 'id,report_date_as_yyyy_mm_dd,contract_market_name,market_and_exchange_names,cftc_contract_market_code,contract_units,open_interest_all,asset_mgr_positions_long,asset_mgr_positions_short,lev_money_positions_long,lev_money_positions_short,dealer_positions_long_all,dealer_positions_short_all,futonly_or_combined');
-  let rows: ReturnType<typeof latestPublicPositioning> = [], retrievedAt = new Date().toISOString();
-  try { const result = await fetchText(url.href, fetcher); retrievedAt = result.retrievedAt; rows = latestPublicPositioning(JSON.parse(result.text)); } catch { /* Every missing contract is explicit below. */ }
+  let rawRows: unknown[] = [], rows: ReturnType<typeof latestPublicPositioning> = [], retrievedAt = new Date().toISOString();
+  try {
+    const result = await fetchText(url.href, fetcher); retrievedAt = result.retrievedAt;
+    const parsed: unknown = JSON.parse(result.text); rawRows = Array.isArray(parsed) ? parsed : [];
+    rows = latestPublicPositioning(rawRows);
+  } catch { /* Every missing contract is explicit below. */ }
   return PUBLIC_CONTRACT_CODES.map(code => {
     const data = rows.find(row => row.contractCode === code), citation = new URL('https://publicreporting.cftc.gov/resource/gpe5-46if.json');
     citation.searchParams.set('cftc_contract_market_code', code);
     if (data) citation.searchParams.set('report_date_as_yyyy_mm_dd', `${data.reportDate}T00:00:00.000`);
     const base = { id: CFTC_IDS[code], kind: 'cftc' as const, title: data ? `CFTC · ${data.market} · ${data.reportDate}` : `CFTC · contract ${code}`, url: citation.href, retrievalUrl: url.href, retrievedAt };
-    return data ? { ...base, status: 'ok', observationDates: [data.reportDate], data } : failed(base);
+    if (!data) return failed(base);
+    const earlier = rawRows.filter(row => row && typeof row === 'object' &&
+      typeof (row as Record<string, unknown>).report_date_as_yyyy_mm_dd === 'string' &&
+      String((row as Record<string, unknown>).report_date_as_yyyy_mm_dd).slice(0, 10) < data.reportDate);
+    const previous = latestPublicPositioning(earlier, [code])[0] ?? null;
+    // Pin both report dates in the citation when a comparison is available.
+    // A latest-only URL would not support a claim about the previous report.
+    if (previous) {
+      citation.searchParams.delete('report_date_as_yyyy_mm_dd');
+      citation.searchParams.set('$where', `report_date_as_yyyy_mm_dd in ('${data.reportDate}T00:00:00.000','${previous.reportDate}T00:00:00.000')`);
+      citation.searchParams.set('$order', 'report_date_as_yyyy_mm_dd DESC');
+    }
+    return { ...base, url: citation.href, status: 'ok', observationDates: previous ? [data.reportDate, previous.reportDate] : [data.reportDate], data: { ...data, previous } };
   });
 }
 async function collectSEC(fetcher: Fetcher): Promise<EditorialSource[]> {

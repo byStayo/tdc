@@ -2768,6 +2768,46 @@ tbody th {
   margin-top: 10px;
   line-height: 1.8;
 }
+.instrument-reports-picker .panel-intro {
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+.instrument-report-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 24px;
+}
+.instrument-report-option {
+  display: flex;
+  flex: 1 1 110px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 58px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-raised);
+  text-align: left;
+}
+.instrument-report-option span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.instrument-report-option:hover {
+  background: var(--panel-hover);
+}
+.instrument-report-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+@media (max-width: 820px) {
+  .instrument-report-options { margin-inline: 20px; }
+}
+@media (max-width: 640px) {
+  .instrument-report-options { margin-inline: 18px; }
+}
 .provider-widget {
   padding: 0 20px 18px;
   min-width: 0;

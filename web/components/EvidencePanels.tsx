@@ -543,7 +543,7 @@ export function SourcesPanel({
             </h3>
             <p>
               {publicMode
-                ? "The brief is a shared, dated market-wide edition. It combines source-linked public evidence and interpretation, with supporting views, counterpoints and limitations. Selecting another ticker does not turn it into personalized research."
+                ? "Daily Brief is the shared market-wide edition. Instrument reports provide separate published analysis for SPY, QQQ, IWM, DIA and TLT, with supporting views, counterpoints, source dates and limitations. Related futures positions are not ETF fund flows. Neither edition is personalized investment advice."
                 : "A brief is generated only when requested. It draws on available evidence, presents supporting and opposing views, and links its citations. Read the sources and limitations alongside it."}
             </p>
           </article>

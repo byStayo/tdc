@@ -34,7 +34,11 @@ test('collector uses bounded official reads, retains provenance and marks failed
     if (url.hostname === 'www.cftc.gov') return new Response(`<main>${'Official report methodology. '.repeat(20)}</main>`);
     if (url.hostname === 'publicreporting.cftc.gov') {
       assert.equal(url.searchParams.get('$limit'), '100');
-      return Response.json(['13874A', '209742', '239742', '124603', '020601', '043602'].map(code => ({ futonly_or_combined: 'FutOnly', cftc_contract_market_code: code, contract_market_name: `Fixture ${code}`, contract_units: 'contracts', report_date_as_yyyy_mm_dd: '2026-10-27T00:00:00.000', open_interest_all: '0' })));
+      return Response.json(['13874A', '209742', '239742', '124603', '020601', '043602'].flatMap(code => [
+        { futonly_or_combined: 'FutOnly', cftc_contract_market_code: code, contract_market_name: `Fixture ${code}`, contract_units: 'contracts', report_date_as_yyyy_mm_dd: '2026-10-27T00:00:00.000', open_interest_all: '0' },
+        { futonly_or_combined: 'FutOnly', cftc_contract_market_code: code, contract_market_name: `Fixture ${code}`, contract_units: 'contracts', report_date_as_yyyy_mm_dd: '2026-10-20T00:00:00.000', open_interest_all: '100' },
+        { futonly_or_combined: 'Combined', cftc_contract_market_code: code, contract_market_name: `Fixture ${code}`, contract_units: 'contracts', report_date_as_yyyy_mm_dd: '2026-10-25T00:00:00.000', open_interest_all: '999' },
+      ]));
     }
     if (url.pathname.includes('0000789019')) return new Response('unavailable', { status: 503 });
     const cik = url.pathname.match(/CIK(\d+)\.json/)![1];
@@ -44,6 +48,13 @@ test('collector uses bounded official reads, retains provenance and marks failed
   assert.equal(evidence.sources.find(source => source.id === 'SEC_MSFT')?.status, 'unavailable');
   assert.ok(evidence.sources.every(source => source.retrievedAt && source.retrievalUrl && source.url));
   assert.equal(evidence.sources.find(source => source.id === 'CFTC_ES')?.observationDates[0], '2026-10-27');
+  const es = evidence.sources.find(source => source.id === 'CFTC_ES')!;
+  assert.deepEqual(es.observationDates, ['2026-10-27', '2026-10-20']);
+  assert.equal((es.data as { previous: { openInterest: number } }).previous.openInterest, 100);
+  const citation = new URL(es.url);
+  assert.equal(citation.searchParams.get('cftc_contract_market_code'), '13874A');
+  assert.match(citation.searchParams.get('$where')!, /2026-10-27.*2026-10-20/);
+  assert.equal(citation.searchParams.has('report_date_as_yyyy_mm_dd'), false);
 });
 
 test('publisher rejects future times, non-market scope, unavailable citations and mismatched evidence URLs', () => {
@@ -96,4 +107,36 @@ test('an archive collision cannot overwrite the current publication or historica
   await assert.rejects(publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW }));
   assert.equal(await readFile(plan.latest, 'utf8'), '{"existing":true}'); assert.equal(await readFile(plan.briefArchive, 'utf8'), '{"immutable":true}');
   await assert.rejects(stat(plan.evidenceArchive));
+});
+
+test('instrument publications require a supported identity and a claim citing that instrument’s contract', () => {
+  const { candidate, evidence } = fixture();
+  const instrument = { ...candidate, scope: 'instrument', symbol: 'SPY' };
+  const input = { ...evidence, sources: [{ ...evidence.sources[0], data: { contractCode: '13874A', openInterest: 0 } }] };
+  const valid = validateEditorialPublication(instrument, input, NOW).brief;
+  assert.equal(valid.scope, 'instrument'); assert.equal(valid.symbol, 'SPY');
+  assert.throws(() => validateEditorialPublication({ ...instrument, symbol: 'QQQ' }, input, NOW));
+  assert.throws(() => validateEditorialPublication({ ...instrument, symbol: '../../SPY' }, input, NOW));
+  assert.throws(() => validateEditorialPublication({ ...candidate, symbol: 'SPY' }, input, NOW));
+  assert.throws(() => validateEditorialPublication(instrument, { ...input, sources: [{ ...input.sources[0], data: { contractCode: '209742' } }] }, NOW));
+});
+
+test('publishing one instrument preserves the market edition, other instruments and earlier archives', async () => {
+  const input = await inputFiles();
+  await mkdir(join(input.root, 'lib/published-instruments'), { recursive: true });
+  await writeFile(join(input.root, 'lib/published-brief.json'), '{"market":"unchanged"}');
+  await writeFile(join(input.root, 'lib/published-instruments/QQQ.json'), '{"other":"unchanged"}');
+  const candidate = { ...input.candidate, scope: 'instrument', symbol: 'SPY' };
+  const evidence = { ...input.evidence, sources: [{ ...input.evidence.sources[0], data: { contractCode: '13874A', openInterest: 0 } }] };
+  await writeFile(input.candidatePath, JSON.stringify(candidate)); await writeFile(input.evidencePath, JSON.stringify(evidence));
+  const result = await publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW });
+  assert.equal(result.latest, join(input.root, 'lib/published-instruments/SPY.json'));
+  assert.equal(JSON.parse(await readFile(result.latest, 'utf8')).symbol, 'SPY');
+  assert.equal(await readFile(join(input.root, 'lib/published-brief.json'), 'utf8'), '{"market":"unchanged"}');
+  assert.equal(await readFile(join(input.root, 'lib/published-instruments/QQQ.json'), 'utf8'), '{"other":"unchanged"}');
+  const repeated = await publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW });
+  assert.equal(repeated.briefArchive, result.briefArchive);
+  await writeFile(input.candidatePath, JSON.stringify({ ...candidate, createdAt: '2026-11-03T02:20:00Z' }));
+  await assert.rejects(publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW }));
+  assert.equal(JSON.parse(await readFile(result.latest, 'utf8')).createdAt, '2026-11-03T02:30:00.000Z');
 });

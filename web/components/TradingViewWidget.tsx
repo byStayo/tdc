@@ -3,56 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink as ExternalLinkIcon, RefreshCw } from "lucide-react";
 import { ExternalLink } from "./ui";
-
-type WidgetKind = "chart" | "technical" | "profile" | "news";
-const EMBEDS: Record<WidgetKind, { script: string; label: string }> = {
-  chart: { script: "advanced-chart", label: "Market chart" },
-  technical: { script: "technical-analysis", label: "Technical analysis" },
-  profile: { script: "symbol-profile", label: "Instrument profile" },
-  news: { script: "timeline", label: "Market headlines" },
-};
-const SYMBOLS: Record<string, string> = {
-  SPY: "AMEX:SPY",
-  IWM: "AMEX:IWM",
-  DIA: "AMEX:DIA",
-  GLD: "AMEX:GLD",
-  VOO: "AMEX:VOO",
-  VTI: "AMEX:VTI",
-  XLK: "AMEX:XLK",
-  XLF: "AMEX:XLF",
-  XLV: "AMEX:XLV",
-  QQQ: "NASDAQ:QQQ",
-  TLT: "NASDAQ:TLT",
-  IEF: "NASDAQ:IEF",
-  AAPL: "NASDAQ:AAPL",
-  MSFT: "NASDAQ:MSFT",
-  NVDA: "NASDAQ:NVDA",
-  AMZN: "NASDAQ:AMZN",
-  GOOGL: "NASDAQ:GOOGL",
-  GOOG: "NASDAQ:GOOG",
-  META: "NASDAQ:META",
-  TSLA: "NASDAQ:TSLA",
-  "BRK.B": "NYSE:BRK.B",
-};
-
-export function providerSymbol(symbol: string) {
-  return SYMBOLS[symbol] ?? symbol;
-}
-
-const BROAD_NEWS_ETFS = new Set([
-  "SPY",
-  "QQQ",
-  "IWM",
-  "DIA",
-  "TLT",
-  "GLD",
-  "VTI",
-  "VOO",
-  "IEF",
-]);
-export function usesBroadMarketNews(symbol: string) {
-  return BROAD_NEWS_ETFS.has(symbol);
-}
+import { EMBEDS, providerSymbol, type WidgetKind } from "@/lib/tradingview-config";
+export { providerSymbol, usesBroadMarketNews } from "@/lib/tradingview-config";
 
 export default function TradingViewWidget({
   kind,
@@ -83,86 +35,42 @@ export default function TradingViewWidget({
     if (!root) return;
     let disposed = false;
     setState("loading");
-    const container = document.createElement("div");
-    container.className = "tradingview-widget-container";
-    container.style.width = "100%";
-    container.style.height = "100%";
-    const widget = document.createElement("div");
-    widget.className = "tradingview-widget-container__widget";
-    widget.style.width = "100%";
-    widget.style.height = "100%";
-    container.appendChild(widget);
-    const script = document.createElement("script");
-    script.src = `https://s3.tradingview.com/external-embedding/embed-widget-${EMBEDS[kind].script}.js`;
-    script.type = "text/javascript";
-    script.async = true;
-    const shared = {
-      locale: "en",
-      width: "100%",
-      height: "100%",
-      colorTheme: theme,
-      isTransparent: true,
+    // An async script in the parent document can finish after its container is
+    // removed. An owned child document is cancelled as a unit during navigation.
+    const frame = document.createElement("iframe");
+    frame.title = `${widgetTitle} hosted by TradingView`;
+    frame.src = `/widgets/${kind}?${new URLSearchParams({ symbol, theme, newsScope })}`;
+    frame.style.width = "100%";
+    frame.style.height = "100%";
+    frame.style.border = "0";
+    const children = new Set<HTMLIFrameElement>();
+    let observer: MutationObserver | undefined;
+    const ready = () => { if (!disposed) setState("ready"); };
+    const documentLoaded = () => {
+      if (disposed) return;
+      const document = frame.contentDocument;
+      if (!document) return;
+      // Some provider scripts create the frame after the wrapper load event.
+      // Observe only frame lifecycle in our own document, never provider data.
+      const trackFrames = () => {
+        for (const child of document.querySelectorAll("iframe")) {
+          if (children.has(child)) continue;
+          children.add(child);
+          child.title = `${widgetTitle} by TradingView`;
+          child.addEventListener("load", ready);
+        }
+      };
+      observer?.disconnect();
+      observer = new MutationObserver(trackFrames);
+      observer.observe(document, { childList: true, subtree: true });
+      trackFrames();
+      // Frames already present when their containing document loads have loaded.
+      if (document.querySelector("iframe")) ready();
     };
-    const options =
-      kind === "chart"
-        ? {
-            autosize: true,
-            symbol: mappedSymbol,
-            interval: "D",
-            timezone: "America/New_York",
-            theme,
-            style: "1",
-            locale: "en",
-            allow_symbol_change: false,
-            calendar: false,
-            support_host: "https://www.tradingview.com",
-          }
-        : kind === "technical"
-          ? {
-              ...shared,
-              symbol: mappedSymbol,
-              interval: "1D",
-              showIntervalTabs: true,
-              displayMode: "single",
-            }
-          : kind === "news"
-            ? {
-                ...shared,
-                displayMode: "regular",
-                // TradingView's official configurator removes `market` in
-                // all_symbols mode. Market + stock is its stock-only feed.
-                ...(newsScope === "market"
-                  ? { feedMode: "market", market: "stock" }
-                  : { feedMode: "symbol", symbol: mappedSymbol }),
-              }
-            : { ...shared, symbol: mappedSymbol };
-    script.textContent = JSON.stringify(options);
-    script.onerror = () => {
-      if (!disposed) setState("error");
-    };
-
-    // Observe only the presence/load of the hosted frame. Its content and market data remain inaccessible here.
-    const frames = new Set<HTMLIFrameElement>();
-    const ready = () => {
-      if (!disposed) setState("ready");
-    };
-    const observer = new MutationObserver(() => {
-      for (const frame of container.querySelectorAll("iframe")) {
-        if (frames.has(frame)) continue;
-        frames.add(frame);
-        frame.title = `${widgetTitle} hosted by TradingView`;
-        frame.addEventListener("load", ready);
-      }
-    });
-    observer.observe(container, { childList: true, subtree: true });
-    // The provider script immediately replaces its own placeholder and reads
-    // iframe.contentWindow. Defer insertion so React's development setup/cleanup
-    // probe (and an initial saved-theme update) cannot fetch a script for a
-    // container that is already detached when that script executes.
+    frame.addEventListener("load", documentLoaded);
     const mountTimer = window.setTimeout(() => {
       if (disposed || !root.isConnected) return;
-      root.replaceChildren(container);
-      container.appendChild(script);
+      root.replaceChildren(frame);
     }, 0);
     const timeout = window.setTimeout(() => {
       if (!disposed)
@@ -172,12 +80,12 @@ export default function TradingViewWidget({
       disposed = true;
       window.clearTimeout(mountTimer);
       window.clearTimeout(timeout);
-      observer.disconnect();
-      for (const frame of frames) frame.removeEventListener("load", ready);
-      script.onerror = null;
-      container.remove();
+      observer?.disconnect();
+      for (const child of children) child.removeEventListener("load", ready);
+      frame.removeEventListener("load", documentLoaded);
+      frame.remove();
     };
-  }, [kind, mappedSymbol, newsScope, theme, retry, widgetTitle]);
+  }, [kind, symbol, newsScope, theme, retry, widgetTitle]);
 
   return (
     <div className={`provider-widget provider-widget-${kind}`}>

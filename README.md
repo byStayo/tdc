@@ -26,7 +26,7 @@ The authenticated WordPress export, two draft pages, form responses, all 104 ori
 
 ## Publishing and operations
 
-See `web/docs/EDITORIAL.md` for the subscription-based publishing workflow and `web/docs/SOURCES.md` for provider boundaries. `GET /api/health` reports application/edition status. `GET /api/research` serves the published brief and labels it historical after 72 hours. Reading the site never starts a model job.
+See `web/docs/EDITORIAL.md` for the subscription-based publishing workflow and `web/docs/SOURCES.md` for provider boundaries. `GET /api/health` reports application and each edition's status. `GET /api/research` serves the market-wide brief; adding `?symbol=SPY` serves an instrument report. The Instrument reports view covers SPY, QQQ, IWM, DIA and TLT with distinct cited analysis. Unsupported instruments have an explicit unavailable state. Each report becomes historical after 72 hours. Reading the site never starts a model job.
 
 The production project is the existing `v0-the-daily-consensus` Vercel project. Deploy from `web/` using the authenticated Vercel CLI, after checks pass. Preserve existing production protection settings. The canonical address is https://thedailyconsensus.com, with https://v0-the-daily-consensus.vercel.app as a working alternate. Bluehost remains the DNS provider; the website A record now points to Vercel. The new origin passes HTTPS, API, archive, sitemap and redirect checks. Resolver propagation is recorded separately in `web/docs/domain-cutover-verification.json`; old cached DNS can temporarily reach the previous host.
 

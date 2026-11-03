@@ -1,6 +1,6 @@
 # Public editorial publishing
 
-The public application serves a saved research brief. Reading or refreshing it never calls a paid model. Codex writes the brief in the owner's subscription-backed chat; these helpers only collect public evidence, validate JSON and publish local artifacts. They do not generate prose, purchase data, contact subscribers or deploy.
+The public application serves a saved market-wide brief and five individual instrument reports (SPY, QQQ, IWM, DIA and TLT). Reading or refreshing them never calls a paid model. Codex writes the reports in the owner's subscription-backed chat; these helpers only collect public evidence, validate JSON and publish local artifacts. They do not generate prose, purchase data, contact subscribers or deploy.
 
 ## 1. Collect official evidence
 
@@ -14,7 +14,7 @@ The command prints the exact output path and unavailable source IDs. The default
 
 The collector makes eight bounded official reads: one CFTC dataset query, one CFTC methodology page, three FRED series and three SEC issuer submissions. It uses no API keys. SEC requests are serialized and spaced. Redirects and oversized responses are rejected. It collects:
 
-- CFTC futures-only positions for six verified index/Treasury contract codes, with each contract's date and units. It does not combine futures-only and futures/options reports or sum incompatible contracts.
+- CFTC futures-only positions for six verified index/Treasury contract codes, with the latest and prior available report, dates and units. Citations pin both dates for comparisons. It does not combine futures-only and futures/options reports or sum incompatible contracts; a missing previous report stays null.
 - The last 60 observations of `FEDFUNDS`, `DPRIME` and `TNWBSHNO`, preserving missing values as null.
 - Recent filing metadata for AAPL, MSFT and NVDA, linking the original SEC documents. This is broad-market context, not a complete index holdings file.
 - The official CFTC methodology excerpt and its response hash.
@@ -28,6 +28,8 @@ In the existing Codex chat, read the evidence JSON and ask for a concise **marke
 Use the shape of `lib/published-brief.json`: `status: "ok"`, `scope: "market"`, a current ISO `createdAt`, `message`, `data`, and `sources`. `data` contains `headline`, `summary`, arrays `bull`, `bear`, `watch` of `{ "text": "...", "sourceIds": ["..."] }`, and `limitations`. Use source IDs and URLs exactly from the collected manifest. A source can be included only when its status is `ok`. The publication time must be after collection and cannot be in the future.
 
 No provider API key or separate model call is needed for this step. Work inside the subscription-backed Codex chat. The scripts cannot establish who wrote a candidate or whether its interpretation is sound.
+
+For an instrument report, use the same shape with `scope: "instrument"` and `symbol` equal to one of `SPY`, `QQQ`, `IWM`, `DIA` or `TLT`. It must contain a claim citing that instrument's related futures contract as mapped in `lib/instrument-reports.ts`. The publisher validates the mapping against the evidence, preventing one contract from being labelled as another instrument. Save separate candidates, for example `.editorial/candidate-YYYY-MM-DD-SPY.json`, and validate each against the collected evidence. Do not copy the market-wide text into five instrument labels. Describe the related futures/ETF distinction and the unavailable price, options and gamma inputs. These contextual reports do not claim to recreate a validated intraday bias model.
 
 Before publishing, independently check every numerical claim against the saved observations: recalculate long-minus-short balances, preserve contract namespaces, check million-to-trillion conversions and rounding, and distinguish filing dates from report periods. State source lags and revisions. Do not turn positioning into investor intent, old research into a current signal, or hosted charts into evidence that was not collected. Avoid unsupported return, accuracy or trading guarantees.
 
@@ -55,10 +57,12 @@ npm run typecheck
 npm run build
 ```
 
-The publisher archives the validated brief and evidence under `public/reports/YYYY-MM-DD-HHMMSSZ-HASH-{brief,evidence}.json` and atomically replaces `lib/published-brief.json`. The filename uses the UTC publication date, not the market observation date. Archives are immutable; an identical publication is idempotent. A candidate older than the current publication is rejected. Validation failure leaves the current publication and archives untouched. No prose is generated and no deployment occurs.
+The publisher archives the validated brief and evidence under `public/reports/YYYY-MM-DD-HHMMSSZ-HASH-{brief,evidence}.json` and atomically replaces `lib/published-brief.json`. Instrument archive names also include their ticker, and their latest publication is `lib/published-instruments/SYMBOL.json`. Publishing one report does not overwrite another instrument or the market edition. The filename uses the UTC publication date, not the market observation date. Archives are immutable; an identical publication is idempotent. A candidate older than that report's current publication is rejected. Validation failure leaves the current publication and archives untouched. No prose is generated and no deployment occurs.
 
 Review the rendered brief, source links, observation dates and unavailable states. Inspect the Git diff, then use the project's existing authorized deployment workflow. Verify the production page separately; a local file update does not establish a live release. Keep evidence archives with the release so readers can inspect the basis of historical briefs.
 
 A lock in `.editorial/publish.lock` prevents concurrent local publishers. If a process is interrupted, inspect the recorded PID and confirm it has stopped before removing a stale lock. Do not remove an active publisher's lock. The latest brief remains a complete old or new JSON document; readers never see a partly written replacement.
 
 The application labels a brief older than 72 hours as historical. A continuation loop can collect evidence and ask the subscription-backed Codex chat to prepare the next edition, but should publish only after the same review and verification steps. No generation is attached to public page reads.
+
+For the daily loop, review the market edition and each instrument separately. Publish only reports with meaningful new evidence or a substantive corrected interpretation; do not bump five timestamps merely because the collector ran again. `GET /api/research` serves the market edition; `GET /api/research?symbol=SPY` serves that instrument. Unsupported symbols receive an explicit unavailable publication, never the market brief under a different label.

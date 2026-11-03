@@ -21,6 +21,7 @@ export default function ResearchBriefPanel({
   busy,
   onGenerate,
   publicEdition = false,
+  instrumentEdition = false,
 }: {
   symbol: string;
   workspace: Workspace | null;
@@ -28,35 +29,41 @@ export default function ResearchBriefPanel({
   busy: boolean;
   onGenerate: () => void;
   publicEdition?: boolean;
+  instrumentEdition?: boolean;
 }) {
   const availableNews = workspace?.news.data.length ?? 0;
   const availableBars = workspace?.history.data.length ?? 0;
-  const sources = brief?.sources ?? [];
-  const research = brief?.data;
+  // A scope/ticker change must never flash another publication under this label.
+  const visibleBrief = publicEdition && brief && (instrumentEdition
+    ? brief.scope !== 'instrument' || brief.symbol !== symbol
+    : brief.scope !== 'market') ? null : brief;
+  const sources = visibleBrief?.sources ?? [];
+  const research = visibleBrief?.data;
+  const unavailableEdition = publicEdition && !!visibleBrief && !research && !busy;
   return (
     <section
       className={`brief-panel ${research ? "has-research" : ""}`}
       aria-label={
         publicEdition
-          ? "Latest published market research"
+          ? instrumentEdition ? `Published ${symbol} instrument research` : "Latest published market research"
           : "Daily market context and optional AI research"
       }
     >
       <p className="sr-only" role="status" aria-live="polite">
         {busy
           ? publicEdition
-            ? "Loading the latest published market brief."
+            ? instrumentEdition ? `Loading the published ${symbol} report.` : "Loading the latest published market brief."
             : "Reading the evidence and preparing your brief."
           : research
             ? "Your research brief is ready."
-            : (brief?.message ?? "Build a brief when you are ready.")}
+            : (visibleBrief?.message ?? "The published report will appear here.")}
       </p>
       <div className="brief-topline">
         <span className="eyebrow">
           <span className="brief-mark" />
           <span>
             {publicEdition
-              ? "THE DAILY CONSENSUS · PUBLISHED BRIEF"
+              ? instrumentEdition ? `${symbol} · ${unavailableEdition ? "INSTRUMENT RESEARCH" : "PUBLISHED INSTRUMENT REPORT"}` : "THE DAILY CONSENSUS · PUBLISHED BRIEF"
               : "THE EVIDENCE, TOGETHER"}
           </span>
         </span>
@@ -77,22 +84,22 @@ export default function ResearchBriefPanel({
       </div>
       <h2>
         {research?.headline ??
-          (publicEdition
-            ? "Markets, in perspective."
+          (unavailableEdition ? instrumentEdition && visibleBrief?.status === "unconfigured" ? `No published ${symbol} report yet.` : "The published report is currently unavailable." : publicEdition
+            ? instrumentEdition ? `${symbol}, in perspective.` : "Markets, in perspective."
             : `A clearer view of ${symbol}.`)}
       </h2>
       {publicEdition && (
         <p className="published-edition-meta">
-          Market-wide research
-          {brief?.createdAt
-            ? ` · Published ${timestamp(brief.createdAt)}`
-            : " · Latest edition"}
+          {unavailableEdition ? "Publication unavailable" : instrumentEdition ? `${symbol} research · Related futures context` : "Market-wide research"}
+          {visibleBrief?.createdAt
+            ? ` · Published ${timestamp(visibleBrief.createdAt)}`
+            : unavailableEdition ? "" : " · Latest edition"}
         </p>
       )}
       <p className="brief-summary">
         {research?.summary ??
-          (publicEdition
-            ? "Independent interpretation of economic observations, company filings and reported futures positioning. One published edition, open to everyone."
+          (unavailableEdition ? instrumentEdition ? "Choose another covered instrument above, or read the market-wide Daily Brief." : "Try loading the saved brief again." : publicEdition
+            ? instrumentEdition ? "Read the available instrument report with supporting observations, counterpoints and source dates in view." : "Independent interpretation of economic observations, company filings and reported futures positioning. One published edition, open to everyone."
             : workspace
               ? "The latest completed session and technical context, with the source data in view."
               : "Bring price action, news and original research into one considered view. Follow the evidence. See both sides.")}
@@ -180,7 +187,7 @@ export default function ResearchBriefPanel({
           </ul>
         </details>
       )}
-      {brief?.message && <Notice>{brief.message}</Notice>}
+      {visibleBrief?.message && <Notice>{visibleBrief.message}</Notice>}
       <div className="brief-footer">
         <button
           className="button button-primary"
@@ -195,14 +202,14 @@ export default function ResearchBriefPanel({
             <>
               <span className="spinner" />
               {publicEdition
-                ? "Loading the published brief…"
+                ? instrumentEdition ? "Loading the published report…" : "Loading the published brief…"
                 : "Reading the evidence…"}
             </>
           ) : (
             <>
               {publicEdition ? <BookOpen size={15} /> : <Sparkles size={15} />}
               {publicEdition
-                ? "Read latest published brief"
+                ? unavailableEdition ? "Check for a published report" : instrumentEdition ? "Read latest published report" : "Read latest published brief"
                 : research
                   ? "Refresh the brief"
                   : "Build my research brief"}
@@ -212,7 +219,7 @@ export default function ResearchBriefPanel({
         </button>
         <span>
           {publicEdition
-            ? "Market-wide edition · No account or payment required"
+            ? unavailableEdition ? "No account or payment required" : instrumentEdition ? "Instrument edition · No account or payment required" : "Market-wide edition · No account or payment required"
             : research
               ? `Generated ${timestamp(brief?.createdAt)}${brief?.model ? ` · ${brief.model}` : ""}`
               : "Optional AI synthesis · Source-linked"}

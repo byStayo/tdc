@@ -32,6 +32,7 @@ import {
   TechnicalPanel,
 } from "./EvidencePanels";
 import ResearchBriefPanel from "./ResearchBriefPanel";
+import { INSTRUMENT_REPORTS } from "@/lib/instrument-reports";
 import {
   compactNumber,
   localDateLabel,
@@ -46,6 +47,10 @@ const VIEW_COPY: Record<View, { title: string; description: string }> = {
   brief: {
     title: "Your daily perspective.",
     description: "Independent market research. Open to everyone.",
+  },
+  reports: {
+    title: "One market, a closer look.",
+    description: "Five published instrument reports. Evidence, counterpoints and what to watch.",
   },
   market: {
     title: "Read the market.",
@@ -100,6 +105,7 @@ export default function ResearchDesk() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const researchRequest = useRef<AbortController | null>(null);
   const publicMode = workspace?.mode !== "private";
+  const instrumentEdition = publicMode && view === "reports";
 
   const generateBrief = useCallback(async () => {
     researchRequest.current?.abort();
@@ -108,7 +114,7 @@ export default function ResearchDesk() {
     setResearchBusy(true);
     setBrief(null);
     try {
-      const response = await fetch("/api/research", {
+      const response = await fetch(instrumentEdition ? `/api/research?symbol=${encodeURIComponent(symbol)}` : "/api/research", {
         method: publicMode ? "GET" : "POST",
         ...(publicMode
           ? {}
@@ -128,6 +134,8 @@ export default function ResearchDesk() {
       if (!controller.signal.aborted)
         setBrief({
           status: "unavailable",
+          scope: instrumentEdition ? "instrument" : "market",
+          ...(instrumentEdition ? { symbol } : {}),
           data: null,
           message:
             cause instanceof Error
@@ -137,7 +145,7 @@ export default function ResearchDesk() {
     } finally {
       if (!controller.signal.aborted) setResearchBusy(false);
     }
-  }, [publicMode, symbol]);
+  }, [publicMode, symbol, instrumentEdition]);
 
   useEffect(() => {
     try {
@@ -566,6 +574,23 @@ export default function ResearchDesk() {
                     compact
                     onViewAll={() => navigate("archive")}
                   />
+                </>
+              )}
+              {view === "reports" && (
+                <>
+                  <section className="panel instrument-reports-picker" aria-label="Choose a published instrument report">
+                    <PanelHeader eyebrow="PUBLISHED RESEARCH" title="Choose your market" />
+                    <div className="instrument-report-options" role="group" aria-label="Instrument reports">
+                      {INSTRUMENT_REPORTS.map(report => (
+                        <button key={report.symbol} className={`instrument-report-option ${symbol === report.symbol ? "selected" : ""}`} aria-pressed={symbol === report.symbol} onClick={() => selectSymbol(report.symbol)}>
+                          <strong>{report.symbol}</strong><span>{report.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="panel-intro">Related futures positioning provides context for each instrument. Reports show their observation dates and do not measure ETF fund flows.</p>
+                  </section>
+                  <ResearchBriefPanel symbol={symbol} workspace={workspace} brief={brief} busy={researchBusy} onGenerate={generateBrief} publicEdition instrumentEdition />
+                  <PublicMarket symbol={symbol} theme={theme} compact isWatched={isWatched} onWatch={() => toggleWatch(symbol)} />
                 </>
               )}
               {view === "market" && publicMode && (

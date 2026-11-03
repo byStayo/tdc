@@ -1,10 +1,11 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { link, mkdir, open, readFile, rename, unlink } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ResearchResponse } from '../lib/contracts.ts';
 import { validateResearch } from '../lib/research-schema.ts';
 import { publicDate } from '../lib/public-normalization.ts';
+import { instrumentReport } from '../lib/instrument-reports.ts';
 import { assertPublicURL, PROJECT_ROOT, type EditorialEvidence } from './collect-editorial-evidence.ts';
 
 const record = (value: unknown): Record<string, unknown> => {
@@ -28,11 +29,11 @@ function inspectEvidenceTree(value: unknown, depth = 0): void {
   } else if (typeof value === 'number' && !Number.isFinite(value)) throw new Error('Evidence contains a nonfinite number');
 }
 
-export function validateEditorialPublication(candidateInput: unknown, evidenceInput: unknown, now = Date.now()): { brief: ResearchResponse & { scope: 'market'; createdAt: string }; evidence: EditorialEvidence } {
+export function validateEditorialPublication(candidateInput: unknown, evidenceInput: unknown, now = Date.now()): { brief: ResearchResponse & { scope: 'market' | 'instrument'; createdAt: string }; evidence: EditorialEvidence } {
   const evidence = record(evidenceInput);
   if (Object.keys(evidence).some(key => !['schemaVersion', 'scope', 'collectedAt', 'sources', 'limitations'].includes(key))) throw new Error('Unknown evidence manifest fields');
   if (evidence.schemaVersion !== 1 || evidence.scope !== 'market' || !Array.isArray(evidence.sources) || !evidence.sources.length || evidence.sources.length > 30) throw new Error('Invalid public evidence manifest');
-  const collectedAt = time(evidence.collectedAt, now), sources = new Map<string, { url: string; status: string }>();
+  const collectedAt = time(evidence.collectedAt, now), sources = new Map<string, { url: string; status: string; data: unknown }>();
   if (!Array.isArray(evidence.limitations) || !evidence.limitations.length || evidence.limitations.length > 20) throw new Error('Evidence limitations are required');
   evidence.limitations.forEach(value => text(value, 1000));
   inspectEvidenceTree(evidence);
@@ -45,10 +46,13 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
     if (!Array.isArray(source.observationDates) || source.observationDates.length > 1000 || source.observationDates.some(date => !publicDate(date) || Date.parse(`${publicDate(date)}T00:00:00Z`) > retrievedAt)) throw new Error('Invalid evidence observation dates');
     if (source.status === 'ok' && (source.data === null || source.data === undefined)) throw new Error('Available evidence must contain data');
     if (source.status === 'unavailable' && source.data !== null) throw new Error('Unavailable evidence must not contain substitute data');
-    sources.set(id, { url, status: String(source.status) });
+    sources.set(id, { url, status: String(source.status), data: source.data });
   }
   const candidate = record(candidateInput);
-  if (candidate.scope !== 'market' || candidate.status !== 'ok') throw new Error('Only a completed market-scope brief may be published');
+  if (!['market', 'instrument'].includes(String(candidate.scope)) || candidate.status !== 'ok') throw new Error('Only a completed market or supported instrument brief may be published');
+  const instrument = candidate.scope === 'instrument' ? instrumentReport(candidate.symbol) : undefined;
+  if (candidate.scope === 'instrument' && !instrument) throw new Error('Unsupported instrument report symbol');
+  if (candidate.scope === 'market' && candidate.symbol !== undefined) throw new Error('Market-wide briefs must not be labelled as an instrument');
   const createdAt = time(candidate.createdAt, now); if (createdAt < collectedAt) throw new Error('The brief must be written after its evidence was collected');
   if (!Array.isArray(candidate.sources) || !candidate.sources.length || candidate.sources.length > 30) throw new Error('Citation sources are required');
   const citationIds = new Set<string>();
@@ -59,7 +63,12 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
   });
   const data = validateResearch(candidate.data, citationIds);
   if (!data.limitations.length || ![...data.bull, ...data.bear, ...data.watch].length) throw new Error('A published brief needs observations and limitations');
-  return { brief: { status: 'ok', scope: 'market', createdAt: new Date(createdAt).toISOString(), model: 'Codex editorial workflow', message: text(candidate.message, 1000), data, sources: citations }, evidence: evidence as unknown as EditorialEvidence };
+  if (instrument) {
+    const primary = sources.get(instrument.sourceId);
+    const citesPrimary = [...data.bull, ...data.bear, ...data.watch].some(claim => claim.sourceIds.includes(instrument.sourceId));
+    if (!primary || primary.status !== 'ok' || record(primary.data).contractCode !== instrument.contractCode || !citesPrimary) throw new Error('Instrument research must cite its own verified related futures contract');
+  }
+  return { brief: { status: 'ok', scope: instrument ? 'instrument' : 'market', ...(instrument ? { symbol: instrument.symbol } : {}), createdAt: new Date(createdAt).toISOString(), model: 'Codex editorial workflow', message: text(candidate.message, 1000), data, sources: citations }, evidence: evidence as unknown as EditorialEvidence };
 }
 
 async function readJSON(path: string): Promise<unknown> {
@@ -82,8 +91,10 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
   const { brief, evidence } = validateEditorialPublication(candidate, evidenceInput, options.now ?? Date.now());
   const briefText = `${JSON.stringify(brief, null, 2)}\n`, evidenceText = `${JSON.stringify(evidence, null, 2)}\n`;
   const digest = createHash('sha256').update(briefText).update(evidenceText).digest('hex').slice(0, 12);
-  const stem = `${brief.createdAt.slice(0, 10)}-${brief.createdAt.slice(11, 19).replaceAll(':', '')}Z-${digest}`;
-  const reports = resolve(root, 'public/reports'), latest = resolve(root, 'lib/published-brief.json'), briefArchive = resolve(reports, `${stem}-brief.json`), evidenceArchive = resolve(reports, `${stem}-evidence.json`);
+  const stem = `${brief.createdAt.slice(0, 10)}-${brief.createdAt.slice(11, 19).replaceAll(':', '')}Z-${brief.symbol ? `${brief.symbol}-` : ''}${digest}`;
+  const reports = resolve(root, 'public/reports'), latest = brief.scope === 'instrument'
+    ? resolve(root, `lib/published-instruments/${brief.symbol}.json`) : resolve(root, 'lib/published-brief.json');
+  const briefArchive = resolve(reports, `${stem}-brief.json`), evidenceArchive = resolve(reports, `${stem}-evidence.json`);
   const result = { checked: true as const, published: false, latest, briefArchive, evidenceArchive };
   if (options.checkOnly) return result;
   await mkdir(resolve(root, '.editorial'), { recursive: true, mode: 0o700 });
@@ -95,9 +106,9 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
       const previous = JSON.parse(await readFile(latest, 'utf8')) as { createdAt?: string };
       if (previous.createdAt && Date.parse(previous.createdAt) > Date.parse(brief.createdAt)) throw new Error('Candidate predates the current publication');
     } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
-    await mkdir(reports, { recursive: true }); await mkdir(resolve(root, 'lib'), { recursive: true });
+    await mkdir(reports, { recursive: true }); await mkdir(dirname(latest), { recursive: true });
     const alreadyBrief = await sameFile(briefArchive, briefText), alreadyEvidence = await sameFile(evidenceArchive, evidenceText);
-    const token = randomUUID(), temporaryBrief = resolve(reports, `.editorial-${token}-brief.tmp`), temporaryEvidence = resolve(reports, `.editorial-${token}-evidence.tmp`), temporaryLatest = resolve(root, `lib/.published-brief-${token}.tmp`);
+    const token = randomUUID(), temporaryBrief = resolve(reports, `.editorial-${token}-brief.tmp`), temporaryEvidence = resolve(reports, `.editorial-${token}-evidence.tmp`), temporaryLatest = resolve(dirname(latest), `.published-brief-${token}.tmp`);
     for (const [path, content] of [[temporaryBrief, briefText], [temporaryEvidence, evidenceText], [temporaryLatest, briefText]]) { staged.push(path); await stage(path, content); }
     if (!alreadyBrief) { await link(temporaryBrief, briefArchive); createdArchives.push(briefArchive); }
     if (!alreadyEvidence) { await link(temporaryEvidence, evidenceArchive); createdArchives.push(evidenceArchive); }
