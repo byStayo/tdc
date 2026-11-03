@@ -136,6 +136,7 @@ export interface HistoryEntry {
   engineVersion: string;
 }
 export interface Outcome {
+  engineVersion: string;
   snapshotId: string;
   instrument: Instrument;
   horizon: Horizon;

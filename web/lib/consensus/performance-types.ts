@@ -1,4 +1,5 @@
 export interface PerformanceReport {
+  engineVersion: string;
   generatedAt: string;
   status: "awaiting_price_evidence" | "tracking";
   resolved: number;
@@ -9,6 +10,7 @@ export interface PerformanceReport {
   scoringPolicy?: string;
   superseded?: number;
   cohorts: {
+    engineVersion: string;
     instrument: string;
     horizon: string;
     resolved: number;
@@ -19,6 +21,7 @@ export interface PerformanceReport {
     brier: number | null;
   }[];
   learning: {
+    engineVersion: string;
     instrument: string;
     horizon: string;
     samples: number;

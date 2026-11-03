@@ -14,8 +14,7 @@ import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
-import { freezeConsensus, validateConsensusRecords } from "./as-issued.ts";
-import { applyScoringPolicy } from "./scoring-policy.ts";
+import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
   reviewedSignals,
@@ -215,6 +214,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       !date(forecast.trainedAt) ||
       forecast.trainedAt > snapshot.cutoff ||
       !forecast.modelId ||
+      forecast.engineVersion !== snapshot.engineVersion ||
       forecast.target !== "next-session-open-to-horizon-close" ||
       forecast.priceAdjustment !== "total-return-adjusted"
     )
@@ -287,7 +287,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
   )
     throw new Error("Reviewed signals require their saved evidence packet");
   if (mode === "candidate" && snapshot.engineVersion === "consensus-rules-2.0.0" &&
-      JSON.stringify(snapshot.signals) !== JSON.stringify(applyScoringPolicy(snapshot).signals))
+      JSON.stringify(snapshot.signals) !== JSON.stringify(versionedScoringPolicy(snapshot).signals))
     throw new Error("Signals do not match the recorded directional policy");
 }
 export function observationDigest(snapshot: Snapshot): string {

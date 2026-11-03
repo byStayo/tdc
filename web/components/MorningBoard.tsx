@@ -22,6 +22,7 @@ import type { NewsPulse } from "@/lib/consensus/news";
 import { effectiveStatus } from "@/lib/consensus/engine";
 import { asIssuedConsensus } from "@/lib/consensus/as-issued";
 import { performanceView } from "@/lib/consensus/performance-view";
+import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
@@ -1066,11 +1067,12 @@ export default function MorningBoard({
     .filter((item) => item.score !== null)
     .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
     .slice(0, 5);
-  const cohort = performanceView(performance, instrument, horizon);
+  const timing = editionTiming(snapshot, history);
+  const cohort = performanceView(performance, instrument, horizon, snapshot.engineVersion);
   const learning = performance.learning.filter(
     (item) =>
       (instrument === "MARKET" || item.instrument === instrument) &&
-      item.horizon === horizon,
+      item.horizon === horizon && item.engineVersion === snapshot.engineVersion,
   );
   const fx = snapshot.signals.filter(
     (signal) => signal.id.startsWith("fx-") && signal.series.length,
@@ -1212,8 +1214,12 @@ export default function MorningBoard({
               {historical ? "AS-ISSUED EDITION" : "LATEST SAVED EDITION"}
             </strong>
             <span>
-              {date(snapshot.issuedAt)} · {time(snapshot.issuedAt)} ET
+              Issued {date(snapshot.issuedAt)} · {time(snapshot.issuedAt)} ET
             </span>
+            <small>{timing.methodologyReissue ? "Methodology reissue · " : ""}{timing.ruleLabel}</small>
+            {timing.latestSourceCheck && <small>
+              Latest source check {date(timing.latestSourceCheck)} · {time(timing.latestSourceCheck)} ET
+            </small>}
             <small>
               {available.length} current inputs · {snapshot.signals.length}{" "}
               tracked
@@ -1913,7 +1919,7 @@ export default function MorningBoard({
                   {pct(cohort.accuracy)}
                 </strong>
                 <small>
-                  {cohort.calls ?? "—"} {horizon} instrument calls scored
+                  {cohort.calls ?? "—"} {horizon} calls · {timing.ruleLabel}
                 </small>
               </div>
               <div>
@@ -1930,7 +1936,7 @@ export default function MorningBoard({
             </div>
             <p className={styles.finePrint}>
               {instrument === "MARKET" && "MARKET is context only; it has no scored trade. Figures above summarize this horizon across the five instrument editions. "}
-              Scoring and training use the last edition before each session opens.
+              Figures and training are specific to {timing.ruleLabel}. Scoring uses the last edition before each session opens, including when the rule version changes.
               Earlier editions remain in the audit record. Model qualification
               requires at least 100 new, non-overlapping test outcomes and an uncertainty check against the baselines.
             </p>

@@ -10,6 +10,7 @@ import {
   sessionRange,
   gammaExposure,
   pivotLevels,
+  type IntervalBar,
 } from "../lib/consensus/math.ts";
 import {
   calculateConsensus,
@@ -144,8 +145,9 @@ test("options math matches an independent Black-Scholes benchmark and inverts vo
   assert.equal(gammaExposure([], 100), null);
 });
 test("Fibonacci excludes future bars and preserves the declared trailing window", () => {
-  const bars: Bar[] = Array.from({ length: 20 }, (_, i) => ({
+  const bars: IntervalBar[] = Array.from({ length: 20 }, (_, i) => ({
     time: new Date(Date.UTC(2026, 9, i + 1)).toISOString(),
+    end: new Date(Date.UTC(2026, 9, i + 2)).toISOString(),
     open: 100 + i,
     close: 100 + i,
     high: 101 + i,
@@ -161,15 +163,36 @@ test("Fibonacci excludes future bars and preserves the declared trailing window"
   );
   assert.deepEqual(
     pivotLevels({
-      time: at,
+      time: "2026-11-02T14:30:00.000Z",
+      end: "2026-11-02T21:00:00.000Z",
       open: 100,
       high: 110,
       low: 90,
       close: 100,
       volume: 1,
-    }),
+    }, at),
     { pivot: 100, r1: 110, s1: 90, r2: 120, s2: 80 },
   );
+});
+test("Fibonacci and pivots reject an incomplete or unknown bar interval", () => {
+  const completed = [0,1].map(i => ({time:`2026-11-0${i+1}T14:30:00.000Z`,end:`2026-11-0${i+1}T21:00:00.000Z`,open:100,high:102+i,low:99,close:101,volume:10}));
+  const inProgress={...completed[1],time:"2026-11-03T09:00:00.000Z",end:"2026-11-03T21:00:00.000Z",high:999};
+  assert.deepEqual(fibonacci([...completed,inProgress],at,2),fibonacci(completed,at,2));
+  assert.equal(pivotLevels(inProgress,at),null);
+  assert.notEqual(pivotLevels(inProgress,inProgress.end),null);
+  assert.equal(pivotLevels({...completed[1],end:undefined} as unknown as IntervalBar,at),null);
+  assert.equal(pivotLevels({...completed[1],end:completed[1].time},at),null);
+});
+test("sparse premarket displays only observed ranges with explicit partial coverage", () => {
+  const bars=Array.from({length:330},(_,i)=>({time:new Date(Date.UTC(2026,10,3,9,i)).toISOString(),open:100,high:101,low:99,close:100,volume:10}));
+  const half=bars.filter((_,i)=>i%2===0), end="2026-11-03T14:30:00.000Z";
+  const partial=sessionRange(half,"2026-11-03",end,"premarket");
+  assert.equal(partial.status,"partial");assert.equal(partial.coverage,.5);assert.equal(partial.observedMinutes,165);assert.equal(partial.expectedMinutes,330);assert.equal(partial.volume,1650);
+  assert.equal(partial.rangeBasis,"observed-minute-bars");
+  assert.equal(sessionRange(half.slice(1),"2026-11-03",end,"premarket").high,null);
+  assert.equal(sessionRange(bars,"2026-11-03",end,"premarket").status,"available");
+  assert.equal(sessionRange(bars,"2026-11-03","2026-11-03T14:29:59.999Z","premarket").coverage,null);
+  assert.throws(()=>sessionRange(bars,"2026-02-30",end,"premarket"));
 });
 test("opening range requires the entire New York session interval, handles DST, and never forms early", () => {
   const bars: Bar[] = Array.from({ length: 15 }, (_, i) => ({
@@ -436,6 +459,7 @@ test("learning refuses insufficient data and purges labels crossing split bounda
   assert.equal(trainCandidate([], at).status, "insufficient_data");
   const rows = Array.from({ length: 200 }, (_, i) => ({
     id: String(i),
+    engineVersion: "consensus-rules-1.1.0",
     issuedAt: new Date(Date.UTC(2025, 0, i + 1)).toISOString(),
     labelKnownAt: new Date(Date.UTC(2025, 0, i + 22)).toISOString(),
     features: [Math.sin(i)],
@@ -490,6 +514,7 @@ test("SEC quarter normalization excludes annual totals, later filings and issuer
 test("candidate training evaluates untouched chronological test data and reports calibration", () => {
   const rows = Array.from({ length: 250 }, (_, i) => ({
     id: String(i),
+    engineVersion: "consensus-rules-1.1.0",
     issuedAt: new Date(Date.UTC(2025, 0, i + 1)).toISOString(),
     labelKnownAt: new Date(Date.UTC(2025, 0, i + 2)).toISOString(),
     features: [i % 2 ? 1 : -1],
@@ -521,6 +546,7 @@ test("model inference refuses invalid features and models trained after the issu
       forecastSnapshot(snapshot(), [
         {
           id: "future",
+          engineVersion: "consensus-rules-1.1.0",
           instrument: "SPY",
           horizon: "daily",
           trainedAt: "2027-01-01T00:00:00.000Z",

@@ -19,6 +19,7 @@ const asOf = "2030-01-01T00:00:00.000Z";
 const policy = { minimumSamples: 500, minimumTestSamples: 100, nonOverlappingTest: true };
 const rows = (count: number, horizon = 1): TrainingRow[] => Array.from({ length: count }, (_, i) => ({
   id: `synthetic-${i}`,
+  engineVersion: "consensus-rules-2.0.0",
   issuedAt: new Date(Date.UTC(2020, 0, i + 1, 12)).toISOString(),
   labelKnownAt: new Date(Date.UTC(2020, 0, i + horizon, 21)).toISOString(),
   features: [i % 2 ? 1 : -1], up: (i % 2) as 0 | 1,
@@ -93,7 +94,7 @@ test("activation needs matched reservation and improvements over every baseline 
     const model: ActiveModel = {
       id: "synthetic", instrument: "QQQ", horizon: "daily", trainedAt: asOf,
       labelsThrough: gate.consumedThrough, datasetHash: plan.datasetHash,
-      samples: plan.samples, featureSchema: "family-score-plus-observation-mask-v1",
+      samples: plan.samples, featureSchema: "family-score-plus-observation-mask-v1", engineVersion: "consensus-rules-2.0.0",
           priceAdjustment: "total-return-adjusted",
       model: result.model, testBrier: result.candidateBrier, baselineBrier: result.coinBrier,
       testSamples: result.split.test, promotionEvidence: gate,
@@ -115,12 +116,12 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
     const directory = join(root, "public/consensus");
     await mkdir(directory, { recursive: true });
     const index: HistoryEntry[] = [], outcomes: Outcome[] = [];
-    for (const row of rows(500)) {
+    for (const [i, row] of rows(501).entries()) {
       const score = row.up ? 1 : -1;
       const base = missingSignals(row.issuedAt)[0];
       const snapshot: Snapshot = {
         schemaVersion: 1, origin: "prospective", id: row.issuedAt.replace(/[:.]/g, "-"),
-        issuedAt: row.issuedAt, cutoff: row.issuedAt, engineVersion: "consensus-rules-1.1.0",
+        issuedAt: row.issuedAt, cutoff: row.issuedAt, engineVersion: i === 0 ? "consensus-rules-1.1.0" : "consensus-rules-2.0.0",
         signals: [{ ...base, id: "synthetic-rate", family: "rates", title: "Synthetic test signal",
           status: "available", scores: { daily: score, weekly: null, monthly: null },
           series: [{ date: row.issuedAt.slice(0, 10), value: score }],
@@ -129,7 +130,7 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
       };
       index.push({ id: snapshot.id, issuedAt: snapshot.issuedAt, engineVersion: snapshot.engineVersion, sha256: digest(snapshot) });
       await writeFile(join(directory, `${snapshot.id}.json`), JSON.stringify(snapshot));
-      outcomes.push({ snapshotId: snapshot.id, instrument: "SPY", horizon: "daily", issuedAt: row.issuedAt,
+      outcomes.push({ engineVersion: snapshot.engineVersion, snapshotId: snapshot.id, instrument: "SPY", horizon: "daily", issuedAt: row.issuedAt,
         entryAt: row.issuedAt.replace("T12:", "T14:"), exitAt: row.labelKnownAt,
         entry: 100, exit: 100 + score * 2, returnPct: score * 2,
         predictedScore: score, predictedProbability: null, abstained: true, directionCorrect: null,
@@ -149,6 +150,8 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
     assert.equal(first.length, 1);
     const registry = JSON.parse(await readFile(join(root, "lib/consensus/models.json"), "utf8"));
     assert.equal(registry.models.length, 1);
+    assert.equal(registry.models[0].samples, 500);
+    assert.equal(registry.models[0].engineVersion, "consensus-rules-2.0.0");
     validateActivePromotion(registry.models[0], first);
     await assert.rejects(run(), /Commit the pending evaluation reservations/);
     await git("add", "public/consensus/evaluations"); await commit();
@@ -159,6 +162,8 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
     assert.equal(cohort.promoted, false);
     assert.equal(cohort.activeModelId, registry.models[0].id);
     assert.equal(cohort.status, "insufficient_data");
+    assert.equal(report.cohorts.find((item: {instrument:string;horizon:string;engineVersion:string})=>item.instrument==="SPY"&&item.horizon==="daily"&&item.engineVersion==="consensus-rules-1.1.0").resolved,1);
+    assert.equal(report.cohorts.find((item: {instrument:string;horizon:string;engineVersion:string})=>item.instrument==="SPY"&&item.horizon==="daily"&&item.engineVersion==="consensus-rules-2.0.0").resolved,500);
     assert.deepEqual(JSON.parse(await readFile(join(directory, "outcomes.json"), "utf8")), outcomes);
     await rm(join(directory, "evaluations"), { recursive: true });
     await assert.rejects(run(), /pending evaluation reservations|durable anchor/);
@@ -207,13 +212,16 @@ test('a replacement is bound to the reserved incumbent and exact candidate coeff
   try {
     const plan=planCandidate(rows(500),asOf,policy);if(plan.status!=='ready')throw Error('fixture plan');
     const result=evaluateCandidate(plan);
-    const base:ActiveModel={id:'synthetic-incumbent',instrument:'SPY',horizon:'daily',trainedAt:'2023-01-01T00:00:00.000Z',labelsThrough:'2022-01-01T00:00:00.000Z',datasetHash:'a'.repeat(64),samples:500,featureSchema:'family-score-plus-observation-mask-v1',priceAdjustment:'total-return-adjusted',model:{...result.model,intercept:0,weights:result.model.weights.map(()=>0)},testBrier:.25,baselineBrier:.25,testSamples:100};
+    const base:ActiveModel={id:'synthetic-incumbent',engineVersion:'consensus-rules-2.0.0',instrument:'SPY',horizon:'daily',trainedAt:'2023-01-01T00:00:00.000Z',labelsThrough:'2022-01-01T00:00:00.000Z',datasetHash:'a'.repeat(64),samples:500,featureSchema:'family-score-plus-observation-mask-v1',priceAdjustment:'total-return-adjusted',model:{...result.model,intercept:0,weights:result.model.weights.map(()=>0)},testBrier:.25,baselineBrier:.25,testSamples:100};
     const reservation=await reserveEvaluation(root,[],plan,'SPY','daily',asOf,base);
     assert.throws(()=>promotionEvidence(plan,result.model,reservation),/Incumbent comparison/);
     const gate=promotionEvidence(plan,result.model,reservation,base.model);
     assert.ok(gate.passes);assert.equal(gate.incumbentId,base.id);
     const active:ActiveModel={...base,id:'synthetic-replacement',trainedAt:asOf,labelsThrough:reservation.consumedThrough,datasetHash:plan.datasetHash,model:result.model,promotionEvidence:gate};
     assert.doesNotThrow(()=>validateActivePromotion(active,[reservation],base));
+    assert.throws(()=>validateActivePromotion({...active,engineVersion:'consensus-rules-1.1.0'},[reservation],base),/promotion evidence/);
+    assert.throws(()=>promotionEvidence({...plan,engineVersion:'consensus-rules-1.1.0'},result.model,reservation,base.model),/durable reservation/);
+    await assert.rejects(reserveEvaluation(root,[reservation],plan,'SPY','daily',asOf,{...base,engineVersion:'consensus-rules-1.1.0'}),/Incumbent engine version/);
     assert.throws(()=>validateActivePromotion(active,[reservation]),/promotion evidence/);
     assert.throws(()=>validateActivePromotion({...active,model:{...active.model,intercept:4}},[reservation],base),/promotion evidence/);
     assert.throws(()=>validateActivePromotion({...active,promotionEvidence:{...gate,comparisons:gate.comparisons.filter(c=>c.baseline!=='incumbent')}},[reservation],base),/promotion evidence/);

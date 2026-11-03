@@ -20,6 +20,7 @@ import type { TrainingRow } from "../lib/consensus/learning.ts";
 import { readReservations, reserveEvaluation, promotionEvidence, LEARNING_POLICY,
   PROSPECTIVE_MINIMUM, MINIMUM_TEST_LABELS, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
+import { ENGINE_VERSION } from "../lib/consensus/registry.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
 import type {
   HistoryEntry,
@@ -76,8 +77,12 @@ try {
         if (row && !outcomes.some((previous) => key(previous) === key(row)))
           outcomes.push(row);
       }
+  for (const row of outcomes) {
+    if (snapshots.find(s => s.id === row.snapshotId)?.engineVersion !== row.engineVersion)
+      throw new Error("Outcome engine version differs from its immutable edition");
+  }
   const selection = selectScoredOutcomes(outcomes),
-    metrics = performance(outcomes),
+    metrics = performance(outcomes, 2, ENGINE_VERSION),
     cohorts: PerformanceReport["cohorts"] = [],
     learning: PerformanceReport["learning"] = [];
   const registryPath = resolve(root, "lib/consensus/models.json");
@@ -98,27 +103,23 @@ try {
       record.attempt === saved.promotionEvidence.attempt && record.datasetHash === saved.datasetHash))
       throw new Error("Candidate is missing its durable test reservation");
   }
-  for (const model of registry.models) await validateActiveModelTree(root, model, reservations);
+  for (const model of registry.models) {
+    if (model.engineVersion !== ENGINE_VERSION) throw new Error("Deactivate incompatible incumbent before evaluating a new rule version");
+    await validateActiveModelTree(root, model, reservations);
+  }
   for (const instrument of INSTRUMENTS.filter((symbol) => symbol !== "MARKET"))
     for (const horizon of HORIZONS) {
-      const sample = outcomes.filter(
-          (row) => row.instrument === instrument && row.horizon === horizon,
-        ),
-        stats = performance(sample);
-      cohorts.push({
-        instrument,
-        horizon,
-        resolved: stats.resolved,
-        calls: stats.calls,
-        accuracy: stats.accuracy,
-        meanSignedReturnPct: stats.meanSignedReturnPct,
-        meanBuyHoldReturnPct: stats.meanBuyHoldReturnPct,
-        brier: stats.brier,
-      });
+      const sample = outcomes.filter(row => row.instrument === instrument && row.horizon === horizon);
+      for (const engineVersion of [...new Set([ENGINE_VERSION, ...snapshots.map(s => s.engineVersion)])]) {
+        const stats = performance(sample, 2, engineVersion);
+        cohorts.push({instrument, horizon, engineVersion, resolved:stats.resolved, calls:stats.calls,
+          accuracy:stats.accuracy, meanSignedReturnPct:stats.meanSignedReturnPct,
+          meanBuyHoldReturnPct:stats.meanBuyHoldReturnPct, brier:stats.brier});
+      }
       const trainingRows: TrainingRow[] = [];
       // Training and reported performance use exactly the same predeclared edition.
       for (const row of selection.selected.filter((item) =>
-        item.instrument === instrument && item.horizon === horizon,
+        item.instrument === instrument && item.horizon === horizon && item.engineVersion === ENGINE_VERSION,
       )) {
         const snapshot = snapshots.find((item) => item.id === row.snapshotId);
         if (!snapshot) throw new Error("Outcome references missing snapshot");
@@ -133,6 +134,7 @@ try {
         ]);
         trainingRows.push({
           id: key(row),
+          engineVersion: snapshot.engineVersion,
           issuedAt: snapshot.issuedAt,
           labelKnownAt: row.exitAt,
           features,
@@ -146,6 +148,7 @@ try {
       const prior = reservations.filter((record) => record.instrument === instrument && record.horizon === horizon)
         .sort((a, b) => b.attempt - a.attempt)[0];
       const plan = planCandidate(trainingRows, now, {
+        engineVersion: ENGINE_VERSION,
         consumedThrough: prior?.consumedThrough,
         minimumSamples: PROSPECTIVE_MINIMUM,
         minimumTestSamples: MINIMUM_TEST_LABELS,
@@ -158,7 +161,7 @@ try {
       const result = plan.status === "ready" ? evaluateCandidate(plan, incumbent?.model) : plan;
       const gate = plan.status === "ready" && result.status === "evaluated" && reservation
         ? promotionEvidence(plan, result.model, reservation, incumbent?.model) : null;
-      const contextHash = digest({ datasetHash: result.datasetHash, policy: LEARNING_POLICY, priceAdjustment: OUTCOME_PRICE_BASIS,
+      const contextHash = digest({ datasetHash: result.datasetHash, policy: LEARNING_POLICY, engineVersion: ENGINE_VERSION, priceAdjustment: OUTCOME_PRICE_BASIS,
         priorAttempt: prior?.attempt ?? 0, incumbent: incumbent?.id ?? null });
       const artifact = `models/${instrument}-${horizon}-wf2-${contextHash.slice(0, 16)}.json`;
       const promote =
@@ -171,6 +174,7 @@ try {
           id: `${instrument}-${horizon}-${result.datasetHash.slice(0, 16)}`,
           instrument,
           horizon,
+          engineVersion: ENGINE_VERSION,
           trainedAt: now,
           labelsThrough: gate!.consumedThrough,
           datasetHash: result.datasetHash,
@@ -201,13 +205,14 @@ try {
       try {
         await writeFile(
           resolve(dir, artifact),
-          `${JSON.stringify({ ...result, promoted: promote, promotionEvidence: gate, instrument, horizon, priceAdjustment: OUTCOME_PRICE_BASIS, evaluatedAt: now, activated: promote, featureSchema: "family-score-plus-observation-mask-v1" }, null, 2)}\n`,
+          `${JSON.stringify({ ...result, promoted: promote, promotionEvidence: gate, instrument, horizon, engineVersion: ENGINE_VERSION, priceAdjustment: OUTCOME_PRICE_BASIS, evaluatedAt: now, activated: promote, featureSchema: "family-score-plus-observation-mask-v1" }, null, 2)}\n`,
           { flag: "wx" },
         );
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
       }
       learning.push({
+        engineVersion: ENGINE_VERSION,
         instrument,
         horizon,
         samples: result.samples,
@@ -221,6 +226,7 @@ try {
       });
     }
   const report: PerformanceReport = {
+    engineVersion: ENGINE_VERSION,
     generatedAt: now,
     status: supplied.length ? "tracking" : "awaiting_price_evidence",
     resolved: metrics.resolved,
@@ -232,7 +238,7 @@ try {
     superseded: metrics.superseded,
     cohorts,
     learning,
-    note: "Raw provider prices stay private. The outcome audit ledger is never rewritten. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio.",
+    note: "Raw provider prices stay private. The outcome audit ledger is never rewritten. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version; training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio.",
   };
   for (const [path, content] of [
     [resolve(dir, "outcomes.json"), outcomes],

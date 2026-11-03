@@ -6,6 +6,7 @@ export type { LogisticModel } from "./model.ts";
 
 export interface TrainingRow {
   id: string;
+  engineVersion: string;
   issuedAt: string;
   labelKnownAt: string;
   features: number[];
@@ -76,6 +77,7 @@ export function chronologicalSplit(rows: TrainingRow[]) {
   };
 }
 export interface EvaluationPolicy {
+  engineVersion?: string;
   consumedThrough?: string;
   minimumSamples?: number;
   minimumTestSamples?: number;
@@ -87,6 +89,9 @@ export function planCandidate(
   asOf: string,
   policy: EvaluationPolicy = {},
 ) {
+  const engineVersion = policy.engineVersion ?? input[0]?.engineVersion ?? null;
+  if (input.some(row => !row.engineVersion || row.engineVersion !== engineVersion))
+    throw new Error("Training rows must share one declared engine version");
   if (!Number.isFinite(Date.parse(asOf)) ||
       (policy.consumedThrough && (!Number.isFinite(Date.parse(policy.consumedThrough)) ||
         new Date(policy.consumedThrough).toISOString() !== policy.consumedThrough)))
@@ -116,6 +121,7 @@ export function planCandidate(
   if (rows.length < minimum)
     return {
       status: "insufficient_data" as const,
+      engineVersion,
       samples: rows.length,
       minimum,
       datasetHash,
@@ -148,6 +154,7 @@ export function planCandidate(
   )
     return {
       status: "insufficient_data" as const,
+      engineVersion,
       samples: rows.length,
       minimum,
       datasetHash,
@@ -155,7 +162,7 @@ export function planCandidate(
       reason:
         `The purged split needs 50 training rows with both outcomes, 20 validation rows, ${minimumTestSamples} ${policy.nonOverlappingTest ? "non-overlapping, previously uninspected " : ""}test labels and 20 fresh resolved labels.`,
     };
-  return { status: "ready" as const, samples: rows.length, minimum, datasetHash, split };
+  return { status: "ready" as const, engineVersion: engineVersion!, samples: rows.length, minimum, datasetHash, split };
 }
 
 export type ReadyCandidate = Extract<ReturnType<typeof planCandidate>, { status: "ready" }>;
@@ -205,6 +212,7 @@ export function evaluateCandidate(plan: ReadyCandidate, incumbent?: LogisticMode
   });
   return {
     status: "evaluated" as const,
+    engineVersion: plan.engineVersion,
     samples,
     minimum,
     datasetHash,

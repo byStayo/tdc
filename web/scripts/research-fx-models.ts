@@ -67,6 +67,7 @@ for (const currency of ["EUR", "JPY", "GBP"]) {
       ];
       rows.push({
         id: `${currency}:${horizon}:${points[i].date}`,
+        engineVersion: "ecb-fx-technical-features-1",
         issuedAt,
         labelKnownAt: `${exit.date}T23:59:59.000Z`,
         features,

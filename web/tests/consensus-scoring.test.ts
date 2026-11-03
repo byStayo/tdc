@@ -8,6 +8,7 @@ import type { PerformanceReport } from "../lib/consensus/performance-types.ts";
 // Synthetic outcomes only. No actual return or accuracy is claimed by these fixtures.
 const outcome = (hour: number, overrides: Partial<Outcome> = {}): Outcome => ({
   snapshotId: `fixture-${hour}`,
+  engineVersion: "consensus-rules-2.0.0",
   issuedAt: `2026-11-03T${String(hour).padStart(2, "0")}:00:00.000Z`,
   instrument: "SPY", horizon: "daily",
   entryAt: "2026-11-03T14:30:00.000Z", exitAt: "2026-11-03T21:00:00.000Z",
@@ -58,10 +59,10 @@ test("selection is separate for each instrument, horizon and entry session", () 
 });
 
 test("MARKET performance is a labelled instrument summary for one horizon, never a missing-value zero", () => {
-  const report: PerformanceReport = { generatedAt: "2026-11-03T21:10:00.000Z", status: "tracking",
+  const report: PerformanceReport = { engineVersion: "consensus-rules-2.0.0", generatedAt: "2026-11-03T21:10:00.000Z", status: "tracking",
     resolved: 999, calls: 999, abstentions: 0, accuracy: 1, brier: null, learning: [], note: "Synthetic fixture",
     cohorts: ["SPY", "QQQ", "IWM", "DIA", "TLT"].map((instrument, i) => ({
-      instrument, horizon: "daily", resolved: 5, calls: i + 1, accuracy: i === 0 ? 0 : 1,
+      instrument, engineVersion: "consensus-rules-2.0.0", horizon: "daily", resolved: 5, calls: i + 1, accuracy: i === 0 ? 0 : 1,
       meanSignedReturnPct: null, meanBuyHoldReturnPct: null, brier: null,
     })),
   };
@@ -69,6 +70,21 @@ test("MARKET performance is a labelled instrument summary for one horizon, never
   assert.deepEqual(performanceView(report, "SPY", "daily"), { resolved: 5, calls: 1, accuracy: 0 });
   assert.deepEqual(performanceView(report, "MARKET", "weekly"), { resolved: null, calls: null, accuracy: null });
   assert.deepEqual(performanceView(report, "SPY", "monthly"), { resolved: null, calls: null, accuracy: null });
+  report.cohorts.push({...report.cohorts[0],engineVersion:"consensus-rules-1.1.0",accuracy:1,calls:7,resolved:7});
+  assert.deepEqual(performanceView(report,"SPY","daily","consensus-rules-1.1.0"),{resolved:7,calls:7,accuracy:1});
+  assert.deepEqual(performanceView(report,"SPY","daily","consensus-rules-2.0.0"),{resolved:5,calls:1,accuracy:0});
+});
+
+test("accuracy is separated by engine version after one-per-session selection", () => {
+  const old=outcome(6,{engineVersion:"consensus-rules-1.1.0"});
+  const latest=outcome(13,{directionCorrect:false,predictedScore:-.6,predictedProbability:.2});
+  // The superseded success cannot become a separate scored win for the old version.
+  assert.equal(performance([old,latest],2,old.engineVersion).resolved,0);
+  assert.equal(performance([old,latest],2,latest.engineVersion).accuracy,0);
+  const nextDay=outcome(14,{engineVersion:old.engineVersion,entryAt:"2026-11-04T14:30:00.000Z",exitAt:"2026-11-04T21:00:00.000Z"});
+  assert.throws(()=>performance([old,latest,nextDay]),/engine version/);
+  assert.equal(performance([old,latest,nextDay],2,old.engineVersion).accuracy,1);
+  assert.equal(performance([old,latest,nextDay],2,latest.engineVersion).accuracy,0);
 });
 
 test('outcome cohorts cannot mix or silently accept unadjusted split/dividend returns', () => {

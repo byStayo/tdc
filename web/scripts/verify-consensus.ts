@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
-import type { Snapshot, HistoryEntry } from "../lib/consensus/types.ts";
+import type { Snapshot, HistoryEntry, Outcome } from "../lib/consensus/types.ts";
 import { performance } from "../lib/consensus/evaluation.ts";
 import { readReservations, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 
@@ -40,15 +40,20 @@ for (const [i, entry] of history.entries()) {
 }
 if (digest(current) !== history.at(-1)!.sha256)
   throw new Error("Current edition differs from its immutable archive");
-const outcomes = JSON.parse(
+const outcomes: Outcome[] = JSON.parse(
   await readFile(resolve(root, "public/consensus/outcomes.json"), "utf8"),
 );
-performance(outcomes);
+for (const row of outcomes) {
+  if (history.find(entry => entry.id === row.snapshotId)?.engineVersion !== row.engineVersion)
+    throw new Error("Outcome engine version differs from its immutable edition");
+}
+performance(outcomes, 2, current.engineVersion);
 const registry = JSON.parse(
   await readFile(resolve(root, "lib/consensus/models.json"), "utf8"),
 );
 const reservations = await readReservations(root);
 for (const model of registry.models) {
+  if (model.engineVersion !== current.engineVersion) throw new Error("Active model engine version differs from current edition");
   await validateActiveModelTree(root, model, reservations);
   const archived = JSON.parse(
     await readFile(

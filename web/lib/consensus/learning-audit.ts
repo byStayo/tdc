@@ -23,6 +23,7 @@ export function resamplesForAlpha(alpha: number) {
 
 export interface EvaluationReservation {
   policy: typeof LEARNING_POLICY;
+  engineVersion: string;
   instrument: Instrument;
   horizon: Horizon;
   attempt: number;
@@ -72,7 +73,7 @@ export function validateReservations(records: EvaluationReservation[]) {
     const cohort = `${record.instrument}:${record.horizon}`;
     const prior = previous.get(cohort);
     const ids = used.get(cohort) ?? new Set<string>();
-    if (record.policy !== LEARNING_POLICY || record.previousHash !== (prior ? reservationHash(prior) : null) ||
+    if (record.policy !== LEARNING_POLICY || !/^consensus-rules-\d+\.\d+\.\d+$/.test(record.engineVersion ?? "") || record.previousHash !== (prior ? reservationHash(prior) : null) ||
         !((record.incumbentId === null && record.incumbentModelHash === null) ||
           (typeof record.incumbentId === "string" && /^[A-Za-z0-9_-]+$/.test(record.incumbentId) && /^[a-f0-9]{64}$/.test(record.incumbentModelHash ?? ""))) || !INSTRUMENTS.includes(record.instrument) ||
         record.instrument === "MARKET" || !HORIZONS.includes(record.horizon) ||
@@ -136,6 +137,8 @@ export async function reserveEvaluation(
   instrument: Instrument, horizon: Horizon, now: string, incumbent?: ActiveModel,
 ): Promise<EvaluationReservation> {
   const actual = await readReservations(root);
+  if (incumbent && incumbent.engineVersion !== plan.engineVersion)
+    throw new Error("Incumbent engine version differs from candidate features");
   if (JSON.stringify(reservationAnchors(actual)) !== JSON.stringify(reservationAnchors(records)))
     throw new Error("Stale reservation input does not match the durable ledger");
   const prior = records.filter((r) => r.instrument === instrument && r.horizon === horizon)
@@ -145,7 +148,7 @@ export async function reserveEvaluation(
   const attempt = (prior?.attempt ?? 0) + 1;
   resamplesForAlpha(attemptAlpha(attempt));
   const reservation: EvaluationReservation = {
-    policy: LEARNING_POLICY, instrument, horizon, attempt, datasetHash: plan.datasetHash,
+    policy: LEARNING_POLICY, engineVersion: plan.engineVersion, instrument, horizon, attempt, datasetHash: plan.datasetHash,
     testIds: plan.split.test.map((row) => row.id),
     testWindows: plan.split.test.map(({ id, issuedAt, labelKnownAt }) => ({ id, issuedAt, labelKnownAt })),
     testStarts: plan.split.test[0].issuedAt,
@@ -224,7 +227,7 @@ export function pairedLossEvidence(differences: number[], seed: string, alpha = 
 
 export function promotionEvidence(plan: ReadyCandidate, model: LogisticModel,
   reservation: EvaluationReservation, incumbent?: LogisticModel) {
-  if (reservation.datasetHash !== plan.datasetHash ||
+  if (reservation.engineVersion !== plan.engineVersion || reservation.datasetHash !== plan.datasetHash ||
       JSON.stringify(reservation.testIds) !== JSON.stringify(plan.split.test.map((row) => row.id)))
     throw new Error("Test plan differs from its durable reservation");
   if ((incumbent ? modelHash(incumbent) : null) !== reservation.incumbentModelHash)
@@ -244,7 +247,7 @@ export function promotionEvidence(plan: ReadyCandidate, model: LogisticModel,
   const passes = comparisons.every((item) => item.meanImprovement > 0.01 &&
     item.interval95[0] > 0 && item.pValue <= reservation.alpha);
   return {
-    policy: LEARNING_POLICY, attempt: reservation.attempt, alpha: reservation.alpha,
+    policy: LEARNING_POLICY, engineVersion: reservation.engineVersion, attempt: reservation.attempt, alpha: reservation.alpha,
     incumbentId: reservation.incumbentId, candidateModelHash: modelHash(model),
     consumedThrough: reservation.consumedThrough,
     nonOverlappingTestLabels: plan.split.test.length, comparisons, passes,
@@ -260,9 +263,10 @@ export function validateActivePromotion(model: ActiveModel, reservations: Evalua
   const reservation = reservations.find((record) => record.instrument === model.instrument &&
     record.horizon === model.horizon && record.datasetHash === model.datasetHash && record.attempt === gate?.attempt);
   if (!gate || !reservation || gate.policy !== LEARNING_POLICY || !gate.passes ||
+      model.engineVersion !== reservation.engineVersion || gate.engineVersion !== model.engineVersion ||
       gate.candidateModelHash !== modelHash(model.model) || gate.incumbentId !== reservation.incumbentId ||
       (reservation.incumbentId !== null && (!predecessor || predecessor.id !== reservation.incumbentId ||
-        predecessor.instrument !== model.instrument || predecessor.horizon !== model.horizon ||
+        predecessor.instrument !== model.instrument || predecessor.horizon !== model.horizon || predecessor.engineVersion !== model.engineVersion ||
         predecessor.trainedAt > reservation.reservedAt || modelHash(predecessor.model) !== reservation.incumbentModelHash)) ||
       gate.alpha !== reservation.alpha || gate.consumedThrough !== reservation.consumedThrough ||
       model.labelsThrough !== reservation.consumedThrough || model.trainedAt < reservation.reservedAt ||

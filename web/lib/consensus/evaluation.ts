@@ -127,9 +127,10 @@ export function evaluateOutcome(
     ),
     score = forecast ? forecast.probabilityUp * 2 - 1 : consensus.score;
   const called = !consensus.abstain && score !== null && Math.abs(score) > 0.1;
-  if (forecast && forecast.priceAdjustment !== prices.adjustment)
-    throw new Error("Forecast and outcome price bases differ");
+  if (forecast && (forecast.priceAdjustment !== prices.adjustment || forecast.engineVersion !== snapshot.engineVersion))
+      throw new Error("Forecast and outcome price basis or engine version differ");
   return {
+    engineVersion: snapshot.engineVersion,
     snapshotId: snapshot.id,
     instrument: prices.instrument,
     horizon,
@@ -162,6 +163,8 @@ export function selectScoredOutcomes(outcomes: Outcome[]) {
   const group = (row: Outcome) => `${row.instrument}:${row.horizon}:${row.entryAt}`;
   for (const row of outcomes) {
     requireOutcomePriceBasis(row.adjustment);
+    if (!/^consensus-rules-\d+\.\d+\.\d+$/.test(row.engineVersion ?? ""))
+      throw new Error("Outcome requires its recorded engine version");
     if (!canonicalInstant(row.issuedAt) || !canonicalInstant(row.entryAt) ||
         !canonicalInstant(row.exitAt) || row.issuedAt >= row.entryAt || row.exitAt <= row.entryAt)
       throw new Error("Outcome must follow its publication and entry timestamps");
@@ -184,8 +187,12 @@ export function selectScoredOutcomes(outcomes: Outcome[]) {
   };
 }
 
-export function performance(outcomes: Outcome[], costBps = 2) {
-  const { selected, superseded } = selectScoredOutcomes(outcomes);
+export function performance(outcomes: Outcome[], costBps = 2, engineVersion?: string) {
+  const selection = selectScoredOutcomes(outcomes);
+  if (!engineVersion && new Set(selection.selected.map(row => row.engineVersion)).size > 1)
+    throw new Error("Performance must select one engine version");
+  const selected = selection.selected.filter(row => !engineVersion || row.engineVersion === engineVersion);
+  const superseded = selection.superseded;
   const called = selected.filter(
       (row) => !row.abstained && row.directionCorrect !== null,
     ),

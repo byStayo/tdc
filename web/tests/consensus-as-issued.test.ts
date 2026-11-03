@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { asIssuedConsensus, freezeConsensus } from "../lib/consensus/as-issued.ts";
+import { asIssuedConsensus, freezeConsensus, versionedConsensus, versionedScoringPolicy } from "../lib/consensus/as-issued.ts";
 import { calculateConsensus } from "../lib/consensus/engine.ts";
 import { FAMILIES } from "../lib/consensus/registry.ts";
 import { digest, publishSnapshot, validateSnapshot } from "../lib/consensus/history.ts";
@@ -24,6 +24,27 @@ const legacyReadings: Record<string, string> = {
   "2026-11-03T08-30-55-634Z": "ea485b4de3b864d50208b03e58b74e3a2b1086c0f9be108baf14ab00dc519643",
   "2026-11-03T08-48-02-469Z": "d47df5603c2c0bb1b9db9c99ee21133a270aee634c4689bfe574a3ee70735da9",
 };
+
+test("rules 2.0.0 is permanently frozen and stored editions replay exactly", async () => {
+  const golden: Snapshot = await read("../public/consensus/2026-11-03T14-51-40-702Z.json");
+  const readings = (snapshot: Snapshot) => INSTRUMENTS.flatMap(instrument => HORIZONS.map(horizon => versionedConsensus(snapshot, instrument, horizon)));
+  assert.equal(golden.engineVersion, "consensus-rules-2.0.0");
+  assert.equal(digest(readings(golden)), "e96cad61b822eb8b3a0f95d4f3c9c9e008e9dfb08777b727628cddc4397304b0");
+  const index: HistoryEntry[] = await read("../public/consensus/index.json");
+  for (const entry of index) {
+    const snapshot: Snapshot = await read(`../public/consensus/${entry.id}.json`);
+    if (!snapshot.consensus) continue;
+    const replay = versionedScoringPolicy(snapshot);
+    assert.equal(JSON.stringify(replay.signals), JSON.stringify(snapshot.signals));
+    assert.equal(JSON.stringify(readings(replay)), JSON.stringify(snapshot.consensus));
+    assert.equal(digest(snapshot), entry.sha256);
+  }
+  const family = FAMILIES.find(f => f.id === "rates")!, weight = family.weight;
+  try {
+    family.weight = 999;
+    assert.equal(digest(readings(golden)), "e96cad61b822eb8b3a0f95d4f3c9c9e008e9dfb08777b727628cddc4397304b0");
+  } finally { family.weight = weight; }
+});
 
 test("all eight legacy archives use their recorded rules and cutoff without changing their bytes", async () => {
   const index: HistoryEntry[] = await read("../public/consensus/index.json");

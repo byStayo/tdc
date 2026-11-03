@@ -1,7 +1,7 @@
 import type { Consensus, Horizon, Instrument, Snapshot } from "./types.ts";
 import { HORIZONS, INSTRUMENTS } from "./types.ts";
 import { calculateConsensus as calculateV1 } from "./engines/v1.ts";
-import { calculateConsensus as calculateV2 } from "./engine.ts";
+import { calculateConsensus as calculateV2, applyScoringPolicy as applyV2Policy } from "./engines/v2.ts";
 
 /** Legacy archives remain byte-for-byte unchanged; only their recorded engine may read them. */
 export function versionedConsensus(snapshot: Snapshot, instrument: Instrument, horizon: Horizon): Consensus {
@@ -68,5 +68,13 @@ export function validateConsensusRecords(snapshot: Snapshot, derive: boolean): v
       throw new Error("Inconsistent as-issued consensus record");
     if (derive && JSON.stringify(record) !== JSON.stringify(versionedConsensus(snapshot, record.instrument, record.horizon)))
       throw new Error("As-issued consensus differs from its recorded engine");
+  }
+}
+
+/** Re-derive only versions with an explicitly frozen normalization policy. */
+export function versionedScoringPolicy(snapshot: Snapshot): Snapshot {
+  switch (snapshot.engineVersion) {
+    case "consensus-rules-2.0.0": return applyV2Policy(snapshot);
+    default: throw new Error(`Unsupported scoring-policy replay: ${snapshot.engineVersion}`);
   }
 }

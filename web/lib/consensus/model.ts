@@ -12,6 +12,7 @@ export interface LogisticModel {
 }
 export interface ActiveModel {
   id: string;
+  engineVersion: string;
   instrument: Instrument;
   horizon: Horizon;
   trainedAt: string;
@@ -27,6 +28,7 @@ export interface ActiveModel {
   promotionEvidence?: PromotionEvidence;
 }
 export interface Forecast {
+  engineVersion: string;
   instrument: Instrument;
   horizon: Horizon;
   probabilityUp: number;
@@ -64,6 +66,7 @@ export function forecastSnapshot(
     requireOutcomePriceBasis(active.priceAdjustment);
     if (
       active.trainedAt > snapshot.cutoff ||
+      active.engineVersion !== snapshot.engineVersion ||
       active.labelsThrough >= active.trainedAt ||
       active.featureSchema !== "family-score-plus-observation-mask-v1"
     )
@@ -78,6 +81,7 @@ export function forecastSnapshot(
       family.score === null ? 0 : 1,
     ]);
     return {
+      engineVersion: active.engineVersion,
       instrument: active.instrument,
       horizon: active.horizon,
       modelId: active.id,

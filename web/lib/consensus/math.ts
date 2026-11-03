@@ -1,5 +1,14 @@
 import type { Bar } from "../contracts.ts";
 
+export interface IntervalBar extends Bar { end: string; }
+
+function completedBars(bars: IntervalBar[], cutoff: string): IntervalBar[] {
+  return validBars(bars, cutoff).filter((bar) => {
+    const end = (bar as IntervalBar).end;
+    return Number.isFinite(Date.parse(end)) && Date.parse(end) > Date.parse(bar.time) && Date.parse(end) <= Date.parse(cutoff);
+  }) as IntervalBar[];
+}
+
 function validBars(bars: Bar[], cutoff: string): Bar[] {
   if (!Number.isFinite(Date.parse(cutoff)))
     throw new Error("Invalid observation cutoff");
@@ -29,10 +38,10 @@ function validBars(bars: Bar[], cutoff: string): Bar[] {
   }
   return [...unique.values()].sort((a, b) => a.time.localeCompare(b.time));
 }
-export function fibonacci(bars: Bar[], cutoff: string, lookback = 20) {
+export function fibonacci(bars: IntervalBar[], cutoff: string, lookback = 20) {
   if (!Number.isInteger(lookback) || lookback < 2 || lookback > 10000)
     throw new Error("Invalid Fibonacci lookback");
-  const input = validBars(bars, cutoff).slice(-lookback);
+  const input = completedBars(bars, cutoff).slice(-lookback);
   if (input.length !== lookback) return null;
   const high = Math.max(...input.map((bar) => bar.high)),
     low = Math.min(...input.map((bar) => bar.low));
@@ -45,15 +54,15 @@ export function fibonacci(bars: Bar[], cutoff: string, lookback = 20) {
     low,
     direction: upward ? "up" : "down",
     start: input[0].time,
-    end: input.at(-1)!.time,
+    end: input.at(-1)!.end,
     levels: [0.236, 0.382, 0.5, 0.618, 0.786].map((ratio) => ({
       ratio,
       value: upward ? high - (high - low) * ratio : low + (high - low) * ratio,
     })),
   };
 }
-export function pivotLevels(previousSession: Bar) {
-  if (!validBars([previousSession], previousSession.time).length) return null;
+export function pivotLevels(previousSession: IntervalBar, cutoff: string) {
+  if (!completedBars([previousSession], cutoff).length) return null;
   const { high, low, close } = previousSession,
     pivot = (high + low + close) / 3;
   return {
@@ -86,6 +95,10 @@ export function sessionRange(
 ) {
   const start = kind === "opening" ? 570 : 240,
     end = kind === "opening" ? 585 : 570;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(Date.parse(day)) || new Date(day).toISOString().slice(0, 10) !== day)
+    throw new Error("Invalid session date");
+  // A display threshold, not proof that an incomplete range is tradable.
+  const minimumCoverage = kind === "opening" ? 1 : 0.5;
   const parts = nyParts(cutoff),
     cutoffDay = `${parts.year}-${parts.month}-${parts.day}`;
   if (
@@ -97,6 +110,11 @@ export function sessionRange(
       high: null,
       low: null,
       volume: null,
+      coverage: null,
+      observedMinutes: null,
+      expectedMinutes: end - start,
+      minimumCoverage,
+      rangeBasis: "observed-minute-bars" as const,
     };
   const input = validBars(bars, cutoff).filter((bar) => {
     const part = nyParts(bar.time),
@@ -105,23 +123,31 @@ export function sessionRange(
       `${part.year}-${part.month}-${part.day}` === day &&
       minutes >= start &&
       minutes < end &&
-      new Date(bar.time).getUTCSeconds() === 0
+      new Date(bar.time).getUTCSeconds() === 0 &&
+      new Date(bar.time).getUTCMilliseconds() === 0 &&
+      Date.parse(bar.time) + 60000 <= Date.parse(cutoff)
     );
   });
   // Input contract is one-minute bars. A hole is missing coverage, never a flat minute.
   const minutes = new Set(input.map((bar) => bar.time.slice(0, 16)));
-  if (minutes.size !== end - start)
+  const coverage = minutes.size / (end - start), details = {
+    coverage, observedMinutes: minutes.size, expectedMinutes: end - start,
+    minimumCoverage, rangeBasis: "observed-minute-bars" as const,
+  };
+  if (coverage < minimumCoverage)
     return {
       status: "unavailable" as const,
       high: null,
       low: null,
       volume: null,
+      ...details,
     };
   return {
-    status: "available" as const,
+    status: coverage === 1 ? "available" as const : "partial" as const,
     high: Math.max(...input.map((bar) => bar.high)),
     low: Math.min(...input.map((bar) => bar.low)),
     volume: input.reduce((sum, bar) => sum + bar.volume, 0),
+    ...details,
   };
 }
 export function normalCDF(x: number): number {
