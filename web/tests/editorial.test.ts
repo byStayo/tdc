@@ -25,6 +25,20 @@ test('FRED evidence preserves genuine zero and missing observations without acce
   assert.throws(() => parseFREDCSV('observation_date,WRONG\n2026-10-01,5', 'FEDFUNDS'));
 });
 
+test('reviewed BLS releases retain their observation period, original publication time and document hash', () => {
+  const {candidate,evidence}=fixture(),url='https://www.bls.gov/news.release/jolts.nr0.htm';
+  const source={id:'BLS_JOLTS',kind:'bls' as const,title:'Synthetic reviewed BLS release',url,retrievalUrl:url,retrievedAt:'2026-11-03T01:59:00Z',observationDates:['2026-09-30'],status:'ok' as const,data:{publishedAt:'2026-11-02T15:00:00Z',periodEnd:'2026-09-30',sha256:'a'.repeat(64),jobOpeningsMillions:7.5}};
+  const reviewed={...evidence,sources:[...evidence.sources,source]};
+  const draft={...candidate,sources:[...candidate.sources,{id:source.id,title:source.title,url}],data:{...candidate.data,watch:[{text:'A separately dated labor-market observation.',sourceIds:[source.id]}]}};
+  assert.equal(validateEditorialPublication(draft,reviewed,NOW).brief.sources?.length,2);
+  for(const changed of [
+    {...source,data:{...source.data,sha256:'missing'}},
+    {...source,data:{...source.data,publishedAt:'2026-11-03T02:30:00Z'}},
+    {...source,data:{...source.data,periodEnd:'2026-10-31'}},
+    {...source,retrievalUrl:'https://www.sec.gov/not-a-bls-release'},
+  ])assert.throws(()=>validateEditorialPublication(draft,{...reviewed,sources:[evidence.sources[0],changed]},NOW),/BLS evidence/);
+});
+
 test('collector uses bounded official reads, retains provenance and marks failed sources unavailable', async () => {
   const calls: URL[] = [];
   const evidence = await collectEditorialEvidence(async (input, init) => {

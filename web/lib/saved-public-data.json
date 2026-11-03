@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-03T04:14:53.528Z",
+  "collectedAt": "2026-11-03T17:11:32.821Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -839,8 +839,18 @@
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-03T04:14:52.977Z",
+      "retrievedAt": "2026-11-03T17:05:38.984Z",
       "data": [
+        {
+          "id": "sec:0000320193:0000320193-26-000026",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "10-K",
+          "filedAt": "2026-11-03",
+          "reportDate": "2026-09-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "description": "10-K"
+        },
         {
           "id": "sec:0000320193:0000320193-26-000024",
           "company": "Apple Inc.",
@@ -910,22 +920,12 @@
           "reportDate": "2026-10-13",
           "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126039785/xslF345X06/form4.xml",
           "description": "FORM 4"
-        },
-        {
-          "id": "sec:0000320193:0001140361-26-039158",
-          "company": "Apple Inc.",
-          "cik": "0000320193",
-          "form": "4",
-          "filedAt": "2026-10-08",
-          "reportDate": "2026-10-06",
-          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126039158/xslF345X06/form4.xml",
-          "description": "FORM 4"
         }
       ]
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-03T04:14:53.254Z",
+      "retrievedAt": "2026-11-03T17:05:39.201Z",
       "data": [
         {
           "id": "sec:0000789019:0001193125-26-442618",
@@ -1011,7 +1011,7 @@
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-03T04:14:53.490Z",
+      "retrievedAt": "2026-11-03T17:05:39.496Z",
       "data": [
         {
           "id": "sec:0001045810:0002152188-26-000007",

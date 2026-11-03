@@ -2,54 +2,53 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "DIA",
-  "createdAt": "2026-11-03T04:16:34.456Z",
+  "createdAt": "2026-11-03T17:11:32.823Z",
   "model": "Codex editorial workflow",
-  "message": "Published DIA research using the linked public evidence. The futures reporting dates are shown in the analysis; refreshing this page does not generate a new report.",
+  "message": "A separately reviewed public-source edition incorporating the November 3 BLS release. Original observation dates remain explicit; page reads trigger no paid generation.",
   "data": {
-    "headline": "DIA: a small sign change needs context.",
-    "summary": "Leveraged funds moved from net short to a small net long balance in Dow futures between October 20 and October 27. Asset managers remained net long but reduced their balance. The change in sign is an observation, not evidence that DIA has entered a new trend.",
+    "headline": "DIA: look through the hiring headline to its sector mix.",
+    "summary": "Today’s JOLTS release shows September hires little changed overall, with an increase in accommodation and food services. A sector-specific labor change should not be treated as a uniform reading across the Dow. The related Dow futures categories supply older, distinct positioning context.",
     "bull": [
       {
-        "text": "Leveraged funds moved from 1,967 net short Dow futures contracts on October 20 to 96 net long on October 27. The latest balance comes from 13,822 long and 13,726 short contracts, so the category was close to balanced.",
+        "text": "BLS reported 5.4 million September hires and an increase of 158,000 in accommodation and food services. This adds a sector-specific employment observation, not a direct estimate of hiring or profits at Dow constituents.",
         "sourceIds": [
-          "CFTC_DOW"
+          "BLS_JOLTS"
         ]
       }
     ],
     "bear": [
       {
-        "text": "Asset managers’ net long balance fell from 13,066 to 12,233 contracts. Their gross longs increased, but gross shorts increased by more. Net positioning and gross buying are different measures.",
+        "text": "Quits increased to 3.4 million overall, including an increase in accommodation and food services. Hiring and turnover can rise together; the headline does not establish a uniform improvement in company labor costs.",
         "sourceIds": [
-          "CFTC_DOW"
+          "BLS_JOLTS"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Dow futures open interest rose from 90,022 to 91,636 contracts. Track whether the near-balanced leveraged category persists in the next release instead of treating a small crossing of zero as a validated trading signal.",
+        "text": "Dow futures asset managers were net long 12,233 contracts on October 27, while leveraged funds were almost balanced at net long 96. The latter was net short 1,967 on October 20. The futures contract differs from DIA shares.",
         "sourceIds": [
-          "CFTC_DOW",
-          "CFTC_METHOD"
+          "CFTC_DOW"
         ]
       }
     ],
     "limitations": [
-      "CFTC observations are for October 27 and October 20, 2026. These are weekly futures-only reports released after their observation dates, not live positions.",
-      "The related futures contract is not the ETF. Trader-category net positions are long-minus-short contract counts; they are not ETF fund flows, dollar exposure or evidence of investor intent.",
-      "No current support/resistance levels, options chain, gamma levels or dark-pool signal were collected for this report. Hosted charts remain separate from the editorial evidence.",
-      "This AI-assisted report presents supporting observations and counterpoints, without a validated price forecast or conviction score. It is general research, not a buy or sell instruction."
+      "BLS observations describe September and were released November 3 at 10:00 AM ET; they are survey estimates subject to revision. No economist consensus or release-day price reaction was collected.",
+      "CFTC observations are October 27 futures-only category positions, released with a lag. Related futures are not ETF holdings, live fund flows or named-investor intent.",
+      "Current price levels, option chains, gamma, social sentiment and dark-pool direction are not independently measured here. Hosted TradingView displays remain separate.",
+      "This AI-assisted contextual report has no validated directional forecast or conviction score."
     ]
   },
   "sources": [
     {
+      "id": "BLS_JOLTS",
+      "title": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
+      "url": "https://www.bls.gov/news.release/jolts.nr0.htm"
+    },
+    {
       "id": "CFTC_DOW",
       "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-10-27",
       "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
-    },
-    {
-      "id": "CFTC_METHOD",
-      "title": "CFTC · Commitments of Traders methodology",
-      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
     }
   ]
 }

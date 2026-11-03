@@ -4,12 +4,12 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { latestPublicPositioning, parseSECSubmissions, publicDate, PUBLIC_CONTRACT_CODES } from '../lib/public-normalization.ts';
 
-export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov']);
+export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov']);
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const USER_AGENT = 'The Daily Consensus public editorial research https://thedailyconsensus.com';
 export interface EditorialSource {
-  id: string; kind: 'cftc' | 'fred' | 'sec' | 'methodology'; title: string;
+  id: string; kind: 'cftc' | 'fred' | 'sec' | 'methodology' | 'bls'; title: string;
   url: string; retrievalUrl: string; retrievedAt: string; observationDates: string[];
   status: 'ok' | 'unavailable'; data: unknown; error?: string;
 }

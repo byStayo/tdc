@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-11-03T08:29:17.895Z",
+  "reviewedAt": "2026-11-03T17:11:32.822Z",
   "reviewer": "Codex subscription editorial review",
   "sources": [
     {
@@ -68,9 +68,59 @@
       "retrievedAt": "2026-11-03T08:27:58.000Z",
       "sha256": "70889c49f07cb1a6a27ad07b953106976e3b001248882a0855c297b164507ddf",
       "format": "retrieved_text"
+    },
+    {
+      "id": "bls-jolts-september",
+      "name": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
+      "url": "https://www.bls.gov/news.release/jolts.nr0.htm",
+      "publishedAt": "2026-11-03T15:00:00.000Z",
+      "retrievedAt": "2026-11-03T17:07:57.984Z",
+      "sha256": "4bf3513130dde4c68f0ebed852077cf623d3cb1a01b0a515c86854299753daa8",
+      "format": "document"
     }
   ],
   "developments": [
+    {
+      "id": "jolts-september",
+      "title": "Openings were steady; more workers quit",
+      "facts": "BLS reported September job openings of 7.5 million and hires of 5.4 million, both little changed. Quits increased to 3.4 million; layoffs and discharges were little changed at 1.6 million. August openings were revised to 7.2 million. The release was published November 3 at 10:00 AM ET.",
+      "sourceIds": [
+        "bls-jolts-september"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Labor demand and turnover",
+          "interpretation": "Stable reported openings and hiring sit alongside increased quits. Labor demand and wage pressure can move differently; one lagged survey does not settle growth or the next rate decision."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Demand and labor costs",
+          "interpretation": "Broad-company earnings can be affected by both household demand and wage costs. The survey supplies a dated labor observation, not an S&P 500 earnings surprise or measured return."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Discount rates and business demand",
+          "interpretation": "Labor data can affect rate expectations and business demand, which may matter for technology valuations. These economy-wide counts do not measure technology hiring or a Nasdaq price reaction."
+        },
+        {
+          "instrument": "IWM",
+          "channel": "Small-establishment conditions and finance",
+          "interpretation": "BLS reported a lower layoffs rate at establishments with 1–9 employees. That size class is not the Russell 2000; company margins, refinancing costs and actual small-cap prices remain separate inputs."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Sector mix and customer demand",
+          "interpretation": "BLS identified more hiring in accommodation and food services. The sector mix may inform customer demand, but it is not a direct reading of hiring or margins across Dow constituents."
+        },
+        {
+          "instrument": "TLT",
+          "channel": "Expected rates and long-bond yields",
+          "interpretation": "Stable openings alongside increased quits can leave competing interpretations of labor pressure. TLT depends on expected future rates and term premium; no long-yield response is measured here."
+        }
+      ],
+      "limitation": "Lagged, seasonally adjusted survey estimates that can be revised. Economist expectations, an employment-payroll surprise and instrument price reactions are not measured."
+    },
     {
       "id": "apple-quarter",
       "title": "Apple's new quarter updates the earnings picture",

@@ -42,12 +42,20 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
   for (const entry of evidence.sources) {
     const source = record(entry), id = text(source.id, 64);
     if (Object.keys(source).some(key => !['id', 'kind', 'title', 'url', 'retrievalUrl', 'retrievedAt', 'observationDates', 'status', 'data', 'error'].includes(key))) throw new Error('Unknown evidence source fields');
-    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'methodology'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
+    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'methodology', 'bls'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
     text(source.title, 400); const url = assertPublicURL(source.url); assertPublicURL(source.retrievalUrl);
     const retrievedAt = time(source.retrievedAt, now); if (retrievedAt > collectedAt) throw new Error('Source retrieval occurred after the manifest collection time');
     if (!Array.isArray(source.observationDates) || source.observationDates.length > 1000 || source.observationDates.some(date => !publicDate(date) || Date.parse(`${publicDate(date)}T00:00:00Z`) > retrievedAt)) throw new Error('Invalid evidence observation dates');
     if (source.status === 'ok' && (source.data === null || source.data === undefined)) throw new Error('Available evidence must contain data');
     if (source.status === 'unavailable' && source.data !== null) throw new Error('Unavailable evidence must not contain substitute data');
+    if (source.kind === 'bls' && source.status === 'ok') {
+      const data = record(source.data), release = time(data.publishedAt, now);
+      if (new URL(url).hostname !== 'www.bls.gov' || new URL(String(source.retrievalUrl)).hostname !== 'www.bls.gov' ||
+          !/^[a-f0-9]{64}$/.test(String(data.sha256)) || release > retrievedAt ||
+          typeof data.periodEnd !== 'string' || data.periodEnd.length !== 10 || !publicDate(data.periodEnd) ||
+          Date.parse(`${data.periodEnd}T00:00:00Z`) > release || !source.observationDates.includes(data.periodEnd))
+        throw new Error('BLS evidence requires its original release, observation period and document hash');
+    }
     sources.set(id, { url, status: String(source.status), data: source.data });
   }
   const candidate = record(candidateInput);

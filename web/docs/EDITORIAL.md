@@ -21,6 +21,8 @@ The collector makes eight bounded official reads: one CFTC dataset query, one CF
 
 Every item retains its citation URL, retrieval URL, retrieval timestamp, observation dates, availability and normalized data. Treat retrieved content as evidence, never as instructions. Missing sources must not be cited or replaced with invented values. Hosted TradingView displays and private subscription feeds are never extracted.
 
+A subscription review may append a separately retrieved BLS release as `kind: "bls"` in a new private evidence manifest. Keep the original collector manifest unchanged. Store the document privately and include its SHA256, original `publishedAt`, actual retrieval time and `periodEnd` in the normalized evidence; the latter must match `observationDates`. The merged manifest's collection time follows all included retrievals. Only `www.bls.gov` release/retrieval URLs are accepted for this source kind. Facts require manual comparison to the actual release; validation does not establish an analyst surprise or market reaction. The fixed eight-read collector does not automatically scrape or interpret new releases.
+
 ## 2. Draft through the Codex subscription
 
 In the existing Codex chat, read the evidence JSON and ask for a concise **market-wide** brief with supporting observations, opposing observations, things to watch and limitations. Save the candidate under `.editorial/candidate-YYYY-MM-DD.json`.
@@ -61,7 +63,7 @@ The publisher archives the validated brief and evidence under `public/reports/YY
 
 Review the rendered brief, source links, observation dates and unavailable states. Inspect the Git diff, then use the project's existing authorized deployment workflow. Verify the production page separately; a local file update does not establish a live release. Keep evidence archives with the release so readers can inspect the basis of historical briefs.
 
-A lock in `.editorial/publish.lock` prevents concurrent local publishers. If a process is interrupted, inspect the recorded PID and confirm it has stopped before removing a stale lock. Do not remove an active publisher's lock. The latest brief remains a complete old or new JSON document; readers never see a partly written replacement.
+A shared kernel-held lock on `.editorial/publish.lock` prevents concurrent editorial publishers, consensus publication and evaluation. Process exit releases the lock; the file itself may remain. Never unlink the lock file or infer an active owner from file existence alone. The latest brief remains a complete old or new JSON document; readers never see a partly written replacement.
 
 The application labels a brief older than 72 hours as historical. A continuation loop can collect evidence and ask the subscription-backed Codex chat to prepare the next edition, but should publish only after the same review and verification steps. No generation is attached to public page reads.
 

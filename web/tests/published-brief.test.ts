@@ -8,7 +8,7 @@ test('published brief has traceable public evidence and a valid publication date
   assert.equal(brief.scope, 'market');
   assert.ok(Number.isFinite(Date.parse(brief.createdAt!)));
   assert.ok(brief.sources?.length);
-  const allowed = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov']);
+  const allowed = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov']);
   for (const source of brief.sources!) {
     const url = new URL(source.url);
     assert.equal(url.protocol, 'https:');
