@@ -16,6 +16,7 @@ Design feasibility assessment: impact4, context5, feasibility4, performance4, co
 - Four-pixel spacing rhythm,1240px outer width, restrained borders,8–12px radii. Motion is limited to hover changes and respects reduced motion.
 - Compact intro and metadata disclosure. Controls and keyboard tab order are preserved.
 -15 labelled family actions, explicit at-publication state and visible directional/observation coverage. Full withheld reasons and vote calculation remain in a disclosure.
+- The map and its legend use a filled square for directional input, a filled circle for context, and a hollow circle for missing input. Eleven-pixel family labels and eight-pixel shapes preserve the distinction without relying on color. Legacy editions show observation coverage separately from their directional-family count and explicitly state that they have no directional gate.
 - Reviewed headlines show dates and transmission channels. Expanding reveals every original fact, separately labelled interpretation, limitation and source link.
 - Rates/liquidity/FX visuals remain open. Policy/institutions/capital, news/earnings and hosted charts have named expandable sections. Hosted frames mount on open and unmount on close; they remain hidden in historical editions.
 

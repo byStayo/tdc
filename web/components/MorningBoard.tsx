@@ -1213,10 +1213,11 @@ export default function MorningBoard({
           <span>
             {consensus.directionalCoverage !== undefined
               ? "Directional coverage"
-              : "Evidence coverage"}
+              : "Observation coverage"}
             <small>
-              at publication · {votingFamilies}/{FAMILIES.length} voting
-              families
+              {consensus.directionalCoverage !== undefined
+                ? `at publication · ${votingFamilies}/${FAMILIES.length} voting families`
+                : "at publication · this edition has no directional gate"}
             </small>
           </span>
         </div>
@@ -1228,8 +1229,10 @@ export default function MorningBoard({
           />
         </div>
         <p className={layout.coverageNote}>
-          {pct(consensus.coverage)} observation coverage. Completeness, not
-          accuracy.
+          {consensus.directionalCoverage !== undefined
+            ? `${pct(consensus.coverage)} observation coverage.`
+            : `${votingFamilies} of ${FAMILIES.length} families provided directional input.`}{" "}
+          Completeness, not accuracy.
         </p>
         {agedSincePublication > 0 && (
           <p className={layout.coverageNote}>
