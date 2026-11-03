@@ -1,5 +1,5 @@
 import type { Horizon, Instrument, Snapshot } from "./types.ts";
-import { calculateConsensus } from "./engine.ts";
+import { asIssuedConsensus } from "./as-issued.ts";
 
 export interface LogisticModel {
   intercept: number;
@@ -62,11 +62,10 @@ export function forecastSnapshot(
       active.featureSchema !== "family-score-plus-observation-mask-v1"
     )
       throw new Error("Model time or feature contract violation");
-    const consensus = calculateConsensus(
-      snapshot.signals,
+    const consensus = asIssuedConsensus(
+      snapshot,
       active.instrument,
       active.horizon,
-      snapshot.cutoff,
     );
     const features = consensus.families.flatMap((family) => [
       family.score ?? 0,

@@ -6,7 +6,7 @@ export function retainLastKnown(
   snapshot: Snapshot,
   previous: Snapshot,
 ): Snapshot {
-  validateSnapshot(previous);
+  validateSnapshot(previous, "archive");
   if (previous.issuedAt >= snapshot.issuedAt)
     throw new Error("Previous edition must precede collection");
   let retainedNews = false;

@@ -1,5 +1,5 @@
 import type { Horizon, Instrument, Outcome, Snapshot } from "./types.ts";
-import { calculateConsensus } from "./engine.ts";
+import { asIssuedConsensus } from "./as-issued.ts";
 import { newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
@@ -113,11 +113,10 @@ export function evaluateOutcome(
   const exit = rows.at(-1)!;
   if (!exit || exit.closeAt > now || start.openAt <= snapshot.issuedAt)
     return null;
-  const consensus = calculateConsensus(
-      snapshot.signals,
+  const consensus = asIssuedConsensus(
+      snapshot,
       prices.instrument,
       horizon,
-      snapshot.cutoff,
     ),
     returnPct = (exit.close / start.open - 1) * 100;
   const forecast = snapshot.forecasts?.find(

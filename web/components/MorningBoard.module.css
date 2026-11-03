@@ -228,7 +228,7 @@
 }
 .horizons button {
   padding: 5px 14px;
-  min-height: 36px;
+  min-height: 44px;
   text-transform: capitalize;
 }
 .horizons button[aria-pressed="true"] {
@@ -269,6 +269,30 @@
 }
 .hero > div + div {
   border-left: 1px solid var(--border);
+}
+.abstentionReasons {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border);
+  padding: 22px 28px;
+}
+.abstentionReasons h3 {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 550;
+}
+.abstentionReasons ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 10px 30px;
+  margin: 0;
+  padding-left: 17px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.abstentionReasons li::marker {
+  color: var(--warning);
 }
 .heroVerdict h2 {
   font-size: 29px;
@@ -357,7 +381,8 @@
   align-items: center;
 }
 .positiveDot,
-.negativeDot {
+.negativeDot,
+.mutedDot {
   display: inline-block;
   width: 5px;
   height: 5px;
@@ -366,6 +391,9 @@
 }
 .negativeDot {
   background: var(--negative);
+}
+.mutedDot {
+  background: var(--text-muted);
 }
 .finePrint {
   font-size: 10px;
@@ -389,7 +417,7 @@
   color: var(--text-secondary);
   border: 0;
   padding: 8px 0;
-  min-height: 42px;
+  min-height: 44px;
   font-size: 11px;
   text-align: left;
 }

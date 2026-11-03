@@ -4,6 +4,7 @@ import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { collectSnapshot } from "../lib/consensus/collector.ts";
 import { publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot } from "../lib/consensus/model.ts";
+import { freezeConsensus } from "../lib/consensus/as-issued.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { retainLastKnown } from "../lib/consensus/last-known.ts";
 import { attachReview } from "../lib/consensus/reviewed.ts";
@@ -35,6 +36,7 @@ const review = JSON.parse(
   ),
 );
 snapshot = attachReview(snapshot, review);
+snapshot = freezeConsensus(snapshot);
 const registry = JSON.parse(
   await readFile(resolve(root, "lib/consensus/models.json"), "utf8"),
 ) as { models: ActiveModel[] };

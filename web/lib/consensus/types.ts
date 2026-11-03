@@ -117,6 +117,8 @@ export interface Snapshot {
   catalysts: Catalyst[];
   sourcesAttempted: number;
   collectionErrors: string[];
+  /** Complete frozen results for new publications; legacy editions use a pinned engine. */
+  consensus?: Consensus[];
   forecasts?: import("./model").Forecast[];
   news?: import("./news").NewsPulse;
   review?: import("./reviewed").ReviewPacket;

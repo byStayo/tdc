@@ -31,6 +31,12 @@ Private collection probes, historical experiment models, raw prices and backups 
 
 ## Current verification boundary
 
+### As-issued history
+
+New publications freeze all six instruments and three horizons in `snapshot.consensus` before hashing. The API, morning verdict, outcome evaluator and training features read those saved results. Existing archives remain byte-for-byte unchanged: versions `consensus-rules-1.0.0` and `1.1.0` are interpreted by the frozen `engines/v1.ts` implementation using their original cutoff. Never edit that historical engine or silently route an unknown legacy version to the active engine. Add an explicit version implementation when methodology changes.
+
+Archive verification checks saved structure, provenance, chronology and hashes; it does not regenerate past wording or derived review/holdings signals with current code. New candidate publications still cross-check every derivation, including stored consensus. Latest source panels may mark observations stale as time passes; the saved verdict and its publication coverage remain unchanged and the page discloses observations that aged out. An abstaining verdict has no directional needle and lists the actual engine reasons.
+
 The November 3 holdings increment has 78 tracked inputs: 65 current observations, one stale SEC private-equity aggregate and 12 missing inputs. Weighted requested coverage is about55%; the consensus abstains. Cross-border Treasury flows, GDELT financial-news tone, three reviewed primary developments and BLS/FOMC/Treasury/OCC/BoE/ECB/BoJ calendars are connected. Missing US prices/options, social/retail, analyst estimates, off-exchange and actual private-equity investment flows remain material gaps. FINRA private integration is tested with fixtures but awaits the user's free Public credential; it is not live coverage. Nine real ECB currency-history candidates were evaluated; none passed the declared improvement threshold. No prospective outcome or active model is claimed.
 
 After a provider failure, the collector can retain a previously verified numeric series or news batch. It preserves the observation/retrieval dates, source hash and methodology, adds a visible refresh notice, and retains the collection error. Existing stale limits continue to apply. Calendar events are not revived through this fallback. A failed refresh alone cannot create a new edition. Outcome evidence requires canonical UTC timestamps aligned with the named New York session date; mixed-offset string comparisons cannot silently assign a wrong outcome.

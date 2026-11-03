@@ -1,5 +1,5 @@
 import snapshot from "@/lib/consensus/current.json";
-import { calculateConsensus } from "@/lib/consensus/engine";
+import { asIssuedConsensus } from "@/lib/consensus/as-issued";
 import { INSTRUMENTS, HORIZONS } from "@/lib/consensus/types";
 import type { Snapshot, Instrument, Horizon } from "@/lib/consensus/types";
 export async function GET(request: Request) {
@@ -22,11 +22,11 @@ export async function GET(request: Request) {
       cutoff: data.cutoff,
       engineVersion: data.engineVersion,
       runtimeGeneration: false,
-      consensus: calculateConsensus(
-        data.signals,
+      consensusBasis: "as-issued",
+      consensus: asIssuedConsensus(
+        data,
         symbol as Instrument,
         horizon as Horizon,
-        new Date().toISOString(),
       ),
       snapshot: `/consensus/${data.id}.json`,
     },

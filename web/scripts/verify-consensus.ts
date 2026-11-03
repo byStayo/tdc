@@ -12,7 +12,7 @@ const current: Snapshot = JSON.parse(
 const history: HistoryEntry[] = JSON.parse(
   await readFile(resolve(root, "public/consensus/index.json"), "utf8"),
 );
-validateSnapshot(current);
+validateSnapshot(current, "archive");
 if (
   !history.length ||
   new Set(history.map((entry) => entry.id)).size !== history.length ||
@@ -28,7 +28,7 @@ for (const [i, entry] of history.entries()) {
       "utf8",
     ),
   );
-  validateSnapshot(snapshot);
+  validateSnapshot(snapshot, "archive");
   if (
     digest(snapshot) !== entry.sha256 ||
     snapshot.id !== entry.id ||

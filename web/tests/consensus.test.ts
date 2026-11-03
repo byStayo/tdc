@@ -63,7 +63,7 @@ const snapshot = (): Snapshot => ({
   id: "2026-11-03T12-00-00-000Z",
   issuedAt: at,
   cutoff: at,
-  engineVersion: "test-v1",
+  engineVersion: "consensus-rules-1.1.0",
   origin: "prospective",
   signals: [signal()],
   catalysts: [],

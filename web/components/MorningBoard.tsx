@@ -19,7 +19,8 @@ import {
 import { eventUpcoming } from "@/lib/consensus/time";
 import { policyReadings } from "@/lib/consensus/policy";
 import type { NewsPulse } from "@/lib/consensus/news";
-import { calculateConsensus, effectiveStatus } from "@/lib/consensus/engine";
+import { effectiveStatus } from "@/lib/consensus/engine";
+import { asIssuedConsensus } from "@/lib/consensus/as-issued";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
@@ -148,7 +149,7 @@ function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
       viewBox="0 0 300 175"
       className={styles.gauge}
       role="img"
-      aria-label={`Available-input balance ${score === null ? "unavailable" : number(value * 100, 0)} on a scale from -100 to 100. ${abstain ? "Incomplete coverage; no trading call." : "Heuristic directional lean."}`}
+      aria-label={abstain ? "Trading call withheld. See the reasons below." : `Available-input balance ${score === null ? "unavailable" : number(value * 100, 0)} on a scale from -100 to 100. Heuristic directional lean.`}
     >
       <path
         d="M 30 135 A 120 120 0 0 1 270 135"
@@ -159,16 +160,16 @@ function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
       <path
         d="M 30 135 A 120 120 0 0 1 90 31"
         fill="none"
-        stroke="var(--negative)"
+        stroke={abstain ? "var(--border)" : "var(--negative)"}
         strokeWidth="14"
       />
       <path
         d="M 210 31 A 120 120 0 0 1 270 135"
         fill="none"
-        stroke="var(--positive)"
+        stroke={abstain ? "var(--border)" : "var(--positive)"}
         strokeWidth="14"
       />
-      {score !== null && (
+      {!abstain && score !== null && (
         <>
           <line
             x1="150"
@@ -182,12 +183,12 @@ function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
         </>
       )}
       <text x="150" y="104" textAnchor="middle" className={styles.gaugeValue}>
-        {score === null
+        {abstain || score === null
           ? "—"
           : `${score > 0 ? "+" : ""}${Math.round(score * 100)}`}
       </text>
       <text x="150" y="123" textAnchor="middle" className={styles.gaugeCaption}>
-        INPUT BALANCE
+        {abstain ? "CALL WITHHELD" : "INPUT BALANCE"}
       </text>
       <text x="25" y="163" className={styles.gaugeCaption}>
         DEFENSIVE
@@ -198,7 +199,7 @@ function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
     </svg>
   );
 }
-function Divergence({ value }: { value: number | null }) {
+function Divergence({ value, muted = false }: { value: number | null; muted?: boolean }) {
   return (
     <div className={styles.divergence} aria-hidden="true">
       <span />
@@ -207,7 +208,7 @@ function Divergence({ value }: { value: number | null }) {
           left: value !== null && value < 0 ? `${50 + value * 50}%` : "50%",
           width: value === null ? "0%" : `${Math.abs(value) * 50}%`,
           background:
-            value !== null && value < 0 ? "var(--negative)" : "var(--positive)",
+            muted ? "var(--text-muted)" : value !== null && value < 0 ? "var(--negative)" : "var(--positive)",
         }}
       />
     </div>
@@ -1045,11 +1046,10 @@ export default function MorningBoard({
   }, []);
   const historical = snapshot.id !== initial.id,
     reference = historical ? snapshot.cutoff : now;
-  const consensus = calculateConsensus(
-      snapshot.signals,
+  const consensus = asIssuedConsensus(
+      snapshot,
       instrument,
       horizon,
-      reference,
     ),
     current = snapshot.signals.filter((signal) =>
       signal.instruments.includes(instrument),
@@ -1057,6 +1057,10 @@ export default function MorningBoard({
   const available = current.filter(
     (signal) => effectiveStatus(signal, reference) === "available",
   );
+  const agedSincePublication = historical ? 0 : current.filter(
+    (signal) => effectiveStatus(signal, snapshot.cutoff) === "available" &&
+      effectiveStatus(signal, reference) !== "available",
+  ).length;
   const leaders = [...consensus.families]
     .filter((item) => item.score !== null)
     .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
@@ -1233,7 +1237,7 @@ export default function MorningBoard({
               </button>
             ))}
           </div>
-          <div className={styles.horizons} aria-label="Context window">
+          <div className={styles.horizons} role="group" aria-label="Context window">
             {HORIZONS.map((value) => (
               <button
                 key={value}
@@ -1299,11 +1303,11 @@ export default function MorningBoard({
               <h2>{consensus.label}</h2>
               <p>
                 {consensus.abstain
-                  ? "The available signals form a view. The missing signals still matter. A complete trading call is withheld."
+                  ? "These are partial observations. The missing signals still matter. A complete trading call is withheld."
                   : "A transparent balance of independent market inputs. Inspect the drivers before forming your plan."}
               </p>
               <div className={styles.coverageLabel}>
-                <span>Evidence coverage</span>
+                <span>Evidence coverage at publication</span>
                 <strong>{pct(consensus.coverage)}</strong>
               </div>
               <div className={styles.coverageTrack}>
@@ -1311,8 +1315,12 @@ export default function MorningBoard({
               </div>
               <small>
                 {consensus.families.filter((item) => item.available > 0).length}{" "}
-                of {FAMILIES.length} families have current observations
+                of {FAMILIES.length} families had current observations at publication
               </small>
+              {agedSincePublication > 0 && <p className={styles.finePrint}>
+                {agedSincePublication} observations have aged out since publication.
+                This saved reading stays unchanged; inspect source dates before use.
+              </p>}
               <button
                 className={styles.textButton}
                 onClick={() => setTab("signals")}
@@ -1324,16 +1332,17 @@ export default function MorningBoard({
               <Gauge score={consensus.score} abstain={consensus.abstain} />
               <div className={styles.votes}>
                 <span>
-                  <i className={styles.positiveDot} />
+                  <i className={consensus.abstain ? styles.mutedDot : styles.positiveDot} />
                   {consensus.bullish} supportive
                 </span>
                 <span>
-                  <i className={styles.negativeDot} />
+                  <i className={consensus.abstain ? styles.mutedDot : styles.negativeDot} />
                   {consensus.bearish} defensive
                 </span>
                 <span>{consensus.neutral} balanced</span>
               </div>
               <p className={styles.finePrint}>
+                {consensus.abstain && <>Partial observations only; no directional call.<br /></>}
                 {pct(consensus.agreement)} agreement among directional families.
                 <br />
                 Agreement is not a probability of profit.
@@ -1341,7 +1350,7 @@ export default function MorningBoard({
             </div>
             <div className={styles.drivers}>
               <span className={styles.eyebrow}>
-                WHAT IS PULLING THE BALANCE
+                {consensus.abstain ? "PARTIAL INPUTS · NOT A CALL" : "WHAT IS PULLING THE BALANCE"}
               </span>
               {leaders.map((item) => (
                 <button key={item.id} onClick={() => setFamily(item.id)}>
@@ -1349,9 +1358,9 @@ export default function MorningBoard({
                     {item.label}
                     <ChevronRight size={13} />
                   </span>
-                  <Divergence value={item.score} />
+                  <Divergence value={item.score} muted={consensus.abstain} />
                   <strong
-                    className={item.score! >= 0 ? styles.up : styles.down}
+                    className={consensus.abstain ? styles.muted : item.score! >= 0 ? styles.up : styles.down}
                   >
                     {item.score! > 0 ? "+" : ""}
                     {Math.round(item.score! * 100)}
@@ -1363,6 +1372,12 @@ export default function MorningBoard({
                 are declared rules, not learned accuracy.
               </p>
             </div>
+            {consensus.abstain && (
+              <aside className={styles.abstentionReasons} aria-labelledby="withheld-reasons">
+                <h3 id="withheld-reasons">Why the call is withheld</h3>
+                <ul>{consensus.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+              </aside>
+            )}
           </section>
         )}
         {tab === "morning" && (
@@ -1711,7 +1726,7 @@ export default function MorningBoard({
             )}
             <section className={styles.scenario}>
               <div>
-                <span className={styles.eyebrow}>BUILD YOUR PLAN</span>
+                <span className={styles.eyebrow}>{consensus.abstain ? "CONDITIONS TO WATCH · CALL WITHHELD" : "BUILD YOUR PLAN"}</span>
                 <h2>
                   {horizon === "daily"
                     ? "What would change the picture?"
@@ -1720,29 +1735,30 @@ export default function MorningBoard({
               </div>
               <div>
                 <p>
-                  <ArrowUpRight className={styles.up} size={20} />
+                  <ArrowUpRight className={consensus.abstain ? styles.muted : styles.up} size={20} />
                   <span>
                     <strong>Constructive conditions</strong>
                     {describeFamilies(supportive)}
                     {supportive.length
-                      ? " currently lean supportive under the declared rules."
+                      ? " leaned supportive under the rules at publication."
                       : "."}{" "}
                     Inspect their observation dates and assumptions before using
                     them in a plan.
                   </span>
                 </p>
                 <p>
-                  <ArrowDownRight className={styles.down} size={20} />
+                  <ArrowDownRight className={consensus.abstain ? styles.muted : styles.down} size={20} />
                   <span>
                     <strong>Defensive conditions</strong>
                     {describeFamilies(defensive)}
                     {defensive.length
-                      ? " currently lean defensive under the declared rules."
+                      ? " leaned defensive under the rules at publication."
                       : "."}{" "}
                     Disagreement is part of the setup, not an input to discard.
                   </span>
                 </p>
                 <p className={styles.finePrint}>
+                  {consensus.abstain && "These partial inputs do not qualify as a trade setup. "}
                   Daily, weekly and monthly views use distinct change windows.
                   Numeric return projections remain unavailable until a model
                   passes historical and prospective evaluation.

@@ -9,7 +9,7 @@ import {
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
-import { calculateConsensus } from "../lib/consensus/engine.ts";
+import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, performance } from "../lib/consensus/evaluation.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
@@ -35,7 +35,7 @@ const snapshots = await Promise.all(
     const snapshot: Snapshot = JSON.parse(
       await readFile(resolve(dir, `${entry.id}.json`), "utf8"),
     );
-    validateSnapshot(snapshot);
+    validateSnapshot(snapshot, "archive");
     if (digest(snapshot) !== entry.sha256)
       throw new Error("Snapshot integrity failed");
     return snapshot;
@@ -110,11 +110,10 @@ try {
         if (byEntry.has(row.entryAt)) continue;
         const snapshot = snapshots.find((item) => item.id === row.snapshotId);
         if (!snapshot) throw new Error("Outcome references missing snapshot");
-        const consensus = calculateConsensus(
-          snapshot.signals,
+        const consensus = asIssuedConsensus(
+          snapshot,
           instrument,
           horizon,
-          snapshot.cutoff,
         );
         const features = consensus.families.flatMap((family) => [
           family.score ?? 0,

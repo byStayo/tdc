@@ -14,6 +14,7 @@ import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
+import { freezeConsensus, validateConsensusRecords } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
   reviewedSignals,
@@ -30,7 +31,7 @@ const instant = (value: unknown) =>
   date(value) &&
   typeof value === "string" &&
   new Date(value).toISOString() === value;
-export function validateSnapshot(snapshot: Snapshot): void {
+export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archive" = "candidate"): void {
   if (
     snapshot.schemaVersion !== 1 ||
     snapshot.origin !== "prospective" ||
@@ -212,12 +213,13 @@ export function validateSnapshot(snapshot: Snapshot): void {
     )
       throw new Error("Invalid as-issued model forecast");
   }
+  validateConsensusRecords(snapshot, mode === "candidate");
   const holdingSignals = snapshot.signals.filter(
     (s) => s.id.startsWith("sec-holdings-") && s.status === "available",
   );
   if (snapshot.holdings) {
     validateHoldings(snapshot.holdings, snapshot.cutoff);
-    if (
+    if (mode === "candidate" && (
       holdingSignals.length !== snapshot.holdings.length ||
       snapshot.holdings.some((item) => {
         const signal = holdingSignals.find(
@@ -229,7 +231,7 @@ export function validateSnapshot(snapshot: Snapshot): void {
             JSON.stringify(holdingsSignal(item))
         );
       })
-    )
+    ))
       throw new Error("Institutional holdings and signal evidence disagree");
   } else if (holdingSignals.length)
     throw new Error("Institutional holdings require original report evidence");
@@ -247,26 +249,26 @@ export function validateSnapshot(snapshot: Snapshot): void {
   );
   if (snapshot.review) {
     validateReview(snapshot.review, snapshot.cutoff);
-    if (
+    if (mode === "candidate" && (
       JSON.stringify(reviews) !==
       JSON.stringify(reviewedSignals(snapshot.review, snapshot.cutoff))
-    )
+    ))
       throw new Error("Reviewed evidence and signal provenance disagree");
-    if (
+    if (mode === "candidate" && (
       JSON.stringify(policyReviews) !==
       JSON.stringify(reviewedPolicySignals(snapshot.review, snapshot.cutoff))
-    )
+    ))
       throw new Error("Reviewed policy and source provenance disagree");
-    const issuerCalendar = reviewedEarningsCalendar(
+    const issuerCalendar = mode === "candidate" ? reviewedEarningsCalendar(
       snapshot.review,
       snapshot.cutoff,
-    );
-    if (
+    ) : null;
+    if (issuerCalendar && (
       JSON.stringify(issuerReviews) !==
         JSON.stringify(issuerCalendar.signals) ||
       JSON.stringify(issuerCatalysts) !==
         JSON.stringify(issuerCalendar.catalysts)
-    )
+    ))
       throw new Error(
         "Reviewed issuer calendar and source provenance disagree",
       );
@@ -363,6 +365,8 @@ export async function publishSnapshot(
       return { changed: false, id: prior.id, sha256: digest(prior) };
     if (prior && snapshot.issuedAt <= prior.issuedAt)
       throw new Error("New edition must follow the current issue time");
+    snapshot = freezeConsensus(snapshot);
+    validateSnapshot(snapshot);
     await mkdir(archive, { recursive: true });
     const path = resolve(archive, `${snapshot.id}.json`),
       temporary = `${path}.${randomUUID()}.tmp`,
