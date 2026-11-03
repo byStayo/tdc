@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { registerHooks } from "node:module";
 import { BlueskyWindow } from "../lib/consensus/bluesky.ts";
 import { currentCommunity, publicCommunity, validateCommunity } from "../lib/community.ts";
 const start = "2026-11-03T20:20:00.000Z", end = "2026-11-03T20:22:00.000Z";
@@ -34,4 +35,62 @@ test("rejects publication of tiny, tampered, inconsistent or mislabelled distrib
     (v: typeof good) => { v.readings[2].distribution = { upward:0,downward:0,mixed:0,unclassified:0 }; },
     (v: typeof good) => { v.expiresAt = "2026-12-03T20:22:00.000Z"; },
   ]) { const bad = structuredClone(good); mutate(bad); assert.throws(() => validateCommunity(bad)); }
+});
+
+function committedAggregate(participants: number) {
+  const value = publicCommunity(sample(), Date.parse(end));
+  if (participants < 10) value.readings.forEach((row) => {
+    row.participants = row.instrument === "MARKET" ? participants : 0;
+    row.distribution = null;
+  });
+  return value;
+}
+
+test("committed aggregates below ten participants fail the public validator and current-data reader", () => {
+  for (const participants of [9, 0]) {
+    const value = committedAggregate(participants);
+    assert.throws(() => validateCommunity(value), /Insufficient community sample/);
+    assert.throws(() => currentCommunity(value, Date.parse(end)), /Insufficient community sample/);
+  }
+});
+
+test("the real community GET handler withholds below-gate committed data while serving a valid control", async () => {
+  for (const participants of [10, 9, 0]) {
+    const value = committedAggregate(participants);
+    // A fresh window and positive control prevent expiration from masking a broken gate.
+    const ended = Date.now() - 1_000;
+    value.startedAt = new Date(ended - 120_000).toISOString();
+    value.endedAt = new Date(ended).toISOString();
+    value.expiresAt = new Date(ended + 86_400_000).toISOString();
+    const route = new URL("../app/api/community/route.ts", import.meta.url);
+    route.searchParams.set("gate-test", String(participants));
+    const fixtureURL = `test-community:aggregate-${participants}`;
+    // Replace only the committed JSON import. Execute the unchanged route and validator;
+    // never write a synthetic aggregate into the application or its public archives.
+    const hooks = registerHooks({
+      resolve(specifier, context, nextResolve) {
+        if (specifier === "@/lib/community-current.json")
+          return { url: fixtureURL, shortCircuit: true };
+        if (specifier === "@/lib/community")
+          return { url: new URL("../lib/community.ts", import.meta.url).href, shortCircuit: true };
+        return nextResolve(specifier, context);
+      },
+      load(url, context, nextLoad) {
+        if (url === fixtureURL)
+          return { format: "module", source: `export default ${JSON.stringify(value)};`, shortCircuit: true };
+        return nextLoad(url, context);
+      },
+    });
+    try {
+      const { GET } = await import(route.href) as { GET: () => Promise<Response> };
+      const response = await GET();
+      const body = await response.json();
+      assert.equal(response.status, 200);
+      assert.match(response.headers.get("Cache-Control")!, /no-store/);
+      assert.equal(body.status, participants >= 10 ? "available" : "unavailable");
+      assert.deepEqual(body.sample, participants >= 10 ? value : null);
+    } finally {
+      hooks.deregister();
+    }
+  }
 });
