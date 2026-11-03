@@ -1,0 +1,26 @@
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:24px; }
+.heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.eyebrow { color:var(--text-muted); font-size:10px; letter-spacing:.12em; }
+.heading h3 { margin:8px 0 0; font-size:22px; line-height:1.25; }
+.badge { flex-shrink:0; color:var(--text-secondary); font-size:11px; border:1px solid var(--border); border-radius:999px; padding:5px 9px; }
+.window { margin:14px 0 6px; color:var(--text-muted); font-size:12px; line-height:1.7; }
+.lead { color:var(--text-secondary); line-height:1.6; font-size:14px; }
+.lead strong { color:var(--text); font-size:24px; font-variant-numeric:tabular-nums; }
+.lanes { display:grid; gap:14px; margin:24px 0; max-width:720px; }
+.lane { display:grid; grid-template-columns:145px 1fr; align-items:center; gap:16px; }
+.lane dt { font-size:13px; color:var(--text-secondary); }
+.lane dd { display:flex; align-items:center; gap:14px; margin:0; }
+.track { height:8px; border-radius:3px; background:var(--border); flex:1; overflow:hidden; }
+.track > span { display:block; height:100%; background:var(--text-secondary); border-radius:3px; }
+.value { width:90px; text-align:right; font-size:14px; font-variant-numeric:tabular-nums; }
+.value small { color:var(--text-muted); font-size:12px; }
+.notice { font-size:15px; color:var(--text-secondary); line-height:1.7; padding:16px 0; }
+.qualifier { color:var(--text-secondary); font-size:13px; line-height:1.7; max-width:75ch; }
+.method { border-top:1px solid var(--border); margin-top:18px; }
+.method summary { min-height:44px; cursor:pointer; display:flex; align-items:center; font-size:13px; color:var(--text-secondary); }
+.method summary::after { content:"+"; margin-left:auto; }
+.method[open] summary::after { content:"−"; }
+.method p { font-size:13px; line-height:1.7; color:var(--text-secondary); max-width:85ch; }
+.links { display:flex; flex-wrap:wrap; column-gap:24px; }
+.links a { display:inline-flex; align-items:center; min-height:44px; color:var(--text-secondary); text-decoration:underline; text-underline-offset:3px; font-size:12px; }
+@media(max-width:600px) { .panel {padding:18px;} .heading {flex-wrap:wrap;gap:10px;} .heading h3 {font-size:20px;} .lane {grid-template-columns:1fr;gap:6px;} .lead,.notice,.qualifier,.method p {font-size:16px;} .window{font-size:12px;} }

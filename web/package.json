@@ -20,7 +20,8 @@
     "consensus:finra-private": "node --experimental-strip-types scripts/collect-finra-private.ts",
     "consensus:finra-setup": "python3 scripts/setup-finra.py",
     "editorial:collect": "node --experimental-strip-types scripts/collect-editorial-evidence.ts",
-    "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts"
+    "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts",
+    "consensus:bluesky-private": "node --experimental-strip-types scripts/collect-bluesky-private.ts"
   },
   "dependencies": {
     "fflate": "0.8.3",

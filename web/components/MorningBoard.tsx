@@ -40,6 +40,7 @@ import styles from "./MorningBoard.module.css";
 import MorningMarket from "./MorningMarket";
 import Brand from "./Brand";
 import ResearchSection from "./ResearchSection";
+import CommunityPanel from "./CommunityPanel";
 import GuidancePanel from "./GuidancePanel";
 import PrivateCreditContext from "./PrivateCreditContext";
 import layout from "./MorningLayout.module.css";
@@ -1057,11 +1058,13 @@ export default function MorningBoard({
   history,
   performance,
   experiments,
+  communityEnabled = false,
 }: {
   initial: Snapshot;
   history: HistoryEntry[];
   performance: PerformanceReport;
   experiments: Experiments;
+  communityEnabled?: boolean;
 }) {
   const [snapshot, setSnapshot] = useState(initial),
     [instrument, setInstrument] = useState<Instrument>("MARKET"),
@@ -1905,6 +1908,9 @@ export default function MorningBoard({
                   historical={historical}
                 />
               </ResearchSection>
+              {communityEnabled && <ResearchSection number="04" title="Community discussion" description="Bluesky sample · current-only language cues · outside the consensus score">
+                <CommunityPanel instrument={instrument} historical={historical} />
+              </ResearchSection>}
               <section className={styles.scenario}>
                 <div>
                   <span className={styles.eyebrow}>
