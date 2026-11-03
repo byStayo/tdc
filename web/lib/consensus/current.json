@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T18-35-28-910Z",
-  "issuedAt": "2026-11-03T18:35:28.910Z",
-  "cutoff": "2026-11-03T18:35:28.910Z",
+  "id": "2026-11-03T19-48-49-156Z",
+  "issuedAt": "2026-11-03T19:48:49.156Z",
+  "cutoff": "2026-11-03T19:48:49.156Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -29035,6 +29035,97 @@
       }
     },
     {
+      "id": "fed-private-credit-loans",
+      "family": "capital",
+      "title": "Private-credit loan flows",
+      "shortLabel": "Private credit",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "directionalInstruments": [],
+      "status": "available",
+      "summary": "50.0 $bn SAAR of loan net acquisition; quarter ended 2026-06-30 (estimated).",
+      "source": {
+        "name": "Federal Reserve · Financial Accounts S124.8.t",
+        "url": "https://www.federalreserve.gov/releases/z1/20260911/html/S124_8_t.htm",
+        "retrievedAt": "2026-11-03T19:48:49.155Z",
+        "observedAt": "2026-06-30",
+        "releasedAt": "2026-09-11",
+        "frequency": "quarterly",
+        "attribution": "Board of Governors of the Federal Reserve System, Financial Accounts of the United States",
+        "usage": "Federal Reserve Board-produced public-domain data, with source attribution. No third-party microdata is redistributed.",
+        "sha256": "a38afebad2387808fadc6c1db49a28816e228003b07f91b438c5afd8a72ff685"
+      },
+      "methodology": "Net acquisition of private-credit loans by private debt funds (FA443067205). Quarterly figures are billions of dollars at a seasonally adjusted annual rate (SAAR), not the cash amount moved during the quarter. Financial-asset acquisition includes these loans; net fund share issues is a distinct funding measure. No directional vote.",
+      "limitation": "Lagged private-credit context, not daily private-equity investment flows, capital calls, distributions or known investor intent. Figures may be revised. Each release's units and input availability require review. The 2026-09-11 release has underlying private-debt inputs only through 2026-03-31; later quarters are estimates, not newly reported fund activity.",
+      "series": [
+        {
+          "date": "2025-03-31",
+          "value": 56.2
+        },
+        {
+          "date": "2025-06-30",
+          "value": 57.3
+        },
+        {
+          "date": "2025-09-30",
+          "value": 34.7
+        },
+        {
+          "date": "2025-12-31",
+          "value": 58
+        },
+        {
+          "date": "2026-03-31",
+          "value": 85.6
+        },
+        {
+          "date": "2026-06-30",
+          "value": 50
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Private-credit loan net acquisition",
+          "value": 50,
+          "date": "2026-06-30",
+          "unit": "$bn SAAR"
+        },
+        {
+          "label": "Financial-asset net acquisition",
+          "value": 81.7,
+          "date": "2026-06-30",
+          "unit": "$bn SAAR"
+        },
+        {
+          "label": "Net fund share issues",
+          "value": 1.7,
+          "date": "2026-06-30",
+          "unit": "$bn SAAR"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 210,
+      "unit": "$bn SAAR",
+      "privateCredit": {
+        "reviewVersion": "fed-private-credit-v1",
+        "inputThrough": "2026-03-31",
+        "documentation": {
+          "url": "https://www.federalreserve.gov/releases/z1/20260911/z1.pdf",
+          "sha256": "a3d7709f1037117bb296720afdaaac31dd7128532a80602dd05d7482132183ae"
+        }
+      }
+    },
+    {
       "id": "review-jolts-september",
       "family": "news",
       "title": "Openings were steady; more workers quit",
@@ -30842,7 +30933,7 @@
       }
     }
   ],
-  "sourcesAttempted": 40,
+  "sourcesAttempted": 2,
   "collectionErrors": [
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
@@ -30860,7 +30951,7 @@
       "instrument": "MARKET",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.5483549783549784,
+      "coverage": 0.5495670995670995,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31005,8 +31096,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -31017,7 +31108,7 @@
       "instrument": "MARKET",
       "horizon": "weekly",
       "score": -0.015320155608688758,
-      "coverage": 0.5483549783549784,
+      "coverage": 0.5495670995670995,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31161,8 +31252,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.19238333333334595,
           "status": "available"
         }
@@ -31173,7 +31264,7 @@
       "instrument": "MARKET",
       "horizon": "monthly",
       "score": 0.1630145085060572,
-      "coverage": 0.5483549783549784,
+      "coverage": 0.5495670995670995,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -31317,8 +31408,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.6811658333333298,
           "status": "available"
         }
@@ -31329,7 +31420,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31474,8 +31565,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -31486,7 +31577,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "score": -0.010131659891435408,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31630,8 +31721,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.19238333333334595,
           "status": "available"
         }
@@ -31642,7 +31733,7 @@
       "instrument": "SPY",
       "horizon": "monthly",
       "score": 0.12111033223089698,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31786,8 +31877,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.6811658333333298,
           "status": "available"
         }
@@ -31798,7 +31889,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31943,8 +32034,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -31955,7 +32046,7 @@
       "instrument": "QQQ",
       "horizon": "weekly",
       "score": -0.040498284393973905,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 2,
@@ -32099,8 +32190,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.19238333333334595,
           "status": "available"
         }
@@ -32111,7 +32202,7 @@
       "instrument": "QQQ",
       "horizon": "monthly",
       "score": 0.18688847826683114,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32255,8 +32346,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.6811658333333298,
           "status": "available"
         }
@@ -32267,7 +32358,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.49108225108225106,
+      "coverage": 0.4922943722943723,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -32412,8 +32503,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -32424,7 +32515,7 @@
       "instrument": "IWM",
       "horizon": "weekly",
       "score": -0.018330953290526066,
-      "coverage": 0.49108225108225106,
+      "coverage": 0.4922943722943723,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -32568,8 +32659,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.19238333333334595,
           "status": "available"
         }
@@ -32580,7 +32671,7 @@
       "instrument": "IWM",
       "horizon": "monthly",
       "score": 0.1963153192231948,
-      "coverage": 0.49108225108225106,
+      "coverage": 0.4922943722943723,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32724,8 +32815,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.6811658333333298,
           "status": "available"
         }
@@ -32736,7 +32827,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -32881,8 +32972,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -32893,7 +32984,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "score": 0.007680275141180337,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33037,8 +33128,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.19238333333334595,
           "status": "available"
         }
@@ -33049,7 +33140,7 @@
       "instrument": "DIA",
       "horizon": "monthly",
       "score": 0.14774390430330597,
-      "coverage": 0.541082251082251,
+      "coverage": 0.5422943722943722,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33193,8 +33284,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": 0.6811658333333298,
           "status": "available"
         }
@@ -33205,7 +33296,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "score": 0.12500000000000178,
-      "coverage": 0.49108225108225106,
+      "coverage": 0.4922943722943723,
       "directionalCoverage": 0.06666666666666667,
       "agreement": 1,
       "bullish": 1,
@@ -33350,8 +33441,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -33362,7 +33453,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "score": 0.09349056456975433,
-      "coverage": 0.49108225108225106,
+      "coverage": 0.4922943722943723,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33507,8 +33598,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }
@@ -33519,7 +33610,7 @@
       "instrument": "TLT",
       "horizon": "monthly",
       "score": 0.5413471755760433,
-      "coverage": 0.49108225108225106,
+      "coverage": 0.4922943722943723,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33664,8 +33755,8 @@
           "id": "capital",
           "label": "Capital flows",
           "weight": 1,
-          "expected": 10,
-          "available": 8,
+          "expected": 11,
+          "available": 9,
           "score": null,
           "status": "available"
         }

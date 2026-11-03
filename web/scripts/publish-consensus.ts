@@ -1,7 +1,8 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { mkdir, writeFile, readFile } from "node:fs/promises";
-import { collectSnapshot } from "../lib/consensus/collector.ts";
+import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
+import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot } from "../lib/consensus/model.ts";
 import { freezeConsensus } from "../lib/consensus/as-issued.ts";
@@ -22,14 +23,16 @@ try {
   if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
 }
 const reviewOnly = process.argv.includes("--review-only"),
+  privateCreditOnly = process.argv.includes("--private-credit-only"),
   now = new Date().toISOString();
-if (reviewOnly && !previous)
+if (reviewOnly && privateCreditOnly) throw new Error("Select only one scoped publication mode");
+if ((reviewOnly || privateCreditOnly) && !previous)
   throw new Error(
-    "A review-only publication requires an existing source snapshot",
+    "A scoped publication requires an existing source snapshot",
   );
 let snapshot: Snapshot = reviewOnly
   ? { ...previous!, id: now.replace(/[:.]/g, "-"), issuedAt: now, cutoff: now }
-  : await collectSnapshot();
+  : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText) : await collectSnapshot();
 if (!reviewOnly && previous) snapshot = retainLastKnown(snapshot, previous);
 const review = JSON.parse(
   await readFile(

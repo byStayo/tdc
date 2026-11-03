@@ -41,6 +41,7 @@ import MorningMarket from "./MorningMarket";
 import Brand from "./Brand";
 import ResearchSection from "./ResearchSection";
 import GuidancePanel from "./GuidancePanel";
+import PrivateCreditContext from "./PrivateCreditContext";
 import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
 
@@ -529,8 +530,9 @@ function CapitalPanels({
 }) {
   const inward = signals.find((s) => s.id === "tic-for_lt_total"),
     outward = signals.find((s) => s.id === "tic-us_lt_total"),
-    privateEquity = signals.find((s) => s.id === "sec-private-equity-assets");
-  if (!inward && !privateEquity) return null;
+    privateEquity = signals.find((s) => s.id === "sec-private-equity-assets"),
+    privateCredit = signals.find((s) => s.id === "fed-private-credit-loans");
+  if (!inward && !privateEquity && !privateCredit) return null;
   const latest = inward?.series.at(-1),
     out = outward?.series.find((p) => p.date === latest?.date),
     net = latest && out ? latest.value - out.value : null,
@@ -557,6 +559,51 @@ function CapitalPanels({
           timeZone: "UTC",
         })
       : null;
+  const privateEquityAssets = (<>
+        <p className={styles.panelSubtitle}>
+          {gross
+            ? `Period ended ${datedYear(gross.date)}`
+            : "Awaiting reported aggregates"}{" "}
+          · SEC Form PF
+        </p>
+        <span className={styles.status}>
+          {privateEquity
+            ? effectiveStatus(privateEquity, now) === "stale"
+              ? "Stale · historical context"
+              : privateEquity.status === "available"
+                ? "Reported asset stock"
+                : "Unavailable"
+            : "Unavailable"}
+        </span>
+        <div className={styles.bigValue}>
+          {gross ? `$${number(gross.value / 1000, 2)}` : "—"}
+          <small>{gross ? "trillion gross assets" : ""}</small>
+        </div>
+        {privateEquity && (
+          <Sparkline
+            series={privateEquity.series}
+            label="SEC reported aggregate private-equity gross assets in billions of dollars"
+            large
+          />
+        )}
+        <div className={styles.chartFoot}>
+          <span>
+            {nav
+              ? `$${number(nav.value / 1000, 2)}T net assets`
+              : "Net assets unavailable"}
+          </span>
+          <span>
+            {count
+              ? `${number(count.value, 0)} reported funds`
+              : "Fund count unavailable"}
+          </span>
+        </div>
+        <p className={styles.finePrint}>
+          Assets are not capital calls, distributions or today's investment
+          flows. Most advisers report annually; the source is published with a
+          substantial lag. No directional vote.
+        </p>
+  </>);
   return (
     <div className={`${styles.twoColumns} ${styles.capitalPanels}`}>
       <section className={styles.panel} aria-label="Cross-border capital flows">
@@ -629,60 +676,29 @@ function CapitalPanels({
       </section>
       <section
         className={styles.panel}
-        aria-label="Private-equity reported assets"
+        aria-label="Private-capital context"
       >
         <div className={styles.panelHead}>
           <h3>The private-capital backdrop</h3>
           <button
             onClick={onInspect}
-            aria-label="Inspect private-equity sources"
+            aria-label="Inspect private-capital sources"
           >
             <ArrowUpRight size={18} />
           </button>
         </div>
-        <p className={styles.panelSubtitle}>
-          {gross
-            ? `Period ended ${datedYear(gross.date)}`
-            : "Awaiting reported aggregates"}{" "}
-          · SEC Form PF
-        </p>
-        <span className={styles.status}>
-          {privateEquity
-            ? effectiveStatus(privateEquity, now) === "stale"
-              ? "Stale · historical context"
-              : privateEquity.status === "available"
-                ? "Reported asset stock"
-                : "Unavailable"
-            : "Unavailable"}
-        </span>
-        <div className={styles.bigValue}>
-          {gross ? `$${number(gross.value / 1000, 2)}` : "—"}
-          <small>{gross ? "trillion gross assets" : ""}</small>
-        </div>
-        {privateEquity && (
-          <Sparkline
-            series={privateEquity.series}
-            label="SEC reported aggregate private-equity gross assets in billions of dollars"
-            large
-          />
-        )}
-        <div className={styles.chartFoot}>
-          <span>
-            {nav
-              ? `$${number(nav.value / 1000, 2)}T net assets`
-              : "Net assets unavailable"}
-          </span>
-          <span>
-            {count
-              ? `${number(count.value, 0)} reported funds`
-              : "Fund count unavailable"}
-          </span>
-        </div>
-        <p className={styles.finePrint}>
-          Assets are not capital calls, distributions or today's investment
-          flows. Most advisers report annually; the source is published with a
-          substantial lag. No directional vote.
-        </p>
+        {privateCredit ? (
+          <>
+            <PrivateCreditContext signal={privateCredit} now={now} />
+            <details className={styles.olderCapital}>
+              <summary>
+                Older private-equity assets · {gross ? datedYear(gross.date) : "unavailable"}
+                {privateEquity && effectiveStatus(privateEquity, now) === "stale" ? " · stale" : ""}
+              </summary>
+              {privateEquityAssets}
+            </details>
+          </>
+        ) : privateEquityAssets}
       </section>
     </div>
   );

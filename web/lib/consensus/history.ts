@@ -14,6 +14,7 @@ import { validateSourceCitation } from "./source-citation.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
+import { validatePrivateCredit } from "./private-credit.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
@@ -49,6 +50,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
   )
     throw new Error("Signals must have unique identities");
   for (const signal of snapshot.signals) {
+    validatePrivateCredit(signal);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||
       !signal.instruments.length ||

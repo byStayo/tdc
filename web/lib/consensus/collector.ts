@@ -4,6 +4,7 @@ export { newYorkTimestamp } from "./time.ts";
 import { collectMarketCalendars } from "./calendars.ts";
 import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
+import { collectPrivateCredit } from "./private-credit.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
@@ -67,7 +68,7 @@ export async function publicText(
     headers: {
       "User-Agent":
         "The Daily Consensus public research https://thedailyconsensus.com",
-      Accept: "application/json,text/csv,application/xml,text/xml",
+      Accept: "application/json,text/csv,application/xml,text/xml,text/html",
     },
   });
   const reader = response.body!.getReader(),
@@ -903,6 +904,7 @@ export async function collectSnapshot(
     news,
     capital,
     privateFunds,
+    privateCredit,
     policyRates,
     holdings,
   ] = await Promise.all([
@@ -916,6 +918,7 @@ export async function collectSnapshot(
     collectNews(fetcher),
     collectCapital((url) => publicText(url, fetcher)),
     collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
+    collectPrivateCredit((url) => publicText(url, fetcher)),
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
   ]);
@@ -931,6 +934,7 @@ export async function collectSnapshot(
       news.signal,
       ...capital,
       privateFunds,
+      privateCredit,
       ...policyRates,
       ...holdings.signals,
       ...missingSignals(issuedAt),
@@ -951,7 +955,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 28,
+    sourcesAttempted: MACRO_SERIES.length + 30,
     collectionErrors: signals
       .filter(
         (signal) =>

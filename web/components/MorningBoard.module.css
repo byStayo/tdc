@@ -1249,6 +1249,112 @@
 }
 .capitalPanels {
   margin-top: 18px;
+  align-items: start;
+}
+.privateCredit {
+  min-width: 0;
+}
+.creditFigure {
+  margin: 24px 0 18px;
+}
+.creditBars {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 12px;
+  list-style: none;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.creditBars li {
+  min-width: 0;
+}
+.creditBars strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.creditBars li > span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.creditBars small {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.creditBarTrack {
+  height: 108px;
+  position: relative;
+}
+.creditZero {
+  position: absolute;
+  height: 1px;
+  left: 0;
+  right: 0;
+  background: var(--border);
+}
+.creditBar {
+  position: absolute;
+  width: 58%;
+  left: 21%;
+  border-radius: 2px 2px 0 0;
+  background: var(--text-muted);
+}
+.creditEstimate {
+  border: 1px solid var(--text-muted);
+  background: repeating-linear-gradient(135deg, var(--text-muted) 0 1px, transparent 1px 5px);
+}
+.creditMetrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 18px 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.creditMetrics dt {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.creditMetrics dd {
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.creditMetrics dd small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.creditSources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+}
+.creditSources a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 12px;
+  color: var(--accent);
+}
+.olderCapital {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+}
+.olderCapital > summary {
+  min-height: 44px;
+  padding: 14px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 .policyPanel {
   margin: 18px 0;

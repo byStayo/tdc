@@ -67,6 +67,12 @@ export interface Signal {
   scores: Record<Horizon, number | null>;
   staleAfterDays: number;
   unit: string;
+  /** Reviewed Fed release metadata; stored with the edition, never inferred from today's release. */
+  privateCredit?: {
+    reviewVersion: "fed-private-credit-v1";
+    inputThrough: string;
+    documentation: { url: string; sha256: string };
+  };
 }
 export interface Catalyst {
   id: string;

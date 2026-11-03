@@ -1,6 +1,6 @@
 # Free feed access and alternatives
 
-Verified November 3, 2026. This is an access and reuse review, not a claim that new integrations or forecasts are live. The product remains free to readers and this plan requires no paid feed or paid model API.
+Verified November 3, 2026. This guide distinguishes access research from verified integrations. The product remains free to readers and this plan requires no paid feed or paid model API. Fed private-credit collection and presentation are implemented; see the build ledger for release verification. Other new candidates below remain unintegrated unless explicitly recorded there.
 
 ## FINRA: the only immediate owner setup
 
@@ -24,6 +24,8 @@ Follow [FINRA_SETUP.md](FINRA_SETUP.md): Individual account, activated Public cr
 The Fed table S124.8.t adds genuinely new information beyond the existing old SEC private-equity asset levels. Relevant series include private-credit loan net acquisition (`FA443067205`), total financial-asset acquisition (`FA444090000`) and net share issues (`FA443164500`). The latest table is 2026 Q2, released September 11, 2026. Quarterly flow units are **billions of dollars at a seasonally adjusted annual rate**. A 50.0 loan-flow figure does not mean $50bn cash moved within that quarter. The dated release says underlying private-debt inputs run only through 2026 Q1, so later values are estimates. See the [dated release](https://www.federalreserve.gov/releases/z1/20260911/z1.pdf) and [Fed methodology note](https://www.federalreserve.gov/econres/notes/feds-notes/introducing-private-credit-into-the-financial-accounts-of-the-united-states-20261016.html).
 
 Implementation should preserve vintage, observation period, release date, units, estimated status and revisions. Add a separate context signal; do not silently turn the missing private-equity-flow input into an available daily directional vote. Do not overwrite earlier editions.
+
+The implemented collector cross-checks the current and dated release tables, stores the dated table hash, and requires an explicitly reviewed release before using its units and input lag. It excludes annual columns, rejects missing/conflicting quarterly cells, preserves negative and zero values, and never casts a directional vote. The existing private-capital panel shows six quarter bars with the estimated quarter hatched and keeps the old SEC asset stock in a separate disclosure. Its normal publication path and scoped collection command both preserve prior immutable editions.
 
 ## Why another free API key is not enough
 
