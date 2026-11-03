@@ -1,0 +1,87 @@
+{
+  "verifiedAt": "2026-11-03T02:34:07.071991+00:00",
+  "cftc": {
+    "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A&report_date_as_yyyy_mm_dd=2026-10-27T00%3A00%3A00.000",
+    "reportDate": "2026-10-27T00:00:00.000",
+    "values": {
+      "asset_mgr_positions_long": 1111055,
+      "asset_mgr_positions_short": 187606,
+      "lev_money_positions_long": 102079,
+      "lev_money_positions_short": 502683,
+      "asset_manager_net": 923449,
+      "leveraged_net": -400604
+    }
+  },
+  "fred": {
+    "FEDFUNDS": [
+      {
+        "date": "2026-09-01",
+        "value": 3.75
+      },
+      {
+        "date": "2026-10-01",
+        "value": 3.88
+      }
+    ],
+    "DPRIME": [
+      {
+        "date": "2026-10-26",
+        "value": 7.0
+      },
+      {
+        "date": "2026-10-27",
+        "value": 7.0
+      }
+    ],
+    "TNWBSHNO": [
+      {
+        "date": "2026-01-01",
+        "value": 183067096.0
+      },
+      {
+        "date": "2026-04-01",
+        "value": 195870496.0
+      }
+    ]
+  },
+  "checks": {
+    "asset_manager_net": true,
+    "leveraged_net_short": true,
+    "asset_manager_long": true,
+    "asset_manager_short": true,
+    "leveraged_long": true,
+    "leveraged_short": true,
+    "wealth_latest_trillions": true,
+    "wealth_previous_trillions": true,
+    "federal_funds_latest": true,
+    "federal_funds_previous": true,
+    "prime_latest": true,
+    "saved_cftc_matches_live": true
+  },
+  "allChecksPassed": true,
+  "workspaceChecks": {
+    "SPY": {
+      "http": 200,
+      "mode": "public",
+      "filings": 18,
+      "positioning": 1
+    },
+    "AAPL": {
+      "http": 200,
+      "mode": "public",
+      "filings": 18,
+      "positioning": 6
+    },
+    "GLD": {
+      "http": 200,
+      "mode": "public",
+      "filings": 18,
+      "positioning": 6
+    },
+    "unknownIssuer": {
+      "http": 200,
+      "filingsStatus": "unconfigured"
+    },
+    "privateQueryOverride": "Ignored: mode remains public; quote/history/options/news arrays stay empty."
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-03T02:48:50.290Z",
+  "model": "Codex editorial workflow",
+  "message": "A published market-wide brief, written with AI assistance from the linked public evidence. Reading it does not trigger a paid AI request. Observation dates differ by source.",
+  "data": {
+    "headline": "Two different futures books. Read the context.",
+    "summary": "The latest public evidence shows different exposures across investor categories. Asset managers and leveraged funds held opposing net E-mini S&P 500 positions in the October 27 report, while the October effective federal funds average was above September. These observations describe reported conditions; they do not establish where prices go next.",
+    "bull": [
+      {
+        "text": "Asset managers reported 1,111,055 long and 187,606 short E-mini S&P 500 futures contracts on October 27: a net long balance of 923,449 contracts. That is aggregate exposure within one category, not a fresh buy signal.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      },
+      {
+        "text": "Reported household and nonprofit net worth was $195.87 trillion in Q2 2026, versus $183.07 trillion in Q1. This offers balance-sheet context, but it is a lagging aggregate and does not measure current stock demand.",
+        "sourceIds": [
+          "FRED_WEALTH"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Leveraged funds reported 102,079 long and 502,683 short E-mini S&P 500 contracts on October 27: a net short balance of 400,604. The contrast with asset managers is worth examining; hedging and relative-value strategies can explain opposite positions.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      },
+      {
+        "text": "The effective federal funds rate averaged 3.88% in October, up from 3.75% in September. This is a monthly observed average, not the FOMC target range or proof of a new policy decision.",
+        "sourceIds": [
+          "FRED_RATE"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Compare the next CFTC release with the same contract and trader category. Long-minus-short counts are positions at a reporting date; they are not real-time fund flows or evidence of a named investor’s intent.",
+        "sourceIds": [
+          "CFTC_ES",
+          "CFTC_METHOD"
+        ]
+      },
+      {
+        "text": "Keep rate observations on their own calendars: the latest prime-rate observation is 7.00% for October 27, while the effective funds series is a monthly average. Check new publications and revisions before comparing them.",
+        "sourceIds": [
+          "FRED_PRIME",
+          "FRED_RATE"
+        ]
+      }
+    ],
+    "limitations": [
+      "CFTC positions are dated October 27, 2026 and are published after the observation date. They exclude information outside the selected futures report.",
+      "Household net worth is a quarterly, revisable aggregate; interest-rate series have different frequencies and observation dates.",
+      "No live options chain, dark-pool direction, or named institutional trade feed is represented in this brief.",
+      "TradingView display data remains inside its hosted widgets and is not extracted into this analysis.",
+      "AI-assisted interpretation can be incomplete or mistaken. This briefing is general research, not an instruction to buy or sell."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-mini S&P 500, October 27, 2026",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A&report_date_as_yyyy_mm_dd=2026-10-27T00%3A00%3A00.000"
+    },
+    {
+      "id": "CFTC_METHOD",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+    },
+    {
+      "id": "FRED_WEALTH",
+      "title": "Federal Reserve / FRED · Household and nonprofit net worth",
+      "url": "https://fred.stlouisfed.org/series/TNWBSHNO"
+    },
+    {
+      "id": "FRED_RATE",
+      "title": "Federal Reserve / FRED · Effective federal funds rate",
+      "url": "https://fred.stlouisfed.org/series/FEDFUNDS"
+    },
+    {
+      "id": "FRED_PRIME",
+      "title": "Federal Reserve / FRED · Bank prime loan rate",
+      "url": "https://fred.stlouisfed.org/series/DPRIME"
+    }
+  ]
+}

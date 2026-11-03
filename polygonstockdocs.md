@@ -4,7 +4,7 @@ The Polygon.io Stocks API provides REST endpoints that let you query the latest 
 Documentation
 Authentication
 Pass your API key in the query string like follows:
-https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2023-01-09/2023-01-09?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2023-01-09/2023-01-09?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 Alternatively, you can add an Authorization header to the request with your API Key as the token in the following form:
@@ -93,7 +93,7 @@ limit
 
 Limits the number of base aggregates queried to create the aggregate results. Max 50000 and Default 5000. Read more about how limit is used to calculate aggregate results in our article on Aggregate Data API Improvements.
 
-https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2023-01-09/2023-02-10?adjusted=true&sort=asc&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2023-01-09/2023-02-10?adjusted=true&sort=asc&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -199,7 +199,7 @@ include_otc
 
 Include OTC securities in the response. Default is false (don't include OTC securities).
 
-https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/2023-01-09?adjusted=true&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/2023-01-09?adjusted=true&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -314,7 +314,7 @@ true
 
 Whether or not the results are adjusted for splits. By default, results are adjusted. Set this to false to get results that are NOT adjusted for splits.
 
-https://api.polygon.io/v1/open-close/AAPL/2023-01-09?adjusted=true&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/open-close/AAPL/2023-01-09?adjusted=true&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -385,7 +385,7 @@ true
 
 Whether or not the results are adjusted for splits. By default, results are adjusted. Set this to false to get results that are NOT adjusted for splits.
 
-https://api.polygon.io/v2/aggs/ticker/AAPL/prev?adjusted=true&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/aggs/ticker/AAPL/prev?adjusted=true&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -486,7 +486,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/trades/AAPL?limit=1000&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/trades/AAPL?limit=1000&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -584,7 +584,7 @@ stocksTicker
 
 The ticker symbol of the stock/equity.
 
-https://api.polygon.io/v2/last/trade/AAPL?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/last/trade/AAPL?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -690,7 +690,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/quotes/AAPL?limit=1000&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/quotes/AAPL?limit=1000&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -792,7 +792,7 @@ stocksTicker
 
 The ticker symbol of the stock/equity.
 
-https://api.polygon.io/v2/last/nbbo/AAPL?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/last/nbbo/AAPL?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -882,7 +882,7 @@ include_otc
 
 Include OTC securities in the response. Default is false (don't include OTC securities).
 
-https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -1076,7 +1076,7 @@ include_otc
 
 Include OTC securities in the response. Default is false (don't include OTC securities).
 
-https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/gainers?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/gainers?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -1257,7 +1257,7 @@ stocksTicker
 
 Specify a case-sensitive ticker symbol. For example, AAPL represents Apple Inc.
 
-https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/AAPL?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/AAPL?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -1461,7 +1461,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/snapshot?ticker.any_of=NCLH,O:SPY250321C00380000,C:EURUSD,X:BTCUSD,I:SPX&limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/snapshot?ticker.any_of=NCLH,O:SPY250321C00380000,C:EURUSD,X:BTCUSD,I:SPX&limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -1787,7 +1787,7 @@ limit
 
 Limit the number of results returned, default is 10 and max is 5000
 
-https://api.polygon.io/v1/indicators/sma/AAPL?timespan=day&adjusted=true&window=50&series_type=close&order=desc&limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/indicators/sma/AAPL?timespan=day&adjusted=true&window=50&series_type=close&order=desc&limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -1934,7 +1934,7 @@ limit
 
 Limit the number of results returned, default is 10 and max is 5000
 
-https://api.polygon.io/v1/indicators/ema/AAPL?timespan=day&adjusted=true&window=50&series_type=close&order=desc&limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/indicators/ema/AAPL?timespan=day&adjusted=true&window=50&series_type=close&order=desc&limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2067,7 +2067,7 @@ limit
 
 Limit the number of results returned, default is 10 and max is 5000
 
-https://api.polygon.io/v1/indicators/macd/AAPL?timespan=day&adjusted=true&short_window=12&long_window=26&signal_window=9&series_type=close&order=desc&limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/indicators/macd/AAPL?timespan=day&adjusted=true&short_window=12&long_window=26&signal_window=9&series_type=close&order=desc&limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2204,7 +2204,7 @@ limit
 
 Limit the number of results returned, default is 10 and max is 5000
 
-https://api.polygon.io/v1/indicators/rsi/AAPL?timespan=day&adjusted=true&window=14&series_type=close&order=desc&limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/indicators/rsi/AAPL?timespan=day&adjusted=true&window=14&series_type=close&order=desc&limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2337,7 +2337,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/reference/tickers?active=true&limit=100&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/tickers?active=true&limit=100&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2433,7 +2433,7 @@ For example, consider an SEC filing submitted by AAPL on 2019-07-31, with a peri
 
 Defaults to the most recent available date.
 
-https://api.polygon.io/v3/reference/tickers/AAPL?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/tickers/AAPL?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2580,7 +2580,7 @@ types
 
 A comma-separated list of the types of event to include. Currently ticker_change is the only supported event_type. Leave blank to return all supported event_types.
 
-https://api.polygon.io/vX/reference/tickers/META/events?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/vX/reference/tickers/META/events?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2658,7 +2658,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v2/reference/news?limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v2/reference/news?limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2777,7 +2777,7 @@ locale
 
 Filter by locale.
 
-https://api.polygon.io/v3/reference/tickers/types?asset_class=stocks&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/tickers/types?asset_class=stocks&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2827,7 +2827,7 @@ Market Holidays
 GET
 /v1/marketstatus/upcoming
 Get upcoming market holidays and their open/close times.
-https://api.polygon.io/v1/marketstatus/upcoming?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/marketstatus/upcoming?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -2895,7 +2895,7 @@ Market Status
 GET
 /v1/marketstatus/now
 Get the current trading status of the exchanges and overall financial markets.
-https://api.polygon.io/v1/marketstatus/now?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/marketstatus/now?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3005,7 +3005,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/reference/splits?limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/splits?limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3136,7 +3136,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/reference/dividends?limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/dividends?limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3278,7 +3278,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/vX/reference/financials?limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/vX/reference/financials?limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3679,7 +3679,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/v3/reference/conditions?asset_class=stocks&limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/conditions?asset_class=stocks&limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3796,7 +3796,7 @@ locale
 
 Filter by locale.
 
-https://api.polygon.io/v3/reference/exchanges?asset_class=stocks&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v3/reference/exchanges?asset_class=stocks&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3870,7 +3870,7 @@ ticker
 
 The ticker symbol to search.
 
-https://api.polygon.io/v1/related-companies/AAPL?apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/v1/related-companies/AAPL?apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 
@@ -3975,7 +3975,7 @@ sort
 
 Sort field used for ordering.
 
-https://api.polygon.io/vX/reference/ipos?limit=10&apiKey=p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+https://api.polygon.io/vX/reference/ipos?limit=10&apiKey=YOUR_POLYGON_API_KEY
 
 Copy
 

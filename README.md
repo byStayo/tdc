@@ -1,89 +1,33 @@
-# The Daily Consensus
+# The Daily Consensus — public research desk
 
-A modern trading analysis platform that provides comprehensive market insights, professional trader analysis, and AI-driven predictions.
+The canonical application is `web/`. The older React prototype at the repository root is retained as historical source and is not deployed.
 
-## Features
+The rebuild is free to readers: no account, checkout, paywall, or per-reader AI generation. It combines published AI-assisted editorial research with SEC filings, CFTC futures positioning, FRED economic series, and TradingView's official hosted market widgets. Each source keeps its own observation date and limitations.
 
-- Professional Trader Analysis (38+ years experience)
-- Media Analysis (FinTwit, Jim Cramer, Nancy Pelosi trades)
-- A.I. Analysis (math-based predictions)
-- Major Support/Resistance Levels
-- Smart Money Analysis (Darkpool, Gamma levels)
-- Technical Analysis (TPO, Market Profile, Elliott Waves)
-- Responsive design for all devices
-- User account management
-- Subscription plans with ROI guarantee
+## Run and verify
 
-## Tech Stack
+From `web/`:
 
-- React 18
-- React Router v6
-- Material-UI Icons
-- CSS Modules
-- Modern ES6+ JavaScript
-
-## Getting Started
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/the-daily-consensus.git
-cd the-daily-consensus
+```sh
+npm ci
+npm run dev
+npm run typecheck
+npm test
+npm run build
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+The development URL is `http://127.0.0.1:3107`. No API keys are required. The public API never calls the recovered private Polygon or OpenAI accounts. Prices remain inside the attributed hosted widgets and are not extracted into the editorial analysis.
 
-3. Start the development server:
-```bash
-npm start
-```
+## Preserved research
 
-The app will be available at `http://localhost:3000`.
+The local archive has 58 original articles: 41 from WordPress and 17 from Substack. Original text, dates, authors, captions, and 106 image references are preserved. The images resolve to 103 local files, with source URLs and SHA256 hashes in `web/public/archive-media/manifest.json`. Historical articles carry an explicit date/context notice. Subscription forms and tracking embeds were removed. The 41 old WordPress article paths redirect to their new reader pages.
 
-## Project Structure
+Public recovery does not include authenticated WordPress drafts, subscriber records, billing records, or deleted content. Private recovery material and original deployment files are stored outside this repository.
 
-```
-src/
-  ├── components/         # Reusable UI components
-  │   ├── Header/
-  │   └── Footer/
-  ├── pages/             # Page components
-  │   ├── Home/
-  │   ├── Pricing/
-  │   ├── News/
-  │   ├── Login/
-  │   └── Account/
-  ├── App.js             # Main app component
-  └── index.js           # Entry point
+## Publishing and operations
 
-public/                  # Static assets
-  ├── index.html
-  └── manifest.json
-```
+See `web/docs/EDITORIAL.md` for the subscription-based publishing workflow and `web/docs/SOURCES.md` for provider boundaries. `GET /api/health` reports application/edition status. `GET /api/research` serves the published brief and labels it historical after 72 hours. Reading the site never starts a model job.
 
-## Available Scripts
+The production project is the existing `v0-the-daily-consensus` Vercel project. Deploy from `web/` using the authenticated Vercel CLI, after checks pass. Preserve existing production protection settings. The custom domain remains on Bluehost until its DNS is migrated; update `web/lib/site.ts` only after the canonical domain resolves to this application with valid HTTPS.
 
-- `npm start` - Runs the app in development mode
-- `npm test` - Launches the test runner
-- `npm run build` - Builds the app for production
-- `npm run eject` - Ejects from Create React App
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-Your Name - [@yourusername](https://twitter.com/yourusername)
-
-Project Link: [https://github.com/yourusername/the-daily-consensus](https://github.com/yourusername/the-daily-consensus) 
+The preserved utilities for market calculations are tested but do not imply a publicly licensed raw market-data feed. Options chains, dark-pool direction, and social sentiment are not supplied by the free sources used here. SEC Form 4 filings do not by themselves identify open-market purchases; CFTC categories are reported aggregate futures positions, not individual identities or real-time flows.
