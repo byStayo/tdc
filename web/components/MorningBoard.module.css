@@ -956,7 +956,6 @@
 }
 .earningsStrip {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 20px;
   padding: 25px;
   border: 1px solid var(--border);
@@ -975,7 +974,12 @@
   color: var(--text-muted);
   line-height: 1.7;
 }
-.earningsStrip > button {
+.earningsCompanies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 20px;
+}
+.earningsCompanies > button {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -986,6 +990,7 @@
   color: var(--text);
   padding: 0 0 0 20px;
   font-size: 12px;
+  min-width: 0;
 }
 .earningsStrip small {
   display: block;
@@ -997,7 +1002,7 @@
   font-size: 25px;
   font-weight: 450;
 }
-.earningsStrip > button > span:nth-of-type(2) {
+.earningsCompanies > button > span:nth-of-type(2) {
   font-size: 12px;
 }
 .earningsStrip .sparkline {
@@ -1005,7 +1010,7 @@
 }
 @media (max-width: 700px) {
   .catalystStrip,
-  .earningsStrip {
+  .earningsCompanies {
     grid-template-columns: 1fr;
   }
   .catalystStrip > a {
@@ -1026,17 +1031,17 @@
     padding: 20px;
     gap: 15px;
   }
-  .earningsStrip > button {
+  .earningsCompanies > button {
     border-left: 0;
     border-top: 1px solid var(--border);
     padding: 18px 0 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
-  .earningsStrip > button > strong {
+  .earningsCompanies > button > strong {
     text-align: right;
   }
-  .earningsStrip > button > span:nth-of-type(2) {
+  .earningsCompanies > button > span:nth-of-type(2) {
     grid-column: 2;
     text-align: right;
     grid-row: 2;

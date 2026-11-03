@@ -1839,60 +1839,62 @@ export default function MorningBoard({
                       </span>
                       <h3>Inside the earnings cycle</h3>
                       <p>
-                        Selected mega-cap revenue. This is not an index-wide
+                        Selected company revenue. This is not an index-wide
                         earnings surprise measure.
                       </p>
                     </div>
-                    {reported.map((signal) => {
-                      const growth = signal.metrics.find(
-                        (metric) =>
-                          metric.label === "Year-over-year revenue change",
-                      );
-                      return (
-                        <button
-                          key={signal.id}
-                          onClick={() => setFamily("earnings")}
-                        >
-                          <span>
-                            {signal.id.replace("earnings-", "")}
-                            <small>
-                              Quarter ended {date(signal.source.observedAt!)}
-                            </small>
-                          </span>
-                          <strong>
-                            ${number(signal.metrics[0].value, 2)}bn
-                          </strong>
-                          <span
-                            className={
-                              growth && growth.value >= 0
-                                ? styles.up
-                                : styles.down
-                            }
+                    <div className={styles.earningsCompanies}>
+                      {reported.map((signal) => {
+                        const growth = signal.metrics.find(
+                          (metric) =>
+                            metric.label === "Year-over-year revenue change",
+                        );
+                        return (
+                          <button
+                            key={signal.id}
+                            onClick={() => setFamily("earnings")}
                           >
-                            {growth
-                              ? `${growth.value >= 0 ? "+" : ""}${number(growth.value, 1)}% YoY`
-                              : "No comparable period"}
-                          </span>
-                          <Sparkline
-                            series={signal.series}
-                            label={signal.title}
-                          />
-                          {signal.source.frequency ===
-                            "quarterly company release" && (
-                            <small className={styles.comparisonNote}>
-                              Current vs year-earlier quarter · GAAP EPS $
-                              {number(
-                                signal.metrics.find(
-                                  (metric) =>
-                                    metric.label === "GAAP diluted EPS",
-                                )!.value,
-                                2,
-                              )}
-                            </small>
-                          )}
-                        </button>
-                      );
-                    })}
+                            <span>
+                              {signal.id.replace("earnings-", "")}
+                              <small>
+                                Quarter ended {date(signal.source.observedAt!)}
+                              </small>
+                            </span>
+                            <strong>
+                              ${number(signal.metrics[0].value, 2)}bn
+                            </strong>
+                            <span
+                              className={
+                                growth && growth.value >= 0
+                                  ? styles.up
+                                  : styles.down
+                              }
+                            >
+                              {growth
+                                ? `${growth.value >= 0 ? "+" : ""}${number(growth.value, 1)}% YoY`
+                                : "No comparable period"}
+                            </span>
+                            <Sparkline
+                              series={signal.series}
+                              label={signal.title}
+                            />
+                            {signal.source.frequency ===
+                              "quarterly company release" && (
+                              <small className={styles.comparisonNote}>
+                                Current vs year-earlier quarter · GAAP EPS $
+                                {number(
+                                  signal.metrics.find(
+                                    (metric) =>
+                                      metric.label === "GAAP diluted EPS",
+                                  )!.value,
+                                  2,
+                                )}
+                              </small>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </section>
                 )}
                 <GuidancePanel snapshot={snapshot} instrument={instrument} reference={reference} />

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T19-48-49-156Z",
-  "issuedAt": "2026-11-03T19:48:49.156Z",
-  "cutoff": "2026-11-03T19:48:49.156Z",
+  "id": "2026-11-03T21-56-20-647Z",
+  "issuedAt": "2026-11-03T21:56:20.647Z",
+  "cutoff": "2026-11-03T21:56:20.647Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -15203,15 +15203,17 @@
     },
     {
       "id": "earnings-AAPL",
+      "family": "earnings",
       "title": "Apple · reported revenue",
       "shortLabel": "Apple · reported revenue",
-      "family": "earnings",
       "instruments": [
         "MARKET",
         "SPY",
         "QQQ",
         "DIA"
       ],
+      "unit": "$bn",
+      "staleAfterDays": 150,
       "status": "available",
       "summary": "AAPL released $114.477bn quarterly revenue, 11.7% above the comparable year-earlier quarter; GAAP diluted EPS $2.10. Released 2026-11-02.",
       "source": {
@@ -15267,21 +15269,21 @@
         "daily": null,
         "weekly": null,
         "monthly": null
-      },
-      "staleAfterDays": 150,
-      "unit": "$bn"
+      }
     },
     {
       "id": "earnings-MSFT",
+      "family": "earnings",
       "title": "Microsoft · reported revenue",
       "shortLabel": "Microsoft · reported revenue",
-      "family": "earnings",
       "instruments": [
         "MARKET",
         "SPY",
         "QQQ",
         "DIA"
       ],
+      "unit": "$bn",
+      "staleAfterDays": 150,
       "status": "available",
       "summary": "MSFT released $92.279bn quarterly revenue, 18.8% above the comparable year-earlier quarter; GAAP diluted EPS $4.92. Released 2026-10-28.",
       "source": {
@@ -15337,9 +15339,7 @@
         "daily": null,
         "weekly": null,
         "monthly": null
-      },
-      "staleAfterDays": 150,
-      "unit": "$bn"
+      }
     },
     {
       "id": "earnings-NVDA",
@@ -29126,6 +29126,110 @@
       }
     },
     {
+      "id": "earnings-AMD",
+      "family": "earnings",
+      "title": "AMD · reported revenue",
+      "shortLabel": "AMD revenue",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ"
+      ],
+      "unit": "$bn",
+      "staleAfterDays": 150,
+      "status": "available",
+      "source": {
+        "name": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+        "url": "https://ir.amd.com/news-events/press-releases/detail/1303/amd-reports-third-quarter-2026-financial-results",
+        "retrievedAt": "2026-11-03T21:48:33.754Z",
+        "observedAt": "2026-09-26",
+        "releasedAt": "2026-11-03T21:15:00.000Z",
+        "frequency": "quarterly company release",
+        "attribution": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+        "usage": "Selected factual financial figures with original-source attribution",
+        "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6"
+      },
+      "series": [
+        {
+          "date": "2025-09-27",
+          "value": 9.246
+        },
+        {
+          "date": "2026-09-26",
+          "value": 13.377
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Quarter revenue",
+          "value": 13.377,
+          "unit": "$bn",
+          "date": "2026-09-26"
+        },
+        {
+          "label": "Year-over-year revenue change",
+          "value": 44.67878001297858,
+          "unit": "%",
+          "date": "2026-09-26"
+        },
+        {
+          "label": "GAAP diluted EPS",
+          "value": 1.46,
+          "unit": "$ / share",
+          "date": "2026-09-26"
+        },
+        {
+          "label": "Prior-year GAAP diluted EPS",
+          "value": 0.75,
+          "unit": "$ / share",
+          "date": "2025-09-27"
+        }
+      ],
+      "summary": "AMD released $13.377bn quarterly revenue, 44.7% above the comparable year-earlier quarter; GAAP diluted EPS $1.46. Released 2026-11-03.",
+      "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
+      "limitation": "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
+      "id": "review-amd-quarter",
+      "family": "news",
+      "title": "AMD reports Q3 results and a $17bn Q4 outlook",
+      "shortLabel": "AMD reports Q3 results and a $17bn Q4 outlook",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ"
+      ],
+      "status": "available",
+      "summary": "AMD reported $13.377bn revenue for the September 26 quarter, compared with $9.246bn a year earlier. GAAP diluted EPS was $1.46 versus $0.75. Data Center revenue reached $8.5bn. Management expects fourth-quarter revenue of $17bn, plus or minus 3%; that is guidance, not a reported result.",
+      "source": {
+        "name": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+        "url": "https://ir.amd.com/news-events/press-releases/detail/1303/amd-reports-third-quarter-2026-financial-results",
+        "retrievedAt": "2026-11-03T21:48:33.754Z",
+        "observedAt": "2026-11-03T21:15:00.000Z",
+        "releasedAt": "2026-11-03T21:15:00.000Z",
+        "frequency": "reviewed primary-source development",
+        "attribution": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+        "usage": "Cited factual summary and separately labelled editorial interpretation; original text stays with the publisher",
+        "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6"
+      },
+      "methodology": "Source-checked facts saved by the subscription publisher. Instrument-specific transmission channels are editorial interpretation, not measured price reactions or calibrated forecasts. No directional vote; the related earnings or rates family contains its separately defined quantitative inputs. The full review packet retains all supporting citations and its review timestamp.",
+      "limitation": "One company release, with GAAP EPS kept separate from adjusted EPS. Analyst consensus, a verified earnings surprise and any after-hours price reaction are unavailable. Management guidance can differ from eventual results.",
+      "series": [],
+      "metrics": [],
+      "unit": "",
+      "staleAfterDays": 7,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
       "id": "review-jolts-september",
       "family": "news",
       "title": "Openings were steady; more workers quit",
@@ -29317,44 +29421,6 @@
       ],
       "unit": "%",
       "staleAfterDays": 60,
-      "scores": {
-        "daily": null,
-        "weekly": null,
-        "monthly": null
-      }
-    },
-    {
-      "id": "issuer-calendar-amd",
-      "family": "events",
-      "title": "AMD · confirmed earnings schedule",
-      "shortLabel": "AMD earnings",
-      "instruments": [
-        "MARKET",
-        "SPY",
-        "QQQ",
-        "IWM",
-        "DIA",
-        "TLT"
-      ],
-      "status": "available",
-      "summary": "2026-11-03: AMD FY2026 Q3 results · after US close · call 5:00 PM ET. The issuer's announcement was published 2026-10-06.",
-      "source": {
-        "name": "AMD · third-quarter earnings schedule",
-        "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
-        "observedAt": "2026-11-03T08:27:02.239Z",
-        "releasedAt": "2026-10-06",
-        "retrievedAt": "2026-11-03T08:27:02.239Z",
-        "sha256": "5b68a7c4e439b5818d8cf1b8efba10727c78774f87983fbe9afa470fb339e0ca",
-        "frequency": "scheduled events",
-        "attribution": "AMD · third-quarter earnings schedule",
-        "usage": "Selected issuer schedule facts with attribution and direct source link. Evidence hash covers the retrieved source document."
-      },
-      "methodology": "Saved subscription review of an actual issuer announcement. One date-only earnings event preserves the announced release window or approximate time, separately from a confirmed webcast time. No estimates, result, price response or directional vote is inferred.",
-      "limitation": "Selected issuers only, not a comprehensive earnings calendar. Dates may change; consult the linked issuer. A conference call time is not the results release time.",
-      "series": [],
-      "metrics": [],
-      "unit": "scheduled result",
-      "staleAfterDays": 3,
       "scores": {
         "daily": null,
         "weekly": null,
@@ -30021,16 +30087,6 @@
       "url": "https://www.optionseducation.org/referencelibrary/expiration-calendar",
       "source": "OCC / Options Industry Council",
       "kind": "expiry",
-      "importance": "major"
-    },
-    {
-      "id": "issuer-earnings-amd-2026-11-03",
-      "at": "2026-11-03",
-      "dateZone": "America/New_York",
-      "title": "AMD FY2026 Q3 results · after US close · call 5:00 PM ET",
-      "source": "AMD · third-quarter earnings schedule",
-      "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
-      "kind": "scheduled",
       "importance": "major"
     },
     {
@@ -30951,7 +31007,7 @@
       "instrument": "MARKET",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.5495670995670995,
+      "coverage": 0.5522943722943723,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31024,8 +31080,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31042,8 +31098,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31051,8 +31107,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -31108,7 +31164,7 @@
       "instrument": "MARKET",
       "horizon": "weekly",
       "score": -0.015320155608688758,
-      "coverage": 0.5495670995670995,
+      "coverage": 0.5522943722943723,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31180,8 +31236,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31198,8 +31254,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31207,8 +31263,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -31264,7 +31320,7 @@
       "instrument": "MARKET",
       "horizon": "monthly",
       "score": 0.1630145085060572,
-      "coverage": 0.5495670995670995,
+      "coverage": 0.5522943722943723,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -31336,8 +31392,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31354,8 +31410,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31363,8 +31419,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -31420,7 +31476,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.545021645021645,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31493,8 +31549,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31511,8 +31567,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31520,8 +31576,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -31577,7 +31633,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "score": -0.010131659891435408,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.545021645021645,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31649,8 +31705,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31667,8 +31723,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31676,8 +31732,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -31733,7 +31789,7 @@
       "instrument": "SPY",
       "horizon": "monthly",
       "score": 0.12111033223089698,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.545021645021645,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31805,8 +31861,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31823,8 +31879,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31832,8 +31888,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -31889,7 +31945,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.545021645021645,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31962,8 +32018,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -31980,8 +32036,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -31989,8 +32045,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -32046,7 +32102,7 @@
       "instrument": "QQQ",
       "horizon": "weekly",
       "score": -0.040498284393973905,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.545021645021645,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 2,
@@ -32118,8 +32174,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -32136,8 +32192,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -32145,8 +32201,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -32202,7 +32258,7 @@
       "instrument": "QQQ",
       "horizon": "monthly",
       "score": 0.18688847826683114,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.545021645021645,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32274,8 +32330,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -32292,8 +32348,8 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 6,
-          "available": 6,
+          "expected": 7,
+          "available": 7,
           "score": null,
           "status": "available"
         },
@@ -32301,8 +32357,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -32358,7 +32414,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.4922943722943723,
+      "coverage": 0.4916883116883117,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -32431,8 +32487,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -32515,7 +32571,7 @@
       "instrument": "IWM",
       "horizon": "weekly",
       "score": -0.018330953290526066,
-      "coverage": 0.4922943722943723,
+      "coverage": 0.4916883116883117,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -32587,8 +32643,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -32671,7 +32727,7 @@
       "instrument": "IWM",
       "horizon": "monthly",
       "score": 0.1963153192231948,
-      "coverage": 0.4922943722943723,
+      "coverage": 0.4916883116883117,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32743,8 +32799,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -32827,7 +32883,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "score": 0.04270999999999973,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.5416883116883117,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -32900,8 +32956,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -32984,7 +33040,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "score": 0.007680275141180337,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.5416883116883117,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33056,8 +33112,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -33140,7 +33196,7 @@
       "instrument": "DIA",
       "horizon": "monthly",
       "score": 0.14774390430330597,
-      "coverage": 0.5422943722943722,
+      "coverage": 0.5416883116883117,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33212,8 +33268,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -33296,7 +33352,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "score": 0.12500000000000178,
-      "coverage": 0.4922943722943723,
+      "coverage": 0.4916883116883117,
       "directionalCoverage": 0.06666666666666667,
       "agreement": 1,
       "bullish": 1,
@@ -33369,8 +33425,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -33453,7 +33509,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "score": 0.09349056456975433,
-      "coverage": 0.4922943722943723,
+      "coverage": 0.4916883116883117,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33526,8 +33582,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -33610,7 +33666,7 @@
       "instrument": "TLT",
       "horizon": "monthly",
       "score": 0.5413471755760433,
-      "coverage": 0.4922943722943723,
+      "coverage": 0.4916883116883117,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33683,8 +33739,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 11,
-          "available": 10,
+          "expected": 10,
+          "available": 9,
           "score": null,
           "status": "available"
         },
@@ -33767,7 +33823,7 @@
   "forecasts": [],
   "review": {
     "schemaVersion": 1,
-    "reviewedAt": "2026-11-03T18:35:28.694Z",
+    "reviewedAt": "2026-11-03T21:54:26.891Z",
     "reviewer": "Codex subscription editorial review",
     "sources": [
       {
@@ -33862,9 +33918,44 @@
         "retrievedAt": "2026-11-03T18:30:31.301Z",
         "sha256": "046fc73ace052d4dce99d75740a7d4cd632575e7b9141db585da95681affcfb8",
         "format": "document"
+      },
+      {
+        "id": "amd-fy26-q3-release",
+        "name": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+        "url": "https://ir.amd.com/news-events/press-releases/detail/1303/amd-reports-third-quarter-2026-financial-results",
+        "publishedAt": "2026-11-03T21:15:00.000Z",
+        "retrievedAt": "2026-11-03T21:48:33.754Z",
+        "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6",
+        "format": "document"
       }
     ],
     "developments": [
+      {
+        "id": "amd-quarter",
+        "title": "AMD reports Q3 results and a $17bn Q4 outlook",
+        "facts": "AMD reported $13.377bn revenue for the September 26 quarter, compared with $9.246bn a year earlier. GAAP diluted EPS was $1.46 versus $0.75. Data Center revenue reached $8.5bn. Management expects fourth-quarter revenue of $17bn, plus or minus 3%; that is guidance, not a reported result.",
+        "sourceIds": [
+          "amd-fy26-q3-release"
+        ],
+        "impacts": [
+          {
+            "instrument": "MARKET",
+            "channel": "Data-center demand and capital spending",
+            "interpretation": "AMD adds evidence of spending on data-center hardware at one supplier. It cannot establish the return on that investment across the economy or the direction of the overall market."
+          },
+          {
+            "instrument": "SPY",
+            "channel": "Semiconductor earnings and broad-market expectations",
+            "interpretation": "The new quarter adds to the large-company earnings picture. A broad-market conclusion still requires other sectors, verified expectations and prices; revenue growth alone is not an earnings beat."
+          },
+          {
+            "instrument": "QQQ",
+            "channel": "Technology demand and next-quarter execution",
+            "interpretation": "The $17bn next-quarter revenue midpoint makes delivery against management expectations a relevant technology-sector question. The outlook remains forward-looking and is separate from analyst estimates or a measured QQQ response."
+          }
+        ],
+        "limitation": "One company release, with GAAP EPS kept separate from adjusted EPS. Analyst consensus, a verified earnings surprise and any after-hours price reaction are unavailable. Management guidance can differ from eventual results."
+      },
       {
         "id": "jolts-september",
         "title": "Openings were steady; more workers quit",
@@ -34031,6 +34122,16 @@
         "priorRevenueBillions": 77.673,
         "dilutedEPS": 4.92,
         "priorDilutedEPS": 3.72
+      },
+      {
+        "ticker": "AMD",
+        "sourceId": "amd-fy26-q3-release",
+        "periodEnd": "2026-09-26",
+        "priorPeriodEnd": "2025-09-27",
+        "revenueBillions": 13.377,
+        "priorRevenueBillions": 9.246,
+        "dilutedEPS": 1.46,
+        "priorDilutedEPS": 0.75
       }
     ],
     "policies": [
@@ -34042,14 +34143,6 @@
       }
     ],
     "earningsSchedule": [
-      {
-        "ticker": "AMD",
-        "sourceId": "amd-schedule",
-        "fiscalPeriod": "FY2026 Q3",
-        "reportDate": "2026-11-03",
-        "releaseTiming": "after_close",
-        "webcastAt": "2026-11-03T22:00:00.000Z"
-      },
       {
         "ticker": "QCOM",
         "sourceId": "qualcomm-schedule",
@@ -34090,6 +34183,17 @@
           "tolerancePercent": 2
         },
         "assumptions": "NVIDIA assumed no Data Center compute revenue from China in this outlook. The plus-or-minus 2% is the company’s guidance range, not a probability or confidence interval. These expectations can differ from eventual results."
+      },
+      {
+        "ticker": "AMD",
+        "sourceId": "amd-fy26-q3-release",
+        "fiscalPeriod": "FY2026 Q4",
+        "revenue": {
+          "kind": "midpoint_tolerance",
+          "midpoint": 17,
+          "tolerancePercent": 3
+        },
+        "assumptions": "AMD based its outlook on current expectations and warned that market conditions and other risks can cause actual results to differ. The plus-or-minus 3% is management’s revenue range, not a probability or confidence interval."
       }
     ]
   },

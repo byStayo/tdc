@@ -9,6 +9,7 @@ import { eventUpcoming, newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { clamp, effectiveStatus } from "./engine.ts";
 import { missingSignals } from "./registry.ts";
+import { REVIEWED_ISSUERS, type ReviewedTicker } from "./issuer-context.ts";
 
 export interface ReviewedSource {
   id: string;
@@ -32,7 +33,7 @@ export interface ReviewedDevelopment {
   limitation: string;
 }
 export interface ReviewedEarnings {
-  ticker: "AAPL" | "MSFT" | "NVDA";
+  ticker: ReviewedTicker;
   sourceId: string;
   periodEnd: string;
   priorPeriodEnd: string;
@@ -42,7 +43,7 @@ export interface ReviewedEarnings {
   priorDilutedEPS: number;
 }
 export interface ReviewedGuidance {
-  ticker: "AAPL" | "MSFT" | "NVDA";
+  ticker: ReviewedTicker;
   sourceId: string;
   fiscalPeriod: string;
   revenue:
@@ -178,7 +179,7 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     const source = packet.sources.find((s) => s.id === item.sourceId);
     const lag = Date.parse(item.periodEnd) - Date.parse(item.priorPeriodEnd);
     if (
-      !["AAPL", "MSFT", "NVDA"].includes(item.ticker) ||
+      !Object.hasOwn(REVIEWED_ISSUERS, item.ticker) ||
       tickers.has(item.ticker) ||
       !source ||
       !ISSUER_HOSTS[item.ticker]?.includes(new URL(source.url).hostname) ||
@@ -201,16 +202,13 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     if (!Array.isArray(packet.guidance) || packet.guidance.length > 3)
       throw new Error("Invalid reviewed guidance");
     const guided = new Set<string>();
-    const ciks: Record<string, string> = {
-      AAPL: "320193", MSFT: "789019", NVDA: "1045810",
-    };
     for (const item of packet.guidance) {
       const source = packet.sources.find((s) => s.id === item.sourceId);
       const url = source && new URL(source.url);
       const issuerSource = url && (
         ISSUER_HOSTS[item.ticker]?.includes(url.hostname) ||
-        (url.hostname === "www.sec.gov" && ciks[item.ticker] &&
-          url.pathname.startsWith(`/Archives/edgar/data/${ciks[item.ticker]}/`))
+        (url.hostname === "www.sec.gov" && Object.hasOwn(REVIEWED_ISSUERS, item.ticker) &&
+          url.pathname.startsWith(`/Archives/edgar/data/${REVIEWED_ISSUERS[item.ticker].cik}/`))
       );
       const range = item.revenue;
       const validRange = range && (
@@ -224,7 +222,7 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
           Number.isFinite(range.midpoint * (1 + range.tolerancePercent / 100)) &&
           range.midpoint * (1 - range.tolerancePercent / 100) > 0)
       );
-      if (!Object.hasOwn(ciks, item.ticker) || guided.has(item.ticker) ||
+      if (!Object.hasOwn(REVIEWED_ISSUERS, item.ticker) || guided.has(item.ticker) ||
         !issuerSource || !/^FY20\d{2} Q[1-4]$/.test(item.fiscalPeriod) ||
         !validRange || !prose(item.assumptions, 500))
         throw new Error("Invalid reviewed company guidance");
@@ -450,83 +448,104 @@ export function applyReviewedEarnings(
   cutoff: string,
 ): Signal[] {
   validateReview(packet, cutoff);
-  return signals.map((signal) => {
+  const result = signals.map((signal) => {
     const item = packet.earnings.find(
       (e) => signal.id === `earnings-${e.ticker}`,
     );
-    if (
-      !item ||
-      (signal.source.observedAt &&
-        signal.source.observedAt.slice(0, 10) > item.periodEnd)
-    )
-      return signal;
-    const source = packet.sources.find((s) => s.id === item.sourceId)!;
-    const currentRevenue = signal.metrics.find(
-      (m) => m.label === "Quarter revenue",
-    );
-    // A newer release may supersede an older quarter, but conflicting same-period numbers need review.
-    if (
-      signal.source.observedAt?.slice(0, 10) === item.periodEnd &&
-      currentRevenue &&
-      Math.abs(currentRevenue.value - item.revenueBillions) > 0.001
-    )
-      throw new Error("Conflicting same-period earnings evidence");
-    const growth = (item.revenueBillions / item.priorRevenueBillions - 1) * 100,
-      score = clamp(growth / 20);
-    return {
-      ...signal,
-      status: "available",
-      collectionNote: undefined,
-      source: {
-        name: source.name,
-        url: source.url,
-        retrievedAt: source.retrievedAt,
-        observedAt: item.periodEnd,
-        releasedAt: source.publishedAt,
-        frequency: "quarterly company release",
-        attribution: source.name,
-        usage:
-          "Selected factual financial figures with original-source attribution",
-        sha256: source.sha256,
-      },
-      series: [
-        { date: item.priorPeriodEnd, value: item.priorRevenueBillions },
-        { date: item.periodEnd, value: item.revenueBillions },
-      ],
-      metrics: [
-        {
-          label: "Quarter revenue",
-          value: item.revenueBillions,
-          unit: "$bn",
-          date: item.periodEnd,
-        },
-        {
-          label: "Year-over-year revenue change",
-          value: growth,
-          unit: "%",
-          date: item.periodEnd,
-        },
-        {
-          label: "GAAP diluted EPS",
-          value: item.dilutedEPS,
-          unit: "$ / share",
-          date: item.periodEnd,
-        },
-        {
-          label: "Prior-year GAAP diluted EPS",
-          value: item.priorDilutedEPS,
-          unit: "$ / share",
-          date: item.priorPeriodEnd,
-        },
-      ],
-      summary: `${item.ticker} released $${item.revenueBillions.toFixed(3)}bn quarterly revenue, ${growth.toFixed(1)}% above the comparable year-earlier quarter; GAAP diluted EPS $${item.dilutedEPS.toFixed(2)}. Released ${source.publishedAt.slice(0, 10)}.`,
-      methodology:
-        "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
-      limitation:
-        "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
-      scores: { daily: score, weekly: score, monthly: score },
-    };
+    return item ? reviewedEarningsSignal(item, packet, signal) : signal;
   });
+  // A verified issuer release is sufficient evidence even when the SEC collector
+  // has not created a signal for this company. This also survives full recollection.
+  for (const item of packet.earnings) {
+    if (!result.some((s) => s.id === `earnings-${item.ticker}`))
+      result.push(reviewedEarningsSignal(item, packet));
+  }
+  return result;
+}
+
+function reviewedEarningsSignal(
+  item: ReviewedEarnings,
+  packet: ReviewPacket,
+  signal?: Signal,
+): Signal {
+  if (
+    signal?.source.observedAt &&
+      signal.source.observedAt.slice(0, 10) > item.periodEnd)
+    return signal;
+  const source = packet.sources.find((s) => s.id === item.sourceId)!;
+  const currentRevenue = signal?.metrics.find(
+    (m) => m.label === "Quarter revenue",
+  );
+  // A newer release may supersede an older quarter, but conflicting same-period numbers need review.
+  if (
+    signal?.source.observedAt?.slice(0, 10) === item.periodEnd &&
+    currentRevenue &&
+    Math.abs(currentRevenue.value - item.revenueBillions) > 0.001
+  )
+    throw new Error("Conflicting same-period earnings evidence");
+  const growth = (item.revenueBillions / item.priorRevenueBillions - 1) * 100,
+    score = clamp(growth / 20);
+  const issuer = REVIEWED_ISSUERS[item.ticker];
+  return {
+    id: `earnings-${item.ticker}`,
+    family: "earnings",
+    title: `${issuer.name} · reported revenue`,
+    shortLabel: `${item.ticker} revenue`,
+    instruments: [...issuer.instruments],
+    unit: "$bn",
+    staleAfterDays: 150,
+    ...signal,
+    status: "available",
+    collectionNote: undefined,
+    source: {
+      name: source.name,
+      url: source.url,
+      retrievedAt: source.retrievedAt,
+      observedAt: item.periodEnd,
+      releasedAt: source.publishedAt,
+      frequency: "quarterly company release",
+      attribution: source.name,
+      usage:
+        "Selected factual financial figures with original-source attribution",
+      sha256: source.sha256,
+    },
+    series: [
+      { date: item.priorPeriodEnd, value: item.priorRevenueBillions },
+      { date: item.periodEnd, value: item.revenueBillions },
+    ],
+    metrics: [
+      {
+        label: "Quarter revenue",
+        value: item.revenueBillions,
+        unit: "$bn",
+        date: item.periodEnd,
+      },
+      {
+        label: "Year-over-year revenue change",
+        value: growth,
+        unit: "%",
+        date: item.periodEnd,
+      },
+      {
+        label: "GAAP diluted EPS",
+        value: item.dilutedEPS,
+        unit: "$ / share",
+        date: item.periodEnd,
+      },
+      {
+        label: "Prior-year GAAP diluted EPS",
+        value: item.priorDilutedEPS,
+        unit: "$ / share",
+        date: item.priorPeriodEnd,
+      },
+    ],
+    summary: `${item.ticker} released $${item.revenueBillions.toFixed(3)}bn quarterly revenue, ${growth.toFixed(1)}% above the comparable year-earlier quarter; GAAP diluted EPS $${item.dilutedEPS.toFixed(2)}. Released ${source.publishedAt.slice(0, 10)}.`,
+    methodology:
+      "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
+    limitation:
+      "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
+    scores: { daily: score, weekly: score, monthly: score },
+  };
 }
 
 /** Applied only when publishing; historical snapshots are never enriched retroactively. */

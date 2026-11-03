@@ -1,6 +1,7 @@
 import type { ReviewedGuidance } from "./reviewed.ts";
 import type { Instrument, Snapshot } from "./types.ts";
 import { newYorkDate } from "./time.ts";
+import { REVIEWED_ISSUERS } from "./issuer-context.ts";
 
 /** Arithmetic bounds, not a probability distribution or an earnings forecast. */
 export function guidanceBounds(item: ReviewedGuidance): { low: number; high: number } {
@@ -17,7 +18,9 @@ export function guidanceBounds(item: ReviewedGuidance): { low: number; high: num
 export function guidanceRows(snapshot: Snapshot, instrument: Instrument, reference: string) {
   if (!["MARKET", "SPY", "QQQ", "DIA"].includes(instrument)) return [];
   const packet = snapshot.review;
-  return (packet?.guidance ?? []).map((item) => {
+  return (packet?.guidance ?? []).filter((item) =>
+    (REVIEWED_ISSUERS[item.ticker].instruments as Instrument[]).includes(instrument),
+  ).map((item) => {
     const source = packet!.sources.find((s) => s.id === item.sourceId)!;
     const report = packet!.earningsSchedule?.find(
       (s) => s.ticker === item.ticker && s.fiscalPeriod === item.fiscalPeriod,
