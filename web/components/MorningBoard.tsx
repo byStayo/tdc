@@ -1,0 +1,1453 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  ChevronRight,
+  Coffee,
+  ExternalLink,
+  Globe2,
+  History,
+  Info,
+  Layers3,
+  Moon,
+  Sun,
+  X,
+} from "lucide-react";
+import { calculateConsensus, effectiveStatus } from "@/lib/consensus/engine";
+import { FAMILIES } from "@/lib/consensus/registry";
+import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
+import type { PerformanceReport } from "@/lib/consensus/performance-types";
+import type {
+  Family,
+  HistoryEntry,
+  Horizon,
+  Instrument,
+  Point,
+  Signal,
+  Snapshot,
+} from "@/lib/consensus/types";
+import styles from "./MorningBoard.module.css";
+
+const pct = (value: number | null) =>
+  value === null ? "—" : `${Math.round(value * 100)}%`;
+const number = (value: number, decimals = 2) =>
+  value.toLocaleString("en-US", { maximumFractionDigits: decimals });
+const date = (value: string) =>
+  new Date(
+    value.length === 10 ? `${value}T12:00:00Z` : value,
+  ).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "America/New_York",
+  });
+const time = (value: string) =>
+  new Date(value).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+  });
+const datedYear = (value: string) =>
+  new Date(
+    value.length === 10 ? `${value}T12:00:00Z` : value,
+  ).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "America/New_York",
+  });
+interface Experiments {
+  experiments: {
+    id: string;
+    instrument: string;
+    horizon: string;
+    testSamples?: number;
+    candidateBrier?: number;
+    baseRateBrier?: number;
+    baselineBeaten: boolean;
+  }[];
+  source: { url: string };
+  note: string;
+}
+const names: Record<Instrument, string> = {
+  MARKET: "Market overview",
+  SPY: "S&P 500",
+  QQQ: "Nasdaq 100",
+  IWM: "Small caps",
+  DIA: "Dow 30",
+  TLT: "Long Treasuries",
+};
+function Sparkline({
+  series,
+  color = "var(--accent)",
+  label,
+  large = false,
+}: {
+  series: Point[];
+  color?: string;
+  label: string;
+  large?: boolean;
+}) {
+  if (series.length < 2)
+    return <div className={styles.noChart}>No observed series</div>;
+  const data = series.slice(-60),
+    min = Math.min(...data.map((point) => point.value)),
+    max = Math.max(...data.map((point) => point.value)),
+    spread = max - min || Math.max(Math.abs(max) * 0.01, 1),
+    width = 300,
+    height = large ? 130 : 64;
+  const points = data
+    .map(
+      (point, i) =>
+        `${(i / (data.length - 1)) * (width - 8) + 4},${height - 10 - ((point.value - min) / spread) * (height - 20)}`,
+    )
+    .join(" ");
+  return (
+    <svg
+      className={styles.sparkline}
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label={`${label}; ${datedYear(data[0].date)} to ${datedYear(data.at(-1)!.date)}; latest ${number(data.at(-1)!.value, 4)}`}
+    >
+      <path
+        d={`M 4 ${height - 6} H ${width - 4}`}
+        stroke="var(--border)"
+        strokeDasharray="3 4"
+      />
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
+  const value = score ?? 0,
+    angle = Math.PI * (1 - (value + 1) / 2),
+    x = 150 + 104 * Math.cos(angle),
+    y = 135 - 104 * Math.sin(angle);
+  return (
+    <svg
+      viewBox="0 0 300 175"
+      className={styles.gauge}
+      role="img"
+      aria-label={`Available-input balance ${score === null ? "unavailable" : number(value * 100, 0)} on a scale from -100 to 100. ${abstain ? "Incomplete coverage; no trading call." : "Heuristic directional lean."}`}
+    >
+      <path
+        d="M 30 135 A 120 120 0 0 1 270 135"
+        fill="none"
+        stroke="var(--border)"
+        strokeWidth="14"
+      />
+      <path
+        d="M 30 135 A 120 120 0 0 1 90 31"
+        fill="none"
+        stroke="var(--negative)"
+        strokeWidth="14"
+      />
+      <path
+        d="M 210 31 A 120 120 0 0 1 270 135"
+        fill="none"
+        stroke="var(--positive)"
+        strokeWidth="14"
+      />
+      {score !== null && (
+        <>
+          <line
+            x1="150"
+            y1="135"
+            x2={x}
+            y2={y}
+            stroke="var(--text)"
+            strokeWidth="2"
+          />
+          <circle cx="150" cy="135" r="5" fill="var(--text)" />
+        </>
+      )}
+      <text x="150" y="104" textAnchor="middle" className={styles.gaugeValue}>
+        {score === null
+          ? "—"
+          : `${score > 0 ? "+" : ""}${Math.round(score * 100)}`}
+      </text>
+      <text x="150" y="123" textAnchor="middle" className={styles.gaugeCaption}>
+        INPUT BALANCE
+      </text>
+      <text x="25" y="163" className={styles.gaugeCaption}>
+        DEFENSIVE
+      </text>
+      <text x="275" y="163" textAnchor="end" className={styles.gaugeCaption}>
+        SUPPORTIVE
+      </text>
+    </svg>
+  );
+}
+function Divergence({ value }: { value: number | null }) {
+  return (
+    <div className={styles.divergence} aria-hidden="true">
+      <span />
+      <i
+        style={{
+          left: value !== null && value < 0 ? `${50 + value * 50}%` : "50%",
+          width: value === null ? "0%" : `${Math.abs(value) * 50}%`,
+          background:
+            value !== null && value < 0 ? "var(--negative)" : "var(--positive)",
+        }}
+      />
+    </div>
+  );
+}
+function SourceDrawer({
+  family,
+  snapshot,
+  instrument,
+  now,
+  onClose,
+}: {
+  family: Family | null;
+  snapshot: Snapshot;
+  instrument: Instrument;
+  now: string;
+  onClose: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (family && !dialog.current?.open) dialog.current?.showModal();
+    if (!family && dialog.current?.open) dialog.current?.close();
+  }, [family]);
+  const definition = FAMILIES.find((item) => item.id === family);
+  return (
+    <dialog
+      ref={dialog}
+      className={styles.drawer}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      aria-labelledby="source-drawer-title"
+    >
+      <div className={styles.drawerHead}>
+        <div>
+          <span className={styles.eyebrow}>FOLLOW THE EVIDENCE</span>
+          <h2 id="source-drawer-title">{definition?.label}</h2>
+        </div>
+        <button
+          className={styles.iconButton}
+          onClick={onClose}
+          aria-label="Close source details"
+        >
+          <X size={21} />
+        </button>
+      </div>
+      <p className={styles.muted}>
+        {definition?.detail}. Dates refer to the actual observation, not when
+        you opened this page.
+      </p>
+      {snapshot.signals
+        .filter(
+          (signal) =>
+            signal.family === family && signal.instruments.includes(instrument),
+        )
+        .map((signal) => (
+          <article className={styles.sourceItem} key={signal.id}>
+            <div className={styles.cardTop}>
+              <h3>{signal.title}</h3>
+              <span className={styles.status}>
+                {effectiveStatus(signal, now).replace("_", " ")}
+              </span>
+            </div>
+            <p>{signal.summary}</p>
+            {signal.series.length > 1 && (
+              <Sparkline series={signal.series} label={signal.title} large />
+            )}
+            {!!signal.metrics.length && (
+              <dl className={styles.sourceFacts}>
+                {signal.metrics.map((metric) => (
+                  <div key={metric.label}>
+                    <dt>{metric.label}</dt>
+                    <dd>
+                      {number(metric.value, 4)} {metric.unit} ·{" "}
+                      {date(metric.date)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            <dl className={styles.sourceFacts}>
+              <div>
+                <dt>Observed</dt>
+                <dd>
+                  {signal.source.observedAt
+                    ? date(signal.source.observedAt)
+                    : "No observation"}
+                </dd>
+              </div>
+              <div>
+                <dt>Cadence</dt>
+                <dd>{signal.source.frequency}</dd>
+              </div>
+              <div>
+                <dt>Collected</dt>
+                <dd>
+                  {date(signal.source.retrievedAt)} ·{" "}
+                  {time(signal.source.retrievedAt)} ET
+                </dd>
+              </div>
+              <div>
+                <dt>Release time</dt>
+                <dd>
+                  {signal.source.releasedAt
+                    ? `${date(signal.source.releasedAt)} · ${time(signal.source.releasedAt)} ET`
+                    : "Not supplied by source"}
+                </dd>
+              </div>
+            </dl>
+            <details>
+              <summary>Calculation & limitations</summary>
+              <p>{signal.methodology}</p>
+              <p>{signal.limitation}</p>
+              <p>{signal.source.attribution}</p>
+            </details>
+            <a
+              href={signal.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {signal.source.name === "Not connected"
+                ? "Source requirements"
+                : `Open ${signal.source.name}`}{" "}
+              <ExternalLink size={13} />
+            </a>
+          </article>
+        ))}
+    </dialog>
+  );
+}
+function Curve({ signals }: { signals: Signal[] }) {
+  const selected = ["DGS2", "DGS10", "DGS30"].map((id) =>
+    signals.find((signal) => signal.id === `fred-${id}`),
+  );
+  const common = selected[0]?.series
+    .map((point) => point.date)
+    .filter((day) =>
+      selected.every((signal) =>
+        signal?.series.some((point) => point.date === day),
+      ),
+    )
+    .at(-1);
+  const values = selected.map(
+    (signal) =>
+      signal?.series.find((point) => point.date === common)?.value ?? null,
+  );
+  if (!common || values.some((value) => value === null))
+    return <p className={styles.muted}>No complete same-date yield curve.</p>;
+  const numbers = values as number[],
+    min = Math.floor((Math.min(...numbers) - 0.2) * 2) / 2,
+    max = Math.ceil((Math.max(...numbers) + 0.2) * 2) / 2;
+  const xs = [30, 150, 330],
+    ys = numbers.map((value) => 140 - ((value - min) / (max - min)) * 110);
+  return (
+    <>
+      <div className={styles.curveMetrics}>
+        {numbers.map((value, i) => (
+          <div key={i}>
+            <span>{[2, 10, 30][i]} YEAR</span>
+            <strong>
+              {value.toFixed(2)}
+              <small>%</small>
+            </strong>
+          </div>
+        ))}
+      </div>
+      <svg
+        className={styles.curve}
+        viewBox="0 0 360 180"
+        role="img"
+        aria-label={`Treasury yield curve on ${date(common)}: 2-year ${numbers[0]}%, 10-year ${numbers[1]}%, 30-year ${numbers[2]}%.`}
+      >
+        {[40, 85, 130].map((y) => (
+          <line
+            key={y}
+            x1="15"
+            x2="345"
+            y1={y}
+            y2={y}
+            stroke="var(--border)"
+            strokeDasharray="3 5"
+          />
+        ))}
+        <polyline
+          points={xs.map((x, i) => `${x},${ys[i]}`).join(" ")}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="3"
+        />
+        {xs.map((x, i) => (
+          <g key={x}>
+            <circle
+              cx={x}
+              cy={ys[i]}
+              r="5"
+              fill="var(--panel)"
+              stroke="var(--accent)"
+              strokeWidth="3"
+            />
+            <text
+              x={x}
+              y="169"
+              textAnchor="middle"
+              className={styles.gaugeCaption}
+            >
+              {[2, 10, 30][i]}Y
+            </text>
+          </g>
+        ))}
+      </svg>
+      <div className={styles.chartFoot}>
+        <span>
+          10Y − 2Y{" "}
+          <strong>{number((numbers[1] - numbers[0]) * 100, 0)} bp</strong>
+        </span>
+        <span>{date(common)} · FRED</span>
+      </div>
+    </>
+  );
+}
+function Liquidity({ signals }: { signals: Signal[] }) {
+  const assets = signals.find((signal) => signal.id === "fred-WALCL"),
+    treasury = signals.find((signal) => signal.id === "fred-WTREGEN"),
+    repo = signals.find((signal) => signal.id === "fred-RRPONTSYD");
+  const series =
+    assets?.series.flatMap((point) => {
+      const cash = treasury?.series.find((item) => item.date === point.date),
+        reverse = repo?.series.find((item) => item.date === point.date);
+      return cash && reverse
+        ? [
+            {
+              date: point.date,
+              value: (point.value - cash.value) / 1000 - reverse.value,
+            },
+          ]
+        : [];
+    }) ?? [];
+  const latest = series.at(-1),
+    previous = series.at(-2),
+    change = latest && previous ? latest.value - previous.value : null;
+  return (
+    <>
+      <div className={styles.bigValue}>
+        {latest ? `$${number(latest.value / 1000, 2)}` : "—"}
+        <small>{latest ? "trillion" : ""}</small>
+      </div>
+      <div className={change !== null && change >= 0 ? styles.up : styles.down}>
+        {change === null
+          ? "Awaiting aligned observations"
+          : `${change >= 0 ? "+" : "−"}$${number(Math.abs(change), 1)}bn since prior common date`}
+      </div>
+      <Sparkline
+        series={series}
+        label="Fed assets minus Treasury cash and overnight reverse repo, in billions of dollars"
+        color="var(--positive)"
+        large
+      />
+      <p className={styles.chartFoot}>
+        Fed assets − TGA − ON RRP ·{" "}
+        {latest ? date(latest.date) : "no common date"}
+      </p>
+      <p className={styles.finePrint}>
+        A US liquidity proxy. Components are aligned by observation date; this
+        is not total global liquidity.
+      </p>
+    </>
+  );
+}
+
+export default function MorningBoard({
+  initial,
+  history,
+  performance,
+  experiments,
+}: {
+  initial: Snapshot;
+  history: HistoryEntry[];
+  performance: PerformanceReport;
+  experiments: Experiments;
+}) {
+  const [snapshot, setSnapshot] = useState(initial),
+    [instrument, setInstrument] = useState<Instrument>("MARKET"),
+    [horizon, setHorizon] = useState<Horizon>("daily");
+  const [family, setFamily] = useState<Family | null>(null),
+    [tab, setTab] = useState<"morning" | "signals" | "history">("morning"),
+    [theme, setTheme] = useState("dark");
+  const [now, setNow] = useState(initial.issuedAt),
+    [historyError, setHistoryError] = useState(""),
+    [loading, setLoading] = useState(false);
+  const issueRequest = useRef(0);
+  useEffect(() => {
+    setNow(new Date().toISOString());
+    setTheme(document.documentElement.dataset.theme ?? "dark");
+    const timer = setInterval(() => setNow(new Date().toISOString()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+  const historical = snapshot.id !== initial.id,
+    reference = historical ? snapshot.cutoff : now;
+  const consensus = calculateConsensus(
+      snapshot.signals,
+      instrument,
+      horizon,
+      reference,
+    ),
+    current = snapshot.signals.filter((signal) =>
+      signal.instruments.includes(instrument),
+    );
+  const available = current.filter(
+    (signal) => effectiveStatus(signal, reference) === "available",
+  );
+  const leaders = [...consensus.families]
+    .filter((item) => item.score !== null)
+    .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
+    .slice(0, 5);
+  const cohort =
+    instrument === "MARKET"
+      ? null
+      : performance.cohorts.find(
+          (item) => item.instrument === instrument && item.horizon === horizon,
+        );
+  const learning = performance.learning.filter(
+    (item) =>
+      (instrument === "MARKET" || item.instrument === instrument) &&
+      item.horizon === horizon,
+  );
+  const fx = snapshot.signals.filter(
+    (signal) => signal.id.startsWith("fx-") && signal.series.length,
+  );
+  const institutions = current.filter(
+    (signal) => signal.id.startsWith("cftc-") && signal.metrics.length,
+  );
+  const scheduled = snapshot.catalysts
+    .filter(
+      (item) =>
+        item.kind === "scheduled" &&
+        Date.parse(item.at) >= Date.parse(reference),
+    )
+    .sort((a, b) => a.at.localeCompare(b.at));
+  const reported = current.filter(
+    (signal) => signal.id.startsWith("earnings-") && signal.metrics.length,
+  );
+  const supportive = consensus.families
+    .filter((item) => item.score !== null && item.score > 0.1)
+    .sort((a, b) => b.score! - a.score!)
+    .slice(0, 3);
+  const defensive = consensus.families
+    .filter((item) => item.score !== null && item.score < -0.1)
+    .sort((a, b) => a.score! - b.score!)
+    .slice(0, 3);
+  const describeFamilies = (items: typeof supportive) =>
+    items.length
+      ? items.map((item) => item.label.toLowerCase()).join(", ")
+      : "No family currently clears the directional threshold";
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    setTheme(next);
+    try {
+      localStorage.setItem("tdc-theme", next);
+    } catch {
+      /* Theme still works for this visit. */
+    }
+  }
+  async function chooseIssue(id: string) {
+    const request = ++issueRequest.current;
+    setHistoryError("");
+    if (id === initial.id) {
+      setSnapshot(initial);
+      setLoading(false);
+      return true;
+    }
+    const entry = history.find((item) => item.id === id);
+    if (!entry) return false;
+    setLoading(true);
+    setHistoryError("");
+    try {
+      const response = await fetch(
+        `/consensus/${encodeURIComponent(entry.id)}.json`,
+      );
+      if (!response.ok) throw new Error("This edition could not be loaded.");
+      const next = (await response.json()) as Snapshot,
+        bytes = new TextEncoder().encode(JSON.stringify(next));
+      const hash = [
+        ...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
+      ]
+        .map((value) => value.toString(16).padStart(2, "0"))
+        .join("");
+      if (hash !== entry.sha256 || next.id !== entry.id)
+        throw new Error("Edition integrity check failed.");
+      if (request !== issueRequest.current) return false;
+      setSnapshot(next);
+      return true;
+    } catch (error) {
+      if (request === issueRequest.current)
+        setHistoryError(
+          error instanceof Error ? error.message : "History unavailable.",
+        );
+      return false;
+    } finally {
+      if (request === issueRequest.current) setLoading(false);
+    }
+  }
+  return (
+    <div className={styles.board}>
+      <a href="#morning-main" className={styles.skip}>
+        Skip to market overview
+      </a>
+      <header className={styles.header}>
+        <a
+          className={styles.brand}
+          href="/"
+          aria-label="The Daily Consensus home"
+        >
+          <span className={styles.brandMark}>
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+          <span>
+            the daily{" "}
+            <strong>
+              consensus<span>.</span>
+            </strong>
+          </span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="/" aria-current="page">
+            Morning view
+          </a>
+          <a href="/research-desk">Research desk</a>
+          <a href="/research">Archive</a>
+        </nav>
+        <div className={styles.headerRight}>
+          <span className={styles.free}>Free. For everyone.</span>
+          <button
+            onClick={toggleTheme}
+            className={styles.iconButton}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
+      </header>
+      <main id="morning-main" className={styles.main}>
+        <div className={styles.intro}>
+          <div>
+            <span className={styles.eyebrow}>
+              <Coffee size={14} /> YOUR MORNING MARKET MAP
+            </span>
+            <h1>
+              A world of signals.
+              <br /> <em>One clearer picture.</em>
+            </h1>
+            <p>
+              See what is moving. Where the signals agree. And what is still
+              missing.
+            </p>
+          </div>
+          <div className={styles.edition}>
+            <span className={styles.editionDot} />
+            <strong>
+              {historical ? "AS-ISSUED EDITION" : "LATEST SAVED EDITION"}
+            </strong>
+            <span>
+              {date(snapshot.issuedAt)} · {time(snapshot.issuedAt)} ET
+            </span>
+            <small>
+              {available.length} current inputs · {snapshot.signals.length}{" "}
+              tracked
+            </small>
+          </div>
+        </div>
+        <div className={styles.toolbar}>
+          <div className={styles.instruments} aria-label="Instrument">
+            {INSTRUMENTS.map((symbol) => (
+              <button
+                key={symbol}
+                aria-pressed={instrument === symbol}
+                onClick={() => setInstrument(symbol)}
+              >
+                {symbol === "MARKET" ? <Globe2 size={14} /> : null}
+                {symbol === "MARKET" ? "All markets" : symbol}
+              </button>
+            ))}
+          </div>
+          <div className={styles.horizons} aria-label="Context window">
+            {HORIZONS.map((value) => (
+              <button
+                key={value}
+                aria-pressed={horizon === value}
+                onClick={() => setHorizon(value)}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div
+          className={styles.tabs}
+          role="tablist"
+          aria-label="Morning sections"
+        >
+          {(
+            [
+              { id: "morning", name: "The big picture", icon: Coffee },
+              { id: "signals", name: "Every signal", icon: Layers3 },
+              { id: "history", name: "History & learning", icon: History },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.id}
+              role="tab"
+              aria-selected={tab === item.id}
+              aria-controls={`${item.id}-panel`}
+              id={`${item.id}-tab`}
+              tabIndex={tab === item.id ? 0 : -1}
+              onKeyDown={(event) => {
+                const order = ["morning", "signals", "history"] as const;
+                const currentIndex = order.indexOf(tab);
+                const nextIndex =
+                  event.key === "ArrowRight"
+                    ? (currentIndex + 1) % 3
+                    : event.key === "ArrowLeft"
+                      ? (currentIndex + 2) % 3
+                      : event.key === "Home"
+                        ? 0
+                        : event.key === "End"
+                          ? 2
+                          : null;
+                if (nextIndex !== null) {
+                  event.preventDefault();
+                  setTab(order[nextIndex]);
+                  document.getElementById(`${order[nextIndex]}-tab`)?.focus();
+                }
+              }}
+              onClick={() => setTab(item.id)}
+            >
+              <item.icon size={15} />
+              {item.name}
+            </button>
+          ))}
+        </div>
+        {tab !== "history" && (
+          <section className={styles.hero} aria-label="Consensus overview">
+            <div className={styles.heroVerdict}>
+              <span className={styles.eyebrow}>
+                {names[instrument]} · {horizon} CONTEXT
+              </span>
+              <h2>{consensus.label}</h2>
+              <p>
+                {consensus.abstain
+                  ? "The available signals form a view. The missing signals still matter. A complete trading call is withheld."
+                  : "A transparent balance of independent market inputs. Inspect the drivers before forming your plan."}
+              </p>
+              <div className={styles.coverageLabel}>
+                <span>Evidence coverage</span>
+                <strong>{pct(consensus.coverage)}</strong>
+              </div>
+              <div className={styles.coverageTrack}>
+                <i style={{ width: pct(consensus.coverage) }} />
+              </div>
+              <small>
+                {consensus.families.filter((item) => item.available > 0).length}{" "}
+                of {FAMILIES.length} families have current observations
+              </small>
+              <button
+                className={styles.textButton}
+                onClick={() => setTab("signals")}
+              >
+                See the full picture <ArrowRight size={15} />
+              </button>
+            </div>
+            <div className={styles.gaugeWrap}>
+              <Gauge score={consensus.score} abstain={consensus.abstain} />
+              <div className={styles.votes}>
+                <span>
+                  <i className={styles.positiveDot} />
+                  {consensus.bullish} supportive
+                </span>
+                <span>
+                  <i className={styles.negativeDot} />
+                  {consensus.bearish} defensive
+                </span>
+                <span>{consensus.neutral} balanced</span>
+              </div>
+              <p className={styles.finePrint}>
+                {pct(consensus.agreement)} agreement among directional families.
+                <br />
+                Agreement is not a probability of profit.
+              </p>
+            </div>
+            <div className={styles.drivers}>
+              <span className={styles.eyebrow}>
+                WHAT IS PULLING THE BALANCE
+              </span>
+              {leaders.map((item) => (
+                <button key={item.id} onClick={() => setFamily(item.id)}>
+                  <span>
+                    {item.label}
+                    <ChevronRight size={13} />
+                  </span>
+                  <Divergence value={item.score} />
+                  <strong
+                    className={item.score! >= 0 ? styles.up : styles.down}
+                  >
+                    {item.score! > 0 ? "+" : ""}
+                    {Math.round(item.score! * 100)}
+                  </strong>
+                </button>
+              ))}
+              <p className={styles.finePrint}>
+                Equal family weights. Correlated indicators share a vote. These
+                are declared rules, not learned accuracy.
+              </p>
+            </div>
+          </section>
+        )}
+        {tab === "morning" && (
+          <div role="tabpanel" id="morning-panel" aria-labelledby="morning-tab">
+            <section
+              className={styles.catalystStrip}
+              aria-label="Upcoming economic catalysts"
+            >
+              <div>
+                <span className={styles.eyebrow}>ON THE RADAR</span>
+                <strong>Next releases</strong>
+              </div>
+              {scheduled.slice(0, 3).map((item) => (
+                <a
+                  key={item.id}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>
+                    {date(item.at)} · {time(item.at)} ET
+                  </span>
+                  <strong>{item.title}</strong>
+                  <small>
+                    BLS · scheduled <ArrowUpRight size={12} />
+                  </small>
+                </a>
+              ))}
+              {!scheduled.length && (
+                <p className={styles.muted}>
+                  No upcoming events returned by the connected calendar.
+                </p>
+              )}
+            </section>
+            <div className={styles.sectionHeading}>
+              <div>
+                <span className={styles.eyebrow}>
+                  THE FORCES BEHIND THE MARKET
+                </span>
+                <h2>Start with the big picture.</h2>
+              </div>
+              <span>{names[instrument]} · source dates vary</span>
+            </div>
+            <div className={styles.dashboardGrid}>
+              <section className={styles.panel}>
+                <div className={styles.panelHead}>
+                  <h3>The price of money</h3>
+                  <button
+                    onClick={() => setFamily("rates")}
+                    aria-label="Inspect rates sources"
+                  >
+                    <ArrowUpRight size={18} />
+                  </button>
+                </div>
+                <p className={styles.panelSubtitle}>US Treasury curve</p>
+                <Curve signals={snapshot.signals} />
+              </section>
+              <section className={styles.panel}>
+                <div className={styles.panelHead}>
+                  <h3>Liquidity underneath</h3>
+                  <button
+                    onClick={() => setFamily("liquidity")}
+                    aria-label="Inspect liquidity sources"
+                  >
+                    <ArrowUpRight size={18} />
+                  </button>
+                </div>
+                <p className={styles.panelSubtitle}>
+                  A same-date view of the Fed, Treasury and repo
+                </p>
+                <Liquidity signals={snapshot.signals} />
+              </section>
+              <section className={`${styles.panel} ${styles.fxPanel}`}>
+                <div className={styles.panelHead}>
+                  <h3>The world against the dollar</h3>
+                  <button
+                    onClick={() => setFamily("fx")}
+                    aria-label="Inspect currency sources"
+                  >
+                    <ArrowUpRight size={18} />
+                  </button>
+                </div>
+                <p className={styles.panelSubtitle}>
+                  Daily change · ECB reference fixes, not live quotes
+                </p>
+                <div className={styles.fxGrid}>
+                  {fx.map((signal) => {
+                    const change =
+                      signal.metrics.find(
+                        (metric) => metric.label === "Daily change",
+                      )?.value ?? null;
+                    return (
+                      <button
+                        key={signal.id}
+                        onClick={() => setFamily("fx")}
+                        className={
+                          change !== null && change >= 0
+                            ? styles.fxUp
+                            : styles.fxDown
+                        }
+                      >
+                        <span>
+                          {signal.id.slice(3)}
+                          <small>/ USD</small>
+                        </span>
+                        <strong>
+                          {change === null
+                            ? "—"
+                            : `${change >= 0 ? "+" : ""}${number(change)}%`}
+                        </strong>
+                        <Sparkline
+                          series={signal.series}
+                          color={
+                            change !== null && change >= 0
+                              ? "var(--positive)"
+                              : "var(--negative)"
+                          }
+                          label={signal.title}
+                        />
+                        <small>
+                          {signal.source.observedAt
+                            ? date(signal.source.observedAt)
+                            : "Unavailable"}
+                        </small>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+            <div className={styles.twoColumns}>
+              <section className={styles.panel}>
+                <div className={styles.panelHead}>
+                  <h3>Where institutions stand</h3>
+                  <button
+                    onClick={() => setFamily("institutions")}
+                    aria-label="Inspect institutional positioning"
+                  >
+                    <ArrowUpRight size={18} />
+                  </button>
+                </div>
+                <p className={styles.panelSubtitle}>
+                  Net futures positions as a share of open interest
+                </p>
+                <div className={styles.positioning}>
+                  {institutions
+                    .slice(0, instrument === "MARKET" ? 8 : 4)
+                    .map((signal) => (
+                      <button
+                        key={signal.id}
+                        onClick={() => setFamily("institutions")}
+                      >
+                        <span>
+                          {signal.title}
+                          <small>
+                            Measured {date(signal.source.observedAt!)}
+                          </small>
+                        </span>
+                        <Divergence
+                          value={Math.max(
+                            -1,
+                            Math.min(1, signal.metrics[0].value / 60),
+                          )}
+                        />
+                        <strong
+                          className={
+                            signal.metrics[0].value >= 0
+                              ? styles.up
+                              : styles.down
+                          }
+                        >
+                          {signal.metrics[0].value >= 0 ? "+" : ""}
+                          {number(signal.metrics[0].value, 1)}%
+                        </strong>
+                      </button>
+                    ))}
+                </div>
+                <p className={styles.finePrint}>
+                  CFTC weekly, futures only. These are category positions, not
+                  ETF flows or named-investor intent.
+                </p>
+              </section>
+              <section className={styles.panel}>
+                <div className={styles.panelHead}>
+                  <h3>Across the policy desks</h3>
+                  <button
+                    onClick={() => setFamily("international")}
+                    aria-label="Inspect international sources"
+                  >
+                    <ArrowUpRight size={18} />
+                  </button>
+                </div>
+                <p className={styles.panelSubtitle}>
+                  Latest official releases · publication time in New York
+                </p>
+                <div className={styles.timeline}>
+                  {snapshot.catalysts
+                    .filter((item) => item.kind === "release")
+                    .slice(0, 6)
+                    .map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className={styles.timelineDate}>
+                          {date(item.at)}
+                          <small>{time(item.at)}</small>
+                        </div>
+                        <div>
+                          <span>{item.source}</span>
+                          <h4>{item.title}</h4>
+                        </div>
+                        <ArrowUpRight size={14} />
+                      </a>
+                    ))}
+                </div>
+              </section>
+            </div>
+            {!!reported.length && (
+              <section
+                className={styles.earningsStrip}
+                aria-label="Reported company revenues"
+              >
+                <div>
+                  <span className={styles.eyebrow}>
+                    COMPANY REPORTED RESULTS
+                  </span>
+                  <h3>Inside the earnings cycle</h3>
+                  <p>
+                    Selected mega-cap revenue. This is not an index-wide
+                    earnings surprise measure.
+                  </p>
+                </div>
+                {reported.map((signal) => {
+                  const growth = signal.metrics.find(
+                    (metric) =>
+                      metric.label === "Year-over-year revenue change",
+                  );
+                  return (
+                    <button
+                      key={signal.id}
+                      onClick={() => setFamily("earnings")}
+                    >
+                      <span>
+                        {signal.id.replace("earnings-", "")}
+                        <small>
+                          Quarter ended {date(signal.source.observedAt!)}
+                        </small>
+                      </span>
+                      <strong>${number(signal.metrics[0].value, 2)}bn</strong>
+                      <span
+                        className={
+                          growth && growth.value >= 0 ? styles.up : styles.down
+                        }
+                      >
+                        {growth
+                          ? `${growth.value >= 0 ? "+" : ""}${number(growth.value, 1)}% YoY`
+                          : "No comparable period"}
+                      </span>
+                      <Sparkline series={signal.series} label={signal.title} />
+                    </button>
+                  );
+                })}
+              </section>
+            )}
+            <section className={styles.scenario}>
+              <div>
+                <span className={styles.eyebrow}>BUILD YOUR PLAN</span>
+                <h2>
+                  {horizon === "daily"
+                    ? "What would change the picture?"
+                    : `${horizon === "weekly" ? "The week" : "The month"} ahead: conditions, not certainty.`}
+                </h2>
+              </div>
+              <div>
+                <p>
+                  <ArrowUpRight className={styles.up} size={20} />
+                  <span>
+                    <strong>Constructive conditions</strong>
+                    {describeFamilies(supportive)}
+                    {supportive.length
+                      ? " currently lean supportive under the declared rules."
+                      : "."}{" "}
+                    Inspect their observation dates and assumptions before using
+                    them in a plan.
+                  </span>
+                </p>
+                <p>
+                  <ArrowDownRight className={styles.down} size={20} />
+                  <span>
+                    <strong>Defensive conditions</strong>
+                    {describeFamilies(defensive)}
+                    {defensive.length
+                      ? " currently lean defensive under the declared rules."
+                      : "."}{" "}
+                    Disagreement is part of the setup, not an input to discard.
+                  </span>
+                </p>
+                <p className={styles.finePrint}>
+                  Daily, weekly and monthly views use distinct change windows.
+                  Numeric return projections remain unavailable until a model
+                  passes historical and prospective evaluation.
+                </p>
+              </div>
+            </section>
+          </div>
+        )}
+        {tab === "signals" && (
+          <section
+            role="tabpanel"
+            id="signals-panel"
+            aria-labelledby="signals-tab"
+          >
+            <div className={styles.sectionHeading}>
+              <div>
+                <span className={styles.eyebrow}>NO HIDDEN VOTES</span>
+                <h2>Every piece of the picture.</h2>
+              </div>
+              <span>Click a family to inspect its inputs</span>
+            </div>
+            <div className={styles.signalGrid}>
+              {FAMILIES.map((definition) => {
+                const reading = consensus.families.find(
+                    (item) => item.id === definition.id,
+                  )!,
+                  members = current.filter(
+                    (signal) => signal.family === definition.id,
+                  ),
+                  example =
+                    members.find(
+                      (signal) =>
+                        effectiveStatus(signal, reference) === "available" &&
+                        signal.series.length > 1,
+                    ) ??
+                    members.find(
+                      (signal) =>
+                        effectiveStatus(signal, reference) === "available",
+                    ),
+                  availableCount = reading.available;
+                return (
+                  <button
+                    key={definition.id}
+                    className={`${styles.signalCard} ${availableCount ? "" : styles.missingCard}`}
+                    onClick={() => setFamily(definition.id)}
+                  >
+                    <div className={styles.cardTop}>
+                      <span className={styles.eyebrow}>{definition.label}</span>
+                      <ChevronRight size={15} />
+                    </div>
+                    <h3>
+                      {reading.score === null
+                        ? availableCount
+                          ? "Context available"
+                          : reading.status === "stale"
+                            ? "Needs a refresh"
+                            : "Not connected"
+                        : reading.score > 0.1
+                          ? "Supportive"
+                          : reading.score < -0.1
+                            ? "Defensive"
+                            : "Balanced"}
+                    </h3>
+                    {example?.series.length ? (
+                      <Sparkline
+                        series={example.series}
+                        label={example.title}
+                        color={
+                          reading.score !== null && reading.score < 0
+                            ? "var(--negative)"
+                            : "var(--accent)"
+                        }
+                      />
+                    ) : (
+                      <div className={styles.signalEmpty}>
+                        {availableCount ? (
+                          <Globe2 size={25} />
+                        ) : (
+                          <Layers3 size={25} />
+                        )}
+                        <span>{definition.detail}</span>
+                      </div>
+                    )}
+                    <p>
+                      {example
+                        ? example.title
+                        : (members[0]?.summary ?? definition.detail)}
+                    </p>
+                    <div className={styles.cardFoot}>
+                      <span>
+                        {availableCount}/{reading.expected} inputs current
+                      </span>
+                      <span>
+                        {example?.source.observedAt
+                          ? date(example.source.observedAt)
+                          : "No directional vote"}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+        {tab === "history" && (
+          <section
+            role="tabpanel"
+            id="history-panel"
+            aria-labelledby="history-tab"
+          >
+            <div className={styles.sectionHeading}>
+              <div>
+                <span className={styles.eyebrow}>
+                  ACCOUNTABILITY COMES WITH THE CALL
+                </span>
+                <h2>Remember. Measure. Improve.</h2>
+              </div>
+              <label className={styles.issueSelect}>
+                Saved edition
+                <select
+                  value={snapshot.id}
+                  disabled={loading}
+                  onChange={(event) => void chooseIssue(event.target.value)}
+                >
+                  {[...history].reverse().map((entry) => (
+                    <option value={entry.id} key={entry.id}>
+                      {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            {historyError && <p role="alert">{historyError}</p>}
+            <div className={styles.historyStats}>
+              <div>
+                <span>As-issued editions</span>
+                <strong>{history.length}</strong>
+                <small>Immutable, source-linked snapshots</small>
+              </div>
+              <div>
+                <span>Scored outcomes</span>
+                <strong>{cohort?.resolved ?? performance.resolved}</strong>
+                <small>
+                  {performance.status === "awaiting_price_evidence"
+                    ? "Requires verified future session prices"
+                    : `${horizon} outcomes · verified session prices`}
+                </small>
+              </div>
+              <div>
+                <span>Directional accuracy</span>
+                <strong>
+                  {pct(
+                    cohort?.accuracy ??
+                      (instrument === "MARKET" ? performance.accuracy : null),
+                  )}
+                </strong>
+                <small>
+                  {cohort?.calls ?? performance.calls} directional calls scored
+                </small>
+              </div>
+              <div>
+                <span>Trained model</span>
+                <strong>
+                  {learning.some((item) => item.promoted)
+                    ? "Active"
+                    : "Pending"}
+                </strong>
+                <small>
+                  {Math.max(0, ...learning.map((item) => item.samples))} / 120
+                  resolved samples per target
+                </small>
+              </div>
+            </div>
+            <div className={styles.twoColumns}>
+              <section className={styles.panel}>
+                <h3>The record, exactly as it was</h3>
+                <p className={styles.muted}>
+                  Each publication preserves its cutoff, observations and
+                  calculation version. Later revisions cannot quietly rewrite an
+                  old call.
+                </p>
+                <div className={styles.editionList}>
+                  {[...history]
+                    .reverse()
+                    .slice(0, 20)
+                    .map((entry) => (
+                      <button
+                        key={entry.id}
+                        onClick={async () => {
+                          if (await chooseIssue(entry.id)) setTab("morning");
+                        }}
+                      >
+                        <History size={17} />
+                        <span>
+                          {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
+                          <small>{entry.engineVersion}</small>
+                        </span>
+                        <ChevronRight size={17} />
+                      </button>
+                    ))}
+                </div>
+              </section>
+              <section className={styles.panel}>
+                <h3>How improvement earns its place</h3>
+                <ol className={styles.learningSteps}>
+                  <li>
+                    <strong>Freeze the forecast</strong>
+                    <span>
+                      Inputs are preserved before the target session opens.
+                    </span>
+                  </li>
+                  <li>
+                    <strong>Wait for the outcome</strong>
+                    <span>
+                      Compare the next 1, 5 and 21 complete sessions, with a
+                      stated price basis.
+                    </span>
+                  </li>
+                  <li>
+                    <strong>Train on the past</strong>
+                    <span>
+                      Chronological splits exclude labels that overlap
+                      validation or test dates.
+                    </span>
+                  </li>
+                  <li>
+                    <strong>Challenge the baseline</strong>
+                    <span>
+                      Evaluate calibration and Brier score against a base-rate
+                      model and the current model.
+                    </span>
+                  </li>
+                  <li>
+                    <strong>Promote only with evidence</strong>
+                    <span>
+                      Versioned candidates must improve held-out results. No
+                      learning or accuracy is claimed before that.
+                    </span>
+                  </li>
+                </ol>
+              </section>
+            </div>
+            <section className={`${styles.panel} ${styles.experiments}`}>
+              <div className={styles.panelHead}>
+                <div>
+                  <span className={styles.eyebrow}>
+                    REAL DATA · HISTORICAL RECONSTRUCTION
+                  </span>
+                  <h3>The first models had to prove themselves.</h3>
+                </div>
+                <span className={styles.status}>
+                  {
+                    experiments.experiments.filter(
+                      (item) => item.baselineBeaten,
+                    ).length
+                  }{" "}
+                  / {experiments.experiments.length} cleared the gate
+                </span>
+              </div>
+              <p className={styles.muted}>
+                Nine currency models were trained on ECB reference-rate history
+                using momentum, RSI, volatility and moving-average distance.
+                None cleared the required improvement over the baselines. These
+                experiments are separate from the prospective daily-consensus
+                record.
+              </p>
+              <div className={styles.tableScroll}>
+                <table>
+                  <caption>
+                    Chronological holdout results. Brier score measures
+                    probability error; lower is better.
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th>Currency</th>
+                      <th>Horizon</th>
+                      <th>Test samples</th>
+                      <th>Model error</th>
+                      <th>Base-rate error</th>
+                      <th>Decision</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {experiments.experiments.map((item) => (
+                      <tr key={item.id}>
+                        <th>{item.instrument}</th>
+                        <td>{item.horizon}</td>
+                        <td>{item.testSamples ?? "—"}</td>
+                        <td>{item.candidateBrier?.toFixed(4) ?? "—"}</td>
+                        <td>{item.baseRateBrier?.toFixed(4) ?? "—"}</td>
+                        <td>
+                          {item.baselineBeaten
+                            ? "Shadow evaluation required"
+                            : "Not promoted"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className={styles.finePrint}>{experiments.note}</p>
+              <a
+                className={styles.textButton}
+                href={experiments.source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Source: European Central Bank <ExternalLink size={13} />
+              </a>
+            </section>
+          </section>
+        )}
+        <footer className={styles.footer}>
+          <div>
+            <strong>The Daily Consensus</strong>
+            <span>Independent thinking. Open to everyone.</span>
+          </div>
+          <p>
+            Research context, not personalized investment advice. Data can be
+            delayed or revised. Missing signals remain visible.
+          </p>
+          <a href="/methodology">
+            <Info size={15} /> Sources & methodology
+          </a>
+        </footer>
+      </main>
+      <SourceDrawer
+        family={family}
+        snapshot={snapshot}
+        instrument={instrument}
+        now={reference}
+        onClose={() => setFamily(null)}
+      />
+    </div>
+  );
+}

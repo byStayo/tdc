@@ -1,0 +1,172 @@
+import type { Horizon, Instrument, Outcome, Snapshot } from "./types.ts";
+import { calculateConsensus } from "./engine.ts";
+
+export const SESSION_HORIZONS: Record<Horizon, number> = {
+  daily: 1,
+  weekly: 5,
+  monthly: 21,
+};
+export interface SessionPrice {
+  session: string;
+  openAt: string;
+  closeAt: string;
+  open: number;
+  close: number;
+}
+export interface PriceEvidence {
+  instrument: Instrument;
+  source: string;
+  adjustment: string;
+  sessions: SessionPrice[];
+  expectedSessions: string[];
+}
+export function evaluateOutcome(
+  snapshot: Snapshot,
+  prices: PriceEvidence,
+  horizon: Horizon,
+  now: string,
+): Outcome | null {
+  if (!prices.source || !prices.adjustment || !prices.expectedSessions.length)
+    throw new Error("Price provenance and exchange calendar required");
+  const sourceURL = new URL(prices.source);
+  if (
+    sourceURL.protocol !== "https:" ||
+    sourceURL.username ||
+    sourceURL.password ||
+    /(?:token|api[_-]?key|password|secret)=/i.test(sourceURL.search) ||
+    !["unadjusted", "split-adjusted", "total-return-adjusted"].includes(
+      prices.adjustment,
+    )
+  )
+    throw new Error("Public price citation or adjustment basis invalid");
+  const sessions = [...prices.sessions].sort((a, b) =>
+    a.openAt.localeCompare(b.openAt),
+  );
+  if (new Set(sessions.map((row) => row.session)).size !== sessions.length)
+    throw new Error("Duplicate price session");
+  if (
+    new Set(prices.expectedSessions).size !== prices.expectedSessions.length ||
+    prices.expectedSessions.some(
+      (day, i) => i > 0 && day <= prices.expectedSessions[i - 1],
+    )
+  )
+    throw new Error("Exchange calendar must be ordered and unique");
+  for (const row of sessions) {
+    if (
+      ![row.open, row.close].every((n) => Number.isFinite(n) && n > 0) ||
+      !Number.isFinite(Date.parse(row.openAt)) ||
+      !Number.isFinite(Date.parse(row.closeAt)) ||
+      row.openAt >= row.closeAt ||
+      !prices.expectedSessions.includes(row.session)
+    )
+      throw new Error("Invalid price session");
+  }
+  const local = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(new Date(snapshot.issuedAt))
+      .map((part) => [part.type, part.value]),
+  );
+  const issueDay = `${local.year}-${local.month}-${local.day}`,
+    beforeOpen = Number(local.hour) * 60 + Number(local.minute) < 570;
+  if (prices.expectedSessions[0] > issueDay)
+    throw new Error("Exchange calendar does not cover issue time");
+  const startDate = prices.expectedSessions.find(
+    (day) => day > issueDay || (day === issueDay && beforeOpen),
+  );
+  const start = sessions.find((row) => row.session === startDate);
+  if (!start) return null;
+  // The feed calendar determines expected dates; missing rows cannot silently shorten a horizon.
+  const expectedIndex = prices.expectedSessions.indexOf(start.session),
+    dates = prices.expectedSessions.slice(
+      expectedIndex,
+      expectedIndex + SESSION_HORIZONS[horizon],
+    );
+  if (dates.length !== SESSION_HORIZONS[horizon]) return null;
+  const rows = dates.map((day) => sessions.find((row) => row.session === day));
+  if (rows.some((row) => !row)) return null;
+  const exit = rows.at(-1)!;
+  if (!exit || exit.closeAt > now || start.openAt <= snapshot.issuedAt)
+    return null;
+  const consensus = calculateConsensus(
+      snapshot.signals,
+      prices.instrument,
+      horizon,
+      snapshot.cutoff,
+    ),
+    returnPct = (exit.close / start.open - 1) * 100;
+  const forecast = snapshot.forecasts?.find(
+      (item) =>
+        item.instrument === prices.instrument && item.horizon === horizon,
+    ),
+    score = forecast ? forecast.probabilityUp * 2 - 1 : consensus.score;
+  const called = !consensus.abstain && score !== null && Math.abs(score) > 0.1;
+  return {
+    snapshotId: snapshot.id,
+    instrument: prices.instrument,
+    horizon,
+    issuedAt: snapshot.issuedAt,
+    entryAt: start.openAt,
+    exitAt: exit.closeAt,
+    entry: start.open,
+    exit: exit.close,
+    predictedScore: score,
+    predictedProbability: forecast?.probabilityUp ?? null,
+    abstained: !called,
+    returnPct,
+    directionCorrect: called
+      ? Math.sign(score!) === Math.sign(returnPct)
+      : null,
+    source: prices.source,
+    adjustment: prices.adjustment,
+  };
+}
+export function performance(outcomes: Outcome[], costBps = 2) {
+  const keys = outcomes.map(
+    (row) => `${row.snapshotId}:${row.instrument}:${row.horizon}`,
+  );
+  if (new Set(keys).size !== keys.length)
+    throw new Error("Duplicate outcome would inflate performance");
+  const called = outcomes.filter(
+      (row) => !row.abstained && row.directionCorrect !== null,
+    ),
+    probabilities = outcomes.filter((row) => row.predictedProbability !== null);
+  return {
+    resolved: outcomes.length,
+    calls: called.length,
+    abstentions: outcomes.length - called.length,
+    accuracy: called.length
+      ? called.filter((row) => row.directionCorrect).length / called.length
+      : null,
+    meanSignedReturnPct: called.length
+      ? called.reduce(
+          (sum, row) =>
+            sum +
+            Math.sign(row.predictedScore!) * row.returnPct -
+            costBps / 100,
+          0,
+        ) / called.length
+      : null,
+    meanBuyHoldReturnPct: called.length
+      ? called.reduce((sum, row) => sum + row.returnPct - costBps / 100, 0) /
+        called.length
+      : null,
+    brier: probabilities.length
+      ? probabilities.reduce(
+          (sum, row) =>
+            sum +
+            (row.predictedProbability! - (row.returnPct > 0 ? 1 : 0)) ** 2,
+          0,
+        ) / probabilities.length
+      : null,
+    costBps,
+    note: "Per-forecast outcomes; overlapping horizons are not a portfolio equity curve. Missing outcomes and abstentions are excluded from accuracy, never counted as wins.",
+  };
+}

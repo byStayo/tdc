@@ -36,7 +36,7 @@ export const NAVIGATION = [
 export type View = (typeof NAVIGATION)[number]["id"];
 function Brand() {
   return (
-    <div className="brand">
+    <a className="brand" href="/" aria-label="The Daily Consensus morning overview" style={{ color: "inherit", textDecoration: "none" }}>
       <span className="brand-symbol" aria-hidden="true">
         <i />
         <i />
@@ -50,7 +50,7 @@ function Brand() {
           consensus<span className="brand-period">.</span>
         </strong>
       </span>
-    </div>
+    </a>
   );
 }
 

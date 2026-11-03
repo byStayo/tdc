@@ -5,9 +5,14 @@
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3107",
     "build": "next build",
+    "prebuild": "node --experimental-strip-types scripts/verify-consensus.ts",
     "start": "next start --hostname 127.0.0.1 --port 3107",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "consensus:collect": "node --experimental-strip-types scripts/publish-consensus.ts",
+    "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
+    "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
+    "consensus:research-fx": "node --experimental-strip-types scripts/research-fx-models.ts",
     "editorial:collect": "node --experimental-strip-types scripts/collect-editorial-evidence.ts",
     "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts"
   },

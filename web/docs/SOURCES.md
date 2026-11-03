@@ -33,3 +33,17 @@ Research is prepared in a Codex editorial workflow, validated, and published onc
 ## Research method
 
 Primary-source checks and live endpoint probes support the integration choices. Internal specialist review checked licensing, data transformations, and the first brief's figures. Separate external Grok/Gemini browser reviews were not run; no cross-model agreement is claimed. Skill-suggested browser CLI automation was not used because this session requires CUA for browser interaction.
+
+
+## November 3 visual-product expansion
+
+The current collector also uses government-origin FRED DGS2/DGS10/DGS30, SOFR, EFFR, WALCL, WTREGEN, RRPONTSYD, WRESBAL, DTWEXBGS, BUSLOANS and TOTBKCR; ECB reference currency fixes; official Fed/ECB/BoE/BoJ RSS; the official BLS iCalendar; and SEC quarterly revenue concepts for AAPL/MSFT/NVDA. Each datum retains observation/retrieval time and raw-source SHA-256. NVIDIA uses the `Revenues` concept; its old `RevenueFromContractWithCustomerExcludingAssessedTax` concept ends in 2020 and must not be treated as current.
+
+- [ECB reuse policy](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html): reproduce with accurate attribution and label modifications. USD cross rates, changes, features and experiments are explicitly our calculations. [Reference data](https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml).
+- [BLS release calendar](https://www.bls.gov/schedule/news_release/bls.ics): future scheduled events retain Eastern timezone conversion and do not cast a directional vote.
+- [FINRA Equity Data specific terms](https://developer.finra.org/specific-terms-equity-data), [API terms](https://developer.finra.org/terms-and-conditions): free non-commercial redistribution and derivatives are allowed with FINRA attribution, no charge, no further redistribution and reasonable end-user compliance efforts. Query API credentials and those conditions are required. This resolves the earlier uncertainty about the terms; access is still not configured. A public CDN file is not assumed to inherit the Query API grant.
+- [GDELT use/redistribution terms](https://www.gdeltproject.org/about.html#termsofuse): datasets allow use and redistribution with citation/link. The DOC API probe returned HTTP429; this is an access/rate-limit failure, not zero market news. No article full text is republished.
+- [Polymarket terms](https://polymarket.com/tos), section 2: market-data distributors and specified capital-market clients require written permission. The public Gamma endpoint returned data but reachability is not authorization to publish it. No Polymarket numbers were deployed.
+- [Manifold API licensing](https://docs.manifold.markets/api) and [data licensing](https://docs.manifold.markets/data): free/non-commercial research is distinguished from commercial AI/data licensing. It is not treated as a universal unrestricted feed or an equivalent to real-money options positioning.
+
+Public X/Instagram/Reddit searches did not yield a verifiable current and representative market sample. Old posts and aggregator copies were not relabeled as current platform sentiment. Existing personal market-data credentials and hosted TradingView content are not extracted into the new calculations.

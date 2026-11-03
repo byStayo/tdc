@@ -1,4 +1,8 @@
-# The Daily Consensus relaunch
+# The Daily Consensus — active visual rebuild
+
+**November 3, 2026: The user reopened and expanded the goal.** Read `VISUAL_BUILD_STATUS.md` and `web/docs/VISUAL_PRODUCT.md` before acting. The earlier free research-desk relaunch below is historical completion evidence, not completion of the newly requested visual multi-signal product. The new goal and `build-visual-daily-consensus` heartbeat are ACTIVE. Preserve the completed LinkedIn correction. The weekday publisher must coordinate with this build and never deploy an unfinished dirty tree.
+
+## Earlier relaunch record
 
 Goal: recover and rebuild the original service as a free public market-research site, deploy and verify it, then update the owner's LinkedIn with actual delivered capabilities. The user asked for a continuing goal/loop. Do not stop at a local demo.
 

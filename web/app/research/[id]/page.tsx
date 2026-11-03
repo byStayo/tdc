@@ -101,7 +101,7 @@ export default async function ArchiveArticlePage({ params }: Props) {
     <a href="#article" className="skip-link">Skip to article</a>
     <header className={styles.siteHeader}>
       <Link href="/" className={styles.brand} aria-label="The Daily Consensus home"><span className={styles.brandMark}>DC</span><span>The Daily Consensus<small>Free public research</small></span></Link>
-      <Link href="/" className={styles.homeLink}>Research desk <ArrowUpRight size={16} aria-hidden="true" /></Link>
+      <Link href="/research-desk" className={styles.homeLink}>Research desk <ArrowUpRight size={16} aria-hidden="true" /></Link>
     </header>
     <main className={styles.main}>
       <Link href="/research" className={styles.backLink}><ArrowLeft size={15} aria-hidden="true" /> Research archive</Link>

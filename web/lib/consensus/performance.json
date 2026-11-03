@@ -1,0 +1,314 @@
+{
+  "generatedAt": "2026-11-03T06:35:55.296Z",
+  "status": "awaiting_price_evidence",
+  "resolved": 0,
+  "calls": 0,
+  "abstentions": 0,
+  "accuracy": null,
+  "brier": null,
+  "cohorts": [
+    {
+      "instrument": "SPY",
+      "horizon": "daily",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "daily",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "daily",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "daily",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    }
+  ],
+  "learning": [
+    {
+      "instrument": "SPY",
+      "horizon": "daily",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/SPY-daily-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/SPY-weekly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/SPY-monthly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/QQQ-daily-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/QQQ-weekly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/QQQ-monthly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "daily",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/IWM-daily-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/IWM-weekly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/IWM-monthly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "daily",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/DIA-daily-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/DIA-weekly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/DIA-monthly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "daily",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/TLT-daily-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/TLT-weekly-4f53cda18c2baa0c.json"
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "samples": 0,
+      "minimum": 120,
+      "status": "insufficient_data",
+      "promoted": false,
+      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+      "artifact": "models/TLT-monthly-4f53cda18c2baa0c.json"
+    }
+  ],
+  "note": "Raw provider prices stay private. As-issued outcomes are never rewritten. Forecasts are evaluated per instrument and horizon; overlapping horizons are not a tradable portfolio. Candidate promotion requires chronological holdout gates and at least 20 newly resolved labels since the incumbent."
+}

@@ -3,6 +3,6 @@ node_modules
 .env*
 tests
 docs
-scripts
 *.tsbuildinfo
 .editorial
+.consensus

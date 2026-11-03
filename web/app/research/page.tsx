@@ -17,7 +17,7 @@ export default function ResearchArchivePage() {
     <a href="#archive" className="skip-link">Skip to research archive</a>
     <header className={styles.header}>
       <Link href="/" className={styles.brand}><span>DC</span>The Daily Consensus</Link>
-      <Link href="/" className={styles.deskLink}><ArrowLeft size={14} aria-hidden="true" /> Research desk</Link>
+      <Link href="/research-desk" className={styles.deskLink}><ArrowLeft size={14} aria-hidden="true" /> Research desk</Link>
     </header>
     <main id="archive" className={styles.main}>
       <div className={styles.intro}>
@@ -35,6 +35,6 @@ export default function ResearchArchivePage() {
         </article>)}</div>
       </section>)}
     </main>
-    <footer className={styles.footer}><Link href="/">Return to the research desk <ArrowUpRight size={14} aria-hidden="true" /></Link><span>Research, open to everyone.</span></footer>
+    <footer className={styles.footer}><Link href="/research-desk">Return to the research desk <ArrowUpRight size={14} aria-hidden="true" /></Link><span>Research, open to everyone.</span></footer>
   </div>;
 }
