@@ -14,8 +14,14 @@ const CLOSED = new Set([
 ]);
 const EARLY = new Set(["2026-11-27", "2026-12-24"]);
 
+export function hasReviewedCalendar(day: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || publicDate(day) !== day)
+    throw new Error("Exchange calendar date is invalid");
+  return day >= EXCHANGE_CALENDAR.from && day <= EXCHANGE_CALENDAR.through;
+}
+
 export function exchangeSession(day: string): { session: string; openAt: string; closeAt: string } | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || publicDate(day) !== day || day < EXCHANGE_CALENDAR.from || day > EXCHANGE_CALENDAR.through)
+  if (!hasReviewedCalendar(day))
     throw new Error("Exchange calendar has no reviewed coverage for this date");
   const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
   if (weekday === 0 || weekday === 6 || CLOSED.has(day)) return null;
@@ -35,7 +41,13 @@ export function exchangeSessions(from: string, through: string): string[] {
   return result;
 }
 
-export function verifyExpectedSessions(sessions: string[]): void {
-  if (!sessions.length || JSON.stringify(sessions) !== JSON.stringify(exchangeSessions(sessions[0], sessions.at(-1)!)))
+export function verifyExpectedSessions(sessions: string[]): string[] {
+  if (!sessions.length || sessions.some((day, i) => { hasReviewedCalendar(day); return i > 0 && day <= sessions[i - 1]; }))
+    throw new Error("Exchange calendar must be ordered and unique");
+  const from = sessions[0] < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : sessions[0];
+  const through = sessions.at(-1)! > EXCHANGE_CALENDAR.through ? EXCHANGE_CALENDAR.through : sessions.at(-1)!;
+  const reviewed = sessions.filter(hasReviewedCalendar);
+  if (from <= through && JSON.stringify(reviewed) !== JSON.stringify(exchangeSessions(from, through)))
     throw new Error("Exchange calendar differs from the independent reviewed schedule");
+  return reviewed;
 }

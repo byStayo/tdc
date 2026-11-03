@@ -7,6 +7,7 @@ import {
 import { resolve } from "node:path";
 import { acquirePublicationLock, finishPublicationLock } from "../publication-lock.ts";
 import { durableJSON, durableDirectory, syncDirectory } from "../publication-storage.ts";
+import { assertNoPendingEvaluation } from "./evaluation-transaction.ts";
 import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { validateSourceCitation } from "./source-citation.ts";
@@ -370,6 +371,7 @@ async function unindexedFiles(root: string, history: HistoryEntry[]): Promise<st
 
 /** Read-only build guard; recovery belongs to the locked publisher. */
 export async function verifyPublicationTree(root: string): Promise<{ current: Snapshot; history: HistoryEntry[] }> {
+  await assertNoPendingEvaluation(root);
   const { history } = await indexedPublications(root);
   const orphans = await unindexedFiles(root, history);
   if (orphans.length) throw new Error(`Unindexed publication files: ${orphans.join(", ")}`);
@@ -433,6 +435,7 @@ export async function publishSnapshot(
   const release = await acquirePublicationLock(root, "consensus");
   let failure: {error: unknown} | undefined;
   try {
+    await assertNoPendingEvaluation(root);
     const { current: prior, history: index } = await reconcilePublication(root);
     if (prior && observationDigest(prior) === observationDigest(snapshot))
       return { changed: false, id: prior.id, sha256: digest(prior) };

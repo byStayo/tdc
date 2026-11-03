@@ -13,6 +13,7 @@ import { promisify } from "node:util";
 import { digest } from "../lib/consensus/history.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 import type { Snapshot, HistoryEntry, Outcome } from "../lib/consensus/types.ts";
+import { rollbackActiveModel } from "../lib/consensus/model-rollback.ts";
 
 // Deliberately learnable and noisy synthetic fixtures; none are published as real model evidence.
 const asOf = "2030-01-01T00:00:00.000Z";
@@ -104,6 +105,32 @@ test("activation needs matched reservation and improvements over every baseline 
     assert.throws(() => validateActivePromotion({ ...model, promotionEvidence: undefined }, [reservation]), /promotion evidence/);
     assert.throws(() => validateActivePromotion({ ...model, promotionEvidence: { ...gate, passes: false } }, [reservation]), /promotion evidence/);
   } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("rollback restores only an archived compatible model with its original promotion and reservation evidence", async () => {
+  const root = await mkdtemp(join(tmpdir(), "tdc-qualified-rollback-"));
+  try {
+    const at = "2026-11-01T00:00:00.000Z";
+    const plan = planCandidate(rows(500), at, policy);
+    if (plan.status !== "ready") throw new Error("fixture plan");
+    const reservation = await reserveEvaluation(root, [], plan, "QQQ", "daily", at);
+    const result = evaluateCandidate(plan), gate = promotionEvidence(plan, result.model, reservation);
+    const model: ActiveModel = { id: `QQQ-daily-${plan.datasetHash.slice(0,16)}`, instrument:"QQQ",horizon:"daily",trainedAt:at,
+      labelsThrough:gate.consumedThrough,datasetHash:plan.datasetHash,samples:plan.samples,featureSchema:"family-score-plus-observation-mask-v1",engineVersion:"consensus-rules-2.0.0",
+      priceAdjustment:"total-return-adjusted",model:result.model,testBrier:result.candidateBrier,baselineBrier:result.coinBrier,testSamples:result.split.test,promotionEvidence:gate };
+    await mkdir(join(root,"public/consensus/models"),{recursive:true});await mkdir(join(root,"lib/consensus"),{recursive:true});
+    await writeFile(join(root,`public/consensus/models/active-${model.id}.json`),JSON.stringify(model));
+    await writeFile(join(root,"lib/consensus/models.json"),JSON.stringify({schemaVersion:1,models:[],note:"fixture"}));
+    await writeFile(join(root,"lib/consensus/performance.json"),JSON.stringify({learning:[{instrument:"QQQ",horizon:"daily",activeModelId:null,promoted:false}]}));
+    const before=JSON.stringify(await readReservations(root));
+    assert.equal((await rollbackActiveModel(root,{instrument:"QQQ",horizon:"daily",to:model.id,reason:"Restore previously qualified synthetic test incumbent"})).modelId,model.id);
+    assert.deepEqual(JSON.parse(await readFile(join(root,"lib/consensus/models.json"),"utf8")).models,[model]);
+    assert.equal(JSON.stringify(await readReservations(root)),before);
+    await rollbackActiveModel(root,{instrument:"QQQ",horizon:"daily",to:"none",reason:"Disable synthetic fixture"});
+    const altered={...model,model:{...model.model,intercept:model.model.intercept+1}};
+    await writeFile(join(root,`public/consensus/models/active-${model.id}.json`),JSON.stringify(altered));
+    await assert.rejects(rollbackActiveModel(root,{instrument:"QQQ",horizon:"daily",to:model.id,reason:"Tamper rejection fixture"}),/candidate|model|coefficients|evidence/i);
+  }finally{await rm(root,{recursive:true,force:true});}
 });
 
 test("the actual evaluator persists test consumption, keeps incumbent status distinct and refuses a lost audit", async () => {

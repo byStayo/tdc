@@ -9,6 +9,7 @@ export interface PerformanceReport {
   brier: number | null;
   scoringPolicy?: string;
   superseded?: number;
+  pending?: { snapshotId: string; instrument: string; horizon: string; reason: string }[];
   cohorts: {
     engineVersion: string;
     instrument: string;
