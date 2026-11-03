@@ -8,7 +8,7 @@ https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2023-01-09/2023-01-09?api
 
 Copy
 Alternatively, you can add an Authorization header to the request with your API Key as the token in the following form:
-Authorization: Bearer p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5
+Authorization: Bearer YOUR_POLYGON_API_KEY
 
 Copy
 Usage
@@ -4088,7 +4088,7 @@ On connection you will receive the following message:
 }]
 Step 2: Authenticate
 You must authenticate before you can make any other requests.
-{"action":"auth","params":"p5uw0M64vyHqG_Xp3TNcQxC0EO09Q9c5"}
+{"action":"auth","params":"YOUR_POLYGON_API_KEY"}
 
 Copy
 On successful authentication you will receive the following message:
