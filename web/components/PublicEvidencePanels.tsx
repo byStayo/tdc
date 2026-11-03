@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, FileText, Search } from "lucide-react";
 import type { Envelope, Filing, Positioning } from "@/lib/contracts";
-import TradingViewWidget from "./TradingViewWidget";
+import TradingViewWidget, { usesBroadMarketNews } from "./TradingViewWidget";
 import {
   dateLabel,
   EmptyState,
@@ -306,20 +306,32 @@ export function PublicNews({
   filings?: Envelope<Filing[]>;
   loading: boolean;
 }) {
+  const broadNews = usesBroadMarketNews(symbol);
   return (
     <div className="view-stack">
       <FilingsPanel filings={filings} loading={loading} />
       <section className="panel">
         <PanelHeader
           eyebrow="HOSTED BY TRADINGVIEW"
-          title={`${symbol} · Market headlines`}
+          title={
+            broadNews
+              ? "Broad-market headlines"
+              : `${symbol} · Market headlines`
+          }
         />
         <p className="panel-intro">
-          Publisher headlines in a separate hosted view. This feed is distinct
-          from the SEC filings above and is not used as input to our published
-          research.
+          {broadNews
+            ? `Stock-market headlines for wider context while viewing ${symbol}. This is a broad market feed, not news specific to the fund.`
+            : `Publisher headlines filtered for ${symbol} in a separate hosted view.`}{" "}
+          This feed is distinct from the SEC filings above and is not used as
+          input to our published research.
         </p>
-        <TradingViewWidget kind="news" symbol={symbol} theme={theme} />
+        <TradingViewWidget
+          kind="news"
+          symbol={symbol}
+          theme={theme}
+          newsScope={broadNews ? "market" : "symbol"}
+        />
       </section>
     </div>
   );

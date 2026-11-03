@@ -23,6 +23,7 @@ const SYMBOLS: Record<string, string> = {
   XLV: "AMEX:XLV",
   QQQ: "NASDAQ:QQQ",
   TLT: "NASDAQ:TLT",
+  IEF: "NASDAQ:IEF",
   AAPL: "NASDAQ:AAPL",
   MSFT: "NASDAQ:MSFT",
   NVDA: "NASDAQ:NVDA",
@@ -38,20 +39,44 @@ export function providerSymbol(symbol: string) {
   return SYMBOLS[symbol] ?? symbol;
 }
 
+const BROAD_NEWS_ETFS = new Set([
+  "SPY",
+  "QQQ",
+  "IWM",
+  "DIA",
+  "TLT",
+  "GLD",
+  "VTI",
+  "VOO",
+  "IEF",
+]);
+export function usesBroadMarketNews(symbol: string) {
+  return BROAD_NEWS_ETFS.has(symbol);
+}
+
 export default function TradingViewWidget({
   kind,
   symbol,
   theme,
+  newsScope = "symbol",
 }: {
   kind: WidgetKind;
   symbol: string;
   theme: "dark" | "light";
+  newsScope?: "symbol" | "market";
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [retry, setRetry] = useState(0);
   const mappedSymbol = providerSymbol(symbol);
-  const providerLink = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(mappedSymbol)}`;
+  const broadNews = kind === "news" && newsScope === "market";
+  const widgetTitle = broadNews
+    ? "Broad-market headlines"
+    : `${symbol} ${EMBEDS[kind].label.toLowerCase()}`;
+  const providerLink =
+    kind === "news"
+      ? "https://www.tradingview.com/news/top-providers/tradingview/"
+      : `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(mappedSymbol)}`;
 
   useEffect(() => {
     const root = host.current;
@@ -72,7 +97,6 @@ export default function TradingViewWidget({
     script.type = "text/javascript";
     script.async = true;
     const shared = {
-      symbol: mappedSymbol,
       locale: "en",
       width: "100%",
       height: "100%",
@@ -96,13 +120,22 @@ export default function TradingViewWidget({
         : kind === "technical"
           ? {
               ...shared,
+              symbol: mappedSymbol,
               interval: "1D",
               showIntervalTabs: true,
               displayMode: "single",
             }
           : kind === "news"
-            ? { ...shared, feedMode: "symbol", displayMode: "regular" }
-            : shared;
+            ? {
+                ...shared,
+                displayMode: "regular",
+                // TradingView's official configurator removes `market` in
+                // all_symbols mode. Market + stock is its stock-only feed.
+                ...(newsScope === "market"
+                  ? { feedMode: "market", market: "stock" }
+                  : { feedMode: "symbol", symbol: mappedSymbol }),
+              }
+            : { ...shared, symbol: mappedSymbol };
     script.textContent = JSON.stringify(options);
     script.onerror = () => {
       if (!disposed) setState("error");
@@ -117,7 +150,7 @@ export default function TradingViewWidget({
       for (const frame of container.querySelectorAll("iframe")) {
         if (frames.has(frame)) continue;
         frames.add(frame);
-        frame.title = `${symbol} ${EMBEDS[kind].label.toLowerCase()} hosted by TradingView`;
+        frame.title = `${widgetTitle} hosted by TradingView`;
         frame.addEventListener("load", ready);
       }
     });
@@ -144,7 +177,7 @@ export default function TradingViewWidget({
       script.onerror = null;
       container.remove();
     };
-  }, [kind, mappedSymbol, symbol, theme, retry]);
+  }, [kind, mappedSymbol, newsScope, theme, retry, widgetTitle]);
 
   return (
     <div className={`provider-widget provider-widget-${kind}`}>
@@ -159,14 +192,22 @@ export default function TradingViewWidget({
               <>
                 <span className="spinner" />
                 <p>
-                  Loading {EMBEDS[kind].label.toLowerCase()} from TradingView…
+                  Loading{" "}
+                  {broadNews
+                    ? "broad-market headlines"
+                    : EMBEDS[kind].label.toLowerCase()}{" "}
+                  from TradingView…
                 </p>
               </>
             ) : (
               <>
                 <ExternalLinkIcon size={22} />
                 <h3>The hosted view isn’t available.</h3>
-                <p>You can open this instrument directly on TradingView.</p>
+                <p>
+                  {kind === "news"
+                    ? "You can open TradingView’s news directly."
+                    : "You can open this instrument directly on TradingView."}
+                </p>
                 <div>
                   <ExternalLink
                     href={providerLink}
@@ -189,7 +230,7 @@ export default function TradingViewWidget({
       </div>
       <div className="tradingview-widget-copyright">
         <ExternalLink href={providerLink}>
-          {symbol} {EMBEDS[kind].label.toLowerCase()} by TradingView
+          {widgetTitle} by TradingView
         </ExternalLink>
       </div>
       <p className="provider-widget-note">
