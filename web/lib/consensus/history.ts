@@ -1,14 +1,12 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
   readFile,
-  writeFile,
-  mkdir,
   rename,
-  unlink,
-  link,
+  readdir,
 } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { resolve } from "node:path";
 import { acquirePublicationLock, finishPublicationLock } from "../publication-lock.ts";
+import { durableJSON, durableDirectory, syncDirectory } from "../publication-storage.ts";
 import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { validateSourceCitation } from "./source-citation.ts";
@@ -329,21 +327,104 @@ export function observationDigest(snapshot: Snapshot): string {
       : null,
   });
 }
-async function atomic(path: string, value: unknown) {
-  await mkdir(dirname(path), { recursive: true });
-  const temporary = `${path}.${randomUUID()}.tmp`;
-  try {
-    await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, {
-      flag: "wx",
-    });
-    await rename(temporary, path);
-  } finally {
-    await unlink(temporary).catch(() => undefined);
+async function optionalJSON<T>(path: string): Promise<T | null> {
+  try { return JSON.parse(await readFile(path, "utf8")) as T; }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
   }
 }
+
+async function indexedPublications(root: string): Promise<{ history: HistoryEntry[]; snapshots: Snapshot[] }> {
+  const archive = resolve(root, "public/consensus");
+  const history = await optionalJSON<HistoryEntry[]>(resolve(archive, "index.json")) ?? [];
+  if (!Array.isArray(history) || new Set(history.map(entry => entry.id)).size !== history.length)
+    throw new Error("Invalid or duplicate history index");
+  const snapshots: Snapshot[] = [];
+  for (const [i, entry] of history.entries()) {
+    if (!/^[0-9TZ-]{20,30}$/.test(entry.id) || !instant(entry.issuedAt) ||
+        (i > 0 && entry.issuedAt <= history[i - 1].issuedAt))
+      throw new Error("Invalid or nonchronological history index");
+    const snapshot = await optionalJSON<Snapshot>(resolve(archive, `${entry.id}.json`));
+    if (!snapshot) throw new Error("Indexed immutable archive is missing");
+    validateSnapshot(snapshot, "archive");
+    if (digest(snapshot) !== entry.sha256 || snapshot.id !== entry.id ||
+        snapshot.issuedAt !== entry.issuedAt || snapshot.engineVersion !== entry.engineVersion)
+      throw new Error("Immutable history failed verification");
+    snapshots.push(snapshot);
+  }
+  return { history, snapshots };
+}
+
+async function unindexedFiles(root: string, history: HistoryEntry[]): Promise<string[]> {
+  const known = new Set(["index.json", "outcomes.json", "outcome-selection.json", ...history.map(entry => `${entry.id}.json`)]);
+  try {
+    return (await readdir(resolve(root, "public/consensus"), { withFileTypes: true }))
+      .filter(entry => !known.has(entry.name) && (entry.name.endsWith(".json") || entry.name.endsWith(".tmp")))
+      .map(entry => entry.name).sort();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+/** Read-only build guard; recovery belongs to the locked publisher. */
+export async function verifyPublicationTree(root: string): Promise<{ current: Snapshot; history: HistoryEntry[] }> {
+  const { history } = await indexedPublications(root);
+  const orphans = await unindexedFiles(root, history);
+  if (orphans.length) throw new Error(`Unindexed publication files: ${orphans.join(", ")}`);
+  const current = await optionalJSON<Snapshot>(resolve(root, "lib/consensus/current.json"));
+  if (!current || !history.length || history.at(-1)!.id !== current.id || digest(current) !== history.at(-1)!.sha256)
+    throw new Error("Current edition differs from its immutable archive");
+  validateSnapshot(current, "archive");
+  return { current, history };
+}
+
+/** Called only while holding the shared publication lock. Never rewrite archives. */
+async function reconcilePublication(root: string): Promise<{ current: Snapshot | null; history: HistoryEntry[] }> {
+  const { history, snapshots } = await indexedPublications(root);
+  const currentPath = resolve(root, "lib/consensus/current.json");
+  let current = await optionalJSON<Snapshot>(currentPath);
+  if (current) {
+    validateSnapshot(current, "archive");
+    const indexed = history.find(entry => entry.id === current!.id);
+    if (!indexed || digest(current) !== indexed.sha256)
+      throw new Error("Current edition is not a verified indexed archive; recovery stopped");
+  }
+  const orphans = await unindexedFiles(root, history);
+  if (orphans.length) {
+    const archive = resolve(root, "public/consensus");
+    const quarantine = resolve(root, ".consensus/publication-quarantine", randomUUID());
+    await durableDirectory(quarantine, 0o700);
+    const records = [];
+    for (const name of orphans) {
+      let validation = "valid unindexed edition; not committed to the publication index";
+      try {
+        const orphan = JSON.parse(await readFile(resolve(archive, name), "utf8")) as Snapshot;
+        validateSnapshot(orphan, "archive");
+        if (name !== `${orphan.id}.json`) throw new Error("Incomplete temporary publication file");
+      } catch (error) { validation = error instanceof Error ? error.message : "Invalid unindexed file"; }
+      // Preserve bytes privately rather than treating an uncommitted candidate as issued.
+      await rename(resolve(archive, name), resolve(quarantine, name));
+      await syncDirectory(quarantine);
+      await syncDirectory(archive);
+      records.push({ name, validation });
+    }
+    await durableJSON(resolve(quarantine, "manifest.json"), { recoveredAt: new Date().toISOString(), files: records });
+  }
+  const latest = snapshots.at(-1);
+  if (latest && current?.id !== latest.id) {
+    await durableJSON(currentPath, latest);
+    current = latest;
+  }
+  return { current, history };
+}
+
+export type PublicationStep = "archive" | "index" | "current";
 export async function publishSnapshot(
   root: string,
   snapshot: Snapshot,
+  options: { afterStep?: (step: PublicationStep) => void | Promise<void> } = {},
 ): Promise<{ changed: boolean; id: string; sha256: string }> {
   validateSnapshot(snapshot);
   const currentPath = resolve(root, "lib/consensus/current.json"),
@@ -352,40 +433,20 @@ export async function publishSnapshot(
   const release = await acquirePublicationLock(root, "consensus");
   let failure: {error: unknown} | undefined;
   try {
-    let prior: Snapshot | null = null;
-    try {
-      prior = JSON.parse(await readFile(currentPath, "utf8"));
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    }
+    const { current: prior, history: index } = await reconcilePublication(root);
     if (prior && observationDigest(prior) === observationDigest(snapshot))
       return { changed: false, id: prior.id, sha256: digest(prior) };
     if (prior && snapshot.issuedAt <= prior.issuedAt)
       throw new Error("New edition must follow the current issue time");
     snapshot = freezeConsensus(snapshot);
     validateSnapshot(snapshot);
-    await mkdir(archive, { recursive: true });
     const path = resolve(archive, `${snapshot.id}.json`),
-      temporary = `${path}.${randomUUID()}.tmp`,
       hash = digest(snapshot);
-    // Hard-link creation is atomic and cannot overwrite an as-issued publication.
-    try {
-      await writeFile(temporary, `${JSON.stringify(snapshot, null, 2)}\n`, {
-        flag: "wx",
-      });
-      await link(temporary, path);
-    } finally {
-      await unlink(temporary).catch(() => undefined);
-    }
-    let index: HistoryEntry[] = [];
-    try {
-      index = JSON.parse(await readFile(indexPath, "utf8"));
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    }
     if (index.some((entry) => entry.id === snapshot.id))
       throw new Error("Duplicate history entry");
-    await atomic(indexPath, [
+    await durableJSON(path, snapshot, true);
+    await options.afterStep?.("archive");
+    await durableJSON(indexPath, [
       ...index,
       {
         id: snapshot.id,
@@ -394,7 +455,9 @@ export async function publishSnapshot(
         engineVersion: snapshot.engineVersion,
       },
     ]);
-    await atomic(currentPath, snapshot);
+    await options.afterStep?.("index");
+    await durableJSON(currentPath, snapshot);
+    await options.afterStep?.("current");
     return { changed: true, id: snapshot.id, sha256: hash };
   } catch (error) {
     failure = {error};

@@ -136,6 +136,7 @@ export interface HistoryEntry {
   engineVersion: string;
 }
 export interface Outcome {
+  calendarVersion?: string;
   engineVersion: string;
   snapshotId: string;
   instrument: Instrument;

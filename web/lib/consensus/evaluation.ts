@@ -4,6 +4,7 @@ import { newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
 import { requireOutcomePriceBasis } from "./price-basis.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, verifyExpectedSessions } from "./exchange-calendar.ts";
 
 const canonicalInstant = (value: string) =>
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
@@ -69,7 +70,9 @@ export function evaluateOutcome(
     )
   )
     throw new Error("Exchange calendar must be ordered and unique");
+  verifyExpectedSessions(prices.expectedSessions);
   for (const row of sessions) {
+    const scheduled = exchangeSession(row.session);
     if (
       ![row.open, row.close].every((n) => Number.isFinite(n) && n > 0) ||
       !canonicalInstant(row.openAt) ||
@@ -77,7 +80,8 @@ export function evaluateOutcome(
       row.openAt >= row.closeAt ||
       newYorkDate(row.openAt) !== row.session ||
       newYorkDate(row.closeAt) !== row.session ||
-      !prices.expectedSessions.includes(row.session)
+      !prices.expectedSessions.includes(row.session) ||
+      !scheduled || row.openAt !== scheduled.openAt || row.closeAt !== scheduled.closeAt
     )
       throw new Error("Invalid price session");
   }
@@ -96,6 +100,7 @@ export function evaluateOutcome(
   );
   const issueDay = `${local.year}-${local.month}-${local.day}`,
     beforeOpen = Number(local.hour) * 60 + Number(local.minute) < 570;
+  exchangeSession(issueDay); // Unsupported years require reviewed calendar evidence first.
   if (prices.expectedSessions[0] > issueDay)
     throw new Error("Exchange calendar does not cover issue time");
   const startDate = prices.expectedSessions.find(
@@ -103,7 +108,7 @@ export function evaluateOutcome(
   );
   const start = sessions.find((row) => row.session === startDate);
   if (!start) return null;
-  // The feed calendar determines expected dates; missing rows cannot silently shorten a horizon.
+  // The independently checked exchange calendar fixes the horizon despite missing price rows.
   const expectedIndex = prices.expectedSessions.indexOf(start.session),
     dates = prices.expectedSessions.slice(
       expectedIndex,
@@ -130,6 +135,7 @@ export function evaluateOutcome(
   if (forecast && (forecast.priceAdjustment !== prices.adjustment || forecast.engineVersion !== snapshot.engineVersion))
       throw new Error("Forecast and outcome price basis or engine version differ");
   return {
+    calendarVersion: EXCHANGE_CALENDAR.id,
     engineVersion: snapshot.engineVersion,
     snapshotId: snapshot.id,
     instrument: prices.instrument,

@@ -1151,6 +1151,99 @@ export default function MorningBoard({
       if (request === issueRequest.current) setLoading(false);
     }
   }
+  const overview = (
+<section className={styles.hero} aria-label="Consensus overview">
+            <div className={styles.heroVerdict}>
+              <span className={styles.eyebrow}>
+                {names[instrument]} · {horizon} CONTEXT
+              </span>
+              <h2>{consensus.label}</h2>
+              <p>
+                {consensus.abstain
+                  ? "These are partial observations. The missing signals still matter. A complete trading call is withheld."
+                  : "A transparent balance of independent market inputs. Inspect the drivers before forming your plan."}
+              </p>
+              <div className={styles.coverageLabel}>
+                <span>{consensus.directionalCoverage !== undefined ? "Directional coverage at publication" : "Evidence coverage at publication"}</span>
+                <strong>{pct(consensus.directionalCoverage ?? consensus.coverage)}</strong>
+              </div>
+              <div className={styles.coverageTrack}>
+                <i style={{ width: pct(consensus.directionalCoverage ?? consensus.coverage) }} />
+              </div>
+              <small>
+                {consensus.families.filter((item) => consensus.directionalCoverage !== undefined ? item.score !== null : item.available > 0).length}{" "}
+                of {FAMILIES.length} families {consensus.directionalCoverage !== undefined ? "can vote for this instrument and horizon" : "had current observations at publication"}
+              </small>
+              {consensus.directionalCoverage !== undefined && <p className={styles.finePrint}>
+                {pct(consensus.coverage)} observation coverage, including context that cannot vote.
+                These percentages measure completeness, not accuracy.
+              </p>}
+              {agedSincePublication > 0 && <p className={styles.finePrint}>
+                {agedSincePublication} observations have aged out since publication.
+                This saved reading stays unchanged; inspect source dates before use.
+              </p>}
+              <button
+                className={styles.textButton}
+                onClick={() => {
+                  setTab("signals");
+                  document.getElementById("signals-tab")?.focus();
+                }}
+              >
+                See the full picture <ArrowRight size={15} />
+              </button>
+            </div>
+            <div className={styles.gaugeWrap}>
+              <Gauge score={consensus.score} abstain={consensus.abstain} />
+              <div className={styles.votes}>
+                <span>
+                  <i className={consensus.abstain ? styles.mutedDot : styles.positiveDot} />
+                  {consensus.bullish} supportive
+                </span>
+                <span>
+                  <i className={consensus.abstain ? styles.mutedDot : styles.negativeDot} />
+                  {consensus.bearish} defensive
+                </span>
+                <span>{consensus.neutral} balanced</span>
+              </div>
+              <p className={styles.finePrint}>
+                {consensus.abstain && <>Partial observations only; no directional call.<br /></>}
+                {pct(consensus.agreement)} agreement among directional families.
+                <br />
+                Agreement is not a probability of profit.
+              </p>
+            </div>
+            <div className={styles.drivers}>
+              <span className={styles.eyebrow}>
+                {consensus.abstain ? "PARTIAL INPUTS · NOT A CALL" : "WHAT IS PULLING THE BALANCE"}
+              </span>
+              {leaders.map((item) => (
+                <button key={item.id} onClick={() => setFamily(item.id)}>
+                  <span>
+                    {item.label}
+                    <ChevronRight size={13} />
+                  </span>
+                  <Divergence value={item.score} muted={consensus.abstain} />
+                  <strong
+                    className={consensus.abstain ? styles.muted : item.score! >= 0 ? styles.up : styles.down}
+                  >
+                    {item.score! > 0 ? "+" : ""}
+                    {Math.round(item.score! * 100)}
+                  </strong>
+                </button>
+              ))}
+              <p className={styles.finePrint}>
+                Equal family weights. Correlated indicators share a vote. These
+                are declared rules, not learned accuracy.
+              </p>
+            </div>
+            {consensus.abstain && (
+              <aside className={styles.abstentionReasons} aria-labelledby="withheld-reasons">
+                <h3 id="withheld-reasons">Why the call is withheld</h3>
+                <ul>{consensus.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+              </aside>
+            )}
+          </section>
+  );
   return (
     <div className={styles.board}>
       <a href="#morning-main" className={styles.skip}>
@@ -1227,7 +1320,7 @@ export default function MorningBoard({
           </div>
         </div>
         <div className={styles.toolbar}>
-          <div className={styles.instruments} aria-label="Instrument">
+          <div className={styles.instruments} role="group" aria-label="Instrument">
             {INSTRUMENTS.map((symbol) => (
               <button
                 key={symbol}
@@ -1296,98 +1389,9 @@ export default function MorningBoard({
             </button>
           ))}
         </div>
-        {tab !== "history" && (
-          <section className={styles.hero} aria-label="Consensus overview">
-            <div className={styles.heroVerdict}>
-              <span className={styles.eyebrow}>
-                {names[instrument]} · {horizon} CONTEXT
-              </span>
-              <h2>{consensus.label}</h2>
-              <p>
-                {consensus.abstain
-                  ? "These are partial observations. The missing signals still matter. A complete trading call is withheld."
-                  : "A transparent balance of independent market inputs. Inspect the drivers before forming your plan."}
-              </p>
-              <div className={styles.coverageLabel}>
-                <span>{consensus.directionalCoverage !== undefined ? "Directional coverage at publication" : "Evidence coverage at publication"}</span>
-                <strong>{pct(consensus.directionalCoverage ?? consensus.coverage)}</strong>
-              </div>
-              <div className={styles.coverageTrack}>
-                <i style={{ width: pct(consensus.directionalCoverage ?? consensus.coverage) }} />
-              </div>
-              <small>
-                {consensus.families.filter((item) => consensus.directionalCoverage !== undefined ? item.score !== null : item.available > 0).length}{" "}
-                of {FAMILIES.length} families {consensus.directionalCoverage !== undefined ? "can vote for this instrument and horizon" : "had current observations at publication"}
-              </small>
-              {consensus.directionalCoverage !== undefined && <p className={styles.finePrint}>
-                {pct(consensus.coverage)} observation coverage, including context that cannot vote.
-                These percentages measure completeness, not accuracy.
-              </p>}
-              {agedSincePublication > 0 && <p className={styles.finePrint}>
-                {agedSincePublication} observations have aged out since publication.
-                This saved reading stays unchanged; inspect source dates before use.
-              </p>}
-              <button
-                className={styles.textButton}
-                onClick={() => setTab("signals")}
-              >
-                See the full picture <ArrowRight size={15} />
-              </button>
-            </div>
-            <div className={styles.gaugeWrap}>
-              <Gauge score={consensus.score} abstain={consensus.abstain} />
-              <div className={styles.votes}>
-                <span>
-                  <i className={consensus.abstain ? styles.mutedDot : styles.positiveDot} />
-                  {consensus.bullish} supportive
-                </span>
-                <span>
-                  <i className={consensus.abstain ? styles.mutedDot : styles.negativeDot} />
-                  {consensus.bearish} defensive
-                </span>
-                <span>{consensus.neutral} balanced</span>
-              </div>
-              <p className={styles.finePrint}>
-                {consensus.abstain && <>Partial observations only; no directional call.<br /></>}
-                {pct(consensus.agreement)} agreement among directional families.
-                <br />
-                Agreement is not a probability of profit.
-              </p>
-            </div>
-            <div className={styles.drivers}>
-              <span className={styles.eyebrow}>
-                {consensus.abstain ? "PARTIAL INPUTS · NOT A CALL" : "WHAT IS PULLING THE BALANCE"}
-              </span>
-              {leaders.map((item) => (
-                <button key={item.id} onClick={() => setFamily(item.id)}>
-                  <span>
-                    {item.label}
-                    <ChevronRight size={13} />
-                  </span>
-                  <Divergence value={item.score} muted={consensus.abstain} />
-                  <strong
-                    className={consensus.abstain ? styles.muted : item.score! >= 0 ? styles.up : styles.down}
-                  >
-                    {item.score! > 0 ? "+" : ""}
-                    {Math.round(item.score! * 100)}
-                  </strong>
-                </button>
-              ))}
-              <p className={styles.finePrint}>
-                Equal family weights. Correlated indicators share a vote. These
-                are declared rules, not learned accuracy.
-              </p>
-            </div>
-            {consensus.abstain && (
-              <aside className={styles.abstentionReasons} aria-labelledby="withheld-reasons">
-                <h3 id="withheld-reasons">Why the call is withheld</h3>
-                <ul>{consensus.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
-              </aside>
-            )}
-          </section>
-        )}
-        {tab === "morning" && (
-          <div role="tabpanel" id="morning-panel" aria-labelledby="morning-tab">
+        <div role="tabpanel" id="morning-panel" aria-labelledby="morning-tab" hidden={tab !== "morning"} tabIndex={0}>
+          {tab === "morning" && (<>
+            {overview}
             <section
               className={styles.catalystStrip}
               aria-label="Upcoming economic catalysts"
@@ -1771,14 +1775,11 @@ export default function MorningBoard({
                 </p>
               </div>
             </section>
-          </div>
-        )}
-        {tab === "signals" && (
-          <section
-            role="tabpanel"
-            id="signals-panel"
-            aria-labelledby="signals-tab"
-          >
+          </>)}
+        </div>
+        <section role="tabpanel" id="signals-panel" aria-labelledby="signals-tab" hidden={tab !== "signals"} tabIndex={0}>
+          {tab === "signals" && (<>
+            {overview}
             <div className={styles.sectionHeading}>
               <div>
                 <span className={styles.eyebrow}>NO HIDDEN VOTES</span>
@@ -1806,16 +1807,17 @@ export default function MorningBoard({
                     ),
                   availableCount = reading.available;
                 return (
-                  <button
+                  <article
                     key={definition.id}
                     className={`${styles.signalCard} ${availableCount ? "" : styles.missingCard}`}
-                    onClick={() => setFamily(definition.id)}
                   >
-                    <div className={styles.cardTop}>
-                      <span className={styles.eyebrow}>{definition.label}</span>
-                      <ChevronRight size={15} />
-                    </div>
                     <h3>
+                      <button className={styles.cardAction} onClick={() => setFamily(definition.id)}
+                        aria-label={`Inspect ${definition.label} inputs`}>
+                        <span>{definition.label}</span><ChevronRight size={15} aria-hidden="true" />
+                      </button>
+                    </h3>
+                    <p className={styles.cardStatus}>
                       {reading.score === null
                         ? availableCount
                           ? "Context available"
@@ -1827,7 +1829,7 @@ export default function MorningBoard({
                           : reading.score < -0.1
                             ? "Defensive"
                             : "Balanced"}
-                    </h3>
+                    </p>
                     {example?.series.length ? (
                       <Sparkline
                         series={example.series}
@@ -1863,18 +1865,14 @@ export default function MorningBoard({
                           : "No directional vote"}
                       </span>
                     </div>
-                  </button>
+                  </article>
                 );
               })}
             </div>
-          </section>
-        )}
-        {tab === "history" && (
-          <section
-            role="tabpanel"
-            id="history-panel"
-            aria-labelledby="history-tab"
-          >
+          </>)}
+        </section>
+        <section role="tabpanel" id="history-panel" aria-labelledby="history-tab" hidden={tab !== "history"} tabIndex={0}>
+          {tab === "history" && (<>
             <div className={styles.sectionHeading}>
               <div>
                 <span className={styles.eyebrow}>
@@ -2084,8 +2082,8 @@ export default function MorningBoard({
                 Source: European Central Bank <ExternalLink size={13} />
               </a>
             </section>
-          </section>
-        )}
+          </>)}
+        </section>
         <footer className={styles.footer}>
           <div>
             <strong>The Daily Consensus</strong>

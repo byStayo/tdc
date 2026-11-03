@@ -7,6 +7,8 @@ import { calculateConsensus, effectiveStatus } from '../lib/consensus/engine.ts'
 import { validateSnapshot, digest } from '../lib/consensus/history.ts';
 import { FAMILIES, ENGINE_VERSION } from '../lib/consensus/registry.ts';
 import type { Snapshot, Signal } from '../lib/consensus/types.ts';
+import { INSTRUMENTS, HORIZONS } from '../lib/consensus/types.ts';
+import * as canonical from '../lib/consensus/engines/v2.ts';
 const legacy: Snapshot = JSON.parse(await readFile(new URL('../public/consensus/2026-11-03T08-48-02-469Z.json', import.meta.url), 'utf8'));
 
 test('v2 removes structural earnings/daily positioning priors and respects source cadence without changing old evidence', () => {
@@ -72,4 +74,26 @@ test('the current rule version dispatches to its live engine and remains pinned 
   const stored=freezeConsensus(next);
   stored.consensus![0].abstain=false;
   assert.throws(()=>validateSnapshot(stored,'archive'),/Inconsistent as-issued/);
+});
+
+test('collection and publication use one canonical current engine, including the abstention boundary for every target', () => {
+  assert.equal(ENGINE_VERSION, canonical.ENGINE_VERSION);
+  assert.strictEqual(calculateConsensus, canonical.calculateConsensus);
+  assert.strictEqual(applyScoringPolicy, canonical.applyScoringPolicy);
+  assert.strictEqual(signalScore, canonical.signalScore);
+  const base = legacy.signals.find(s => s.status === 'available')!;
+  for (const count of [9, 10, 11, 15]) {
+    const signals: Signal[] = FAMILIES.map((family, i) => ({
+      ...base, id: `fixture-${family.id}`, family: family.id, instruments: [...INSTRUMENTS],
+      directionalInstruments: [...INSTRUMENTS],
+      scores: { daily: i < count ? .5 : null, weekly: i < count ? -.5 : null, monthly: i < count ? 0 : null },
+    }));
+    for (const instrument of INSTRUMENTS) for (const horizon of HORIZONS) {
+      const result = calculateConsensus(signals, instrument, horizon, legacy.cutoff);
+      assert.equal(result.directionalCoverage, count / 15);
+      assert.equal(result.abstain, count < 11, `${instrument}/${horizon} requires at least70% independent voting families`);
+      assert.deepEqual(result, versionedConsensus({ ...legacy, engineVersion: ENGINE_VERSION, signals }, instrument, horizon));
+      if (!result.abstain) assert.equal(result.label, horizon === 'daily' ? 'Risk-on lean' : horizon === 'weekly' ? 'Risk-off lean' : 'Signals are balanced');
+    }
+  }
 });

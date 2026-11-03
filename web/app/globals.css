@@ -2878,6 +2878,8 @@ tbody th {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  min-height: 44px;
+  min-width: 44px;
 }
 .provider-widget-note {
   text-align: center;

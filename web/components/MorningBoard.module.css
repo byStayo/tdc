@@ -20,7 +20,8 @@
 .board button:focus-visible,
 .board a:focus-visible,
 .board select:focus-visible,
-.board summary:focus-visible {
+.board summary:focus-visible,
+.board [role="tabpanel"]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
 }
@@ -96,6 +97,7 @@
 }
 .header nav a {
   min-height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
 }
@@ -204,6 +206,7 @@
 }
 .instruments button,
 .horizons button {
+  min-width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -364,14 +367,16 @@
 }
 .gaugeCaption {
   fill: var(--text-muted);
-  font-size: 8px;
-  letter-spacing: 1px;
+  font-size: 11px;
+  letter-spacing: 0.3px;
 }
 .votes {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 13px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-secondary);
   margin: 6px 0 9px;
 }
@@ -786,25 +791,43 @@
   min-height: 254px;
   transition: border-color 0.15s;
 }
-.signalCard:hover {
+.signalCard:focus-within {
   border-color: var(--text-muted);
 }
-.cardTop {
+.cardAction {
   display: flex;
+  width: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  padding: 6px 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  text-align: left;
   gap: 10px;
   align-items: center;
   justify-content: space-between;
 }
-.cardTop .eyebrow {
-  font-size: 9px;
-  letter-spacing: 1.1px;
+.cardAction:hover {
+  color: var(--accent);
+}
+.cardAction svg {
+  flex: none;
 }
 .signalCard h3 {
+  font-size: 12px;
+  font-weight: 500;
+  margin: -6px 0 0;
+}
+.signalCard .cardStatus {
   font-size: 21px;
   line-height: 1.3;
   font-weight: 500;
   letter-spacing: -0.5px;
   margin: 18px 0 12px;
+  min-height: 0;
+  color: var(--text);
 }
 .signalCard > p {
   font-size: 10px;
@@ -1066,13 +1089,16 @@
   cursor: pointer;
   padding: 10px 0;
 }
-.sourceItem > a {
-  display: inline-flex;
+.sourceItem > a,
+.sourceItem details a {
+  display: flex;
   gap: 7px;
   align-items: center;
   color: var(--accent);
   font-size: 11px;
   min-height: 44px;
+  min-width: 44px;
+  overflow-wrap: anywhere;
 }
 .sourceItem details p {
   margin: 8px 0;
@@ -1721,7 +1747,16 @@
   font-size: 11px;
   line-height: 1.6;
   padding: 8px 0;
+  min-height: 44px;
+  min-width: 44px;
+  overflow-wrap: anywhere;
   color: var(--accent);
+}
+.chartFoot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
 }
 .comparisonNote {
   font-size: 10px;
