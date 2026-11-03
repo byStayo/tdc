@@ -5,17 +5,35 @@ import { durableDirectory, durableJSON, syncDirectory } from "../publication-sto
 
 export interface EvaluationWrite { path: string; value: unknown; immutable?: boolean }
 interface PlannedWrite extends EvaluationWrite { before: string | null; after: string }
-interface Journal { schemaVersion: 1; id: string; createdAt: string; writes: PlannedWrite[] }
-type ReleaseState = { schemaVersion: 1; transactionId: string; status: "pending" } |
-  { schemaVersion: 1; transactionId: string; status: "complete"; hashes: Record<string, string | null> };
+interface Journal { schemaVersion: 1; id: string; createdAt: string; writes: PlannedWrite[]; artifacts?: Record<string, string> }
+type ReleaseState = { schemaVersion: 1; transactionId: string; artifacts: Record<string, string> } &
+  ({ status: "pending" } | { status: "complete"; hashes: Record<string, string | null> });
 const journalPath = (root: string) => resolve(root, ".consensus/evaluation-transaction.json");
 const releasePath = (root: string) => resolve(root, "lib/consensus/evaluation-state.json");
 const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const mutable = new Set(["public/consensus/outcomes.json", "public/consensus/outcome-selection.json", "lib/consensus/models.json", "lib/consensus/performance.json"]);
+const immutablePath = (path: string) => /^public\/consensus\/(?:models\/[A-Za-z0-9_-]+|model-actions\/[0-9a-f-]+)\.json$/.test(path);
 function checkPath(write: EvaluationWrite): void {
-  const immutable = /^public\/consensus\/(?:models\/[A-Za-z0-9_-]+|model-actions\/[0-9a-f-]+)\.json$/.test(write.path);
-  if (!(mutable.has(write.path) && !write.immutable) && !(immutable && write.immutable === true))
+  if (!(mutable.has(write.path) && !write.immutable) && !(immutablePath(write.path) && write.immutable === true))
     throw new Error("Unexpected evaluation transaction destination");
+}
+function checkArtifacts(artifacts: Record<string, string>): void {
+  if (!artifacts || typeof artifacts !== "object" || Array.isArray(artifacts) ||
+      Object.entries(artifacts).some(([path, digest]) => !immutablePath(path) || !/^[a-f0-9]{64}$/.test(digest)))
+    throw new Error("Invalid evaluation artifact hashes");
+}
+async function assertArtifactReferences(root: string, artifacts: Record<string, string>, plannedReport?: unknown): Promise<void> {
+  let report = plannedReport;
+  if (report === undefined) {
+    try { report = JSON.parse(await readFile(resolve(root, "lib/consensus/performance.json"), "utf8")); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return; throw error; }
+  }
+  for (const row of (report as { learning?: { artifact?: unknown }[] }).learning ?? []) {
+    if (row.artifact === undefined) continue;
+    const path = `public/consensus/${row.artifact}`;
+    if (typeof row.artifact !== "string" || !immutablePath(path) || !artifacts[path])
+      throw new Error("Performance references an unbound evaluation artifact");
+  }
 }
 async function currentHash(root: string, path: string): Promise<string | null> {
   const absolute = resolve(root, path);
@@ -41,6 +59,7 @@ async function readJournal(root: string): Promise<Journal | null> {
     if (write.after !== hash(write.value) || (write.before !== null && !/^[a-f0-9]{64}$/.test(write.before)))
       throw new Error("Evaluation recovery journal hash mismatch");
   }
+  if (journal.artifacts !== undefined) checkArtifacts(journal.artifacts);
   return journal;
 }
 async function readReleaseState(root: string): Promise<ReleaseState | null> {
@@ -51,6 +70,7 @@ async function readReleaseState(root: string): Promise<ReleaseState | null> {
   catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
   if (state.schemaVersion !== 1 || !/^(initial|[0-9a-f-]{36})$/.test(state.transactionId) ||
       (state.status !== "pending" && state.status !== "complete")) throw new Error("Invalid evaluation release state");
+  checkArtifacts(state.artifacts);
   if (state.status === "complete" && (!state.hashes || Object.keys(state.hashes).length !== mutable.size ||
       [...mutable].some(path => state.hashes[path] !== null && !/^[a-f0-9]{64}$/.test(state.hashes[path] ?? ""))))
     throw new Error("Invalid evaluation release hashes");
@@ -66,6 +86,9 @@ export async function assertEvaluationReleaseState(root: string, required = true
   if (state.status !== "complete") throw new Error("Incomplete evaluation release; recover in the original workspace before deployment");
   for (const path of mutable) if (await currentHash(root, path) !== state.hashes[path])
     throw new Error(`Evaluation release hash mismatch: ${path}`);
+  for (const [path, expected] of Object.entries(state.artifacts)) if (await currentHash(root, path) !== expected)
+    throw new Error(`Evaluation artifact hash mismatch: ${path}`);
+  await assertArtifactReferences(root, state.artifacts);
 }
 export async function assertNoPendingEvaluation(root: string): Promise<void> {
   if (await readJournal(root)) throw new Error("Incomplete evaluation transaction; run consensus:recover before publishing or building");
@@ -84,8 +107,18 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
   }
   const release = await readReleaseState(root);
   if (release?.status === "pending" && release.transactionId !== journal.id) throw new Error("Evaluation release belongs to another transaction");
+  const artifacts = { ...(journal.artifacts ?? release?.artifacts ?? {}) };
+  for (const write of journal.writes.filter(write => write.immutable)) {
+    if (artifacts[write.path] && artifacts[write.path] !== write.after) throw new Error("Immutable evaluation artifact hash changed");
+    artifacts[write.path] = write.after;
+  }
+  for (const [path, expected] of Object.entries(artifacts)) {
+    if (!journal.writes.some(write => write.immutable && write.path === path) && await currentHash(root, path) !== expected)
+      throw new Error(`Evaluation artifact hash mismatch: ${path}`);
+  }
+  await assertArtifactReferences(root, artifacts, journal.writes.find(write => write.path === "lib/consensus/performance.json")?.value);
   // Durable tracked marker BEFORE any output changes; remote builds reject incomplete exports.
-  await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "pending" } satisfies ReleaseState);
+  await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "pending", artifacts } satisfies ReleaseState);
   for (const write of journal.writes) {
     if (await currentHash(root, write.path) !== write.after) await durableJSON(resolve(root, write.path), write.value, write.immutable);
     await afterWrite?.(write.path);
@@ -93,7 +126,7 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
   const hashes: Record<string, string | null> = {};
   for (const path of mutable) hashes[path] = await currentHash(root, path);
   // Hashes also catch selectively committing changed outputs without their new release marker.
-  await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "complete", hashes } satisfies ReleaseState);
+  await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "complete", hashes, artifacts } satisfies ReleaseState);
   const completed = resolve(root, ".consensus/evaluation-transactions", `${journal.id}.json`);
   await durableDirectory(dirname(completed), 0o700);
   // All files are durable before the pending marker is removed.
@@ -114,6 +147,9 @@ export async function commitEvaluationTransaction(root: string, writes: Evaluati
     if (write.immutable && before !== null && before !== after) throw new Error("Immutable evaluation artifact cannot be replaced");
     planned.push({ ...write, before, after });
   }
-  await durableJSON(journalPath(root), { schemaVersion: 1, id: randomUUID(), createdAt: new Date().toISOString(), writes: planned } satisfies Journal, true);
+  const artifacts = { ...(await readReleaseState(root))?.artifacts };
+  for (const write of planned.filter(write => write.immutable)) artifacts[write.path] = write.after;
+  await assertArtifactReferences(root, artifacts, planned.find(write => write.path === "lib/consensus/performance.json")?.value);
+  await durableJSON(journalPath(root), { schemaVersion: 1, id: randomUUID(), createdAt: new Date().toISOString(), writes: planned, artifacts } satisfies Journal, true);
   await recoverEvaluationTransaction(root, afterWrite);
 }

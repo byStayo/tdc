@@ -124,6 +124,41 @@ test("remote release checks reject partial exports without a private journal and
   }finally{await rm(root,{recursive:true,force:true});await rm(exported,{recursive:true,force:true});}
 });
 
+test("release evidence retains candidate and rollback artifacts across recovery and later transactions",async()=>{
+  const root=await mkdtemp(join(tmpdir(),"tdc-artifact-source-")), exported=await mkdtemp(join(tmpdir(),"tdc-artifact-export-"));
+  const candidate=writes[0].path;
+  const action="public/consensus/model-actions/00000000-0000-0000-0000-000000000001.json";
+  const report={learning:[{artifact:"models/SPY-daily-test.json"}],resolved:1};
+  const exportFiles=async()=>{
+    await cp(join(root,"lib"),join(exported,"lib"),{recursive:true});
+    await cp(join(root,"public"),join(exported,"public"),{recursive:true});
+  };
+  try {
+    await assert.rejects(commitEvaluationTransaction(root,[{path:"lib/consensus/performance.json",value:report}]),/unbound evaluation artifact/);
+    await assert.rejects(readFile(join(root,".consensus/evaluation-transaction.json")),/ENOENT/);
+    await commitEvaluationTransaction(root,writes.map(write=>write.path==="lib/consensus/performance.json"?{...write,value:report}:write));
+    await exportFiles();await assertEvaluationReleaseState(exported);
+    await rm(join(exported,candidate));
+    await assert.rejects(assertEvaluationReleaseState(exported),/Evaluation artifact hash mismatch/);
+    await exportFiles();await writeFile(join(exported,candidate),'{"changed":true}');
+    await assert.rejects(assertEvaluationReleaseState(exported),/Evaluation artifact hash mismatch/);
+    await assert.rejects(commitEvaluationTransaction(root,[
+      {path:action,value:{fixture:"rollback"},immutable:true},
+      {path:"lib/consensus/performance.json",value:{...report,resolved:2}},
+    ],path=>{if(path===action)throw new Error("stop");}),/stop/);
+    await recoverEvaluationTransaction(root);
+    await exportFiles();await assertEvaluationReleaseState(exported);
+    await rm(join(exported,action));
+    await assert.rejects(assertEvaluationReleaseState(exported),/Evaluation artifact hash mismatch/);
+    await commitEvaluationTransaction(root,[{path:"lib/consensus/performance.json",value:{...report,resolved:3}}]);
+    await exportFiles();await assertEvaluationReleaseState(exported);
+    const state=JSON.parse(await readFile(join(exported,"lib/consensus/evaluation-state.json"),"utf8"));
+    assert.deepEqual(Object.keys(state.artifacts).sort(),[candidate,action].sort());
+    delete state.artifacts[candidate];await writeFile(join(exported,"lib/consensus/evaluation-state.json"),JSON.stringify(state));
+    await assert.rejects(assertEvaluationReleaseState(exported),/unbound evaluation artifact/);
+  }finally{await rm(root,{recursive:true,force:true});await rm(exported,{recursive:true,force:true});}
+});
+
 test("model deactivation writes an audit action and preserves prior forecasts, models and reservations",async()=>{
   const root=await mkdtemp(join(tmpdir(),"tdc-model-rollback-"));
   try {
