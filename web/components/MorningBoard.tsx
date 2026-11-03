@@ -40,6 +40,7 @@ import styles from "./MorningBoard.module.css";
 import MorningMarket from "./MorningMarket";
 import Brand from "./Brand";
 import ResearchSection from "./ResearchSection";
+import GuidancePanel from "./GuidancePanel";
 import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
 
@@ -1794,7 +1795,7 @@ export default function MorningBoard({
               <ResearchSection
                 number="02"
                 title="News & company earnings"
-                description="The news sample · reported results · original sources"
+                description="The news sample · reported results · management outlook"
               >
                 {snapshot.news && (
                   <NewsPanel
@@ -1874,6 +1875,7 @@ export default function MorningBoard({
                     })}
                   </section>
                 )}
+                <GuidancePanel snapshot={snapshot} instrument={instrument} reference={reference} />
               </ResearchSection>
               <ResearchSection
                 number="03"

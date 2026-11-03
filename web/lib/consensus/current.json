@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T17-34-12-122Z",
-  "issuedAt": "2026-11-03T17:34:12.122Z",
-  "cutoff": "2026-11-03T17:34:12.122Z",
+  "id": "2026-11-03T18-35-28-910Z",
+  "issuedAt": "2026-11-03T18:35:28.910Z",
+  "cutoff": "2026-11-03T18:35:28.910Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -33676,7 +33676,7 @@
   "forecasts": [],
   "review": {
     "schemaVersion": 1,
-    "reviewedAt": "2026-11-03T17:34:12.122Z",
+    "reviewedAt": "2026-11-03T18:35:28.694Z",
     "reviewer": "Codex subscription editorial review",
     "sources": [
       {
@@ -33752,6 +33752,24 @@
         "publishedAt": "2026-11-03T15:00:00.000Z",
         "retrievedAt": "2026-11-03T17:31:54.836Z",
         "sha256": "8eaf43218eb7a7f3d57a7a9ecf20dab5a40bab05e7faaca569053b9d95a258d1",
+        "format": "document"
+      },
+      {
+        "id": "microsoft-fy27-q1-call",
+        "name": "Microsoft · FY2027 Q1 call and Q2 outlook",
+        "url": "https://www.microsoft.com/en-us/investor/events/fy-2027/earnings-fy-2027-q1",
+        "publishedAt": "2026-10-28",
+        "retrievedAt": "2026-11-03T18:30:30.680Z",
+        "sha256": "ed52974e7e786bad5a5c2d3b3dde1b3636ae0e55d9746fb4745553149a8b73e8",
+        "format": "document"
+      },
+      {
+        "id": "nvidia-fy27-q2-release",
+        "name": "NVIDIA · FY2027 Q2 release and Q3 outlook · SEC exhibit",
+        "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000073/q2fy27pr.htm",
+        "publishedAt": "2026-08-26",
+        "retrievedAt": "2026-11-03T18:30:31.301Z",
+        "sha256": "046fc73ace052d4dce99d75740a7d4cd632575e7b9141db585da95681affcfb8",
         "format": "document"
       }
     ],
@@ -33957,6 +33975,30 @@
         "releaseTiming": "approximate",
         "approximateReleaseAt": "2026-11-17T21:20:00.000Z",
         "webcastAt": "2026-11-17T22:00:00.000Z"
+      }
+    ],
+    "guidance": [
+      {
+        "ticker": "MSFT",
+        "sourceId": "microsoft-fy27-q1-call",
+        "fiscalPeriod": "FY2027 Q2",
+        "revenue": {
+          "kind": "range",
+          "low": 96,
+          "high": 97.1
+        },
+        "assumptions": "Management stated its second-quarter outlook in US dollars. At then-current exchange rates, Microsoft expected no meaningful FX impact on total revenue growth. These expectations can differ from eventual results."
+      },
+      {
+        "ticker": "NVDA",
+        "sourceId": "nvidia-fy27-q2-release",
+        "fiscalPeriod": "FY2027 Q3",
+        "revenue": {
+          "kind": "midpoint_tolerance",
+          "midpoint": 108,
+          "tolerancePercent": 2
+        },
+        "assumptions": "NVIDIA assumed no Data Center compute revenue from China in this outlook. The plus-or-minus 2% is the company’s guidance range, not a probability or confidence interval. These expectations can differ from eventual results."
       }
     ]
   },

@@ -8,7 +8,18 @@ export function editionTiming(snapshot: Snapshot, history: HistoryEntry[]) {
         new Date(source.retrievedAt).toISOString() !== source.retrievedAt ||
         source.retrievedAt > snapshot.cutoff) return [];
     return [source.retrievedAt];
-  }).sort();
+  });
+  for (const guidance of snapshot.review?.guidance ?? []) {
+    const source = snapshot.review!.sources.find(s => s.id === guidance.sourceId);
+    if (source && /^[a-f0-9]{64}$/.test(source.sha256) &&
+        Number.isFinite(Date.parse(source.retrievedAt)) &&
+        new Date(source.retrievedAt).toISOString() === source.retrievedAt &&
+        source.retrievedAt <= snapshot.cutoff &&
+        Date.parse(source.publishedAt) <= Date.parse(source.retrievedAt)) {
+      checks.push(source.retrievedAt);
+    }
+  }
+  checks.sort();
   const latestSourceCheck = checks.at(-1) ?? null;
   const previous = history.filter(entry => entry.issuedAt < snapshot.issuedAt)
     .sort((a, b) => b.issuedAt.localeCompare(a.issuedAt))[0];

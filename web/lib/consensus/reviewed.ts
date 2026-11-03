@@ -41,6 +41,15 @@ export interface ReviewedEarnings {
   dilutedEPS: number;
   priorDilutedEPS: number;
 }
+export interface ReviewedGuidance {
+  ticker: "AAPL" | "MSFT" | "NVDA";
+  sourceId: string;
+  fiscalPeriod: string;
+  revenue:
+    | { kind: "range"; low: number; high: number }
+    | { kind: "midpoint_tolerance"; midpoint: number; tolerancePercent: number };
+  assumptions: string;
+}
 export interface ReviewPacket {
   schemaVersion: 1;
   reviewedAt: string;
@@ -48,6 +57,7 @@ export interface ReviewPacket {
   sources: ReviewedSource[];
   developments: ReviewedDevelopment[];
   earnings: ReviewedEarnings[];
+  guidance?: ReviewedGuidance[];
   earningsSchedule?: {
     ticker: "AAPL" | "MSFT" | "NVDA" | "AMD" | "QCOM";
     sourceId: string;
@@ -186,6 +196,40 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     )
       throw new Error("Invalid reviewed earnings facts");
     tickers.add(item.ticker);
+  }
+  if (packet.guidance !== undefined) {
+    if (!Array.isArray(packet.guidance) || packet.guidance.length > 3)
+      throw new Error("Invalid reviewed guidance");
+    const guided = new Set<string>();
+    const ciks: Record<string, string> = {
+      AAPL: "320193", MSFT: "789019", NVDA: "1045810",
+    };
+    for (const item of packet.guidance) {
+      const source = packet.sources.find((s) => s.id === item.sourceId);
+      const url = source && new URL(source.url);
+      const issuerSource = url && (
+        ISSUER_HOSTS[item.ticker]?.includes(url.hostname) ||
+        (url.hostname === "www.sec.gov" && ciks[item.ticker] &&
+          url.pathname.startsWith(`/Archives/edgar/data/${ciks[item.ticker]}/`))
+      );
+      const range = item.revenue;
+      const validRange = range && (
+        (range.kind === "range" &&
+          [range.low, range.high].every((n) => Number.isFinite(n) && n > 0) &&
+          range.low <= range.high) ||
+        (range.kind === "midpoint_tolerance" &&
+          Number.isFinite(range.midpoint) && range.midpoint > 0 &&
+          Number.isFinite(range.tolerancePercent) &&
+          range.tolerancePercent >= 0 && range.tolerancePercent < 100 &&
+          Number.isFinite(range.midpoint * (1 + range.tolerancePercent / 100)) &&
+          range.midpoint * (1 - range.tolerancePercent / 100) > 0)
+      );
+      if (!Object.hasOwn(ciks, item.ticker) || guided.has(item.ticker) ||
+        !issuerSource || !/^FY20\d{2} Q[1-4]$/.test(item.fiscalPeriod) ||
+        !validRange || !prose(item.assumptions, 500))
+        throw new Error("Invalid reviewed company guidance");
+      guided.add(item.ticker);
+    }
   }
   if (packet.earningsSchedule !== undefined) {
     if (
