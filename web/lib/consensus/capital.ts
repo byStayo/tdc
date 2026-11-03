@@ -1,4 +1,5 @@
 import type { PublicDocument } from "./calendars.ts";
+import { sourceFailureKind } from "./source-failure.ts";
 import { INSTRUMENTS, type Signal, type Point } from "./types.ts";
 
 export const TIC_URLS = [1, 2].map(
@@ -125,7 +126,7 @@ export async function collectCapital(
       limitation:
         "Lagged, latest-vintage cross-border transactions; revisions and custody geography can affect interpretation. These are not today's flows, private-equity flows or a forecast of prices. Holdings changes include valuation and other adjustments; they are not net purchases.",
     };
-    if (result.status !== "fulfilled") return signal;
+    if (result.status !== "fulfilled") return {...signal, failureKind: sourceFailureKind(result.reason)};
     try {
       const rows = ticSeries(
           result.value.text,
@@ -133,7 +134,7 @@ export async function collectCapital(
           result.value.retrievedAt,
         ),
         latest = rows.at(-1);
-      if (!latest) return signal;
+      if (!latest) return {...signal, failureKind: "validation"};
       return {
         ...signal,
         status: "available",
@@ -175,7 +176,7 @@ export async function collectCapital(
         ],
       };
     } catch {
-      return signal;
+      return {...signal, failureKind: "validation"};
     }
   });
 }

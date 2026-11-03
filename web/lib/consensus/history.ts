@@ -8,9 +8,10 @@ import {
   link,
 } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
-import { acquirePublicationLock } from "../publication-lock.ts";
+import { acquirePublicationLock, finishPublicationLock } from "../publication-lock.ts";
 import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
+import { validateSourceCitation } from "./source-citation.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
@@ -68,14 +69,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       Date.parse(signal.source.retrievedAt) > Date.parse(snapshot.cutoff)
     )
       throw new Error(`Invalid signal availability: ${signal.id}`);
-    const url = new URL(signal.source.url);
-    if (
-      url.protocol !== "https:" ||
-      url.username ||
-      url.password ||
-      /(?:token|api_key|secret|password)=/i.test(url.search)
-    )
-      throw new Error("Unsafe public source URL");
+    validateSourceCitation(signal.source.url);
     if (
       signal.status === "available" &&
       (!date(signal.source.observedAt) ||
@@ -126,10 +120,10 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       throw new Error("Invalid metric");
   }
   for (const catalyst of snapshot.catalysts) {
+    validateSourceCitation(catalyst.url);
     if (
       !date(catalyst.at) ||
       !catalyst.title ||
-      new URL(catalyst.url).protocol !== "https:" ||
       (catalyst.dateZone !== undefined &&
         (catalyst.at.length !== 10 ||
           !CALENDAR_ZONES.includes(catalyst.dateZone)))
@@ -296,6 +290,7 @@ export function observationDigest(snapshot: Snapshot): string {
     engine: snapshot.engineVersion,
     signals: snapshot.signals.map((signal) => ({
       ...signal,
+      summary: signal.status === "unavailable" ? null : signal.summary,
       collectionNote: undefined,
       metrics: signal.metrics.map((metric) => ({
         ...metric,
@@ -355,6 +350,7 @@ export async function publishSnapshot(
     archive = resolve(root, "public/consensus"),
     indexPath = resolve(archive, "index.json");
   const release = await acquirePublicationLock(root, "consensus");
+  let failure: {error: unknown} | undefined;
   try {
     let prior: Snapshot | null = null;
     try {
@@ -400,7 +396,10 @@ export async function publishSnapshot(
     ]);
     await atomic(currentPath, snapshot);
     return { changed: true, id: snapshot.id, sha256: hash };
+  } catch (error) {
+    failure = {error};
+    throw error;
   } finally {
-    await release();
+    await finishPublicationLock(release, failure);
   }
 }

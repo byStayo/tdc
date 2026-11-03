@@ -8,7 +8,7 @@ import {
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
-import { acquirePublicationLock } from "../lib/publication-lock.ts";
+import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { assertCommittedReservations } from "../lib/consensus/learning-audit.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
@@ -58,6 +58,7 @@ if (
 )
   throw new Error("One verified price evidence set per instrument required");
 const release = await acquirePublicationLock(root, "evaluation");
+let failure: {error: unknown} | undefined;
 try {
   await assertCommittedReservations(root);
   let outcomes: Outcome[] = [];
@@ -259,6 +260,9 @@ try {
       trained: learning.filter((item) => item.status === "evaluated").length,
     }),
   );
+} catch (error) {
+  failure = {error};
+  throw error;
 } finally {
-  await release();
+  await finishPublicationLock(release, failure);
 }

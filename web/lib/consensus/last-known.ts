@@ -12,8 +12,7 @@ export function retainLastKnown(
   let retainedNews = false;
   const retainedHoldings = new Set<string>();
   const signals = snapshot.signals.map((signal) => {
-    if (signal.status !== "unavailable") return signal;
-    if (signal.id.startsWith("fx-") && signal.failureKind !== "transport") return signal;
+    if (signal.status !== "unavailable" || signal.failureKind !== "transport") return signal;
     const prior = previous.signals.find((item) => item.id === signal.id);
     if (
       !prior ||
@@ -26,7 +25,6 @@ export function retainLastKnown(
       return signal;
     if (prior.id === "gdelt-finance-news") retainedNews = true;
     if (prior.id.startsWith("sec-holdings-")) {
-      if (signal.failureKind !== "transport") return signal;
       const id = prior.id.slice("sec-holdings-".length);
       if (!previous.holdings?.some((item) => item.id === id)) return signal;
       retainedHoldings.add(id);

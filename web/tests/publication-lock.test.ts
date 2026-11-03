@@ -6,9 +6,19 @@ import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
-import { acquirePublicationLock } from '../lib/publication-lock.ts';
+import { acquirePublicationLock, finishPublicationLock } from '../lib/publication-lock.ts';
 
 const moduleURL = new URL('../lib/publication-lock.ts', import.meta.url).href;
+test('a release failure preserves the original publication failure and still fails successful work',async()=>{
+  const original=new Error('Snapshot integrity failed'),cleanup=new Error('Lock holder failed');
+  const release=async()=>{throw cleanup;};
+  await assert.rejects((async()=>{
+    let failure:{error:unknown}|undefined;
+    try {throw original;} catch(error){failure={error};throw error;}
+    finally {await finishPublicationLock(release,failure);}
+  })(),error=>error instanceof AggregateError&&error.cause===original&&error.errors[0]===original&&error.errors[1]===cleanup&&error.message.includes(original.message));
+  await assert.rejects(finishPublicationLock(release),error=>error===cleanup);
+});
 test('kernel publication lock excludes concurrent writers, preserves its inode and has idempotent owned release', async () => {
   const root = await mkdtemp(join(tmpdir(), 'tdc-lock-'));
   try {

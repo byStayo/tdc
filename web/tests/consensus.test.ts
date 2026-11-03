@@ -84,6 +84,7 @@ test("outages preserve prior observations without resetting freshness or manufac
     {
       ...signal(),
       status: "unavailable",
+      failureKind: "transport",
       series: [],
       metrics: [],
       scores: { daily: null, weekly: null, monthly: null },

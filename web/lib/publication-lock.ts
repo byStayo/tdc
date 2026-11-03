@@ -3,6 +3,17 @@ import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 
+/** Preserve both failures if cleanup also fails while a transaction is unwinding. */
+export async function finishPublicationLock(release: () => Promise<void>, failure?: { error: unknown }) {
+  try { await release(); }
+  catch (cleanup) {
+    if (failure) throw new AggregateError([failure.error, cleanup],
+      `${failure.error instanceof Error ? failure.error.message : "Publication failed"}; lock cleanup also failed`,
+      {cause: failure.error});
+    throw cleanup;
+  }
+}
+
 // macOS/Linux publication host: a kernel-held advisory lock survives neither a
 // crash nor reboot. Never unlink this inode: unlink/recreate permits two owners.
 // Python's stdlib exposes flock without installing a native Node dependency.

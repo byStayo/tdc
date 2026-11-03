@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { link, mkdir, open, readFile, rename, unlink } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { acquirePublicationLock } from '../lib/publication-lock.ts';
+import { acquirePublicationLock, finishPublicationLock } from '../lib/publication-lock.ts';
 import { savedPublicData } from '../lib/saved-public-data.ts';
 import type { ResearchResponse } from '../lib/contracts.ts';
 import { validateResearch } from '../lib/research-schema.ts';
@@ -101,6 +101,7 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
   const result = { checked: true as const, published: false, latest, briefArchive, evidenceArchive };
   if (options.checkOnly) return result;
   const release = await acquirePublicationLock(root, 'editorial');
+  let failure: {error: unknown} | undefined;
   const staged: string[] = [], createdArchives: string[] = []; let replaced = false;
   try {
     try {
@@ -126,11 +127,12 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
     }
     return { ...result, published: true };
   } catch (error) {
+    failure = {error};
     if (!replaced) for (const path of createdArchives) await unlink(path).catch(() => undefined);
     throw error;
   } finally {
     for (const path of staged) await unlink(path).catch(() => undefined);
-    await release();
+    await finishPublicationLock(release, failure);
   }
 }
 

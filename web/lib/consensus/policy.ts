@@ -2,6 +2,7 @@ import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, type Point, type Signal } from "./types.ts";
 import type { PublicDocument } from "./calendars.ts";
 import { effectiveStatus } from "./engine.ts";
+import { sourceFailureKind } from "./source-failure.ts";
 
 export function policyReadings(signals: Signal[], reference: string) {
   const groups = [
@@ -364,8 +365,8 @@ export async function collectPolicyRates(
           ],
           summary: `${spec.title}: ${latest.value.toFixed(2)}% observed ${latest.date}. ${spec.definition}`,
         };
-      } catch {
-        return signal;
+      } catch (error) {
+        return {...signal, failureKind: sourceFailureKind(error)};
       }
     }),
   );

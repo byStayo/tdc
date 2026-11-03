@@ -1,4 +1,5 @@
 import test from "node:test";
+import { SourceTransportError } from "../lib/consensus/source-failure.ts";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
@@ -250,7 +251,7 @@ test("collector publishes only selected filing aggregates and labels source vers
     retrievedAt: cutoff,
   });
   const r = await collectHoldings(async (url) => {
-    if (url.includes("1350694")) throw new Error("HTTP 503");
+    if (url.includes("1350694")) throw new SourceTransportError("HTTP 503");
     if (url.includes("submissions")) return doc(JSON.stringify(metadata()));
     if (url.endsWith("index.json"))
       return doc(

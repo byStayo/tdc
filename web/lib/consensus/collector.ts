@@ -6,6 +6,7 @@ import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
+import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
 import { clamp } from "./engine.ts";
@@ -60,7 +61,7 @@ export async function publicText(
   fetcher: Fetcher = fetch,
 ): Promise<{ text: string; sha256: string; retrievedAt: string }> {
   safeURL(url);
-  const response = await fetcher(url, {
+  const response = await sourceResponse(fetcher, url, {
     redirect: "error",
     signal: AbortSignal.timeout(20000),
     headers: {
@@ -69,14 +70,12 @@ export async function publicText(
       Accept: "application/json,text/csv,application/xml,text/xml",
     },
   });
-  if (!response.ok || !response.body)
-    throw new Error(`HTTP ${response.status}`);
-  const reader = response.body.getReader(),
+  const reader = response.body!.getReader(),
     chunks: Uint8Array[] = [];
   let size = 0;
   try {
     while (true) {
-      const chunk = await reader.read();
+      const chunk = await sourceChunk(reader);
       if (chunk.done) break;
       size += chunk.value.byteLength;
       if (size > 2_000_000) throw new Error("Source exceeds 2 MB limit");
@@ -168,7 +167,7 @@ function changeScore(
       )
     : null;
 }
-async function macro(fetcher: Fetcher): Promise<Signal[]> {
+export async function macro(fetcher: Fetcher): Promise<Signal[]> {
   return Promise.all(
     MACRO_SERIES.map(async (descriptor) => {
       const url = `https://fred.stlouisfed.org/series/${descriptor.id}`,
@@ -263,6 +262,7 @@ async function macro(fetcher: Fetcher): Promise<Signal[]> {
           },
         };
       } catch (error) {
+        signal.failureKind = sourceFailureKind(error);
         signal.summary = `Source unavailable: ${error instanceof Error ? error.message : "fetch failed"}.`;
         return signal;
       }
@@ -297,10 +297,8 @@ export const FX_CURRENCIES = ["EUR", "JPY", "GBP", "CHF", "CAD", "AUD", "CNY"] a
 export async function currencies(fetcher: Fetcher): Promise<Signal[]> {
   const url =
     "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
-  let received = false;
   try {
     const response = await publicText(url, fetcher);
-    received = true;
     const rows = ecbPoints(response.text),
       usd = rows.get("USD");
     if (!usd?.length) throw new Error("No ECB dollar series");
@@ -369,10 +367,10 @@ export async function currencies(fetcher: Fetcher): Promise<Signal[]> {
         scores: noScores(),
       };
     });
-  } catch {
+  } catch (error) {
     return FX_CURRENCIES.map((currency) => ({
       ...blank(`fx-${currency}`, `${currency} / USD`, "fx", url, new Date().toISOString()),
-      failureKind: received ? "validation" as const : "transport" as const,
+      failureKind: sourceFailureKind(error),
     }));
   }
 }
@@ -384,7 +382,18 @@ const CONTRACTS: Record<string, { symbol: Instrument; title: string }> = {
   "020601": { symbol: "TLT", title: "Treasury bond futures" },
   "043602": { symbol: "TLT", title: "10-year Treasury futures" },
 };
-async function positioning(fetcher: Fetcher): Promise<Signal[]> {
+export function positioningRows(raw: unknown[], code: string, cutoff: string) {
+  const rows = new Map<string, ReturnType<typeof latestPublicPositioning>[number]>();
+  for (const row of raw.flatMap(item => latestPublicPositioning([item], [code]))) {
+    if (row.reportDate > cutoff.slice(0,10)) continue;
+    const prior = rows.get(row.reportDate);
+    if (prior && JSON.stringify(prior) !== JSON.stringify(row))
+      throw new Error("Conflicting CFTC rows for one contract and report date");
+    rows.set(row.reportDate, row);
+  }
+  return [...rows.values()].sort((a,b)=>a.reportDate.localeCompare(b.reportDate));
+}
+export async function positioning(fetcher: Fetcher): Promise<Signal[]> {
   const url = new URL(
     "https://publicreporting.cftc.gov/resource/gpe5-46if.json",
   );
@@ -400,20 +409,20 @@ async function positioning(fetcher: Fetcher): Promise<Signal[]> {
   );
   let response: Awaited<ReturnType<typeof publicText>> | null = null,
     raw: unknown[] = [];
+  let failureKind: Signal["failureKind"] = "validation";
   try {
     response = await publicText(url.href, fetcher);
     const data: unknown = JSON.parse(response.text);
     if (Array.isArray(data)) raw = data;
-  } catch {
+  } catch (error) {
+    failureKind = sourceFailureKind(error);
     /* Each contract remains explicitly unavailable. */
   }
   return Object.entries(CONTRACTS).flatMap(([code, contract]) => {
-    const rows = raw
-      .flatMap((row) => latestPublicPositioning([row], [code]))
-      .filter(
-        (row) => row.reportDate <= (response?.retrievedAt ?? "").slice(0, 10),
-      )
-      .sort((a, b) => a.reportDate.localeCompare(b.reportDate));
+    let rows: ReturnType<typeof positioningRows> = [];
+    let contractFailure = failureKind;
+    try { rows = positioningRows(raw, code, response?.retrievedAt ?? ""); }
+    catch { contractFailure = "validation"; }
     return (["asset", "leveraged"] as const).map((category) => {
       const title = `${contract.title} · ${category === "asset" ? "asset managers" : "leveraged funds"}`,
         citation = `https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=${code}`;
@@ -443,6 +452,7 @@ async function positioning(fetcher: Fetcher): Promise<Signal[]> {
         ...signal,
         instruments: ["MARKET", contract.symbol] as Instrument[],
         status: latest ? ("available" as const) : ("unavailable" as const),
+        ...(latest ? {} : { failureKind: contractFailure }),
         staleAfterDays: 14,
         series,
         unit: "% OI",
@@ -780,7 +790,7 @@ export function secQuarters(
   }
   return [...quarters.values()].sort((a, b) => a.end.localeCompare(b.end));
 }
-async function earnings(fetcher: Fetcher): Promise<Signal[]> {
+export async function earnings(fetcher: Fetcher): Promise<Signal[]> {
   const issuers = [
     {
       ticker: "AAPL",
@@ -872,8 +882,8 @@ async function earnings(fetcher: Fetcher): Promise<Signal[]> {
           limitation:
             "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
         };
-      } catch {
-        return signal;
+      } catch (error) {
+        return {...signal, failureKind: sourceFailureKind(error)};
       }
     }),
   );

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { publicDate } from "../public-normalization.ts";
 import type { Signal } from "./types.ts";
+import { sourceFailureKind } from "./source-failure.ts";
 
 export const HOLDINGS_MANAGERS = [
   { id: "berkshire", cik: "0001067983", name: "Berkshire Hathaway" },
@@ -463,17 +464,11 @@ export async function collectHoldings(
   let nextRequestAt = 0;
   // Sequential and bounded. The caller's fetcher declares the product and limits response size/time.
   for (const manager of HOLDINGS_MANAGERS) {
-    let transportFailed = false;
     const request = async (url: string) => {
       const delay = Math.max(0, nextRequestAt - Date.now());
       if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
       nextRequestAt = Date.now() + 200;
-      try {
-        return await fetchText(url);
-      } catch (error) {
-        transportFailed = true;
-        throw error;
-      }
+      return fetchText(url);
     };
     try {
       const submissions = await request(
@@ -543,7 +538,7 @@ export async function collectHoldings(
         instruments: ["MARKET", "SPY", "QQQ", "IWM", "DIA"],
         status: "unavailable",
         summary: `Original holdings verification unavailable: ${error instanceof Error ? error.message : "source error"}.`,
-        failureKind: transportFailed ? "transport" : "validation",
+        failureKind: sourceFailureKind(error),
         source: {
           name: "SEC EDGAR · Form 13F",
           url: `https://data.sec.gov/submissions/CIK${manager.cik}.json`,

@@ -3,6 +3,7 @@ import { unzipSync, strFromU8 } from "fflate";
 import { INSTRUMENTS, type Signal, type Point } from "./types.ts";
 import { monthEnd } from "./capital.ts";
 import type { PublicDocument } from "./calendars.ts";
+import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
 
 export const PRIVATE_FUNDS_PAGE =
   "https://www.sec.gov/data-research/investment-management-data/division-investment-management-private-fund-statistics";
@@ -219,7 +220,7 @@ export async function collectPrivateFunds(
   try {
     const page = await fetchText(PRIVATE_FUNDS_PAGE),
       url = latestPrivateFundWorkbook(page.text, page.retrievedAt);
-    const response = await fetcher(url, {
+    const response = await sourceResponse(fetcher, url, {
       redirect: "error",
       signal: AbortSignal.timeout(20000),
       headers: {
@@ -227,14 +228,12 @@ export async function collectPrivateFunds(
           "The Daily Consensus public research https://thedailyconsensus.com",
       },
     });
-    if (!response.ok || !response.body)
-      throw new Error("SEC workbook unavailable");
-    const reader = response.body.getReader(),
+    const reader = response.body!.getReader(),
       parts: Uint8Array[] = [];
     let size = 0;
     try {
       while (true) {
-        const part = await reader.read();
+        const part = await sourceChunk(reader);
         if (part.done) break;
         size += part.value.length;
         if (size > 2_000_000) throw new Error("Workbook too large");
@@ -291,7 +290,7 @@ export async function collectPrivateFunds(
         },
       ],
     };
-  } catch {
-    return signal;
+  } catch (error) {
+    return {...signal, failureKind: sourceFailureKind(error)};
   }
 }

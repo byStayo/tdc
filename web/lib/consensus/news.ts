@@ -3,6 +3,7 @@ import { unzipSync } from "fflate";
 import { INSTRUMENTS } from "./types.ts";
 import type { Signal } from "./types.ts";
 import { publicDate } from "../public-normalization.ts";
+import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
 
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -257,17 +258,16 @@ async function bytes(
     !/^\/gdeltv2\/(?:lastupdate\.txt|\d{14}\.gkg\.csv\.zip)$/.test(u.pathname)
   )
     throw new Error("Unexpected GDELT source");
-  const r = await fetcher(url, {
+  const r = await sourceResponse(fetcher, url, {
     redirect: "error",
     signal: AbortSignal.timeout(20000),
   });
-  if (!r.ok || !r.body) throw new Error(`GDELT HTTP ${r.status}`);
-  const reader = r.body.getReader(),
+  const reader = r.body!.getReader(),
     chunks: Uint8Array[] = [];
   let size = 0;
   try {
     for (;;) {
-      const part = await reader.read();
+      const part = await sourceChunk(reader);
       if (part.done) break;
       size += part.value.byteLength;
       if (size > limit) throw new Error("GDELT download limit");
@@ -380,7 +380,7 @@ export async function collectNews(
         ],
       },
     };
-  } catch {
-    return { signal, pulse: null };
+  } catch (error) {
+    return { signal: {...signal, failureKind: sourceFailureKind(error)}, pulse: null };
   }
 }

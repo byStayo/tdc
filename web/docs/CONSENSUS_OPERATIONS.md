@@ -106,3 +106,14 @@ The independent private head protects against an ordinary Git reset of a pending
 ### Completed-bar calculation contracts
 
 Fibonacci and pivot inputs include an explicit interval end and cutoff. Bars still in progress or without a valid end are excluded. Opening range still needs all15 completed one-minute bars. Premarket requires at least50% of the330 expected minutes to show an explicitly partial *observed-bar range*, with observed/expected minutes and coverage; below that threshold it stays unavailable. Missing minutes are never synthesized as flat trading. The50% threshold is a display policy, not validated range accuracy or a trading signal. These tested helpers remain unconnected to live US prices until permitted, verified inputs are available.
+
+
+## Source failures and publication diagnostics
+
+Last-known retention now requires an explicit transport failure for every retainable feed. Connection interruption, HTTP408/429 and5xx can retain the original verified observation and dates. HTTP403/404, invalid schemas, units, checksums, oversize responses and unclassified exceptions stay unavailable. A rejected source is not silently revived as current evidence; scheduled calendars still never carry forward. FRED, ECB, CFTC, issuer earnings, official policy rates, TIC, GDELT, private-fund workbooks and original holdings share this distinction.
+
+Identical CFTC rows collapse per contract/report date; conflicting normalized rows withhold only that contract. Failed-source message text is excluded from observation identity, so a changed error string alone cannot publish an edition. Availability and failure classification remain meaningful state.
+
+Signal and catalyst citations require reviewed HTTPS hosts with no credentials, nonstandard ports or secret query keys. This reference allowlist includes documentation for missing feeds and grants no data licence. New providers require a deliberate source review and allowlist change. The migrated article footer uses the existing archive URL sanitizer.
+
+Publication, evaluation and editorial lock cleanup preserve the original exception as the cause and first member of an AggregateError if release also fails. A release failure after otherwise successful work still fails the command. This does not by itself repair the separately tracked multi-file transaction crash-recovery gap.

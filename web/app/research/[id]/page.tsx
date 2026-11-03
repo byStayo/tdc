@@ -118,7 +118,7 @@ export default async function ArchiveArticlePage({ params }: Props) {
         <div className={styles.body}><ArticleBlocks blocks={article.blocks} /></div>
         <footer className={styles.articleFooter}>
           <p>Originally published on {article.publisher}. Article text, attribution, and original figures have been preserved with their source links; subscription widgets have been removed.</p>
-          <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer">View original publication <ArrowUpRight size={15} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+          {safeArchiveUrl(article.sourceUrl) && <a href={safeArchiveUrl(article.sourceUrl)} target="_blank" rel="noopener noreferrer">View original publication <ArrowUpRight size={15} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>}
         </footer>
       </article>
       <section className={styles.related} aria-labelledby="more-archive">
