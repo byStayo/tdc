@@ -934,10 +934,12 @@ export async function collectSnapshot(
       news.signal,
       ...capital,
       privateFunds,
-      privateCredit,
       ...policyRates,
       ...holdings.signals,
       ...missingSignals(issuedAt),
+      // Match the scoped addition's position so a full refresh cannot create
+      // an edition solely by moving otherwise identical source evidence.
+      privateCredit,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
   return applyScoringPolicy({

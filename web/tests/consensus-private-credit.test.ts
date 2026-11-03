@@ -8,7 +8,7 @@ import { retainLastKnown } from "../lib/consensus/last-known.ts";
 import { freezeConsensus } from "../lib/consensus/as-issued.ts";
 import { SourceTransportError } from "../lib/consensus/source-failure.ts";
 import { effectiveStatus } from "../lib/consensus/engine.ts";
-import { publicText } from "../lib/consensus/collector.ts";
+import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
 import type { Signal, Snapshot } from "../lib/consensus/types.ts";
 
 const html = await readFile(new URL("./fixtures/fed-private-credit-20260911.html", import.meta.url), "utf8");
@@ -141,4 +141,16 @@ test("public text collection advertises HTML for official HTML tables", async ()
     assert.match(new Headers(init?.headers).get('Accept')!, /text\/html/);
     return new Response(html);
   });
+});
+
+test("normal and scoped collection keep the same evidence order and observation identity", async () => {
+  const full = await collectSnapshot(async () => new Response('', {status: 503}));
+  const before = {...full, signals: full.signals.filter(s => s.id !== PRIVATE_CREDIT_ID)};
+  const now = new Date(Date.parse(full.issuedAt) + 1000).toISOString();
+  const scoped = await refreshPrivateCredit(before, async () => doc(html, now), () => now);
+  const fed = scoped.signals.find(s => s.id === PRIVATE_CREDIT_ID)!;
+  const sameDataFull = {...full, signals: full.signals.map(s => s.id === PRIVATE_CREDIT_ID ? fed : s)};
+  assert.equal(full.signals.at(-1)?.id, PRIVATE_CREDIT_ID);
+  assert.deepEqual(sameDataFull.signals.map(s => s.id), scoped.signals.map(s => s.id));
+  assert.equal(observationDigest(sameDataFull), observationDigest(scoped));
 });
