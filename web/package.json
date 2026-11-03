@@ -17,6 +17,7 @@
     "consensus:rollback": "node --experimental-strip-types scripts/rollback-consensus-model.ts",
     "consensus:research-fx": "node --experimental-strip-types scripts/research-fx-models.ts",
     "consensus:finra-private": "node --experimental-strip-types scripts/collect-finra-private.ts",
+    "consensus:finra-setup": "python3 scripts/setup-finra.py",
     "editorial:collect": "node --experimental-strip-types scripts/collect-editorial-evidence.ts",
     "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts"
   },
