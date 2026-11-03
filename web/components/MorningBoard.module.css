@@ -1573,6 +1573,100 @@
 .newsPanel {
   margin-top: 18px;
 }
+.reviewedSection {
+  margin: 28px 0 36px;
+}
+.reviewedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+.reviewedCard {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+}
+.reviewedMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.reviewedMeta span:last-child {
+  color: var(--accent);
+}
+.reviewedCard h3 {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 18px 0 12px;
+}
+.reviewedCard p {
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0 0 18px;
+}
+.transmission {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  color: var(--accent);
+}
+.transmission > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.transmission strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+.reviewedCard .interpretation {
+  color: var(--text-secondary);
+}
+.reviewedCard details {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+.reviewedCard summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 14px 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.reviewedCard details p {
+  font-size: 11px;
+}
+.reviewedCard details a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 8px 0;
+  color: var(--accent);
+}
+.comparisonNote {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.6;
+}
+@media (max-width: 900px) {
+  .reviewedGrid {
+    grid-template-columns: 1fr;
+  }
+}
 .capitalPanels {
   margin-top: 18px;
 }

@@ -11,6 +11,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "consensus:collect": "node --experimental-strip-types scripts/publish-consensus.ts",
     "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
+    "consensus:review": "node --experimental-strip-types scripts/publish-consensus.ts --review-only --publish",
     "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
     "consensus:research-fx": "node --experimental-strip-types scripts/research-fx-models.ts",
     "consensus:finra-private": "node --experimental-strip-types scripts/collect-finra-private.ts",

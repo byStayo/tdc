@@ -13,6 +13,7 @@ import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
+import { reviewedSignals, validateReview } from "./reviewed.ts";
 
 export const digest = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -199,6 +200,18 @@ export function validateSnapshot(snapshot: Snapshot): void {
     )
       throw new Error("Invalid as-issued model forecast");
   }
+  const reviews = snapshot.signals.filter((signal) =>
+    signal.id.startsWith("review-"),
+  );
+  if (snapshot.review) {
+    validateReview(snapshot.review, snapshot.cutoff);
+    if (
+      JSON.stringify(reviews) !==
+      JSON.stringify(reviewedSignals(snapshot.review, snapshot.cutoff))
+    )
+      throw new Error("Reviewed evidence and signal provenance disagree");
+  } else if (reviews.length)
+    throw new Error("Reviewed signals require their saved evidence packet");
 }
 export function observationDigest(snapshot: Snapshot): string {
   // A refetch alone must not create a new edition. Source revision or engine change does.
@@ -225,6 +238,17 @@ export function observationDigest(snapshot: Snapshot): string {
     catalysts: snapshot.catalysts,
     forecasts: snapshot.forecasts ?? [],
     news: snapshot.news ?? null,
+    review: snapshot.review
+      ? {
+          ...snapshot.review,
+          reviewedAt: null,
+          sources: snapshot.review.sources.map((source) => ({
+            ...source,
+            retrievedAt: null,
+            sha256: null,
+          })),
+        }
+      : null,
   });
 }
 async function atomic(path: string, value: unknown) {

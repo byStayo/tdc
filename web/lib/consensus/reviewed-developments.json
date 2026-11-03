@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-03T07:35:43.000Z",
+  "reviewer": "Codex subscription editorial review",
+  "sources": [
+    {
+      "id": "apple-release",
+      "name": "Apple · fourth-quarter release",
+      "url": "https://www.apple.com/newsroom/2026/11/apple-reports-fourth-quarter-results/",
+      "publishedAt": "2026-11-02",
+      "retrievedAt": "2026-11-03T07:27:51.857Z",
+      "sha256": "ef9dbe93e58deecceee4151855ad0e896e2a092248a2451e69a86f7591dee22e"
+    },
+    {
+      "id": "apple-statements",
+      "name": "Apple · quarterly financial statements",
+      "url": "https://www.apple.com/newsroom/pdfs/fy2026q4/FY26_Q4_Consolidated_Financial_Statements.pdf",
+      "publishedAt": "2026-11-02",
+      "retrievedAt": "2026-11-03T07:28:17.812Z",
+      "sha256": "bf4b4b934fd06703a63feb63c2e4f5b0c6bd17cb96d3a67a7188307d71034d83"
+    },
+    {
+      "id": "microsoft-release",
+      "name": "Microsoft · fiscal 2027 first-quarter results",
+      "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+      "publishedAt": "2026-10-28",
+      "retrievedAt": "2026-11-03T07:28:18.283Z",
+      "sha256": "2fd8780c45a7f1151e51bd8cfab07a1462d203a1cf95a43ef0afcde32a2cc413"
+    },
+    {
+      "id": "fed-october",
+      "name": "Federal Reserve · October policy decision",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+      "publishedAt": "2026-10-28T18:00:00.000Z",
+      "retrievedAt": "2026-11-03T07:28:18.412Z",
+      "sha256": "fe15455925ea426646f2a015793df93cf66c7fa08783dc895ff7211d563dcbc9"
+    }
+  ],
+  "developments": [
+    {
+      "id": "apple-quarter",
+      "title": "Apple's new quarter updates the earnings picture",
+      "facts": "Apple reported $114.477bn revenue for the September 26 quarter, up from $102.466bn a year earlier. GAAP diluted EPS rose to $2.10 from $1.85. A tariff refund added $0.05 to EPS; that benefit is not recurring operating growth.",
+      "sourceIds": ["apple-statements", "apple-release"],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Consumer demand and margins",
+          "interpretation": "Apple adds a newer consumer and technology earnings observation. Separate sales growth from the refund benefit when assessing the durability of margins."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Large-company earnings",
+          "interpretation": "Apple is one contributor to broad-market earnings. Its improved reported quarter does not establish whether the S&P 500 will rise or whether expectations were exceeded."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Technology earnings quality",
+          "interpretation": "The sales and EPS comparison informs the technology earnings picture. The refund benefit warrants separating reported EPS growth from recurring business performance."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Consumer and technology demand",
+          "interpretation": "Apple contributes a company-specific demand signal for the Dow. Translating it into an index effect also requires prices and the other constituents."
+        }
+      ],
+      "limitation": "Selected company release. No independently verified analyst consensus, index-weight calculation or market-price response is included."
+    },
+    {
+      "id": "microsoft-quarter",
+      "title": "Microsoft's growth comes with a GAAP distinction",
+      "facts": "Microsoft reported September-quarter revenue of $92.279bn, up from $77.673bn a year earlier. GAAP diluted EPS was $4.92; adjusted EPS was $4.89. The company reported 48% Azure revenue growth.",
+      "sourceIds": ["microsoft-release"],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Cloud investment and earnings",
+          "interpretation": "Cloud growth is evidence of demand at one large supplier. It does not on its own measure economy-wide AI returns or justify current equity valuations."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Large-company growth",
+          "interpretation": "Revenue growth supports the earnings backdrop for a major index constituent. The index impact still depends on expectations, valuation and other companies."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Cloud and technology demand",
+          "interpretation": "Azure growth informs the technology demand picture. Distinguish GAAP from adjusted EPS, and compare with a verified expectation before describing a beat."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Enterprise spending",
+          "interpretation": "Microsoft supplies a company-specific view of enterprise demand. Strong reported growth is not a measured next-session return for the Dow."
+        }
+      ],
+      "limitation": "Company-reported actuals. Analyst expectations, a verified earnings surprise and the market reaction are not measured."
+    },
+    {
+      "id": "fed-october-decision",
+      "title": "The Fed held rates; two members wanted a hike",
+      "facts": "On October 28, the Fed kept its target range at 3.75–4.00%. The vote was 10–2, with both dissenters preferring a quarter-point increase. The statement described inflation as elevated.",
+      "sourceIds": ["fed-october"],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Funding costs and discount rates",
+          "interpretation": "A hold leaves the current policy target unchanged. The dissent highlights disagreement over inflation; it does not establish the direction of the next decision."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Valuation and financing",
+          "interpretation": "Policy rates influence financing costs and equity discount rates. The effect on the index depends on the path already priced and subsequent data."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Long-duration valuations",
+          "interpretation": "Technology valuations can be sensitive to discount rates. An unchanged policy rate is not an unchanged long-term yield or a measured price response."
+        },
+        {
+          "instrument": "IWM",
+          "channel": "Borrowing and refinancing",
+          "interpretation": "Small-company funding conditions depend partly on short-term rates and credit spreads. A hold leaves that policy-rate hurdle in place."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Financing and economic demand",
+          "interpretation": "Rates affect company funding and customer demand through different channels. A single policy decision does not imply a uniform response across the Dow."
+        },
+        {
+          "instrument": "TLT",
+          "channel": "Long-term yields and duration",
+          "interpretation": "Long Treasuries respond to expected future rates and term premium, not only today's target. The hold alone is insufficient to infer TLT's next move."
+        }
+      ],
+      "limitation": "The official decision is known; future policy, priced expectations and instrument returns are not predictions in this review."
+    }
+  ],
+  "earnings": [
+    {
+      "ticker": "AAPL",
+      "sourceId": "apple-statements",
+      "periodEnd": "2026-09-26",
+      "priorPeriodEnd": "2025-09-27",
+      "revenueBillions": 114.477,
+      "priorRevenueBillions": 102.466,
+      "dilutedEPS": 2.1,
+      "priorDilutedEPS": 1.85
+    },
+    {
+      "ticker": "MSFT",
+      "sourceId": "microsoft-release",
+      "periodEnd": "2026-09-30",
+      "priorPeriodEnd": "2025-09-30",
+      "revenueBillions": 92.279,
+      "priorRevenueBillions": 77.673,
+      "dilutedEPS": 4.92,
+      "priorDilutedEPS": 3.72
+    }
+  ]
+}

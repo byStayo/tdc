@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T07-11-18-623Z",
-  "issuedAt": "2026-11-03T07:11:18.623Z",
-  "cutoff": "2026-11-03T07:08:39.288Z",
+  "id": "2026-11-03T07-38-08-394Z",
+  "issuedAt": "2026-11-03T07:38:08.394Z",
+  "cutoff": "2026-11-03T07:38:08.394Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-1.1.0",
   "signals": [
@@ -15131,104 +15131,60 @@
         "DIA"
       ],
       "status": "available",
-      "summary": "Apple reported $109.42bn revenue for the quarter ended 2026-06-27, up 16.4% year over year. Filed 2026-07-31.",
+      "summary": "AAPL released $114.477bn quarterly revenue, 11.7% above the comparable year-earlier quarter; GAAP diluted EPS $2.10. Released 2026-11-02.",
       "source": {
-        "observedAt": "2026-06-27",
-        "releasedAt": null,
-        "frequency": "quarterly",
-        "attribution": "US Securities and Exchange Commission; company-filed US GAAP facts",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "4495f7a16b4ade43dfa8041ac6477074122cbd5b88033e3e0f68b3f919e7ffbf",
-        "name": "SEC XBRL · AAPL",
-        "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax.json",
-        "retrievedAt": "2026-11-03T07:08:29.146Z"
+        "name": "Apple · quarterly financial statements",
+        "url": "https://www.apple.com/newsroom/pdfs/fy2026q4/FY26_Q4_Consolidated_Financial_Statements.pdf",
+        "retrievedAt": "2026-11-03T07:28:17.812Z",
+        "observedAt": "2026-09-26",
+        "releasedAt": "2026-11-02",
+        "frequency": "quarterly company release",
+        "attribution": "Apple · quarterly financial statements",
+        "usage": "Selected factual financial figures with original-source attribution",
+        "sha256": "bf4b4b934fd06703a63feb63c2e4f5b0c6bd17cb96d3a67a7188307d71034d83"
       },
-      "methodology": "Only 75–105-day US GAAP revenue periods from 10-Q/10-K filings are used. Latest known filing per period; prior year matched within 350–380 days. YoY growth / 20 percentage points is a capped contextual prior, identical across horizons until the next quarter.",
-      "limitation": "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
+      "methodology": "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
+      "limitation": "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
       "series": [
         {
-          "date": "2021-06-26",
-          "value": 81.434
+          "date": "2025-09-27",
+          "value": 102.466
         },
         {
-          "date": "2021-12-25",
-          "value": 123.945
-        },
-        {
-          "date": "2022-03-26",
-          "value": 97.278
-        },
-        {
-          "date": "2022-06-25",
-          "value": 82.959
-        },
-        {
-          "date": "2022-12-31",
-          "value": 117.154
-        },
-        {
-          "date": "2023-04-01",
-          "value": 94.836
-        },
-        {
-          "date": "2023-07-01",
-          "value": 81.797
-        },
-        {
-          "date": "2023-12-30",
-          "value": 119.575
-        },
-        {
-          "date": "2024-03-30",
-          "value": 90.753
-        },
-        {
-          "date": "2024-06-29",
-          "value": 85.777
-        },
-        {
-          "date": "2024-12-28",
-          "value": 124.3
-        },
-        {
-          "date": "2025-03-29",
-          "value": 95.359
-        },
-        {
-          "date": "2025-06-28",
-          "value": 94.036
-        },
-        {
-          "date": "2025-12-27",
-          "value": 143.756
-        },
-        {
-          "date": "2026-03-28",
-          "value": 111.184
-        },
-        {
-          "date": "2026-06-27",
-          "value": 109.417
+          "date": "2026-09-26",
+          "value": 114.477
         }
       ],
       "metrics": [
         {
           "label": "Quarter revenue",
-          "value": 109.417,
+          "value": 114.477,
           "unit": "$bn",
-          "date": "2026-06-27"
+          "date": "2026-09-26"
         },
         {
           "label": "Year-over-year revenue change",
-          "value": 16.356501765281383,
+          "value": 11.721937032771867,
           "unit": "%",
-          "date": "2026-06-27"
+          "date": "2026-09-26"
+        },
+        {
+          "label": "GAAP diluted EPS",
+          "value": 2.1,
+          "unit": "$ / share",
+          "date": "2026-09-26"
+        },
+        {
+          "label": "Prior-year GAAP diluted EPS",
+          "value": 1.85,
+          "unit": "$ / share",
+          "date": "2025-09-27"
         }
       ],
       "scores": {
-        "daily": 0.8178250882640692,
-        "weekly": 0.8178250882640692,
-        "monthly": 0.8178250882640692
+        "daily": 0.5860968516385934,
+        "weekly": 0.5860968516385934,
+        "monthly": 0.5860968516385934
       },
       "staleAfterDays": 150,
       "unit": "$bn"
@@ -15245,80 +15201,24 @@
         "DIA"
       ],
       "status": "available",
-      "summary": "Microsoft reported $92.28bn revenue for the quarter ended 2026-09-30, up 18.8% year over year. Filed 2026-10-28.",
+      "summary": "MSFT released $92.279bn quarterly revenue, 18.8% above the comparable year-earlier quarter; GAAP diluted EPS $4.92. Released 2026-10-28.",
       "source": {
+        "name": "Microsoft · fiscal 2027 first-quarter results",
+        "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+        "retrievedAt": "2026-11-03T07:28:18.283Z",
         "observedAt": "2026-09-30",
-        "releasedAt": null,
-        "frequency": "quarterly",
-        "attribution": "US Securities and Exchange Commission; company-filed US GAAP facts",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "d6dec41bbd3b67207aa538829617a1b4ef2ccf889acdc56163cb6779ae3c1676",
-        "name": "SEC XBRL · MSFT",
-        "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0000789019/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax.json",
-        "retrievedAt": "2026-11-03T07:08:29.031Z"
+        "releasedAt": "2026-10-28",
+        "frequency": "quarterly company release",
+        "attribution": "Microsoft · fiscal 2027 first-quarter results",
+        "usage": "Selected factual financial figures with original-source attribution",
+        "sha256": "2fd8780c45a7f1151e51bd8cfab07a1462d203a1cf95a43ef0afcde32a2cc413"
       },
-      "methodology": "Only 75–105-day US GAAP revenue periods from 10-Q/10-K filings are used. Latest known filing per period; prior year matched within 350–380 days. YoY growth / 20 percentage points is a capped contextual prior, identical across horizons until the next quarter.",
-      "limitation": "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
+      "methodology": "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
+      "limitation": "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
       "series": [
-        {
-          "date": "2021-09-30",
-          "value": 45.317
-        },
-        {
-          "date": "2021-12-31",
-          "value": 51.728
-        },
-        {
-          "date": "2022-03-31",
-          "value": 49.36
-        },
-        {
-          "date": "2022-09-30",
-          "value": 50.122
-        },
-        {
-          "date": "2022-12-31",
-          "value": 52.747
-        },
-        {
-          "date": "2023-03-31",
-          "value": 52.857
-        },
-        {
-          "date": "2023-09-30",
-          "value": 56.517
-        },
-        {
-          "date": "2023-12-31",
-          "value": 62.02
-        },
-        {
-          "date": "2024-03-31",
-          "value": 61.858
-        },
-        {
-          "date": "2024-09-30",
-          "value": 65.585
-        },
-        {
-          "date": "2024-12-31",
-          "value": 69.632
-        },
-        {
-          "date": "2025-03-31",
-          "value": 70.066
-        },
         {
           "date": "2025-09-30",
           "value": 77.673
-        },
-        {
-          "date": "2025-12-31",
-          "value": 81.273
-        },
-        {
-          "date": "2026-03-31",
-          "value": 82.886
         },
         {
           "date": "2026-09-30",
@@ -15337,6 +15237,18 @@
           "value": 18.804475171552525,
           "unit": "%",
           "date": "2026-09-30"
+        },
+        {
+          "label": "GAAP diluted EPS",
+          "value": 4.92,
+          "unit": "$ / share",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "Prior-year GAAP diluted EPS",
+          "value": 3.72,
+          "unit": "$ / share",
+          "date": "2025-09-30"
         }
       ],
       "scores": {
@@ -17337,46 +17249,6 @@
       }
     },
     {
-      "id": "global-news",
-      "family": "news",
-      "title": "News impact by market",
-      "reason": "Instrument-specific news impact ratings await reviewed evidence. Global news tone and official policy releases provide separate context.",
-      "url": "https://www.gdeltproject.org/",
-      "shortLabel": "News impact by market",
-      "instruments": [
-        "MARKET",
-        "SPY",
-        "QQQ",
-        "IWM",
-        "DIA",
-        "TLT"
-      ],
-      "status": "unavailable",
-      "summary": "Instrument-specific news impact ratings await reviewed evidence. Global news tone and official policy releases provide separate context.",
-      "methodology": "No observation or directional vote until a permitted source passes validation.",
-      "limitation": "Instrument-specific news impact ratings await reviewed evidence. Global news tone and official policy releases provide separate context.",
-      "series": [],
-      "metrics": [],
-      "scores": {
-        "daily": null,
-        "weekly": null,
-        "monthly": null
-      },
-      "staleAfterDays": 3,
-      "unit": "",
-      "source": {
-        "name": "Not connected",
-        "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-03T07:08:39.288Z",
-        "observedAt": null,
-        "releasedAt": null,
-        "frequency": "unavailable",
-        "attribution": "",
-        "usage": "Not integrated",
-        "sha256": null
-      }
-    },
-    {
       "id": "global-equities",
       "family": "international",
       "title": "International equity markets",
@@ -17814,6 +17686,116 @@
         "attribution": "",
         "usage": "Not integrated",
         "sha256": null
+      }
+    },
+    {
+      "id": "review-apple-quarter",
+      "family": "news",
+      "title": "Apple's new quarter updates the earnings picture",
+      "shortLabel": "Apple's new quarter updates the earnings picture",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "DIA"
+      ],
+      "status": "available",
+      "summary": "Apple reported $114.477bn revenue for the September 26 quarter, up from $102.466bn a year earlier. GAAP diluted EPS rose to $2.10 from $1.85. A tariff refund added $0.05 to EPS; that benefit is not recurring operating growth.",
+      "source": {
+        "name": "Apple · quarterly financial statements",
+        "url": "https://www.apple.com/newsroom/pdfs/fy2026q4/FY26_Q4_Consolidated_Financial_Statements.pdf",
+        "retrievedAt": "2026-11-03T07:28:17.812Z",
+        "observedAt": "2026-11-02",
+        "releasedAt": "2026-11-02",
+        "frequency": "reviewed primary-source development",
+        "attribution": "Apple · quarterly financial statements",
+        "usage": "Cited factual summary and separately labelled editorial interpretation; original text stays with the publisher",
+        "sha256": "bf4b4b934fd06703a63feb63c2e4f5b0c6bd17cb96d3a67a7188307d71034d83"
+      },
+      "methodology": "Source-checked facts saved by the subscription publisher. Instrument-specific transmission channels are editorial interpretation, not measured price reactions or calibrated forecasts. No directional vote; the related earnings or rates family contains its separately defined quantitative inputs. The full review packet retains all supporting citations and its review timestamp.",
+      "limitation": "Selected company release. No independently verified analyst consensus, index-weight calculation or market-price response is included.",
+      "series": [],
+      "metrics": [],
+      "unit": "",
+      "staleAfterDays": 7,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
+      "id": "review-microsoft-quarter",
+      "family": "news",
+      "title": "Microsoft's growth comes with a GAAP distinction",
+      "shortLabel": "Microsoft's growth comes with a GAAP distinction",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "DIA"
+      ],
+      "status": "available",
+      "summary": "Microsoft reported September-quarter revenue of $92.279bn, up from $77.673bn a year earlier. GAAP diluted EPS was $4.92; adjusted EPS was $4.89. The company reported 48% Azure revenue growth.",
+      "source": {
+        "name": "Microsoft · fiscal 2027 first-quarter results",
+        "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+        "retrievedAt": "2026-11-03T07:28:18.283Z",
+        "observedAt": "2026-10-28",
+        "releasedAt": "2026-10-28",
+        "frequency": "reviewed primary-source development",
+        "attribution": "Microsoft · fiscal 2027 first-quarter results",
+        "usage": "Cited factual summary and separately labelled editorial interpretation; original text stays with the publisher",
+        "sha256": "2fd8780c45a7f1151e51bd8cfab07a1462d203a1cf95a43ef0afcde32a2cc413"
+      },
+      "methodology": "Source-checked facts saved by the subscription publisher. Instrument-specific transmission channels are editorial interpretation, not measured price reactions or calibrated forecasts. No directional vote; the related earnings or rates family contains its separately defined quantitative inputs. The full review packet retains all supporting citations and its review timestamp.",
+      "limitation": "Company-reported actuals. Analyst expectations, a verified earnings surprise and the market reaction are not measured.",
+      "series": [],
+      "metrics": [],
+      "unit": "",
+      "staleAfterDays": 7,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
+      "id": "review-fed-october-decision",
+      "family": "news",
+      "title": "The Fed held rates; two members wanted a hike",
+      "shortLabel": "The Fed held rates; two members wanted a hike",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "status": "available",
+      "summary": "On October 28, the Fed kept its target range at 3.75–4.00%. The vote was 10–2, with both dissenters preferring a quarter-point increase. The statement described inflation as elevated.",
+      "source": {
+        "name": "Federal Reserve · October policy decision",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+        "retrievedAt": "2026-11-03T07:28:18.412Z",
+        "observedAt": "2026-10-28T18:00:00.000Z",
+        "releasedAt": "2026-10-28T18:00:00.000Z",
+        "frequency": "reviewed primary-source development",
+        "attribution": "Federal Reserve · October policy decision",
+        "usage": "Cited factual summary and separately labelled editorial interpretation; original text stays with the publisher",
+        "sha256": "fe15455925ea426646f2a015793df93cf66c7fa08783dc895ff7211d563dcbc9"
+      },
+      "methodology": "Source-checked facts saved by the subscription publisher. Instrument-specific transmission channels are editorial interpretation, not measured price reactions or calibrated forecasts. No directional vote; the related earnings or rates family contains its separately defined quantitative inputs. The full review packet retains all supporting citations and its review timestamp.",
+      "limitation": "The official decision is known; future policy, priced expectations and instrument returns are not predictions in this review.",
+      "series": [],
+      "metrics": [],
+      "unit": "",
+      "staleAfterDays": 7,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
       }
     }
   ],
@@ -18309,7 +18291,6 @@
   "collectionErrors": [
     "gdelt-finance-news: A current financial-news sample is unavailable.",
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
-    "global-news: Instrument-specific news impact ratings await reviewed evidence. Global news tone and official policy releases provide separate context.",
     "global-equities: International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
     "retail-positioning: A representative retail-position or sentiment feed is not connected. Social engagement is not a substitute for holdings.",
     "options-chain: A verified options chain is unavailable. Implied volatility, skew and gamma remain unmeasured.",
@@ -18704,5 +18685,172 @@
       }
     ],
     "methodology": "One GDELT English-language 15-minute batch, matched to declared finance themes and headline terms; exact normalized headlines collapse syndication. Tone bins: below −1, within ±1, above +1. Mean gives each publisher equal weight. Batch time is not a verified article publication time; publisher timestamps are shown separately when supplied. This is a bounded global sample, not all news or investor sentiment. Tone is descriptive and casts no directional trading vote."
+  },
+  "review": {
+    "schemaVersion": 1,
+    "reviewedAt": "2026-11-03T07:35:43.000Z",
+    "reviewer": "Codex subscription editorial review",
+    "sources": [
+      {
+        "id": "apple-release",
+        "name": "Apple · fourth-quarter release",
+        "url": "https://www.apple.com/newsroom/2026/11/apple-reports-fourth-quarter-results/",
+        "publishedAt": "2026-11-02",
+        "retrievedAt": "2026-11-03T07:27:51.857Z",
+        "sha256": "ef9dbe93e58deecceee4151855ad0e896e2a092248a2451e69a86f7591dee22e"
+      },
+      {
+        "id": "apple-statements",
+        "name": "Apple · quarterly financial statements",
+        "url": "https://www.apple.com/newsroom/pdfs/fy2026q4/FY26_Q4_Consolidated_Financial_Statements.pdf",
+        "publishedAt": "2026-11-02",
+        "retrievedAt": "2026-11-03T07:28:17.812Z",
+        "sha256": "bf4b4b934fd06703a63feb63c2e4f5b0c6bd17cb96d3a67a7188307d71034d83"
+      },
+      {
+        "id": "microsoft-release",
+        "name": "Microsoft · fiscal 2027 first-quarter results",
+        "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+        "publishedAt": "2026-10-28",
+        "retrievedAt": "2026-11-03T07:28:18.283Z",
+        "sha256": "2fd8780c45a7f1151e51bd8cfab07a1462d203a1cf95a43ef0afcde32a2cc413"
+      },
+      {
+        "id": "fed-october",
+        "name": "Federal Reserve · October policy decision",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+        "publishedAt": "2026-10-28T18:00:00.000Z",
+        "retrievedAt": "2026-11-03T07:28:18.412Z",
+        "sha256": "fe15455925ea426646f2a015793df93cf66c7fa08783dc895ff7211d563dcbc9"
+      }
+    ],
+    "developments": [
+      {
+        "id": "apple-quarter",
+        "title": "Apple's new quarter updates the earnings picture",
+        "facts": "Apple reported $114.477bn revenue for the September 26 quarter, up from $102.466bn a year earlier. GAAP diluted EPS rose to $2.10 from $1.85. A tariff refund added $0.05 to EPS; that benefit is not recurring operating growth.",
+        "sourceIds": [
+          "apple-statements",
+          "apple-release"
+        ],
+        "impacts": [
+          {
+            "instrument": "MARKET",
+            "channel": "Consumer demand and margins",
+            "interpretation": "Apple adds a newer consumer and technology earnings observation. Separate sales growth from the refund benefit when assessing the durability of margins."
+          },
+          {
+            "instrument": "SPY",
+            "channel": "Large-company earnings",
+            "interpretation": "Apple is one contributor to broad-market earnings. Its improved reported quarter does not establish whether the S&P 500 will rise or whether expectations were exceeded."
+          },
+          {
+            "instrument": "QQQ",
+            "channel": "Technology earnings quality",
+            "interpretation": "The sales and EPS comparison informs the technology earnings picture. The refund benefit warrants separating reported EPS growth from recurring business performance."
+          },
+          {
+            "instrument": "DIA",
+            "channel": "Consumer and technology demand",
+            "interpretation": "Apple contributes a company-specific demand signal for the Dow. Translating it into an index effect also requires prices and the other constituents."
+          }
+        ],
+        "limitation": "Selected company release. No independently verified analyst consensus, index-weight calculation or market-price response is included."
+      },
+      {
+        "id": "microsoft-quarter",
+        "title": "Microsoft's growth comes with a GAAP distinction",
+        "facts": "Microsoft reported September-quarter revenue of $92.279bn, up from $77.673bn a year earlier. GAAP diluted EPS was $4.92; adjusted EPS was $4.89. The company reported 48% Azure revenue growth.",
+        "sourceIds": [
+          "microsoft-release"
+        ],
+        "impacts": [
+          {
+            "instrument": "MARKET",
+            "channel": "Cloud investment and earnings",
+            "interpretation": "Cloud growth is evidence of demand at one large supplier. It does not on its own measure economy-wide AI returns or justify current equity valuations."
+          },
+          {
+            "instrument": "SPY",
+            "channel": "Large-company growth",
+            "interpretation": "Revenue growth supports the earnings backdrop for a major index constituent. The index impact still depends on expectations, valuation and other companies."
+          },
+          {
+            "instrument": "QQQ",
+            "channel": "Cloud and technology demand",
+            "interpretation": "Azure growth informs the technology demand picture. Distinguish GAAP from adjusted EPS, and compare with a verified expectation before describing a beat."
+          },
+          {
+            "instrument": "DIA",
+            "channel": "Enterprise spending",
+            "interpretation": "Microsoft supplies a company-specific view of enterprise demand. Strong reported growth is not a measured next-session return for the Dow."
+          }
+        ],
+        "limitation": "Company-reported actuals. Analyst expectations, a verified earnings surprise and the market reaction are not measured."
+      },
+      {
+        "id": "fed-october-decision",
+        "title": "The Fed held rates; two members wanted a hike",
+        "facts": "On October 28, the Fed kept its target range at 3.75–4.00%. The vote was 10–2, with both dissenters preferring a quarter-point increase. The statement described inflation as elevated.",
+        "sourceIds": [
+          "fed-october"
+        ],
+        "impacts": [
+          {
+            "instrument": "MARKET",
+            "channel": "Funding costs and discount rates",
+            "interpretation": "A hold leaves the current policy target unchanged. The dissent highlights disagreement over inflation; it does not establish the direction of the next decision."
+          },
+          {
+            "instrument": "SPY",
+            "channel": "Valuation and financing",
+            "interpretation": "Policy rates influence financing costs and equity discount rates. The effect on the index depends on the path already priced and subsequent data."
+          },
+          {
+            "instrument": "QQQ",
+            "channel": "Long-duration valuations",
+            "interpretation": "Technology valuations can be sensitive to discount rates. An unchanged policy rate is not an unchanged long-term yield or a measured price response."
+          },
+          {
+            "instrument": "IWM",
+            "channel": "Borrowing and refinancing",
+            "interpretation": "Small-company funding conditions depend partly on short-term rates and credit spreads. A hold leaves that policy-rate hurdle in place."
+          },
+          {
+            "instrument": "DIA",
+            "channel": "Financing and economic demand",
+            "interpretation": "Rates affect company funding and customer demand through different channels. A single policy decision does not imply a uniform response across the Dow."
+          },
+          {
+            "instrument": "TLT",
+            "channel": "Long-term yields and duration",
+            "interpretation": "Long Treasuries respond to expected future rates and term premium, not only today's target. The hold alone is insufficient to infer TLT's next move."
+          }
+        ],
+        "limitation": "The official decision is known; future policy, priced expectations and instrument returns are not predictions in this review."
+      }
+    ],
+    "earnings": [
+      {
+        "ticker": "AAPL",
+        "sourceId": "apple-statements",
+        "periodEnd": "2026-09-26",
+        "priorPeriodEnd": "2025-09-27",
+        "revenueBillions": 114.477,
+        "priorRevenueBillions": 102.466,
+        "dilutedEPS": 2.1,
+        "priorDilutedEPS": 1.85
+      },
+      {
+        "ticker": "MSFT",
+        "sourceId": "microsoft-release",
+        "periodEnd": "2026-09-30",
+        "priorPeriodEnd": "2025-09-30",
+        "revenueBillions": 92.279,
+        "priorRevenueBillions": 77.673,
+        "dilutedEPS": 4.92,
+        "priorDilutedEPS": 3.72
+      }
+    ]
   }
 }

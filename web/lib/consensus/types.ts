@@ -116,6 +116,7 @@ export interface Snapshot {
   collectionErrors: string[];
   forecasts?: import("./model").Forecast[];
   news?: import("./news").NewsPulse;
+  review?: import("./reviewed").ReviewPacket;
 }
 export interface HistoryEntry {
   id: string;

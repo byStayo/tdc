@@ -770,6 +770,94 @@ function NewsPanel({
   );
 }
 
+function ReviewedDevelopments({
+  snapshot,
+  instrument,
+  reference,
+}: {
+  snapshot: Snapshot;
+  instrument: Instrument;
+  reference: string;
+}) {
+  const review = snapshot.review;
+  if (!review) return null;
+  const developments = review.developments
+    .filter((item) =>
+      item.impacts.some((impact) => impact.instrument === instrument),
+    )
+    .slice(0, 3);
+  if (!developments.length) return null;
+  return (
+    <section
+      className={styles.reviewedSection}
+      aria-label="Reviewed market developments"
+    >
+      <div className={styles.sectionHeading}>
+        <div>
+          <span className={styles.eyebrow}>
+            FACT → TRANSMISSION → YOUR MARKET
+          </span>
+          <h2>What changed. Why it matters.</h2>
+        </div>
+        <span>{names[instrument]} · selected primary sources</span>
+      </div>
+      <div className={styles.reviewedGrid}>
+        {developments.map((item) => {
+          const sources = item.sourceIds.map(
+            (id) => review.sources.find((source) => source.id === id)!,
+          );
+          const impact = item.impacts.find(
+            (entry) => entry.instrument === instrument,
+          )!;
+          const signal = snapshot.signals.find(
+            (entry) => entry.id === `review-${item.id}`,
+          )!;
+          const stale = effectiveStatus(signal, reference) !== "available";
+          return (
+            <article className={styles.reviewedCard} key={item.id}>
+              <div className={styles.reviewedMeta}>
+                <span>{date(sources[0].publishedAt)} · published</span>
+                <span>{stale ? "Older context" : "Source checked"}</span>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.facts}</p>
+              <div className={styles.transmission}>
+                <ArrowDownRight size={20} aria-hidden="true" />
+                <div>
+                  <span className={styles.eyebrow}>POSSIBLE MARKET EFFECT</span>
+                  <strong>{impact.channel}</strong>
+                </div>
+              </div>
+              <p className={styles.interpretation}>{impact.interpretation}</p>
+              <details>
+                <summary>Context & sources</summary>
+                <p>{item.limitation}</p>
+                {sources.map((source) => (
+                  <a
+                    key={source.id}
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {source.name}
+                    <ArrowUpRight size={13} />
+                  </a>
+                ))}
+              </details>
+            </article>
+          );
+        })}
+      </div>
+      <p className={styles.chartFoot}>
+        Facts and editorial interpretation are separate. No measured price
+        reaction or directional vote is implied. Reviewed{" "}
+        {date(review.reviewedAt)} at {time(review.reviewedAt)} ET; original
+        publication dates remain above.
+      </p>
+    </section>
+  );
+}
+
 export default function MorningBoard({
   initial,
   history,
@@ -1177,6 +1265,11 @@ export default function MorningBoard({
                 </div>
               </details>
             )}
+            <ReviewedDevelopments
+              snapshot={snapshot}
+              instrument={instrument}
+              reference={reference}
+            />
             <div className={styles.sectionHeading}>
               <div>
                 <span className={styles.eyebrow}>
@@ -1420,6 +1513,18 @@ export default function MorningBoard({
                           : "No comparable period"}
                       </span>
                       <Sparkline series={signal.series} label={signal.title} />
+                      {signal.source.frequency ===
+                        "quarterly company release" && (
+                        <small className={styles.comparisonNote}>
+                          Current vs year-earlier quarter · GAAP EPS $
+                          {number(
+                            signal.metrics.find(
+                              (metric) => metric.label === "GAAP diluted EPS",
+                            )!.value,
+                            2,
+                          )}
+                        </small>
+                      )}
                     </button>
                   );
                 })}
