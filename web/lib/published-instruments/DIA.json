@@ -2,9 +2,9 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "DIA",
-  "createdAt": "2026-11-03T17:11:32.823Z",
+  "createdAt": "2026-11-03T17:34:12.117Z",
   "model": "Codex editorial workflow",
-  "message": "A separately reviewed public-source edition incorporating the November 3 BLS release. Original observation dates remain explicit; page reads trigger no paid generation.",
+  "message": "Provenance correction: the BLS citation now points to its dated November 3 archive, and the public evidence includes the cited sector and establishment-size details. Figures and interpretation are unchanged from the 12:11 PM ET edition.",
   "data": {
     "headline": "DIA: look through the hiring headline to its sector mix.",
     "summary": "Today’s JOLTS release shows September hires little changed overall, with an increase in accommodation and food services. A sector-specific labor change should not be treated as a uniform reading across the Dow. The related Dow futures categories supply older, distinct positioning context.",
@@ -43,7 +43,7 @@
     {
       "id": "BLS_JOLTS",
       "title": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
-      "url": "https://www.bls.gov/news.release/jolts.nr0.htm"
+      "url": "https://www.bls.gov/news.release/archives/jolts_11032026.htm"
     },
     {
       "id": "CFTC_DOW",

@@ -13,9 +13,21 @@ test('public workspace selects saved official facts without a network request or
   assert.equal(new Set(spy.filings.data.map(f=>f.cik)).size,3);
   assert.ok(aapl.filings.data.every(f=>f.cik==='0000320193'));
   assert.equal(other.filings.status,'unconfigured');assert.deepEqual(other.filings.data,[]);
-  assert.equal(spy.filings.fetchedAt,source.collectedAt);
+  assert.equal(spy.filings.fetchedAt,saved.filings.map(issuer=>issuer.retrievedAt).sort()[0]);
   assert.ok(!JSON.stringify(saved).includes('official-document-excerpt'));
  } finally {globalThis.fetch=original;}
+});
+test('a later unrelated release review preserves provider retrieval dates and cannot revive stale SEC filings',()=>{
+ const later='2026-11-10T15:00:00.000Z';
+ const enriched={...source,collectedAt:later,sources:[...source.sources,{id:'BLS_JOLTS',kind:'bls',status:'ok',retrievedAt:later,data:{}}]};
+ const laterSaved=savedPublicData(enriched),before=savedPublicContext(saved,'SPY',later),after=savedPublicContext(laterSaved,'SPY',later);
+ assert.equal(after.macro.fetchedAt,before.macro.fetchedAt);
+ assert.equal(after.positioning.fetchedAt,before.positioning.fetchedAt);
+ assert.equal(after.filings.fetchedAt,before.filings.fetchedAt);
+ assert.equal(after.filings.status,'stale');
+ const mixed=structuredClone(laterSaved);mixed.filings[0].retrievedAt=later;
+ assert.equal(savedPublicContext(mixed,'SPY',later).filings.status,'stale');
+ assert.equal(savedPublicContext(mixed,mixed.filings[0].symbol,later).filings.status,'ok');
 });
 test('saved providers retain outage and age distinctions',()=>{
  const failed={...source,sources:source.sources.map((s:object)=>({...s,status:'unavailable',data:null}))};

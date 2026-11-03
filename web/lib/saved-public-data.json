@@ -1,6 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-03T17:11:32.821Z",
+  "collectedAt": "2026-11-03T17:34:12.103Z",
+  "macroRetrievedAt": "2026-11-03T17:05:38.754Z",
+  "positioningRetrievedAt": "2026-11-03T17:05:38.995Z",
   "macro": [
     {
       "id": "FEDFUNDS",

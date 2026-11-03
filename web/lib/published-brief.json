@@ -1,9 +1,9 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-03T17:11:32.822Z",
+  "createdAt": "2026-11-03T17:34:12.105Z",
   "model": "Codex editorial workflow",
-  "message": "A separately reviewed public-source edition incorporating the November 3 BLS release. Original observation dates remain explicit; page reads trigger no paid generation.",
+  "message": "Provenance correction: the BLS citation now points to its dated November 3 archive, and the public evidence includes the cited sector and establishment-size details. Figures and interpretation are unchanged from the 12:11 PM ET edition.",
   "data": {
     "headline": "Steady openings, rising quits: a mixed labor update.",
     "summary": "The new September JOLTS release leaves labor demand and turnover pointing to different questions: openings and hires were little changed, while quits increased. Read this dated labor evidence alongside the separate, older futures-positioning picture. Neither supplies a complete trading setup.",
@@ -54,7 +54,7 @@
     {
       "id": "BLS_JOLTS",
       "title": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
-      "url": "https://www.bls.gov/news.release/jolts.nr0.htm"
+      "url": "https://www.bls.gov/news.release/archives/jolts_11032026.htm"
     },
     {
       "id": "CFTC_ES",

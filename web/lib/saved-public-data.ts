@@ -7,6 +7,8 @@ const KNOWN_SERIES = new Set(["FEDFUNDS", "DPRIME", "TNWBSHNO"]);
 export interface SavedPublicData {
   schemaVersion: 1;
   collectedAt: string;
+  macroRetrievedAt?: string | null;
+  positioningRetrievedAt?: string | null;
   macro: MacroSeries[];
   positioning: Positioning[];
   filings: { symbol: string; retrievedAt: string; data: Filing[] }[];
@@ -15,8 +17,13 @@ export interface SavedPublicData {
 /** Run inside the scheduled editorial publisher; never fetch in a page/API read. */
 export function savedPublicData(evidence: EditorialEvidence): SavedPublicData {
   if (!publicDate(evidence.collectedAt)) throw new Error("Saved workspace needs a collection date");
-  const result: SavedPublicData = { schemaVersion: 1, collectedAt: evidence.collectedAt, macro: [], positioning: [], filings: [] };
+  const result: SavedPublicData = { schemaVersion: 1, collectedAt: evidence.collectedAt, macroRetrievedAt: null, positioningRetrievedAt: null, macro: [], positioning: [], filings: [] };
+  // A mixed-age panel reports its oldest included retrieval. A later review of
+  // an unrelated source must not refresh the panel's provider-check timestamp.
+  const oldest = (current: string | null | undefined, next: string) => !current || next < current ? next : current;
   for (const source of evidence.sources) {
+    if (source.kind === "fred") result.macroRetrievedAt = oldest(result.macroRetrievedAt, source.retrievedAt);
+    if (source.kind === "cftc") result.positioningRetrievedAt = oldest(result.positioningRetrievedAt, source.retrievedAt);
     if (source.status !== "ok") continue;
     if (source.kind === "fred") {
       const data = source.data as { seriesId: string; unit: string; frequency: MacroSeries["frequency"]; observations: { date: string; value: number | null }[] };
@@ -45,15 +52,16 @@ export function savedPublicContext(saved: SavedPublicData, symbol: string, now =
 } {
   const macro: Envelope<MacroSeries[]> = {
     status: saved.macro.length === 3 ? "ok" : saved.macro.length ? "partial" : "unavailable",
-    source: "Federal Reserve / FRED · saved publication", fetchedAt: saved.collectedAt, asOf: null, data: saved.macro,
+    source: "Federal Reserve / FRED · saved publication", fetchedAt: saved.macroRetrievedAt ?? saved.collectedAt, asOf: null, data: saved.macro,
     coverage: "Monthly FEDFUNDS, daily DPRIME and quarterly TNWBSHNO retain separate observation dates and units.",
     message: "Saved during editorial publication; page reads make no provider requests. Historical series can be revised.",
   };
   if (saved.macro.some(series => Date.parse(now) - Date.parse(series.observations.at(-1)?.date ?? '') > ({daily:7,monthly:70,quarterly:180}[series.frequency]) * 86400000)) macro.status = "stale";
   const context = ETF_CONTEXT.has(symbol), issuers = saved.filings.filter(issuer => context || issuer.symbol === symbol);
+  const filingsRetrievedAt = issuers.map(issuer => issuer.retrievedAt).sort()[0] ?? null;
   const filings: Envelope<Filing[]> = {
-    status: issuers.length ? (Date.parse(now) - Date.parse(saved.collectedAt) > 2 * 86400000 ? "stale" : context && issuers.length < 3 ? "partial" : "ok") : "unconfigured",
-    source: "SEC EDGAR · saved publication", fetchedAt: saved.collectedAt,
+    status: issuers.length ? (Date.parse(now) - Date.parse(filingsRetrievedAt!) > 2 * 86400000 ? "stale" : context && issuers.length < 3 ? "partial" : "ok") : "unconfigured",
+    source: "SEC EDGAR · saved publication", fetchedAt: filingsRetrievedAt ?? saved.collectedAt,
     asOf: issuers.flatMap(issuer => issuer.data.map(row => row.filedAt)).sort().at(-1) ?? null,
     data: issuers.flatMap(issuer => issuer.data).sort((a,b)=>b.filedAt.localeCompare(a.filedAt)),
     coverage: context ? `AAPL, MSFT and NVDA filing context for ${symbol}; not the ETF's full holdings or fund disclosures.` : `Saved issuer coverage for ${symbol}.`,
@@ -62,7 +70,7 @@ export function savedPublicContext(saved: SavedPublicData, symbol: string, now =
   const codes = contractsForSymbol(symbol), positions = saved.positioning.filter(row=>codes.includes(row.contractCode));
   const positioning: Envelope<Positioning[]> = {
     status: !positions.length ? "unavailable" : positions.some(row=>Date.parse(now)-Date.parse(row.reportDate)>14*86400000) ? "stale" : positions.length !== codes.length || positions.some(row=>Object.values(row).some(value=>value===null)) ? "partial" : "ok",
-    source: "CFTC TFF futures only · saved publication", fetchedAt: saved.collectedAt,
+    source: "CFTC TFF futures only · saved publication", fetchedAt: saved.positioningRetrievedAt ?? saved.collectedAt,
     asOf: positions.map(row=>row.reportDate).sort().at(-1) ?? null, data: positions,
     coverage: hasRelatedContract(symbol) ? `Related futures context for ${symbol}; not ETF holdings or dark-pool activity.` : `Broad context across six financial futures contracts, not positioning in ${symbol}.`,
     message: "Saved weekly observations, generally measured Tuesday and released Friday. Different contract units are never summed; categories do not reveal individual intent.",
