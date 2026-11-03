@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T08-12-07-599Z",
-  "issuedAt": "2026-11-03T08:12:07.599Z",
-  "cutoff": "2026-11-03T08:12:07.599Z",
+  "id": "2026-11-03T08-30-55-634Z",
+  "issuedAt": "2026-11-03T08:30:55.634Z",
+  "cutoff": "2026-11-03T08:30:55.634Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-1.1.0",
   "signals": [
@@ -28970,6 +28970,120 @@
         "weekly": null,
         "monthly": null
       }
+    },
+    {
+      "id": "issuer-calendar-amd",
+      "family": "events",
+      "title": "AMD · confirmed earnings schedule",
+      "shortLabel": "AMD earnings",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "status": "available",
+      "summary": "2026-11-03: AMD FY2026 Q3 results · after US close · call 5:00 PM ET. The issuer's announcement was published 2026-10-06.",
+      "source": {
+        "name": "AMD · third-quarter earnings schedule",
+        "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
+        "observedAt": "2026-11-03T08:27:02.239Z",
+        "releasedAt": "2026-10-06",
+        "retrievedAt": "2026-11-03T08:27:02.239Z",
+        "sha256": "5b68a7c4e439b5818d8cf1b8efba10727c78774f87983fbe9afa470fb339e0ca",
+        "frequency": "scheduled events",
+        "attribution": "AMD · third-quarter earnings schedule",
+        "usage": "Selected issuer schedule facts with attribution and direct source link. Evidence hash covers the retrieved source document."
+      },
+      "methodology": "Saved subscription review of an actual issuer announcement. One date-only earnings event preserves the announced release window or approximate time, separately from a confirmed webcast time. No estimates, result, price response or directional vote is inferred.",
+      "limitation": "Selected issuers only, not a comprehensive earnings calendar. Dates may change; consult the linked issuer. A conference call time is not the results release time.",
+      "series": [],
+      "metrics": [],
+      "unit": "scheduled result",
+      "staleAfterDays": 3,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
+      "id": "issuer-calendar-qcom",
+      "family": "events",
+      "title": "QCOM · confirmed earnings schedule",
+      "shortLabel": "QCOM earnings",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "status": "available",
+      "summary": "2026-11-04: QCOM FY2026 Q4 results · after US close · call 4:45 PM ET. The issuer's announcement was published 2026-10-22.",
+      "source": {
+        "name": "Qualcomm · fourth-quarter earnings schedule",
+        "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
+        "observedAt": "2026-11-03T08:27:01.000Z",
+        "releasedAt": "2026-10-22",
+        "retrievedAt": "2026-11-03T08:27:01.000Z",
+        "sha256": "82890f8099c8463ffdc15a875dc9c68b908533f375ac1ae30f87a35e9dd6fc18",
+        "frequency": "scheduled events",
+        "attribution": "Qualcomm · fourth-quarter earnings schedule",
+        "usage": "Selected issuer schedule facts with attribution and direct source link. Evidence hash covers the retrieved primary-page text extract."
+      },
+      "methodology": "Saved subscription review of an actual issuer announcement. One date-only earnings event preserves the announced release window or approximate time, separately from a confirmed webcast time. No estimates, result, price response or directional vote is inferred.",
+      "limitation": "Selected issuers only, not a comprehensive earnings calendar. Dates may change; consult the linked issuer. A conference call time is not the results release time.",
+      "series": [],
+      "metrics": [],
+      "unit": "scheduled result",
+      "staleAfterDays": 3,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
+      "id": "issuer-calendar-nvda",
+      "family": "events",
+      "title": "NVDA · confirmed earnings schedule",
+      "shortLabel": "NVDA earnings",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "status": "available",
+      "summary": "2026-11-17: NVDA FY2027 Q3 results · about 4:20 PM ET · call 5:00 PM ET. The issuer's announcement was published 2026-10-28.",
+      "source": {
+        "name": "NVIDIA · third-quarter earnings schedule",
+        "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+        "observedAt": "2026-11-03T08:27:58.000Z",
+        "releasedAt": "2026-10-28",
+        "retrievedAt": "2026-11-03T08:27:58.000Z",
+        "sha256": "70889c49f07cb1a6a27ad07b953106976e3b001248882a0855c297b164507ddf",
+        "frequency": "scheduled events",
+        "attribution": "NVIDIA · third-quarter earnings schedule",
+        "usage": "Selected issuer schedule facts with attribution and direct source link. Evidence hash covers the retrieved primary-page text extract."
+      },
+      "methodology": "Saved subscription review of an actual issuer announcement. One date-only earnings event preserves the announced release window or approximate time, separately from a confirmed webcast time. No estimates, result, price response or directional vote is inferred.",
+      "limitation": "Selected issuers only, not a comprehensive earnings calendar. Dates may change; consult the linked issuer. A conference call time is not the results release time.",
+      "series": [],
+      "metrics": [],
+      "unit": "scheduled result",
+      "staleAfterDays": 3,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
     }
   ],
   "catalysts": [
@@ -29538,6 +29652,36 @@
       "source": "OCC / Options Industry Council",
       "kind": "expiry",
       "importance": "major"
+    },
+    {
+      "id": "issuer-earnings-amd-2026-11-03",
+      "at": "2026-11-03",
+      "dateZone": "America/New_York",
+      "title": "AMD FY2026 Q3 results · after US close · call 5:00 PM ET",
+      "source": "AMD · third-quarter earnings schedule",
+      "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
+      "kind": "scheduled",
+      "importance": "major"
+    },
+    {
+      "id": "issuer-earnings-qcom-2026-11-04",
+      "at": "2026-11-04",
+      "dateZone": "America/New_York",
+      "title": "QCOM FY2026 Q4 results · after US close · call 4:45 PM ET",
+      "source": "Qualcomm · fourth-quarter earnings schedule",
+      "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
+      "kind": "scheduled",
+      "importance": "major"
+    },
+    {
+      "id": "issuer-earnings-nvda-2026-11-17",
+      "at": "2026-11-17",
+      "dateZone": "America/New_York",
+      "title": "NVDA FY2027 Q3 results · about 4:20 PM ET · call 5:00 PM ET",
+      "source": "NVIDIA · third-quarter earnings schedule",
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+      "kind": "scheduled",
+      "importance": "major"
     }
   ],
   "sourcesAttempted": 38,
@@ -29940,7 +30084,7 @@
   },
   "review": {
     "schemaVersion": 1,
-    "reviewedAt": "2026-11-03T07:49:57.453Z",
+    "reviewedAt": "2026-11-03T08:29:17.895Z",
     "reviewer": "Codex subscription editorial review",
     "sources": [
       {
@@ -29982,6 +30126,32 @@
         "publishedAt": "2026-10-30",
         "retrievedAt": "2026-11-03T07:46:20.344Z",
         "sha256": "f62859324bd87cc493b9bd2ec09b9030012602cfe66b7298543ad7cffc97a044"
+      },
+      {
+        "id": "amd-schedule",
+        "name": "AMD · third-quarter earnings schedule",
+        "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
+        "publishedAt": "2026-10-06",
+        "retrievedAt": "2026-11-03T08:27:02.239Z",
+        "sha256": "5b68a7c4e439b5818d8cf1b8efba10727c78774f87983fbe9afa470fb339e0ca"
+      },
+      {
+        "id": "qualcomm-schedule",
+        "name": "Qualcomm · fourth-quarter earnings schedule",
+        "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
+        "publishedAt": "2026-10-22",
+        "retrievedAt": "2026-11-03T08:27:01.000Z",
+        "sha256": "82890f8099c8463ffdc15a875dc9c68b908533f375ac1ae30f87a35e9dd6fc18",
+        "format": "retrieved_text"
+      },
+      {
+        "id": "nvidia-schedule",
+        "name": "NVIDIA · third-quarter earnings schedule",
+        "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+        "publishedAt": "2026-10-28",
+        "retrievedAt": "2026-11-03T08:27:58.000Z",
+        "sha256": "70889c49f07cb1a6a27ad07b953106976e3b001248882a0855c297b164507ddf",
+        "format": "retrieved_text"
       }
     ],
     "developments": [
@@ -30118,6 +30288,33 @@
         "sourceId": "boj-october",
         "rate": 1.25,
         "qualification": "approximate"
+      }
+    ],
+    "earningsSchedule": [
+      {
+        "ticker": "AMD",
+        "sourceId": "amd-schedule",
+        "fiscalPeriod": "FY2026 Q3",
+        "reportDate": "2026-11-03",
+        "releaseTiming": "after_close",
+        "webcastAt": "2026-11-03T22:00:00.000Z"
+      },
+      {
+        "ticker": "QCOM",
+        "sourceId": "qualcomm-schedule",
+        "fiscalPeriod": "FY2026 Q4",
+        "reportDate": "2026-11-04",
+        "releaseTiming": "after_close",
+        "webcastAt": "2026-11-04T21:45:00.000Z"
+      },
+      {
+        "ticker": "NVDA",
+        "sourceId": "nvidia-schedule",
+        "fiscalPeriod": "FY2027 Q3",
+        "reportDate": "2026-11-17",
+        "releaseTiming": "approximate",
+        "approximateReleaseAt": "2026-11-17T21:20:00.000Z",
+        "webcastAt": "2026-11-17T22:00:00.000Z"
       }
     ]
   },

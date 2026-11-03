@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-11-03T07:49:57.453Z",
+  "reviewedAt": "2026-11-03T08:29:17.895Z",
   "reviewer": "Codex subscription editorial review",
   "sources": [
     {
@@ -42,6 +42,32 @@
       "publishedAt": "2026-10-30",
       "retrievedAt": "2026-11-03T07:46:20.344Z",
       "sha256": "f62859324bd87cc493b9bd2ec09b9030012602cfe66b7298543ad7cffc97a044"
+    },
+    {
+      "id": "amd-schedule",
+      "name": "AMD · third-quarter earnings schedule",
+      "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
+      "publishedAt": "2026-10-06",
+      "retrievedAt": "2026-11-03T08:27:02.239Z",
+      "sha256": "5b68a7c4e439b5818d8cf1b8efba10727c78774f87983fbe9afa470fb339e0ca"
+    },
+    {
+      "id": "qualcomm-schedule",
+      "name": "Qualcomm · fourth-quarter earnings schedule",
+      "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
+      "publishedAt": "2026-10-22",
+      "retrievedAt": "2026-11-03T08:27:01.000Z",
+      "sha256": "82890f8099c8463ffdc15a875dc9c68b908533f375ac1ae30f87a35e9dd6fc18",
+      "format": "retrieved_text"
+    },
+    {
+      "id": "nvidia-schedule",
+      "name": "NVIDIA · third-quarter earnings schedule",
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+      "publishedAt": "2026-10-28",
+      "retrievedAt": "2026-11-03T08:27:58.000Z",
+      "sha256": "70889c49f07cb1a6a27ad07b953106976e3b001248882a0855c297b164507ddf",
+      "format": "retrieved_text"
     }
   ],
   "developments": [
@@ -178,6 +204,33 @@
       "sourceId": "boj-october",
       "rate": 1.25,
       "qualification": "approximate"
+    }
+  ],
+  "earningsSchedule": [
+    {
+      "ticker": "AMD",
+      "sourceId": "amd-schedule",
+      "fiscalPeriod": "FY2026 Q3",
+      "reportDate": "2026-11-03",
+      "releaseTiming": "after_close",
+      "webcastAt": "2026-11-03T22:00:00.000Z"
+    },
+    {
+      "ticker": "QCOM",
+      "sourceId": "qualcomm-schedule",
+      "fiscalPeriod": "FY2026 Q4",
+      "reportDate": "2026-11-04",
+      "releaseTiming": "after_close",
+      "webcastAt": "2026-11-04T21:45:00.000Z"
+    },
+    {
+      "ticker": "NVDA",
+      "sourceId": "nvidia-schedule",
+      "fiscalPeriod": "FY2027 Q3",
+      "reportDate": "2026-11-17",
+      "releaseTiming": "approximate",
+      "approximateReleaseAt": "2026-11-17T21:20:00.000Z",
+      "webcastAt": "2026-11-17T22:00:00.000Z"
     }
   ]
 }

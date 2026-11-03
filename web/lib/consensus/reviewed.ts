@@ -3,7 +3,9 @@ import {
   type Instrument,
   type Signal,
   type Snapshot,
+  type Catalyst,
 } from "./types.ts";
+import { eventUpcoming, newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { clamp, effectiveStatus } from "./engine.ts";
 import { missingSignals } from "./registry.ts";
@@ -15,6 +17,7 @@ export interface ReviewedSource {
   publishedAt: string;
   retrievedAt: string;
   sha256: string;
+  format?: "document" | "retrieved_text";
 }
 export interface ReviewedDevelopment {
   id: string;
@@ -45,6 +48,15 @@ export interface ReviewPacket {
   sources: ReviewedSource[];
   developments: ReviewedDevelopment[];
   earnings: ReviewedEarnings[];
+  earningsSchedule?: {
+    ticker: "AAPL" | "MSFT" | "NVDA" | "AMD" | "QCOM";
+    sourceId: string;
+    fiscalPeriod: string;
+    reportDate: string;
+    releaseTiming: "before_open" | "after_close" | "date_only" | "approximate";
+    approximateReleaseAt?: string;
+    webcastAt?: string;
+  }[];
   policies?: {
     bank: "BOJ";
     sourceId: string;
@@ -57,6 +69,8 @@ const HOSTS = new Set([
   "www.microsoft.com",
   "investor.nvidia.com",
   "nvidianews.nvidia.com",
+  "ir.amd.com",
+  "investor.qualcomm.com",
   "www.federalreserve.gov",
   "www.ecb.europa.eu",
   "www.boj.or.jp",
@@ -74,6 +88,13 @@ const date = (s: string) =>
   typeof s === "string" && !!publicDate(s) && (s.length === 10 || instant(s));
 const prose = (s: string, max: number) =>
   typeof s === "string" && s.trim().length >= 8 && s.length <= max;
+const ISSUER_HOSTS: Record<string, string[]> = {
+  AAPL: ["www.apple.com"],
+  MSFT: ["www.microsoft.com"],
+  NVDA: ["investor.nvidia.com", "nvidianews.nvidia.com"],
+  AMD: ["ir.amd.com"],
+  QCOM: ["investor.qualcomm.com"],
+};
 
 /** Structural/provenance checks do not replace the publisher's factual review. */
 export function validateReview(packet: ReviewPacket, cutoff: string): void {
@@ -109,7 +130,9 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
       !instant(source.retrievedAt) ||
       source.retrievedAt > packet.reviewedAt ||
       Date.parse(source.publishedAt) > Date.parse(source.retrievedAt) ||
-      !/^[a-f0-9]{64}$/.test(source.sha256)
+      !/^[a-f0-9]{64}$/.test(source.sha256) ||
+      (source.format !== undefined &&
+        !["document", "retrieved_text"].includes(source.format))
     )
       throw new Error("Invalid reviewed source provenance");
     ids.add(source.id);
@@ -144,16 +167,11 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
   for (const item of packet.earnings) {
     const source = packet.sources.find((s) => s.id === item.sourceId);
     const lag = Date.parse(item.periodEnd) - Date.parse(item.priorPeriodEnd);
-    const companyHosts: Record<string, string[]> = {
-      AAPL: ["www.apple.com"],
-      MSFT: ["www.microsoft.com"],
-      NVDA: ["investor.nvidia.com", "nvidianews.nvidia.com"],
-    };
     if (
       !["AAPL", "MSFT", "NVDA"].includes(item.ticker) ||
       tickers.has(item.ticker) ||
       !source ||
-      !companyHosts[item.ticker]?.includes(new URL(source.url).hostname) ||
+      !ISSUER_HOSTS[item.ticker]?.includes(new URL(source.url).hostname) ||
       !date(item.periodEnd) ||
       item.periodEnd.length !== 10 ||
       !date(item.priorPeriodEnd) ||
@@ -168,6 +186,44 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     )
       throw new Error("Invalid reviewed earnings facts");
     tickers.add(item.ticker);
+  }
+  if (packet.earningsSchedule !== undefined) {
+    if (
+      !Array.isArray(packet.earningsSchedule) ||
+      packet.earningsSchedule.length > 5
+    )
+      throw new Error("Invalid issuer calendar");
+    const scheduled = new Set<string>();
+    for (const item of packet.earningsSchedule) {
+      const source = packet.sources.find((s) => s.id === item.sourceId);
+      if (
+        !Object.hasOwn(ISSUER_HOSTS, item.ticker) ||
+        scheduled.has(item.ticker) ||
+        !source ||
+        !ISSUER_HOSTS[item.ticker].includes(new URL(source.url).hostname) ||
+        !/^FY20\d{2} Q[1-4]$/.test(item.fiscalPeriod) ||
+        !date(item.reportDate) ||
+        item.reportDate.length !== 10 ||
+        item.reportDate < source.publishedAt.slice(0, 10) ||
+        Date.parse(item.reportDate) - Date.parse(source.publishedAt) >
+          180 * 86400000 ||
+        !["before_open", "after_close", "date_only", "approximate"].includes(
+          item.releaseTiming,
+        ) ||
+        (item.releaseTiming === "approximate") !==
+          (item.approximateReleaseAt !== undefined) ||
+        (item.approximateReleaseAt !== undefined &&
+          (!instant(item.approximateReleaseAt) ||
+            newYorkDate(item.approximateReleaseAt) !== item.reportDate)) ||
+        (item.webcastAt !== undefined &&
+          (!instant(item.webcastAt) ||
+            newYorkDate(item.webcastAt) !== item.reportDate ||
+            (item.approximateReleaseAt !== undefined &&
+              item.webcastAt < item.approximateReleaseAt)))
+      )
+        throw new Error("Invalid reviewed issuer schedule");
+      scheduled.add(item.ticker);
+    }
   }
   if (packet.policies !== undefined) {
     if (!Array.isArray(packet.policies) || packet.policies.length > 1)
@@ -186,6 +242,75 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
         throw new Error("Invalid reviewed policy decision");
     }
   }
+}
+
+/** One issuer event keeps result timing distinct from the call; no invented exact release timestamp. */
+export function reviewedEarningsCalendar(
+  packet: ReviewPacket,
+  cutoff: string,
+): { signals: Signal[]; catalysts: Catalyst[] } {
+  validateReview(packet, cutoff);
+  const signals: Signal[] = [],
+    catalysts: Catalyst[] = [];
+  const clock = (at: string) =>
+    new Date(at).toLocaleTimeString("en-US", {
+      timeZone: "America/New_York",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  for (const item of packet.earningsSchedule ?? []) {
+    if (!eventUpcoming(item.reportDate, cutoff)) continue;
+    const source = packet.sources.find((s) => s.id === item.sourceId)!;
+    const timing =
+      item.releaseTiming === "approximate"
+        ? `about ${clock(item.approximateReleaseAt!)} ET`
+        : item.releaseTiming === "after_close"
+          ? "after US close"
+          : item.releaseTiming === "before_open"
+            ? "before US open"
+            : "time not supplied";
+    const title = `${item.ticker} ${item.fiscalPeriod} results · ${timing}${item.webcastAt ? ` · call ${clock(item.webcastAt)} ET` : ""}`;
+    catalysts.push({
+      id: `issuer-earnings-${item.ticker.toLowerCase()}-${item.reportDate}`,
+      at: item.reportDate,
+      dateZone: "America/New_York",
+      title,
+      source: source.name,
+      url: source.url,
+      kind: "scheduled",
+      importance: "major",
+    });
+    signals.push({
+      id: `issuer-calendar-${item.ticker.toLowerCase()}`,
+      family: "events",
+      title: `${item.ticker} · confirmed earnings schedule`,
+      shortLabel: `${item.ticker} earnings`,
+      instruments: [...INSTRUMENTS],
+      status: "available",
+      summary: `${item.reportDate}: ${title}. The issuer's announcement was published ${source.publishedAt.slice(0, 10)}.`,
+      source: {
+        name: source.name,
+        url: source.url,
+        observedAt: source.retrievedAt,
+        releasedAt: source.publishedAt,
+        retrievedAt: source.retrievedAt,
+        sha256: source.sha256,
+        frequency: "scheduled events",
+        attribution: source.name,
+        usage: `Selected issuer schedule facts with attribution and direct source link. Evidence hash covers ${source.format === "retrieved_text" ? "the retrieved primary-page text extract" : "the retrieved source document"}.`,
+      },
+      methodology:
+        "Saved subscription review of an actual issuer announcement. One date-only earnings event preserves the announced release window or approximate time, separately from a confirmed webcast time. No estimates, result, price response or directional vote is inferred.",
+      limitation:
+        "Selected issuers only, not a comprehensive earnings calendar. Dates may change; consult the linked issuer. A conference call time is not the results release time.",
+      series: [],
+      metrics: [],
+      unit: "scheduled result",
+      staleAfterDays: 3,
+      scores: { daily: null, weekly: null, monthly: null },
+    });
+  }
+  return { signals, catalysts };
 }
 
 export function reviewedPolicySignals(
@@ -366,6 +491,7 @@ export function attachReview(
   packet: ReviewPacket,
 ): Snapshot {
   const evidence = reviewedSignals(packet, snapshot.cutoff);
+  const issuerCalendar = reviewedEarningsCalendar(packet, snapshot.cutoff);
   const covered = new Set(
     evidence
       .filter((s) => effectiveStatus(s, snapshot.cutoff) === "available")
@@ -383,6 +509,7 @@ export function attachReview(
         (s) =>
           !s.id.startsWith("review-") &&
           !s.id.startsWith("policy-reviewed-") &&
+          !s.id.startsWith("issuer-calendar-") &&
           s.id !== "global-news",
       ),
       packet,
@@ -390,12 +517,17 @@ export function attachReview(
     ),
     ...evidence,
     ...reviewedPolicySignals(packet, snapshot.cutoff),
+    ...issuerCalendar.signals,
     ...(missing.instruments.length ? [missing] : []),
   ];
   return {
     ...snapshot,
     signals,
     review: packet,
+    catalysts: [
+      ...snapshot.catalysts.filter((c) => !c.id.startsWith("issuer-earnings-")),
+      ...issuerCalendar.catalysts,
+    ],
     collectionErrors: snapshot.collectionErrors.filter(
       (e) => !e.startsWith("global-news:"),
     ),

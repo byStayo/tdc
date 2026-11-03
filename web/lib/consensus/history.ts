@@ -17,6 +17,7 @@ import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
   reviewedSignals,
   reviewedPolicySignals,
+  reviewedEarningsCalendar,
   validateReview,
 } from "./reviewed.ts";
 
@@ -214,6 +215,12 @@ export function validateSnapshot(snapshot: Snapshot): void {
   const policyReviews = snapshot.signals.filter((signal) =>
     signal.id.startsWith("policy-reviewed-"),
   );
+  const issuerReviews = snapshot.signals.filter((s) =>
+    s.id.startsWith("issuer-calendar-"),
+  );
+  const issuerCatalysts = snapshot.catalysts.filter((c) =>
+    c.id.startsWith("issuer-earnings-"),
+  );
   if (snapshot.review) {
     validateReview(snapshot.review, snapshot.cutoff);
     if (
@@ -226,7 +233,25 @@ export function validateSnapshot(snapshot: Snapshot): void {
       JSON.stringify(reviewedPolicySignals(snapshot.review, snapshot.cutoff))
     )
       throw new Error("Reviewed policy and source provenance disagree");
-  } else if (reviews.length || policyReviews.length)
+    const issuerCalendar = reviewedEarningsCalendar(
+      snapshot.review,
+      snapshot.cutoff,
+    );
+    if (
+      JSON.stringify(issuerReviews) !==
+        JSON.stringify(issuerCalendar.signals) ||
+      JSON.stringify(issuerCatalysts) !==
+        JSON.stringify(issuerCalendar.catalysts)
+    )
+      throw new Error(
+        "Reviewed issuer calendar and source provenance disagree",
+      );
+  } else if (
+    reviews.length ||
+    policyReviews.length ||
+    issuerReviews.length ||
+    issuerCatalysts.length
+  )
     throw new Error("Reviewed signals require their saved evidence packet");
 }
 export function observationDigest(snapshot: Snapshot): string {
