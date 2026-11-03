@@ -4,5 +4,11 @@
     "issuedAt": "2026-11-03T06:28:30.460Z",
     "sha256": "35554909a61080970f5cb528772f7731ab9fd2297abb338c8c466ad2d36e5238",
     "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "id": "2026-11-03T06-49-15-231Z",
+    "issuedAt": "2026-11-03T06:49:15.231Z",
+    "sha256": "a3b9d41e98949034ff228906d851e9af5080703599f51bfa068779f4d3a7b69e",
+    "engineVersion": "consensus-rules-1.1.0"
   }
 ]

@@ -122,6 +122,69 @@ export function validateSnapshot(snapshot: Snapshot): void {
     )
       throw new Error("Future release");
   }
+  if (snapshot.news) {
+    const news = snapshot.news;
+    const signal = snapshot.signals.find(
+      (item) => item.id === "gdelt-finance-news",
+    );
+    const archiveURL = new URL(news.sourceUrl);
+    if (
+      !signal ||
+      signal.status !== "available" ||
+      signal.source.sha256 !== news.sourceHash ||
+      !instant(news.batchAt) ||
+      news.batchAt > snapshot.cutoff ||
+      news.batchAt !== signal.source.observedAt ||
+      archiveURL.protocol !== "https:" ||
+      archiveURL.hostname !== "data.gdeltproject.org" ||
+      archiveURL.search ||
+      archiveURL.username ||
+      archiveURL.password ||
+      archiveURL.port ||
+      !/^\/gdeltv2\/\d{14}\.gkg\.csv\.zip$/.test(archiveURL.pathname) ||
+      !/^[a-f0-9]{64}$/.test(news.sourceHash) ||
+      !Array.isArray(news.stories) ||
+      news.stories.length !== news.storyCount ||
+      news.storyCount < 1 ||
+      news.positive + news.negative + news.balanced !== news.storyCount ||
+      [
+        news.positive,
+        news.negative,
+        news.balanced,
+        news.matchedArticles,
+        news.rowsScanned,
+        news.publishers,
+      ].some((value) => !Number.isInteger(value) || value < 0) ||
+      news.matchedArticles < news.storyCount ||
+      news.rowsScanned < news.matchedArticles ||
+      news.meanTone === null ||
+      !Number.isFinite(news.meanTone) ||
+      Math.abs(news.meanTone) > 100 ||
+      new Set(news.stories.map((story) => story.id)).size !== news.storyCount ||
+      new Set(news.stories.map((story) => story.domain)).size !==
+        news.publishers
+    )
+      throw new Error("Invalid news sample or provenance");
+    for (const story of news.stories) {
+      const url = new URL(story.url);
+      if (
+        !story.title ||
+        url.protocol !== "https:" ||
+        url.username ||
+        url.password ||
+        url.port ||
+        url.hostname.replace(/^www\./, "") !== story.domain ||
+        story.batchAt !== news.batchAt ||
+        !Number.isFinite(story.tone) ||
+        Math.abs(story.tone) > 100 ||
+        !Number.isInteger(story.mentions) ||
+        story.mentions < 1 ||
+        (story.publishedAt !== null &&
+          (!instant(story.publishedAt) || story.publishedAt > snapshot.cutoff))
+      )
+        throw new Error("Invalid sampled news story");
+    }
+  }
   for (const forecast of snapshot.forecasts ?? []) {
     if (
       !INSTRUMENTS.includes(forecast.instrument) ||
@@ -160,6 +223,7 @@ export function observationDigest(snapshot: Snapshot): string {
     })),
     catalysts: snapshot.catalysts,
     forecasts: snapshot.forecasts ?? [],
+    news: snapshot.news ?? null,
   });
 }
 async function atomic(path: string, value: unknown) {

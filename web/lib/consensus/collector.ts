@@ -1,3 +1,7 @@
+import { collectNews } from "./news.ts";
+import { newYorkTimestamp } from "./time.ts";
+export { newYorkTimestamp } from "./time.ts";
+import { collectMarketCalendars } from "./calendars.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
 import { clamp } from "./engine.ts";
@@ -26,6 +30,8 @@ const HOSTS = new Set([
   "www.bankofengland.co.uk",
   "www.bls.gov",
   "data.sec.gov",
+  "www.treasurydirect.gov",
+  "www.optionseducation.org",
 ]);
 const noScores = () => ({ daily: null, weekly: null, monthly: null });
 export function safeURL(input: string): string {
@@ -629,42 +635,6 @@ async function centralBanks(
       .sort((a, b) => b.at.localeCompare(a.at)),
   };
 }
-export function newYorkTimestamp(dateTime: string): string | null {
-  const match = dateTime.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/);
-  if (!match) return null;
-  const [, y, mo, d, h, mi, se] = match,
-    wall = Date.UTC(+y, +mo - 1, +d, +h, +mi, +se);
-  if (!publicDate(`${y}-${mo}-${d}`) || +h > 23 || +mi > 59 || +se > 59)
-    return null;
-  let utc = wall;
-  for (let i = 0; i < 3; i++) {
-    const p = Object.fromEntries(
-      new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/New_York",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hourCycle: "h23",
-      })
-        .formatToParts(new Date(utc))
-        .map((part) => [part.type, part.value]),
-    );
-    const represented = Date.UTC(
-      +p.year,
-      +p.month - 1,
-      +p.day,
-      +p.hour,
-      +p.minute,
-      +p.second,
-    );
-    if (represented === wall) return new Date(utc).toISOString();
-    utc += wall - represented;
-  }
-  return null;
-}
 export function blsEvents(ics: string, cutoff: string): Catalyst[] {
   const unfolded = ics.replace(/\r?\n[ \t]/g, "");
   const events = new Map<string, Catalyst>(),
@@ -855,12 +825,10 @@ async function earnings(fetcher: Fetcher): Promise<Signal[]> {
           ...signal,
           status: "available" as const,
           unit: "$bn",
-          series: quarters
-            .slice(-16)
-            .map((quarter) => ({
-              date: quarter.end,
-              value: quarter.value / 1e9,
-            })),
+          series: quarters.slice(-16).map((quarter) => ({
+            date: quarter.end,
+            value: quarter.value / 1e9,
+          })),
           source: source({
             name: `SEC XBRL · ${issuer.ticker}`,
             url,
@@ -907,15 +875,25 @@ export async function collectSnapshot(
   fetcher: Fetcher = fetch,
 ): Promise<Snapshot> {
   // Small independent source batches; each failed source is retained as unavailable.
-  const [economic, fx, institutions, banks, releases, results] =
-    await Promise.all([
-      macro(fetcher),
-      currencies(fetcher),
-      positioning(fetcher),
-      centralBanks(fetcher),
-      calendar(fetcher),
-      earnings(fetcher),
-    ]);
+  const [
+    economic,
+    fx,
+    institutions,
+    banks,
+    releases,
+    results,
+    marketCalendars,
+    news,
+  ] = await Promise.all([
+    macro(fetcher),
+    currencies(fetcher),
+    positioning(fetcher),
+    centralBanks(fetcher),
+    calendar(fetcher),
+    earnings(fetcher),
+    collectMarketCalendars((url) => publicText(url, fetcher)),
+    collectNews(fetcher),
+  ]);
   const issuedAt = new Date().toISOString(),
     signals = [
       ...economic,
@@ -924,6 +902,8 @@ export async function collectSnapshot(
       ...banks.signals,
       releases.signal,
       ...results,
+      ...marketCalendars.signals,
+      news.signal,
       ...missingSignals(issuedAt),
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
@@ -935,8 +915,13 @@ export async function collectSnapshot(
     origin: "prospective",
     engineVersion: ENGINE_VERSION,
     signals,
-    catalysts: [...banks.catalysts, ...releases.catalysts],
-    sourcesAttempted: MACRO_SERIES.length + 10,
+    catalysts: [
+      ...banks.catalysts,
+      ...releases.catalysts,
+      ...marketCalendars.catalysts,
+    ],
+    ...(news.pulse ? { news: news.pulse } : {}),
+    sourcesAttempted: MACRO_SERIES.length + 15,
     collectionErrors: signals
       .filter(
         (signal) =>

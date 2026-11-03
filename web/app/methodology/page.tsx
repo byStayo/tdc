@@ -106,6 +106,58 @@ export default function Methodology() {
                 Consensus. Daily fixes are not executable quotes.
               </li>
               <li>
+                <a
+                  href="https://www.gdeltproject.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  The GDELT Project
+                </a>
+                : a bounded English-language financial-news batch. Finance
+                themes and headline terms filter relevance; normalized headlines
+                collapse syndication. Tone describes language, with bins below
+                −1, within ±1 and above +1. It is not investor sentiment or a
+                directional trading vote. Headlines remain attributed to their
+                publishers and may include releases or topic-classification
+                errors.
+              </li>
+              <li>
+                <a
+                  href="https://www.bls.gov/schedule/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  BLS releases
+                </a>
+                ,{" "}
+                <a
+                  href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  FOMC meetings
+                </a>
+                ,{" "}
+                <a
+                  href="https://www.treasurydirect.gov/auctions/upcoming/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Treasury auctions
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://www.optionseducation.org/referencelibrary/expiration-calendar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  OCC / OIC expirations
+                </a>
+                : source dates and supplied Eastern times. Date-only events
+                retain that precision. Expiration calendars do not supply gamma,
+                positioning or implied volatility.
+              </li>
+              <li>
                 Official Federal Reserve, ECB, Bank of England and Bank of Japan
                 release feeds. Headlines are linked to their publishers. This is
                 a selected policy-news sample, not the entire news cycle.

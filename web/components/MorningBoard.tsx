@@ -16,11 +16,14 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import { eventUpcoming } from "@/lib/consensus/time";
+import type { NewsPulse } from "@/lib/consensus/news";
 import { calculateConsensus, effectiveStatus } from "@/lib/consensus/engine";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
 import type {
+  Catalyst,
   Family,
   HistoryEntry,
   Horizon,
@@ -467,6 +470,130 @@ function Liquidity({ signals }: { signals: Signal[] }) {
   );
 }
 
+function eventLabel(item: Catalyst) {
+  return item.at.length === 10
+    ? `${date(item.at)} · date only`
+    : `${date(item.at)} · ${time(item.at)} ET`;
+}
+function NewsPanel({
+  pulse,
+  onInspect,
+}: {
+  pulse: NewsPulse;
+  onInspect: () => void;
+}) {
+  const bins = [
+    {
+      label: "Negative language",
+      count: pulse.negative,
+      color: "var(--negative)",
+    },
+    {
+      label: "Balanced language",
+      count: pulse.balanced,
+      color: "var(--text-muted)",
+    },
+    {
+      label: "Positive language",
+      count: pulse.positive,
+      color: "var(--positive)",
+    },
+  ];
+  return (
+    <section
+      className={`${styles.panel} ${styles.newsPanel}`}
+      aria-label="Global financial news sample"
+    >
+      <div className={styles.panelHead}>
+        <div>
+          <span className={styles.eyebrow}>THE NEWS CYCLE</span>
+          <h3>The language around the market.</h3>
+        </div>
+        <button
+          className={styles.iconButton}
+          onClick={onInspect}
+          aria-label="Inspect news sources"
+        >
+          <Info size={16} />
+        </button>
+      </div>
+      <p className={styles.muted}>
+        {pulse.storyCount} sampled stories · {pulse.publishers} publishers ·
+        English-language global coverage
+      </p>
+      <div
+        className={styles.newsDistribution}
+        role="img"
+        aria-label={bins
+          .map((bin) => `${bin.count} ${bin.label.toLowerCase()} stories`)
+          .join(", ")}
+      >
+        {bins.map((bin) => (
+          <span
+            key={bin.label}
+            style={{
+              width: `${(bin.count / pulse.storyCount) * 100}%`,
+              background: bin.color,
+            }}
+          />
+        ))}
+      </div>
+      <div className={styles.newsLegend}>
+        {bins.map((bin) => (
+          <span key={bin.label}>
+            <i style={{ background: bin.color }} />
+            <strong>{bin.count}</strong>
+            {bin.label}
+          </span>
+        ))}
+      </div>
+      <p className={styles.finePrint}>
+        A 15-minute discovery batch, not a full-day survey. Positive language is
+        not a bullish forecast. This tone sample casts no directional vote.
+      </p>
+      <div className={styles.newsStories}>
+        {pulse.stories.slice(0, 6).map((story) => (
+          <a
+            key={story.id}
+            href={story.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>
+              {story.domain} ·{" "}
+              {story.publishedAt
+                ? `published ${date(story.publishedAt)} ${time(story.publishedAt)} ET`
+                : "publication time not supplied"}
+            </span>
+            <strong>
+              {story.title}
+              <ArrowUpRight size={14} />
+            </strong>
+            <small>
+              Tone {story.tone > 0 ? "+" : ""}
+              {number(story.tone, 1)} · {story.mentions} matched article
+              {story.mentions === 1 ? "" : "s"}
+            </small>
+          </a>
+        ))}
+      </div>
+      <p className={styles.chartFoot}>
+        <a
+          href="https://www.gdeltproject.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          The GDELT Project
+        </a>{" "}
+        · Batch {date(pulse.batchAt)} {time(pulse.batchAt)} ET ·{" "}
+        <a href={pulse.sourceUrl} target="_blank" rel="noopener noreferrer">
+          Data source
+        </a>
+      </p>
+    </section>
+  );
+}
+
 export default function MorningBoard({
   initial,
   history,
@@ -531,9 +658,7 @@ export default function MorningBoard({
   );
   const scheduled = snapshot.catalysts
     .filter(
-      (item) =>
-        item.kind === "scheduled" &&
-        Date.parse(item.at) >= Date.parse(reference),
+      (item) => item.kind !== "release" && eventUpcoming(item.at, reference),
     )
     .sort((a, b) => a.at.localeCompare(b.at));
   const reported = current.filter(
@@ -824,7 +949,7 @@ export default function MorningBoard({
             >
               <div>
                 <span className={styles.eyebrow}>ON THE RADAR</span>
-                <strong>Next releases</strong>
+                <strong>Next catalysts</strong>
               </div>
               {scheduled.slice(0, 3).map((item) => (
                 <a
@@ -833,12 +958,10 @@ export default function MorningBoard({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span>
-                    {date(item.at)} · {time(item.at)} ET
-                  </span>
+                  <span>{eventLabel(item)}</span>
                   <strong>{item.title}</strong>
                   <small>
-                    BLS · scheduled <ArrowUpRight size={12} />
+                    {item.source} · {item.kind} <ArrowUpRight size={12} />
                   </small>
                 </a>
               ))}
@@ -848,6 +971,36 @@ export default function MorningBoard({
                 </p>
               )}
             </section>
+            {scheduled.length > 0 && (
+              <details className={styles.calendarExpand}>
+                <summary>
+                  Full calendar · {scheduled.length} upcoming events
+                </summary>
+                <p className={styles.muted}>
+                  Times are Eastern when supplied. A date without a time is
+                  deliberately left date-only. Schedules can change; check the
+                  linked source.
+                </p>
+                <div className={styles.calendarGrid}>
+                  {scheduled.map((item) => (
+                    <a
+                      key={item.id}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.calendarEvent}
+                    >
+                      <span className={styles.eyebrow}>{eventLabel(item)}</span>
+                      <strong>{item.title}</strong>
+                      <small>
+                        {item.source} · {item.kind}
+                        <ArrowUpRight size={13} />
+                      </small>
+                    </a>
+                  ))}
+                </div>
+              </details>
+            )}
             <div className={styles.sectionHeading}>
               <div>
                 <span className={styles.eyebrow}>
@@ -1034,6 +1187,12 @@ export default function MorningBoard({
                 </div>
               </section>
             </div>
+            {snapshot.news && (
+              <NewsPanel
+                pulse={snapshot.news}
+                onInspect={() => setFamily("news")}
+              />
+            )}
             {!!reported.length && (
               <section
                 className={styles.earningsStrip}

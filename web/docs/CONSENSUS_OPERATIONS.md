@@ -25,4 +25,4 @@ Private collection probes, historical experiment models, raw prices and backups 
 
 ## Current verification boundary
 
-The first build has 52 tracked inputs; 39 have real observations across nine families. Missing US prices/options, social/retail, analyst estimates, off-exchange, broad news and private/cross-border flows remain material gaps. The consensus therefore abstains. Nine real ECB currency-history candidates were evaluated; none passed the declared improvement threshold. No prospective outcome or active model is claimed.
+The current build has56tracked inputs;43have real observations across nine families. Bounded GDELT financial-news tone and BLS/FOMC/Treasury/OCC calendars are connected. Missing US prices/options, social/retail, analyst estimates, off-exchange, instrument-specific news-impact review and private/cross-border flows remain material gaps. The consensus therefore abstains. Nine real ECB currency-history candidates were evaluated; none passed the declared improvement threshold. No prospective outcome or active model is claimed.

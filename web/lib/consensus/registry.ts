@@ -1,6 +1,6 @@
 import type { FamilyDefinition, Family, Signal, Instrument } from "./types.ts";
 
-export const ENGINE_VERSION = "consensus-rules-1.0.0";
+export const ENGINE_VERSION = "consensus-rules-1.1.0";
 export const FAMILIES: FamilyDefinition[] = [
   {
     id: "social",
@@ -235,9 +235,9 @@ const REQUIRED_FEEDS: {
   {
     id: "global-news",
     family: "news",
-    title: "Market-news breadth & sentiment",
+    title: "News impact by market",
     reason:
-      "The broader market-news sample is unavailable. Official policy releases remain available as a separate, limited source.",
+      "Instrument-specific news impact ratings await reviewed evidence. Global news tone and official policy releases provide separate context.",
     url: "https://www.gdeltproject.org/",
   },
   {

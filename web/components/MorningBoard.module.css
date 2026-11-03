@@ -1526,3 +1526,116 @@
     margin-left: auto;
   }
 }
+
+.calendarExpand {
+  margin: -12px 0 28px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 0 20px;
+}
+.calendarExpand summary {
+  padding: 14px 0;
+  cursor: pointer;
+  min-height: 48px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.calendarGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+.calendarEvent {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  gap: 7px;
+  min-width: 0;
+}
+.calendarEvent:hover {
+  border-color: var(--text-muted);
+}
+.calendarEvent strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.calendarEvent small {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.newsPanel {
+  margin-top: 18px;
+}
+.newsDistribution {
+  display: flex;
+  overflow: hidden;
+  height: 18px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+.newsDistribution span {
+  min-width: 0;
+}
+.newsLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin: 12px 0;
+}
+.newsLegend > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.newsLegend i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.newsLegend strong {
+  font-weight: 600;
+  color: var(--text);
+}
+.newsStories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+}
+.newsStories a {
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.newsStories strong {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.newsStories strong svg {
+  margin-left: 5px;
+  vertical-align: middle;
+}
+.newsStories span,
+.newsStories small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+@media (max-width: 760px) {
+  .calendarGrid,
+  .newsStories {
+    grid-template-columns: 1fr;
+  }
+}
