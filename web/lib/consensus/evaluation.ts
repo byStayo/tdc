@@ -145,20 +145,52 @@ export function evaluateOutcome(
     adjustment: prices.adjustment,
   };
 }
-export function performance(outcomes: Outcome[], costBps = 2) {
+export const SCORING_POLICY = "last-edition-before-entry-open-v1";
+
+/** Select by publication time only, before inspecting returns or whether a call was made. */
+export function selectScoredOutcomes(outcomes: Outcome[]) {
   const keys = outcomes.map(
     (row) => `${row.snapshotId}:${row.instrument}:${row.horizon}`,
   );
   if (new Set(keys).size !== keys.length)
     throw new Error("Duplicate outcome would inflate performance");
-  const called = outcomes.filter(
+  const winners = new Map<string, Outcome>();
+  const group = (row: Outcome) => `${row.instrument}:${row.horizon}:${row.entryAt}`;
+  for (const row of outcomes) {
+    if (!canonicalInstant(row.issuedAt) || !canonicalInstant(row.entryAt) ||
+        !canonicalInstant(row.exitAt) || row.issuedAt >= row.entryAt || row.exitAt <= row.entryAt)
+      throw new Error("Outcome must follow its publication and entry timestamps");
+    const prior = winners.get(group(row));
+    if (prior?.issuedAt === row.issuedAt)
+      throw new Error("Ambiguous same-time editions for one outcome session");
+    if (!prior || row.issuedAt > prior.issuedAt) winners.set(group(row), row);
+  }
+  return {
+    policy: SCORING_POLICY,
+    selected: [...winners.values()].sort((a, b) => a.entryAt.localeCompare(b.entryAt) ||
+      a.instrument.localeCompare(b.instrument) || a.horizon.localeCompare(b.horizon)),
+    superseded: outcomes.filter((row) => winners.get(group(row)) !== row).map((row) => ({
+      snapshotId: row.snapshotId,
+      instrument: row.instrument,
+      horizon: row.horizon,
+      entryAt: row.entryAt,
+      selectedSnapshotId: winners.get(group(row))!.snapshotId,
+    })),
+  };
+}
+
+export function performance(outcomes: Outcome[], costBps = 2) {
+  const { selected, superseded } = selectScoredOutcomes(outcomes);
+  const called = selected.filter(
       (row) => !row.abstained && row.directionCorrect !== null,
     ),
-    probabilities = outcomes.filter((row) => row.predictedProbability !== null);
+    probabilities = selected.filter((row) => row.predictedProbability !== null);
   return {
-    resolved: outcomes.length,
+    resolved: selected.length,
+    superseded: superseded.length,
+    scoringPolicy: SCORING_POLICY,
     calls: called.length,
-    abstentions: outcomes.length - called.length,
+    abstentions: selected.length - called.length,
     accuracy: called.length
       ? called.filter((row) => row.directionCorrect).length / called.length
       : null,
@@ -184,6 +216,6 @@ export function performance(outcomes: Outcome[], costBps = 2) {
         ) / probabilities.length
       : null,
     costBps,
-    note: "Per-forecast outcomes; overlapping horizons are not a portfolio equity curve. Missing outcomes and abstentions are excluded from accuracy, never counted as wins.",
+    note: "One scored edition per instrument, horizon and entry session: the last publication before the entry open. Earlier editions remain in the audit ledger. Overlapping horizons are not a portfolio equity curve. Missing outcomes and abstentions are excluded from accuracy, never counted as wins.",
   };
 }

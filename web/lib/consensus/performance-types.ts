@@ -6,6 +6,8 @@ export interface PerformanceReport {
   abstentions: number;
   accuracy: number | null;
   brier: number | null;
+  scoringPolicy?: string;
+  superseded?: number;
   cohorts: {
     instrument: string;
     horizon: string;
@@ -23,6 +25,7 @@ export interface PerformanceReport {
     minimum: number;
     status: string;
     promoted: boolean;
+    activeModelId?: string | null;
     reason: string;
     artifact: string;
   }[];

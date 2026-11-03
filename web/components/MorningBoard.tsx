@@ -21,6 +21,7 @@ import { policyReadings } from "@/lib/consensus/policy";
 import type { NewsPulse } from "@/lib/consensus/news";
 import { effectiveStatus } from "@/lib/consensus/engine";
 import { asIssuedConsensus } from "@/lib/consensus/as-issued";
+import { performanceView } from "@/lib/consensus/performance-view";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
@@ -1065,12 +1066,7 @@ export default function MorningBoard({
     .filter((item) => item.score !== null)
     .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
     .slice(0, 5);
-  const cohort =
-    instrument === "MARKET"
-      ? null
-      : performance.cohorts.find(
-          (item) => item.instrument === instrument && item.horizon === horizon,
-        );
+  const cohort = performanceView(performance, instrument, horizon);
   const learning = performance.learning.filter(
     (item) =>
       (instrument === "MARKET" || item.instrument === instrument) &&
@@ -1899,39 +1895,41 @@ export default function MorningBoard({
                 <small>Immutable, source-linked snapshots</small>
               </div>
               <div>
-                <span>Scored outcomes</span>
-                <strong>{cohort?.resolved ?? performance.resolved}</strong>
+                <span>{instrument === "MARKET" ? "Instrument outcomes" : "Scored outcomes"}</span>
+                <strong>{cohort.resolved ?? "—"}</strong>
                 <small>
                   {performance.status === "awaiting_price_evidence"
                     ? "Requires verified future session prices"
-                    : `${horizon} outcomes · verified session prices`}
+                    : `${horizon} outcomes · ${instrument === "MARKET" ? "across five instruments" : "verified session prices"}`}
                 </small>
               </div>
               <div>
                 <span>Directional accuracy</span>
                 <strong>
-                  {pct(
-                    cohort?.accuracy ??
-                      (instrument === "MARKET" ? performance.accuracy : null),
-                  )}
+                  {pct(cohort.accuracy)}
                 </strong>
                 <small>
-                  {cohort?.calls ?? performance.calls} directional calls scored
+                  {cohort.calls ?? "—"} {horizon} instrument calls scored
                 </small>
               </div>
               <div>
                 <span>Trained model</span>
                 <strong>
-                  {learning.some((item) => item.promoted)
+                  {learning.some((item) => item.activeModelId || (item.activeModelId === undefined && item.promoted))
                     ? "Active"
                     : "Pending"}
                 </strong>
                 <small>
-                  {Math.max(0, ...learning.map((item) => item.samples))} / 120
-                  resolved samples per target
+                  {Math.max(0, ...learning.map((item) => item.samples))} resolved observations per target
                 </small>
               </div>
             </div>
+            <p className={styles.finePrint}>
+              {instrument === "MARKET" && "MARKET is context only; it has no scored trade. Figures above summarize this horizon across the five instrument editions. "}
+              Scoring and training use the last edition before each session opens.
+              Earlier editions remain in the audit record. Model qualification
+              requires at least 100 new, non-overlapping test outcomes and an uncertainty check against the baselines.
+            </p>
             <div className={styles.twoColumns}>
               <section className={styles.panel}>
                 <h3>The record, exactly as it was</h3>

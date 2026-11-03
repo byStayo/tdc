@@ -5,16 +5,19 @@ import {
   open,
   unlink,
   rename,
+  readdir,
 } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
-import { evaluateOutcome, performance } from "../lib/consensus/evaluation.ts";
+import { evaluateOutcome, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
-import { trainCandidate } from "../lib/consensus/learning.ts";
+import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
+import { readReservations, reserveEvaluation, promotionEvidence, LEARNING_POLICY,
+  PROSPECTIVE_MINIMUM, MINIMUM_TEST_LABELS, validateActivePromotion } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
 import type {
@@ -76,7 +79,8 @@ try {
         if (row && !outcomes.some((previous) => key(previous) === key(row)))
           outcomes.push(row);
       }
-  const metrics = performance(outcomes),
+  const selection = selectScoredOutcomes(outcomes),
+    metrics = performance(outcomes),
     cohorts: PerformanceReport["cohorts"] = [],
     learning: PerformanceReport["learning"] = [];
   const registryPath = resolve(root, "lib/consensus/models.json");
@@ -86,6 +90,18 @@ try {
     note: string;
   };
   await mkdir(resolve(dir, "models"), { recursive: true });
+  const reservations = await readReservations(root);
+  // Never silently restart the holdout ledger after an earlier untracked evaluation.
+  for (const name of (await readdir(resolve(dir, "models"))).filter((name) => name.endsWith(".json"))) {
+    const saved = JSON.parse(await readFile(resolve(dir, "models", name), "utf8"));
+    if (saved.status === "evaluated" && !saved.promotionEvidence)
+      throw new Error("Legacy prospective test inspection requires an explicit audit migration before further evaluation");
+    if (saved.promotionEvidence && !reservations.some((record) =>
+      record.instrument === saved.instrument && record.horizon === saved.horizon &&
+      record.attempt === saved.promotionEvidence.attempt && record.datasetHash === saved.datasetHash))
+      throw new Error("Candidate is missing its durable test reservation");
+  }
+  registry.models.forEach((model) => validateActivePromotion(model, reservations));
   for (const instrument of INSTRUMENTS.filter((symbol) => symbol !== "MARKET"))
     for (const horizon of HORIZONS) {
       const sample = outcomes.filter(
@@ -102,12 +118,11 @@ try {
         meanBuyHoldReturnPct: stats.meanBuyHoldReturnPct,
         brier: stats.brier,
       });
-      const byEntry = new Map<string, TrainingRow>();
-      // Multiple corrections before the same session cannot inflate training sample counts.
-      for (const row of [...sample].sort((a, b) =>
-        a.issuedAt.localeCompare(b.issuedAt),
+      const trainingRows: TrainingRow[] = [];
+      // Training and reported performance use exactly the same predeclared edition.
+      for (const row of selection.selected.filter((item) =>
+        item.instrument === instrument && item.horizon === horizon,
       )) {
-        if (byEntry.has(row.entryAt)) continue;
         const snapshot = snapshots.find((item) => item.id === row.snapshotId);
         if (!snapshot) throw new Error("Outcome references missing snapshot");
         const consensus = asIssuedConsensus(
@@ -119,7 +134,7 @@ try {
           family.score ?? 0,
           family.score === null ? 0 : 1,
         ]);
-        byEntry.set(row.entryAt, {
+        trainingRows.push({
           id: key(row),
           issuedAt: snapshot.issuedAt,
           labelKnownAt: row.exitAt,
@@ -127,33 +142,40 @@ try {
           up: row.returnPct > 0 ? 1 : 0,
         });
       }
-      const trainingRows = [...byEntry.values()],
-        incumbent = registry.models.find(
+      const incumbent = registry.models.find(
           (model) =>
             model.instrument === instrument && model.horizon === horizon,
         );
-      const result = trainCandidate(trainingRows, now, incumbent?.model),
-        artifact = `models/${instrument}-${horizon}-${result.datasetHash.slice(0, 16)}.json`;
-      const newLabels = incumbent
-        ? trainingRows.filter(
-            (row) => row.labelKnownAt > incumbent.labelsThrough,
-          ).length
-        : trainingRows.length;
+      const prior = reservations.filter((record) => record.instrument === instrument && record.horizon === horizon)
+        .sort((a, b) => b.attempt - a.attempt)[0];
+      const plan = planCandidate(trainingRows, now, {
+        consumedThrough: prior?.consumedThrough,
+        minimumSamples: PROSPECTIVE_MINIMUM,
+        minimumTestSamples: MINIMUM_TEST_LABELS,
+        nonOverlappingTest: true,
+      });
+      // Reserve before fitting/evaluating: failed candidates and crashes consume their test window too.
+      const reservation = plan.status === "ready"
+        ? await reserveEvaluation(root, reservations, plan, instrument, horizon, now) : null;
+      if (reservation) reservations.push(reservation);
+      const result = plan.status === "ready" ? evaluateCandidate(plan, incumbent?.model) : plan;
+      const gate = plan.status === "ready" && result.status === "evaluated" && reservation
+        ? promotionEvidence(plan, result.model, reservation, incumbent?.model) : null;
+      const contextHash = digest({ datasetHash: result.datasetHash, policy: LEARNING_POLICY,
+        priorAttempt: prior?.attempt ?? 0, incumbent: incumbent?.id ?? null });
+      const artifact = `models/${instrument}-${horizon}-wf1-${contextHash.slice(0, 16)}.json`;
       const promote =
         result.status === "evaluated" &&
         result.promoted &&
         result.datasetHash !== incumbent?.datasetHash &&
-        newLabels >= 20;
+        gate?.passes === true;
       if (promote && result.status === "evaluated") {
         const active: ActiveModel = {
           id: `${instrument}-${horizon}-${result.datasetHash.slice(0, 16)}`,
           instrument,
           horizon,
           trainedAt: now,
-          labelsThrough: trainingRows
-            .map((row) => row.labelKnownAt)
-            .sort()
-            .at(-1)!,
+          labelsThrough: gate!.consumedThrough,
           datasetHash: result.datasetHash,
           samples: result.samples,
           featureSchema: "family-score-plus-observation-mask-v1",
@@ -161,6 +183,7 @@ try {
           testBrier: result.candidateBrier,
           baselineBrier: Math.min(result.coinBrier, result.baseRateBrier),
           testSamples: result.split.test,
+          promotionEvidence: gate!,
         };
         await writeFile(
           resolve(dir, "models", `active-${active.id}.json`),
@@ -180,7 +203,7 @@ try {
       try {
         await writeFile(
           resolve(dir, artifact),
-          `${JSON.stringify({ ...result, instrument, horizon, evaluatedAt: now, activated: promote, featureSchema: "family-score-plus-observation-mask-v1" }, null, 2)}\n`,
+          `${JSON.stringify({ ...result, promoted: promote, promotionEvidence: gate, instrument, horizon, evaluatedAt: now, activated: promote, featureSchema: "family-score-plus-observation-mask-v1" }, null, 2)}\n`,
           { flag: "wx" },
         );
       } catch (error) {
@@ -192,8 +215,10 @@ try {
         samples: result.samples,
         minimum: result.minimum,
         status: result.status,
-        promoted: promote || !!incumbent,
-        reason: result.reason,
+        promoted: promote,
+        activeModelId: registry.models.find((model) => model.instrument === instrument && model.horizon === horizon)?.id ?? null,
+        reason: promote ? "Candidate passed the reserved prospective gates and is active for future publications."
+          : gate && !gate.passes ? "Candidate failed the paired-loss uncertainty or repeated-comparison gate; its test window is consumed." : result.reason,
         artifact,
       });
     }
@@ -205,12 +230,15 @@ try {
     abstentions: metrics.abstentions,
     accuracy: metrics.accuracy,
     brier: metrics.brier,
+    scoringPolicy: selection.policy,
+    superseded: metrics.superseded,
     cohorts,
     learning,
-    note: "Raw provider prices stay private. As-issued outcomes are never rewritten. Forecasts are evaluated per instrument and horizon; overlapping horizons are not a tradable portfolio. Candidate promotion requires chronological holdout gates and at least 20 newly resolved labels since the incumbent.",
+    note: "Raw provider prices stay private. The outcome audit ledger is never rewritten. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio.",
   };
   for (const [path, content] of [
     [resolve(dir, "outcomes.json"), outcomes],
+    [resolve(dir, "outcome-selection.json"), { policy: selection.policy, superseded: selection.superseded }],
     [registryPath, registry],
     [resolve(root, "lib/consensus/performance.json"), report],
   ] as const) {

@@ -1,11 +1,13 @@
 {
-  "generatedAt": "2026-11-03T07:11:18.753Z",
+  "generatedAt": "2026-11-03T13:32:45.346Z",
   "status": "awaiting_price_evidence",
   "resolved": 0,
   "calls": 0,
   "abstentions": 0,
   "accuracy": null,
   "brier": null,
+  "scoringPolicy": "last-edition-before-entry-open-v1",
+  "superseded": 0,
   "cohorts": [
     {
       "instrument": "SPY",
@@ -163,152 +165,167 @@
       "instrument": "SPY",
       "horizon": "daily",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/SPY-daily-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/SPY-daily-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "SPY",
       "horizon": "weekly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/SPY-weekly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/SPY-weekly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "SPY",
       "horizon": "monthly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/SPY-monthly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/SPY-monthly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "QQQ",
       "horizon": "daily",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-daily-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/QQQ-daily-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "QQQ",
       "horizon": "weekly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-weekly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/QQQ-weekly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "QQQ",
       "horizon": "monthly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-monthly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/QQQ-monthly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "IWM",
       "horizon": "daily",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/IWM-daily-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/IWM-daily-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "IWM",
       "horizon": "weekly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/IWM-weekly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/IWM-weekly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "IWM",
       "horizon": "monthly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/IWM-monthly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/IWM-monthly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "DIA",
       "horizon": "daily",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/DIA-daily-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/DIA-daily-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "DIA",
       "horizon": "weekly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/DIA-weekly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/DIA-weekly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "DIA",
       "horizon": "monthly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/DIA-monthly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/DIA-monthly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "TLT",
       "horizon": "daily",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/TLT-daily-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/TLT-daily-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "TLT",
       "horizon": "weekly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/TLT-weekly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/TLT-weekly-wf1-62b247be4efdc3f5.json"
     },
     {
       "instrument": "TLT",
       "horizon": "monthly",
       "samples": 0,
-      "minimum": 120,
+      "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
-      "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
-      "artifact": "models/TLT-monthly-4f53cda18c2baa0c.json"
+      "activeModelId": null,
+      "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+      "artifact": "models/TLT-monthly-wf1-62b247be4efdc3f5.json"
     }
   ],
-  "note": "Raw provider prices stay private. As-issued outcomes are never rewritten. Forecasts are evaluated per instrument and horizon; overlapping horizons are not a tradable portfolio. Candidate promotion requires chronological holdout gates and at least 20 newly resolved labels since the incumbent."
+  "note": "Raw provider prices stay private. The outcome audit ledger is never rewritten. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio."
 }

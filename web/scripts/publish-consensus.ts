@@ -5,6 +5,7 @@ import { collectSnapshot } from "../lib/consensus/collector.ts";
 import { publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot } from "../lib/consensus/model.ts";
 import { freezeConsensus } from "../lib/consensus/as-issued.ts";
+import { readReservations, validateActivePromotion } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { retainLastKnown } from "../lib/consensus/last-known.ts";
 import { attachReview } from "../lib/consensus/reviewed.ts";
@@ -40,6 +41,8 @@ snapshot = freezeConsensus(snapshot);
 const registry = JSON.parse(
   await readFile(resolve(root, "lib/consensus/models.json"), "utf8"),
 ) as { models: ActiveModel[] };
+const reservations = await readReservations(root);
+registry.models.forEach((model) => validateActivePromotion(model, reservations));
 snapshot.forecasts = forecastSnapshot(snapshot, registry.models);
 await mkdir(resolve(root, ".consensus"), { recursive: true });
 await writeFile(

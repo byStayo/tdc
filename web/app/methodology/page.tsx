@@ -245,6 +245,13 @@ export default function Methodology() {
               adjustment basis are required.
             </p>
             <p>
+              Only the last edition before an entry session opens is scored for
+              each instrument and horizon. Earlier editions stay in the audit
+              ledger. Training uses the same selection. MARKET is an overview,
+              not a traded instrument; its performance panel summarizes the five
+              instrument editions for the selected horizon.
+            </p>
+            <p>
               Abstentions do not count as wins. Mean forecast returns are not a
               portfolio equity curve; overlapping horizons and correlated
               instruments must not be presented as independent trading profits.
@@ -253,8 +260,10 @@ export default function Methodology() {
           <section className={styles.panel}>
             <h2>Learning has to earn its place</h2>
             <p>
-              Each instrument and horizon needs at least 120 resolved
-              observations before a candidate can be evaluated. Inputs are
+              Each instrument and horizon needs at least 500 resolved
+              observations and 100 previously uninspected, non-overlapping test
+              outcomes before a candidate can be evaluated. Longer horizons can
+              require substantially more history. Inputs are
               normalized on training data only. Labels crossing the validation
               or test boundary are purged.
             </p>
@@ -264,6 +273,13 @@ export default function Methodology() {
               historical base rate, a 50/50 baseline and the incumbent by at
               least 0.01 Brier score. Calibration bins and sample counts
               accompany every result.
+            </p>
+            <p>
+              A test window is reserved permanently before evaluation, including
+              failed or interrupted attempts. A paired block-bootstrap check
+              measures uncertainty in the improvement, with stricter thresholds
+              across instruments, horizons and repeated attempts. These are
+              approximate statistical checks, not proof of future performance.
             </p>
             <p>
               No model has yet accumulated that prospective evidence. The

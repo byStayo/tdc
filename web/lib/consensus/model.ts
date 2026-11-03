@@ -1,5 +1,6 @@
 import type { Horizon, Instrument, Snapshot } from "./types.ts";
 import { asIssuedConsensus } from "./as-issued.ts";
+import type { PromotionEvidence } from "./learning-audit.ts";
 
 export interface LogisticModel {
   intercept: number;
@@ -21,6 +22,7 @@ export interface ActiveModel {
   testBrier: number;
   baselineBrier: number;
   testSamples: number;
+  promotionEvidence?: PromotionEvidence;
 }
 export interface Forecast {
   instrument: Instrument;

@@ -75,18 +75,32 @@ export function chronologicalSplit(rows: TrainingRow[]) {
     test: sorted.filter((row) => row.issuedAt >= testAt),
   };
 }
-export function trainCandidate(
+export interface EvaluationPolicy {
+  consumedThrough?: string;
+  minimumSamples?: number;
+  minimumTestSamples?: number;
+  nonOverlappingTest?: boolean;
+}
+
+export function planCandidate(
   input: TrainingRow[],
   asOf: string,
-  incumbent?: LogisticModel,
+  policy: EvaluationPolicy = {},
 ) {
-  const rows = input.filter((row) => row.labelKnownAt <= asOf);
+  if (!Number.isFinite(Date.parse(asOf)) ||
+      (policy.consumedThrough && (!Number.isFinite(Date.parse(policy.consumedThrough)) ||
+        new Date(policy.consumedThrough).toISOString() !== policy.consumedThrough)))
+    throw new Error("Invalid evaluation cutoff");
+  const rows = input.filter((row) => row.labelKnownAt < new Date(asOf).toISOString())
+    .sort((a, b) => a.issuedAt.localeCompare(b.issuedAt));
   if (
     new Set(rows.map((row) => row.id)).size !== rows.length ||
     rows.some(
       (row) =>
         !Number.isFinite(Date.parse(row.issuedAt)) ||
         !Number.isFinite(Date.parse(row.labelKnownAt)) ||
+        new Date(row.issuedAt).toISOString() !== row.issuedAt ||
+        new Date(row.labelKnownAt).toISOString() !== row.labelKnownAt ||
         row.labelKnownAt <= row.issuedAt ||
         !row.features.length ||
         !row.features.every(Number.isFinite) ||
@@ -98,7 +112,7 @@ export function trainCandidate(
   const datasetHash = createHash("sha256")
     .update(JSON.stringify(rows))
     .digest("hex");
-  const minimum = 120;
+  const minimum = policy.minimumSamples ?? 120;
   if (rows.length < minimum)
     return {
       status: "insufficient_data" as const,
@@ -107,13 +121,29 @@ export function trainCandidate(
       datasetHash,
       promoted: false,
       reason:
-        "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+        `At least ${minimum} resolved, source-backed observations per instrument and horizon are required.`,
     };
   const split = chronologicalSplit(rows);
+  if (policy.consumedThrough) {
+    split.test = split.test.filter((row) => row.issuedAt > policy.consumedThrough!);
+  }
+  if (policy.nonOverlappingTest) {
+    let knownThrough = "";
+    split.test = split.test.filter((row) => {
+      if (row.issuedAt <= knownThrough) return false;
+      knownThrough = row.labelKnownAt;
+      return true;
+    });
+  }
+  const minimumTestSamples = policy.minimumTestSamples ?? 20;
+  const freshLabels = policy.consumedThrough
+    ? rows.filter((row) => row.labelKnownAt > policy.consumedThrough!).length
+    : rows.length;
   if (
     split.train.length < 50 ||
     split.validation.length < 20 ||
-    split.test.length < 20 ||
+    split.test.length < minimumTestSamples ||
+    freshLabels < 20 ||
     new Set(split.train.map((row) => row.up)).size < 2
   )
     return {
@@ -123,8 +153,16 @@ export function trainCandidate(
       datasetHash,
       promoted: false,
       reason:
-        "The purged chronological split lacks enough observations or both outcomes.",
+        `The purged split needs 50 training rows with both outcomes, 20 validation rows, ${minimumTestSamples} ${policy.nonOverlappingTest ? "non-overlapping, previously uninspected " : ""}test labels and 20 fresh resolved labels.`,
     };
+  return { status: "ready" as const, samples: rows.length, minimum, datasetHash, split };
+}
+
+export type ReadyCandidate = Extract<ReturnType<typeof planCandidate>, { status: "ready" }>;
+
+/** Caller must durably reserve a prospective test window before invoking this evaluator. */
+export function evaluateCandidate(plan: ReadyCandidate, incumbent?: LogisticModel) {
+  const { samples, minimum, datasetHash, split } = plan;
   const candidates = [0.01, 0.1, 1, 10].map((lambda) =>
     fit(split.train, lambda),
   );
@@ -167,7 +205,7 @@ export function trainCandidate(
   });
   return {
     status: "evaluated" as const,
-    samples: rows.length,
+    samples,
     minimum,
     datasetHash,
     promoted,
@@ -180,6 +218,7 @@ export function trainCandidate(
       test: split.test.length,
       trainEnds: split.train.at(-1)!.labelKnownAt,
       testStarts: split.test[0].issuedAt,
+      testEnds: split.test.map((row) => row.labelKnownAt).sort().at(-1)!,
     },
     model,
     candidateBrier,
@@ -188,4 +227,10 @@ export function trainCandidate(
     incumbentBrier,
     calibration,
   };
+}
+
+/** Single historical research evaluation. Prospective activation additionally uses a persisted reservation and significance gate. */
+export function trainCandidate(input: TrainingRow[], asOf: string, incumbent?: LogisticModel) {
+  const plan = planCandidate(input, asOf);
+  return plan.status === "ready" ? evaluateCandidate(plan, incumbent) : plan;
 }
