@@ -1,0 +1,343 @@
+{
+  "verifiedAt": "2026-11-03T04:43:01.765444+00:00",
+  "base": "https://thedailyconsensus.com",
+  "deploymentId": "dpl_Hv6mtiiVkYDWSjud9h1mdxWp2R4Y",
+  "codeCommit": "f58df64",
+  "tlsValidation": "normal system trust; no address override",
+  "systemAddresses": [
+    "216.150.1.1"
+  ],
+  "checksPassed": 23,
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "40966b9244ed8dc7ea1f10cd3a0db65c3c49ea30d59f392a36f0cb5656febede"
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "a43549f08937247ac6353c4ac3ff47f9ac27d5c60fe4f90c0d485b3401e56de4",
+      "health": {
+        "service": "The Daily Consensus",
+        "mode": "free-public",
+        "status": "ready",
+        "research": {
+          "status": "ok",
+          "publishedAt": "2026-11-03T02:48:50.290Z"
+        },
+        "reports": {
+          "SPY": {
+            "status": "ok",
+            "publishedAt": "2026-11-03T04:16:34.455Z"
+          },
+          "QQQ": {
+            "status": "ok",
+            "publishedAt": "2026-11-03T04:16:34.455Z"
+          },
+          "IWM": {
+            "status": "ok",
+            "publishedAt": "2026-11-03T04:16:34.456Z"
+          },
+          "DIA": {
+            "status": "ok",
+            "publishedAt": "2026-11-03T04:16:34.456Z"
+          },
+          "TLT": {
+            "status": "ok",
+            "publishedAt": "2026-11-03T04:16:34.456Z"
+          }
+        },
+        "runtimeGeneration": false
+      }
+    },
+    {
+      "path": "/api/research",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "62381091c152b366ffffac62e7b1606f770b729e3da0dd0a597c3b0998c4dde3",
+      "scope": "market",
+      "symbol": null,
+      "publicationStatus": "ok",
+      "createdAt": "2026-11-03T02:48:50.290Z",
+      "headline": "Two different futures books. Read the context."
+    },
+    {
+      "path": "/api/research?symbol=AAPL",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "c3ff3416ab41e00be5393152536b32350d6bd1166aea07eee76b0fded8cc2f2f",
+      "scope": "instrument",
+      "symbol": "AAPL",
+      "publicationStatus": "unconfigured",
+      "createdAt": null,
+      "headline": null
+    },
+    {
+      "path": "/api/research?symbol=spy",
+      "status": 400,
+      "sha256": "9bc80bcbe8683311f463cdf8d411f8ee89e1cfec5568d1ab03fc72ce73818ad1"
+    },
+    {
+      "path": "/widgets/chart?symbol=SPY&theme=dark&newsScope=symbol",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "headers": {
+        "x-frame-options": "SAMEORIGIN",
+        "content-security-policy": "frame-ancestors 'self'"
+      },
+      "sha256": "9760990cb3a5dbb2987f12a560d8c64494e96125a4fee3abdc3e23e1ed948f31"
+    },
+    {
+      "path": "/widgets/unknown",
+      "status": 404,
+      "sha256": "337892c6204ce834fa68dd7a15918c72c36fa9095e4bed8df12e64cdd3160a14"
+    },
+    {
+      "path": "/widgets/chart?symbol=%3Cscript%3E",
+      "status": 400,
+      "sha256": "d96193f27d42eb1aa350a115d47740ce6ea396b250c33a83337eab994f1767c4"
+    },
+    {
+      "path": "/api/research?symbol=SPY",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "17814e87607df846adbd80269faa8fe3983a7351dbde156e6aa0e81ea6dca106",
+      "scope": "instrument",
+      "symbol": "SPY",
+      "publicationStatus": "ok",
+      "createdAt": "2026-11-03T04:16:34.455Z",
+      "headline": "SPY: positioning pulls in different directions."
+    },
+    {
+      "path": "/api/research?symbol=QQQ",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "8520f7f9a49ed126097a4724f6bd762fd69bee2c5f2fe5bd6e5c22c742bef98d",
+      "scope": "instrument",
+      "symbol": "QQQ",
+      "publicationStatus": "ok",
+      "createdAt": "2026-11-03T04:16:34.455Z",
+      "headline": "QQQ: a smaller asset-manager long balance."
+    },
+    {
+      "path": "/api/research?symbol=IWM",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "4ea9aacdbae8e25f2a9d68fc5cd7552ebe34a875ba57764d7e8beab597cf0cf2",
+      "scope": "instrument",
+      "symbol": "IWM",
+      "publicationStatus": "ok",
+      "createdAt": "2026-11-03T04:16:34.456Z",
+      "headline": "IWM: less net short, but no broad agreement."
+    },
+    {
+      "path": "/api/research?symbol=DIA",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "c16e9c8bd7ffbd72fa7f973065ca7aaf30b2a89d86bd019485717fcfaf756674",
+      "scope": "instrument",
+      "symbol": "DIA",
+      "publicationStatus": "ok",
+      "createdAt": "2026-11-03T04:16:34.456Z",
+      "headline": "DIA: a small sign change needs context."
+    },
+    {
+      "path": "/api/research?symbol=TLT",
+      "status": 200,
+      "contentType": "application/json",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "d6478d7de796753241bf904a47284d8905807121d6f08405d9cece42d581c3c4",
+      "scope": "instrument",
+      "symbol": "TLT",
+      "publicationStatus": "ok",
+      "createdAt": "2026-11-03T04:16:34.456Z",
+      "headline": "TLT: separate Treasury exposure from rate policy."
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-QQQ-f0f5bb23a7a0-evidence.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "831c9db78af6fd0ea945c8d8032f64f0186cfaada0f0ee1d3eaa06ba6512527b"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-TLT-9ab1e1024225-evidence.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "831c9db78af6fd0ea945c8d8032f64f0186cfaada0f0ee1d3eaa06ba6512527b"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-SPY-97ffd99d77a2-brief.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "fa7a26c79fefc19356e1aab12db3035d66156879dfad832158beac8709ec07e7"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-TLT-9ab1e1024225-brief.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "034d15fdd0acd40cff4751f662047186b9fa45a3231e6471f58de22d7af96de2"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-IWM-dd2ec4e51bc3-evidence.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "831c9db78af6fd0ea945c8d8032f64f0186cfaada0f0ee1d3eaa06ba6512527b"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-QQQ-f0f5bb23a7a0-brief.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "66454e3aadcee4c735082462848b1472b3bb527e701c0beca95d49b1f0b51028"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-DIA-8a2b9f7ef092-brief.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "f35b60bfaad7248c79791122a586e306ef2c1e2f5964fc594c002e78637655e4"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-DIA-8a2b9f7ef092-evidence.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "831c9db78af6fd0ea945c8d8032f64f0186cfaada0f0ee1d3eaa06ba6512527b"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-IWM-dd2ec4e51bc3-brief.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "0365593b0762c6bd68af4d7dd2618da74f6fb96f3f81be40c1941b45338c8ff4"
+    },
+    {
+      "path": "/reports/2026-11-03-041634Z-SPY-97ffd99d77a2-evidence.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headers": {
+        "x-frame-options": "DENY",
+        "content-security-policy": null
+      },
+      "sha256": "831c9db78af6fd0ea945c8d8032f64f0186cfaada0f0ee1d3eaa06ba6512527b"
+    }
+  ],
+  "browser": {
+    "verifiedAt": "2026-11-03T04:45:11.102Z",
+    "url": "https://thedailyconsensus.com/",
+    "reports": [
+      {
+        "label": "QQQ Nasdaq-100",
+        "headings": [
+          "\t\t\t139 heading QQQ: a smaller asset-manager long balance., Value: 2"
+        ],
+        "widgetError": false
+      },
+      {
+        "label": "IWM Russell 2000",
+        "headings": [
+          "~\t\t\t139 heading IWM: less net short, but no broad agreement., Value: 2"
+        ],
+        "widgetError": false
+      },
+      {
+        "label": "DIA Dow",
+        "headings": [
+          "~\t\t\t139 heading DIA: a small sign change needs context., Value: 2"
+        ],
+        "widgetError": false
+      },
+      {
+        "label": "TLT Long Treasuries",
+        "headings": [
+          "\t\t\t139 heading TLT: separate Treasury exposure from rate policy., Value: 2"
+        ],
+        "widgetError": false
+      }
+    ],
+    "SPYVisible": true,
+    "publicWithoutSignIn": true,
+    "mobile": {
+      "width": 390,
+      "documentWidth": 390,
+      "buttonMinHeight": 63
+    },
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "warningsAndErrors": [],
+    "screenshot": "Private recovery/qa/instrument-reports-production-desktop.jpg",
+    "externalSearchCrawler": "Still returned the old Coming Soon page; normal system HTTPS and browser show the deployed application."
+  }
+}
