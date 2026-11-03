@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { eventUpcoming } from "@/lib/consensus/time";
+import { policyReadings } from "@/lib/consensus/policy";
 import type { NewsPulse } from "@/lib/consensus/news";
 import { calculateConsensus, effectiveStatus } from "@/lib/consensus/engine";
 import { FAMILIES } from "@/lib/consensus/registry";
@@ -87,11 +88,13 @@ function Sparkline({
   color = "var(--accent)",
   label,
   large = false,
+  stepped = false,
 }: {
   series: Point[];
   color?: string;
   label: string;
   large?: boolean;
+  stepped?: boolean;
 }) {
   if (series.length < 2)
     return <div className={styles.noChart}>No observed series</div>;
@@ -101,10 +104,13 @@ function Sparkline({
     spread = max - min || Math.max(Math.abs(max) * 0.01, 1),
     width = 300,
     height = large ? 130 : 64;
-  const points = data
-    .map(
-      (point, i) =>
-        `${(i / (data.length - 1)) * (width - 8) + 4},${height - 10 - ((point.value - min) / spread) * (height - 20)}`,
+  const xy = data.map((point, i) => [
+    (i / (data.length - 1)) * (width - 8) + 4,
+    height - 10 - ((point.value - min) / spread) * (height - 20),
+  ]);
+  const points = xy
+    .flatMap(([x, y], i) =>
+      stepped && i > 0 ? [`${x},${xy[i - 1][1]}`, `${x},${y}`] : [`${x},${y}`],
     )
     .join(" ");
   return (
@@ -269,7 +275,12 @@ function SourceDrawer({
               <p className={styles.finePrint}>{signal.collectionNote}</p>
             )}
             {signal.series.length > 1 && (
-              <Sparkline series={signal.series} label={signal.title} large />
+              <Sparkline
+                series={signal.series}
+                label={signal.title}
+                large
+                stepped={signal.source.frequency === "daily policy level"}
+              />
             )}
             {!!signal.metrics.length && (
               <dl className={styles.sourceFacts}>
@@ -278,7 +289,7 @@ function SourceDrawer({
                     <dt>{metric.label}</dt>
                     <dd>
                       {number(metric.value, 4)} {metric.unit} ·{" "}
-                      {date(metric.date)}
+                      {datedYear(metric.date)}
                     </dd>
                   </div>
                 ))}
@@ -289,7 +300,7 @@ function SourceDrawer({
                 <dt>Observed</dt>
                 <dd>
                   {signal.source.observedAt
-                    ? date(signal.source.observedAt)
+                    ? datedYear(signal.source.observedAt)
                     : "No observation"}
                 </dd>
               </div>
@@ -305,10 +316,12 @@ function SourceDrawer({
                 </dd>
               </div>
               <div>
-                <dt>Release time</dt>
+                <dt>Released</dt>
                 <dd>
                   {signal.source.releasedAt
-                    ? `${date(signal.source.releasedAt)} · ${time(signal.source.releasedAt)} ET`
+                    ? signal.source.releasedAt.length === 10
+                      ? `${datedYear(signal.source.releasedAt)} · time not supplied`
+                      : `${datedYear(signal.source.releasedAt)} · ${time(signal.source.releasedAt)} ET`
                     : "Not supplied by source"}
                 </dd>
               </div>
@@ -318,6 +331,16 @@ function SourceDrawer({
               <p>{signal.methodology}</p>
               <p>{signal.limitation}</p>
               <p>{signal.source.attribution}</p>
+              <p>{signal.source.usage}</p>
+              {signal.id === "policy-boe-bank" && (
+                <a
+                  href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open Government Licence v3.0
+                </a>
+              )}
             </details>
             <a
               href={signal.source.url}
@@ -765,6 +788,129 @@ function NewsPanel({
         <a href={pulse.sourceUrl} target="_blank" rel="noopener noreferrer">
           Data source
         </a>
+      </p>
+    </section>
+  );
+}
+
+function PolicyRates({
+  signals,
+  reference,
+  onInspect,
+}: {
+  signals: Signal[];
+  reference: string;
+  onInspect: (family: Family) => void;
+}) {
+  if (!signals.some((signal) => signal.id.startsWith("policy-"))) return null;
+  const rows = policyReadings(signals, reference),
+    values = rows.flatMap((row) =>
+      row.lower === null || row.upper === null ? [] : [row.lower, row.upper],
+    );
+  const min = Math.min(0, Math.floor(Math.min(...values, 0))),
+    max = Math.max(5, Math.ceil(Math.max(...values, 5))),
+    position = (value: number) => ((value - min) / (max - min)) * 100;
+  return (
+    <section
+      className={`${styles.panel} ${styles.policyPanel}`}
+      aria-label="Central-bank policy rates"
+    >
+      <div className={styles.panelHead}>
+        <div>
+          <span className={styles.eyebrow}>THE GLOBAL COST OF MONEY</span>
+          <h3>Four policy desks. Different settings.</h3>
+        </div>
+      </div>
+      <p className={styles.panelSubtitle}>
+        Official nominal policy rates · shared percent scale
+      </p>
+      <div className={styles.policyLanes}>
+        {rows.map((row) => (
+          <button
+            key={row.currency}
+            className={styles.policyRow}
+            onClick={() => onInspect(row.family)}
+            aria-label={`Inspect ${row.name} rate`}
+          >
+            <span className={styles.policyLabel}>
+              <strong>
+                {row.currency} <span>{row.name}</span>
+              </strong>
+              <small>{row.definition}</small>
+            </span>
+            <span className={styles.policyTrack} aria-hidden="true">
+              {[0, 25, 50, 75, 100].map((tick) => (
+                <i
+                  className={styles.policyTick}
+                  style={{ left: `${tick}%` }}
+                  key={tick}
+                />
+              ))}
+              {row.lower !== null && row.upper !== null && (
+                <>
+                  <i
+                    className={styles.policyRange}
+                    style={{
+                      left: `${position(row.lower)}%`,
+                      width: `${position(row.upper) - position(row.lower)}%`,
+                      opacity: row.stale ? 0.4 : 1,
+                    }}
+                  />
+                  <i
+                    className={`${styles.policyDot} ${row.approximate ? styles.approximateDot : ""}`}
+                    style={{
+                      left: `${position(row.lower)}%`,
+                      opacity: row.stale ? 0.4 : 1,
+                    }}
+                  />
+                  {row.upper !== row.lower && (
+                    <i
+                      className={styles.policyDot}
+                      style={{
+                        left: `${position(row.upper)}%`,
+                        opacity: row.stale ? 0.4 : 1,
+                      }}
+                    />
+                  )}
+                </>
+              )}
+            </span>
+            <span className={styles.policyValue}>
+              {row.lower === null
+                ? "—"
+                : `${row.approximate ? "≈ " : ""}${number(row.lower, 2)}${row.upper !== row.lower ? `–${number(row.upper!, 2)}` : ""}%`}
+              <small>
+                {row.at ? date(row.at) : "Unavailable"}
+                {row.stale ? " · stale" : ""}
+              </small>
+            </span>
+            <span className={styles.policyDateNote}>
+              {row.note}
+              {row.at ? ` · ${datedYear(row.at)}` : ""}
+              <ArrowUpRight size={12} />
+            </span>
+          </button>
+        ))}
+        <div
+          className={`${styles.policyRow} ${styles.policyAxis}`}
+          aria-hidden="true"
+        >
+          <span />
+          <div>
+            {[0, 25, 50, 75, 100].map((tick) => (
+              <span key={tick} style={{ left: `${tick}%` }}>
+                {number(min + ((max - min) * tick) / 100, 2)}%
+              </span>
+            ))}
+          </div>
+          <span />
+        </div>
+      </div>
+      <p className={styles.chartFoot}>
+        A range, a deposit rate, Bank Rate and an approximate target measure
+        different policy settings. Dates vary. These levels alone do not
+        forecast currencies or the next rate decision. Select a bank to inspect
+        its source.
       </p>
     </section>
   );
@@ -1366,6 +1512,11 @@ export default function MorningBoard({
                 </div>
               </section>
             </div>
+            <PolicyRates
+              signals={snapshot.signals}
+              reference={reference}
+              onInspect={setFamily}
+            />
             <div className={styles.twoColumns}>
               <section className={styles.panel}>
                 <div className={styles.panelHead}>
@@ -1458,7 +1609,7 @@ export default function MorningBoard({
             </div>
             <CapitalPanels
               signals={snapshot.signals}
-              now={now}
+              now={reference}
               onInspect={() => setFamily("capital")}
             />
             {snapshot.news && (

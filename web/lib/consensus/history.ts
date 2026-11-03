@@ -13,7 +13,11 @@ import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
-import { reviewedSignals, validateReview } from "./reviewed.ts";
+import {
+  reviewedSignals,
+  reviewedPolicySignals,
+  validateReview,
+} from "./reviewed.ts";
 
 export const digest = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -203,6 +207,9 @@ export function validateSnapshot(snapshot: Snapshot): void {
   const reviews = snapshot.signals.filter((signal) =>
     signal.id.startsWith("review-"),
   );
+  const policyReviews = snapshot.signals.filter((signal) =>
+    signal.id.startsWith("policy-reviewed-"),
+  );
   if (snapshot.review) {
     validateReview(snapshot.review, snapshot.cutoff);
     if (
@@ -210,7 +217,12 @@ export function validateSnapshot(snapshot: Snapshot): void {
       JSON.stringify(reviewedSignals(snapshot.review, snapshot.cutoff))
     )
       throw new Error("Reviewed evidence and signal provenance disagree");
-  } else if (reviews.length)
+    if (
+      JSON.stringify(policyReviews) !==
+      JSON.stringify(reviewedPolicySignals(snapshot.review, snapshot.cutoff))
+    )
+      throw new Error("Reviewed policy and source provenance disagree");
+  } else if (reviews.length || policyReviews.length)
     throw new Error("Reviewed signals require their saved evidence packet");
 }
 export function observationDigest(snapshot: Snapshot): string {

@@ -45,6 +45,12 @@ export interface ReviewPacket {
   sources: ReviewedSource[];
   developments: ReviewedDevelopment[];
   earnings: ReviewedEarnings[];
+  policies?: {
+    bank: "BOJ";
+    sourceId: string;
+    rate: number;
+    qualification: "approximate";
+  }[];
 }
 const HOSTS = new Set([
   "www.apple.com",
@@ -163,6 +169,70 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
       throw new Error("Invalid reviewed earnings facts");
     tickers.add(item.ticker);
   }
+  if (packet.policies !== undefined) {
+    if (!Array.isArray(packet.policies) || packet.policies.length > 1)
+      throw new Error("Invalid policy review");
+    for (const item of packet.policies) {
+      const source = packet.sources.find((s) => s.id === item.sourceId);
+      if (
+        item.bank !== "BOJ" ||
+        item.qualification !== "approximate" ||
+        !source ||
+        new URL(source.url).hostname !== "www.boj.or.jp" ||
+        !Number.isFinite(item.rate) ||
+        item.rate < -20 ||
+        item.rate > 100
+      )
+        throw new Error("Invalid reviewed policy decision");
+    }
+  }
+}
+
+export function reviewedPolicySignals(
+  packet: ReviewPacket,
+  cutoff: string,
+): Signal[] {
+  validateReview(packet, cutoff);
+  return (packet.policies ?? []).map((item) => {
+    const source = packet.sources.find((s) => s.id === item.sourceId)!;
+    return {
+      id: "policy-reviewed-boj",
+      title: "Bank of Japan · overnight target",
+      shortLabel: "Bank of Japan target",
+      family: "international",
+      instruments: [...INSTRUMENTS],
+      status: "available",
+      summary: `The Bank of Japan's ${source.publishedAt.slice(0, 10)} decision sets an approximate ${item.rate.toFixed(2)}% overnight call-rate target.`,
+      source: {
+        name: source.name,
+        url: source.url,
+        observedAt: source.publishedAt,
+        releasedAt: source.publishedAt,
+        retrievedAt: source.retrievedAt,
+        sha256: source.sha256,
+        frequency: "reviewed policy decision",
+        attribution: "Bank of Japan",
+        usage:
+          "Selected policy fact with original-source attribution for this free noncommercial publication",
+      },
+      methodology:
+        "Saved subscription review of the official policy decision. The target is approximate, not a measured overnight market rate. It is dated to the decision and carries no directional vote.",
+      limitation:
+        "A decision can be superseded before the next review. This is a dated target, not a live rate quote, forward curve or currency trade signal.",
+      series: [{ date: source.publishedAt.slice(0, 10), value: item.rate }],
+      metrics: [
+        {
+          label: "Approximate overnight target",
+          value: item.rate,
+          unit: "%",
+          date: source.publishedAt.slice(0, 10),
+        },
+      ],
+      unit: "%",
+      staleAfterDays: 60,
+      scores: { daily: null, weekly: null, monthly: null },
+    };
+  });
 }
 
 export function reviewedSignals(
@@ -310,12 +380,16 @@ export function attachReview(
   const signals = [
     ...applyReviewedEarnings(
       snapshot.signals.filter(
-        (s) => !s.id.startsWith("review-") && s.id !== "global-news",
+        (s) =>
+          !s.id.startsWith("review-") &&
+          !s.id.startsWith("policy-reviewed-") &&
+          s.id !== "global-news",
       ),
       packet,
       snapshot.cutoff,
     ),
     ...evidence,
+    ...reviewedPolicySignals(packet, snapshot.cutoff),
     ...(missing.instruments.length ? [missing] : []),
   ];
   return {

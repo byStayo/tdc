@@ -1670,6 +1670,134 @@
 .capitalPanels {
   margin-top: 18px;
 }
+.policyPanel {
+  margin: 18px 0;
+}
+.policyLanes {
+  margin: 18px 0 26px;
+}
+.policyRow {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) minmax(120px, 2fr) 110px;
+  gap: 6px 24px;
+  align-items: center;
+  width: 100%;
+  padding: 18px 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+button.policyRow {
+  cursor: pointer;
+  min-height: 78px;
+}
+button.policyRow:hover {
+  background: var(--panel-hover);
+}
+.policyLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.policyLabel strong {
+  display: flex;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.policyLabel strong span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.policyLabel small {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.policyTrack {
+  height: 20px;
+  position: relative;
+  display: block;
+}
+.policyTick {
+  position: absolute;
+  height: 36px;
+  top: -8px;
+  width: 1px;
+  background: var(--border);
+}
+.policyRange {
+  position: absolute;
+  height: 4px;
+  top: 8px;
+  background: var(--accent);
+}
+.policyDot {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  top: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateX(-50%);
+}
+.approximateDot {
+  background: var(--panel);
+  border: 2px solid var(--accent);
+}
+.policyValue {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.policyValue small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.policyDateNote {
+  grid-column: 2 / -1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.policyAxis {
+  border-bottom: 0;
+  padding: 8px 0 0;
+}
+.policyAxis > div {
+  position: relative;
+  height: 12px;
+}
+.policyAxis > div > span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+@media (max-width: 700px) {
+  .policyRow {
+    grid-template-columns: minmax(0, 1fr) 90px;
+    gap: 14px 16px;
+  }
+  .policyLabel {
+    grid-column: 1 / -1;
+  }
+  .policyValue {
+    font-size: 17px;
+  }
+  .policyDateNote {
+    grid-column: 1 / -1;
+  }
+  .policyAxis > span:first-child {
+    display: none;
+  }
+}
 .flowBars {
   margin: 24px 0 20px;
   display: grid;

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-11-03T07:35:43.000Z",
+  "reviewedAt": "2026-11-03T07:49:57.453Z",
   "reviewer": "Codex subscription editorial review",
   "sources": [
     {
@@ -34,6 +34,14 @@
       "publishedAt": "2026-10-28T18:00:00.000Z",
       "retrievedAt": "2026-11-03T07:28:18.412Z",
       "sha256": "fe15455925ea426646f2a015793df93cf66c7fa08783dc895ff7211d563dcbc9"
+    },
+    {
+      "id": "boj-october",
+      "name": "Bank of Japan · October policy decision",
+      "url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k261030a.pdf",
+      "publishedAt": "2026-10-30",
+      "retrievedAt": "2026-11-03T07:46:20.344Z",
+      "sha256": "f62859324bd87cc493b9bd2ec09b9030012602cfe66b7298543ad7cffc97a044"
     }
   ],
   "developments": [
@@ -41,7 +49,10 @@
       "id": "apple-quarter",
       "title": "Apple's new quarter updates the earnings picture",
       "facts": "Apple reported $114.477bn revenue for the September 26 quarter, up from $102.466bn a year earlier. GAAP diluted EPS rose to $2.10 from $1.85. A tariff refund added $0.05 to EPS; that benefit is not recurring operating growth.",
-      "sourceIds": ["apple-statements", "apple-release"],
+      "sourceIds": [
+        "apple-statements",
+        "apple-release"
+      ],
       "impacts": [
         {
           "instrument": "MARKET",
@@ -70,7 +81,9 @@
       "id": "microsoft-quarter",
       "title": "Microsoft's growth comes with a GAAP distinction",
       "facts": "Microsoft reported September-quarter revenue of $92.279bn, up from $77.673bn a year earlier. GAAP diluted EPS was $4.92; adjusted EPS was $4.89. The company reported 48% Azure revenue growth.",
-      "sourceIds": ["microsoft-release"],
+      "sourceIds": [
+        "microsoft-release"
+      ],
       "impacts": [
         {
           "instrument": "MARKET",
@@ -99,7 +112,9 @@
       "id": "fed-october-decision",
       "title": "The Fed held rates; two members wanted a hike",
       "facts": "On October 28, the Fed kept its target range at 3.75–4.00%. The vote was 10–2, with both dissenters preferring a quarter-point increase. The statement described inflation as elevated.",
-      "sourceIds": ["fed-october"],
+      "sourceIds": [
+        "fed-october"
+      ],
       "impacts": [
         {
           "instrument": "MARKET",
@@ -155,6 +170,14 @@
       "priorRevenueBillions": 77.673,
       "dilutedEPS": 4.92,
       "priorDilutedEPS": 3.72
+    }
+  ],
+  "policies": [
+    {
+      "bank": "BOJ",
+      "sourceId": "boj-october",
+      "rate": 1.25,
+      "qualification": "approximate"
     }
   ]
 }
