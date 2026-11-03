@@ -1,21 +1,21 @@
 :root {
   color-scheme: dark;
-  --bg: #080f1c;
-  --sidebar: #0a1220;
-  --panel: #0f1929;
-  --panel-raised: #132035;
-  --panel-hover: #17263d;
-  --border: #203047;
-  --border-subtle: #19263a;
-  --text: #eef3fb;
-  --text-secondary: #b1bed1;
-  --text-muted: #7f91ab;
-  --accent: #70aaff;
-  --accent-solid: #236bce;
-  --accent-tint: rgba(74, 145, 242, 0.12);
-  --positive: #6ad6b2;
-  --negative: #f29b9f;
-  --warning: #e6c07d;
+  --bg: #0d1214;
+  --sidebar: #101719;
+  --panel: #141d20;
+  --panel-raised: #1b272b;
+  --panel-hover: #223136;
+  --border: #2b3a3f;
+  --border-subtle: #223035;
+  --text: #f0f3ed;
+  --text-secondary: #becac9;
+  --text-muted: #97aaa9;
+  --accent: #a2d5bb;
+  --accent-solid: #346b52;
+  --accent-tint: rgba(162, 213, 187, 0.08);
+  --positive: #9ad6b7;
+  --negative: #e7a6a6;
+  --warning: #e3c291;
   --shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
   --chart-volume: #294b72;
   --chart-volume-negative: #4d3f59;
@@ -23,23 +23,23 @@
   --type-micro: 10px;
   --type-small: 11px;
   --type-body: 12px;
-  --font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font: var(--font-body), sans-serif;
 }
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f5f7fb;
+  --bg: #f4f5f1;
   --sidebar: #fff;
   --panel: #fff;
-  --panel-raised: #f3f6fb;
-  --panel-hover: #edf2f9;
-  --border: #d9e1ee;
-  --border-subtle: #e7edf5;
-  --text: #12243d;
-  --text-secondary: #4b5d76;
-  --text-muted: #62758f;
-  --accent: #2169c9;
-  --accent-solid: #236bce;
-  --accent-tint: rgba(42, 111, 207, 0.08);
+  --panel-raised: #eef1eb;
+  --panel-hover: #e8eee6;
+  --border: #d0d9d2;
+  --border-subtle: #e0e6de;
+  --text: #1a302b;
+  --text-secondary: #495f59;
+  --text-muted: #60756b;
+  --accent: #316b51;
+  --accent-solid: #346b52;
+  --accent-tint: rgba(49, 107, 81, 0.07);
   --positive: #137b5c;
   --negative: #b3404d;
   --warning: #8a631d;
@@ -198,48 +198,7 @@ input {
   overflow-y: auto;
 }
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 12px 27px;
-  font-size: 16px;
-  letter-spacing: -0.5px;
-  line-height: 1.12;
-}
-.brand strong {
-  font-weight: 650;
-}
-.brand-period {
-  color: var(--accent);
-}
-.brand-symbol {
-  width: 29px;
-  height: 29px;
-  display: flex;
-  gap: 3px;
-  align-items: center;
-  transform: skewY(-10deg);
-}
-.brand-symbol i {
-  display: block;
-  width: 5px;
-  background: var(--accent);
-  border-radius: 1px;
-}
-.brand-symbol i:nth-child(1) {
-  height: 14px;
-  opacity: 0.55;
-}
-.brand-symbol i:nth-child(2) {
-  height: 24px;
-  opacity: 0.85;
-}
-.brand-symbol i:nth-child(3) {
-  height: 29px;
-}
-.brand-symbol i:nth-child(4) {
-  height: 18px;
-  opacity: 0.7;
+  padding: 0 8px 27px;
 }
 .nav-group {
   font-size: var(--type-micro);

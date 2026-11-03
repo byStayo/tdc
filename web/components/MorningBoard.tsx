@@ -38,6 +38,9 @@ import type {
 } from "@/lib/consensus/types";
 import styles from "./MorningBoard.module.css";
 import MorningMarket from "./MorningMarket";
+import Brand from "./Brand";
+import ResearchSection from "./ResearchSection";
+import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
 
 const pct = (value: number | null) =>
@@ -151,7 +154,11 @@ function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
       viewBox="0 0 300 175"
       className={styles.gauge}
       role="img"
-      aria-label={abstain ? "Trading call withheld. See the reasons below." : `Available-input balance ${score === null ? "unavailable" : number(value * 100, 0)} on a scale from -100 to 100. Heuristic directional lean.`}
+      aria-label={
+        abstain
+          ? "Trading call withheld. See the reasons below."
+          : `Available-input balance ${score === null ? "unavailable" : number(value * 100, 0)} on a scale from -100 to 100. Heuristic directional lean.`
+      }
     >
       <path
         d="M 30 135 A 120 120 0 0 1 270 135"
@@ -201,7 +208,13 @@ function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
     </svg>
   );
 }
-function Divergence({ value, muted = false }: { value: number | null; muted?: boolean }) {
+function Divergence({
+  value,
+  muted = false,
+}: {
+  value: number | null;
+  muted?: boolean;
+}) {
   return (
     <div className={styles.divergence} aria-hidden="true">
       <span />
@@ -209,8 +222,11 @@ function Divergence({ value, muted = false }: { value: number | null; muted?: bo
         style={{
           left: value !== null && value < 0 ? `${50 + value * 50}%` : "50%",
           width: value === null ? "0%" : `${Math.abs(value) * 50}%`,
-          background:
-            muted ? "var(--text-muted)" : value !== null && value < 0 ? "var(--negative)" : "var(--positive)",
+          background: muted
+            ? "var(--text-muted)"
+            : value !== null && value < 0
+              ? "var(--negative)"
+              : "var(--positive)",
         }}
       />
     </div>
@@ -979,7 +995,6 @@ function ReviewedDevelopments({
                 <span>{stale ? "Older context" : "Source checked"}</span>
               </div>
               <h3>{item.title}</h3>
-              <p>{item.facts}</p>
               <div className={styles.transmission}>
                 <ArrowDownRight size={20} aria-hidden="true" />
                 <div>
@@ -987,9 +1002,12 @@ function ReviewedDevelopments({
                   <strong>{impact.channel}</strong>
                 </div>
               </div>
-              <p className={styles.interpretation}>{impact.interpretation}</p>
               <details>
-                <summary>Context & sources</summary>
+                <summary>Read the context & sources</summary>
+                <span className={styles.eyebrow}>REPORTED FACTS</span>
+                <p>{item.facts}</p>
+                <span className={styles.eyebrow}>EDITORIAL INTERPRETATION</span>
+                <p className={styles.interpretation}>{impact.interpretation}</p>
                 <p>{item.limitation}</p>
                 {sources.map((source) => (
                   <a
@@ -1048,31 +1066,36 @@ export default function MorningBoard({
   }, []);
   const historical = snapshot.id !== initial.id,
     reference = historical ? snapshot.cutoff : now;
-  const consensus = asIssuedConsensus(
-      snapshot,
-      instrument,
-      horizon,
-    ),
+  const consensus = asIssuedConsensus(snapshot, instrument, horizon),
     current = snapshot.signals.filter((signal) =>
       signal.instruments.includes(instrument),
     );
   const available = current.filter(
     (signal) => effectiveStatus(signal, reference) === "available",
   );
-  const agedSincePublication = historical ? 0 : current.filter(
-    (signal) => effectiveStatus(signal, snapshot.cutoff) === "available" &&
-      effectiveStatus(signal, reference) !== "available",
-  ).length;
+  const agedSincePublication = historical
+    ? 0
+    : current.filter(
+        (signal) =>
+          effectiveStatus(signal, snapshot.cutoff) === "available" &&
+          effectiveStatus(signal, reference) !== "available",
+      ).length;
   const leaders = [...consensus.families]
     .filter((item) => item.score !== null)
     .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
     .slice(0, 5);
   const timing = editionTiming(snapshot, history);
-  const cohort = performanceView(performance, instrument, horizon, snapshot.engineVersion);
+  const cohort = performanceView(
+    performance,
+    instrument,
+    horizon,
+    snapshot.engineVersion,
+  );
   const learning = performance.learning.filter(
     (item) =>
       (instrument === "MARKET" || item.instrument === instrument) &&
-      item.horizon === horizon && item.engineVersion === snapshot.engineVersion,
+      item.horizon === horizon &&
+      item.engineVersion === snapshot.engineVersion,
   );
   const fx = snapshot.signals.filter(
     (signal) => signal.id.startsWith("fx-") && signal.series.length,
@@ -1151,123 +1174,190 @@ export default function MorningBoard({
       if (request === issueRequest.current) setLoading(false);
     }
   }
+  const votingFamilies = consensus.families.filter(
+    (item) => item.score !== null,
+  ).length;
+  const familyNames: Record<Family, string> = {
+    social: "Social",
+    retail: "Retail",
+    institutions: "Institutions",
+    options: "Options",
+    technicals: "Technicals",
+    premarket: "Premarket",
+    events: "Events",
+    analysts: "Analysts",
+    news: "News",
+    earnings: "Earnings",
+    liquidity: "Liquidity",
+    rates: "Rates",
+    fx: "Currencies",
+    international: "Global",
+    capital: "Capital",
+  };
   const overview = (
-<section className={styles.hero} aria-label="Consensus overview">
-            <div className={styles.heroVerdict}>
-              <span className={styles.eyebrow}>
-                {names[instrument]} · {horizon} CONTEXT
-              </span>
-              <h2>{consensus.label}</h2>
-              <p>
-                {consensus.abstain
-                  ? "These are partial observations. The missing signals still matter. A complete trading call is withheld."
-                  : "A transparent balance of independent market inputs. Inspect the drivers before forming your plan."}
-              </p>
-              <div className={styles.coverageLabel}>
-                <span>{consensus.directionalCoverage !== undefined ? "Directional coverage at publication" : "Evidence coverage at publication"}</span>
-                <strong>{pct(consensus.directionalCoverage ?? consensus.coverage)}</strong>
-              </div>
-              <div className={styles.coverageTrack}>
-                <i style={{ width: pct(consensus.directionalCoverage ?? consensus.coverage) }} />
-              </div>
-              <small>
-                {consensus.families.filter((item) => consensus.directionalCoverage !== undefined ? item.score !== null : item.available > 0).length}{" "}
-                of {FAMILIES.length} families {consensus.directionalCoverage !== undefined ? "can vote for this instrument and horizon" : "had current observations at publication"}
-              </small>
-              {consensus.directionalCoverage !== undefined && <p className={styles.finePrint}>
-                {pct(consensus.coverage)} observation coverage, including context that cannot vote.
-                These percentages measure completeness, not accuracy.
-              </p>}
-              {agedSincePublication > 0 && <p className={styles.finePrint}>
-                {agedSincePublication} observations have aged out since publication.
-                This saved reading stays unchanged; inspect source dates before use.
-              </p>}
+    <section className={layout.hero} aria-label="Consensus overview">
+      <div className={layout.verdict}>
+        <span className={styles.eyebrow}>
+          {names[instrument]} · {horizon} context
+        </span>
+        <h2>{consensus.label}</h2>
+        <p>
+          {consensus.abstain
+            ? "The evidence is incomplete. A trading call is withheld until more independent signals are available."
+            : "The balance of independent market signals. Explore the evidence before forming your plan."}
+        </p>
+        <div className={layout.coverage}>
+          <strong>
+            {pct(consensus.directionalCoverage ?? consensus.coverage)}
+          </strong>
+          <span>
+            {consensus.directionalCoverage !== undefined
+              ? "Directional coverage"
+              : "Evidence coverage"}
+            <small>
+              at publication · {votingFamilies}/{FAMILIES.length} voting
+              families
+            </small>
+          </span>
+        </div>
+        <div className={layout.coverageTrack} aria-hidden="true">
+          <i
+            style={{
+              width: pct(consensus.directionalCoverage ?? consensus.coverage),
+            }}
+          />
+        </div>
+        <p className={layout.coverageNote}>
+          {pct(consensus.coverage)} observation coverage. Completeness, not
+          accuracy.
+        </p>
+        {agedSincePublication > 0 && (
+          <p className={layout.coverageNote}>
+            {agedSincePublication} observations have aged out since publication;
+            this saved reading is unchanged.
+          </p>
+        )}
+      </div>
+      <div className={layout.evidenceMap}>
+        <div className={layout.mapHeading}>
+          <span className={styles.eyebrow}>THE SIGNAL MAP</span>
+          <span>At publication</span>
+        </div>
+        <div className={layout.familyMap}>
+          {FAMILIES.map((definition) => {
+            const reading = consensus.families.find(
+              (item) => item.id === definition.id,
+            )!;
+            const state =
+              reading.score !== null
+                ? "voting"
+                : reading.available > 0
+                  ? "context"
+                  : "missing";
+            const label =
+              state === "voting"
+                ? "Directional input"
+                : state === "context"
+                  ? "Context only"
+                  : "No current input";
+            return (
               <button
-                className={styles.textButton}
-                onClick={() => {
-                  setTab("signals");
-                  document.getElementById("signals-tab")?.focus();
-                }}
+                key={definition.id}
+                className={layout.familyCell}
+                data-state={state}
+                onClick={() => setFamily(definition.id)}
+                aria-label={`${definition.label}: ${label}. Inspect sources`}
               >
-                See the full picture <ArrowRight size={15} />
+                <i aria-hidden="true" />
+                <span>{familyNames[definition.id]}</span>
               </button>
-            </div>
-            <div className={styles.gaugeWrap}>
-              <Gauge score={consensus.score} abstain={consensus.abstain} />
-              <div className={styles.votes}>
-                <span>
-                  <i className={consensus.abstain ? styles.mutedDot : styles.positiveDot} />
-                  {consensus.bullish} supportive
-                </span>
-                <span>
-                  <i className={consensus.abstain ? styles.mutedDot : styles.negativeDot} />
-                  {consensus.bearish} defensive
-                </span>
-                <span>{consensus.neutral} balanced</span>
-              </div>
-              <p className={styles.finePrint}>
-                {consensus.abstain && <>Partial observations only; no directional call.<br /></>}
-                {pct(consensus.agreement)} agreement among directional families.
-                <br />
-                Agreement is not a probability of profit.
-              </p>
-            </div>
-            <div className={styles.drivers}>
-              <span className={styles.eyebrow}>
-                {consensus.abstain ? "PARTIAL INPUTS · NOT A CALL" : "WHAT IS PULLING THE BALANCE"}
-              </span>
-              {leaders.map((item) => (
-                <button key={item.id} onClick={() => setFamily(item.id)}>
-                  <span>
-                    {item.label}
-                    <ChevronRight size={13} />
-                  </span>
-                  <Divergence value={item.score} muted={consensus.abstain} />
-                  <strong
-                    className={consensus.abstain ? styles.muted : item.score! >= 0 ? styles.up : styles.down}
-                  >
-                    {item.score! > 0 ? "+" : ""}
-                    {Math.round(item.score! * 100)}
-                  </strong>
-                </button>
-              ))}
-              <p className={styles.finePrint}>
-                Equal family weights. Correlated indicators share a vote. These
-                are declared rules, not learned accuracy.
-              </p>
-            </div>
+            );
+          })}
+        </div>
+        <div className={layout.mapLegend}>
+          <span>
+            <i data-state="voting" />
+            Directional input
+          </span>
+          <span>
+            <i data-state="context" />
+            Context only
+          </span>
+          <span>
+            <i data-state="missing" />
+            No current input
+          </span>
+        </div>
+        <button
+          className={layout.inspectLink}
+          onClick={() => {
+            setTab("signals");
+            document.getElementById("signals-tab")?.focus();
+          }}
+        >
+          Explore all signals <ArrowRight size={15} />
+        </button>
+      </div>
+      <details className={layout.consensusDetails}>
+        <summary>
+          {consensus.abstain
+            ? "Why the call is withheld"
+            : "How the signals combine"}
+          <ChevronRight size={16} aria-hidden="true" />
+        </summary>
+        <div className={layout.consensusDetailsBody}>
+          <div>
+            <h3>
+              {consensus.abstain ? "What is still missing" : "Methodology"}
+            </h3>
             {consensus.abstain && (
-              <aside className={styles.abstentionReasons} aria-labelledby="withheld-reasons">
-                <h3 id="withheld-reasons">Why the call is withheld</h3>
-                <ul>{consensus.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
-              </aside>
+              <ul>
+                {consensus.reasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
             )}
-          </section>
+            <p>
+              Equal family weights. Correlated indicators share a vote. These
+              are declared rules, not learned accuracy.
+            </p>
+          </div>
+          <div className={layout.partialInputs}>
+            <h3>
+              {consensus.abstain
+                ? "Partial inputs · not a call"
+                : "What is pulling the balance"}
+            </h3>
+            {leaders.map((item) => (
+              <button key={item.id} onClick={() => setFamily(item.id)}>
+                <span>{item.label}</span>
+                <Divergence value={item.score} muted={consensus.abstain} />
+                <strong>
+                  {item.score! > 0 ? "+" : ""}
+                  {Math.round(item.score! * 100)}
+                </strong>
+              </button>
+            ))}
+            <p>
+              {consensus.bullish} supportive · {consensus.bearish} defensive ·{" "}
+              {consensus.neutral} balanced. {pct(consensus.agreement)} agreement
+              among directional families; not a probability of profit.
+            </p>
+          </div>
+          {!consensus.abstain && (
+            <Gauge score={consensus.score} abstain={false} />
+          )}
+        </div>
+      </details>
+    </section>
   );
   return (
     <div className={styles.board}>
       <a href="#morning-main" className={styles.skip}>
         Skip to market overview
       </a>
-      <header className={styles.header}>
-        <a
-          className={styles.brand}
-          href="/"
-          aria-label="The Daily Consensus home"
-        >
-          <span className={styles.brandMark}>
-            <i />
-            <i />
-            <i />
-            <i />
-          </span>
-          <span>
-            the daily{" "}
-            <strong>
-              consensus<span>.</span>
-            </strong>
-          </span>
-        </a>
+      <header className={layout.header}>
+        <Brand />
         <nav aria-label="Primary">
           <a href="/" aria-current="page">
             Morning view
@@ -1275,8 +1365,8 @@ export default function MorningBoard({
           <a href="/research-desk">Research desk</a>
           <a href="/research">Archive</a>
         </nav>
-        <div className={styles.headerRight}>
-          <span className={styles.free}>Free. For everyone.</span>
+        <div className={layout.headerRight}>
+          <span className={layout.free}>Free. For everyone.</span>
           <button
             onClick={toggleTheme}
             className={styles.iconButton}
@@ -1286,41 +1376,54 @@ export default function MorningBoard({
           </button>
         </div>
       </header>
-      <main id="morning-main" className={styles.main}>
-        <div className={styles.intro}>
+      <main id="morning-main" className={layout.main}>
+        <div className={layout.intro}>
           <div>
             <span className={styles.eyebrow}>
-              <Coffee size={14} /> YOUR MORNING MARKET MAP
+              <Coffee size={14} /> YOUR MORNING, IN FOCUS
             </span>
             <h1>
-              A world of signals.
-              <br /> <em>One clearer picture.</em>
+              The morning briefing<span>.</span>
             </h1>
-            <p>
-              See what is moving. Where the signals agree. And what is still
-              missing.
-            </p>
+            <p>The signals. The context. A clearer start.</p>
           </div>
-          <div className={styles.edition}>
-            <span className={styles.editionDot} />
-            <strong>
+          <div className={layout.edition} data-historical={historical}>
+            <span className={layout.editionLabel}>
               {historical ? "AS-ISSUED EDITION" : "LATEST SAVED EDITION"}
-            </strong>
-            <span>
-              Issued {date(snapshot.issuedAt)} · {time(snapshot.issuedAt)} ET
             </span>
-            <small>{timing.methodologyReissue ? "Methodology reissue · " : ""}{timing.ruleLabel}</small>
-            {timing.latestSourceCheck && <small>
-              Latest source check {date(timing.latestSourceCheck)} · {time(timing.latestSourceCheck)} ET
-            </small>}
-            <small>
-              {available.length} current inputs · {snapshot.signals.length}{" "}
-              tracked
-            </small>
+            <strong>
+              {date(snapshot.issuedAt)}{" "}
+              <span>· {time(snapshot.issuedAt)} ET</span>
+            </strong>
+            <details>
+              <summary>
+                Edition details <ChevronRight size={13} aria-hidden="true" />
+              </summary>
+              <div>
+                <span>
+                  {timing.methodologyReissue ? "Methodology reissue · " : ""}
+                  {timing.ruleLabel}
+                </span>
+                {timing.latestSourceCheck && (
+                  <span>
+                    Latest source check {date(timing.latestSourceCheck)} ·{" "}
+                    {time(timing.latestSourceCheck)} ET
+                  </span>
+                )}
+                <span>
+                  {available.length} current inputs · {snapshot.signals.length}{" "}
+                  tracked
+                </span>
+              </div>
+            </details>
           </div>
         </div>
-        <div className={styles.toolbar}>
-          <div className={styles.instruments} role="group" aria-label="Instrument">
+        <div className={layout.toolbar}>
+          <div
+            className={layout.instruments}
+            role="group"
+            aria-label="Instrument"
+          >
             {INSTRUMENTS.map((symbol) => (
               <button
                 key={symbol}
@@ -1332,7 +1435,11 @@ export default function MorningBoard({
               </button>
             ))}
           </div>
-          <div className={styles.horizons} role="group" aria-label="Context window">
+          <div
+            className={layout.horizons}
+            role="group"
+            aria-label="Context window"
+          >
             {HORIZONS.map((value) => (
               <button
                 key={value}
@@ -1345,7 +1452,7 @@ export default function MorningBoard({
           </div>
         </div>
         <div
-          className={styles.tabs}
+          className={layout.tabs}
           role="tablist"
           aria-label="Morning sections"
         >
@@ -1389,700 +1496,787 @@ export default function MorningBoard({
             </button>
           ))}
         </div>
-        <div role="tabpanel" id="morning-panel" aria-labelledby="morning-tab" hidden={tab !== "morning"} tabIndex={0}>
-          {tab === "morning" && (<>
-            {overview}
-            <section
-              className={styles.catalystStrip}
-              aria-label="Upcoming economic catalysts"
-            >
-              <div>
-                <span className={styles.eyebrow}>ON THE RADAR</span>
-                <strong>Next catalysts</strong>
-              </div>
-              {scheduled.slice(0, 3).map((item) => (
-                <a
-                  key={item.id}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span>{eventLabel(item)}</span>
-                  <strong>{item.title}</strong>
-                  <small>
-                    {item.source} · {item.kind} <ArrowUpRight size={12} />
-                  </small>
-                </a>
-              ))}
-              {!scheduled.length && (
-                <p className={styles.muted}>
-                  No upcoming events returned by the connected calendar.
-                </p>
-              )}
-            </section>
-            {scheduled.length > 0 && (
-              <details className={styles.calendarExpand}>
-                <summary>
-                  Full calendar · {scheduled.length} upcoming events
-                </summary>
-                <p className={styles.muted}>
-                  Exact times are shown in Eastern. International date-only
-                  events keep their labelled local date. Schedules can change;
-                  check the linked source.
-                </p>
-                <div className={styles.calendarGrid}>
-                  {scheduled.map((item) => (
-                    <a
-                      key={item.id}
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.calendarEvent}
-                    >
-                      <span className={styles.eyebrow}>{eventLabel(item)}</span>
-                      <strong>{item.title}</strong>
-                      <small>
-                        {item.source} · {item.kind}
-                        <ArrowUpRight size={13} />
-                      </small>
-                    </a>
-                  ))}
+        <div
+          role="tabpanel"
+          id="morning-panel"
+          aria-labelledby="morning-tab"
+          hidden={tab !== "morning"}
+          tabIndex={0}
+        >
+          {tab === "morning" && (
+            <>
+              {overview}
+              <section
+                className={styles.catalystStrip}
+                aria-label="Upcoming economic catalysts"
+              >
+                <div>
+                  <span className={styles.eyebrow}>ON THE RADAR</span>
+                  <strong>Next catalysts</strong>
                 </div>
-              </details>
-            )}
-            <ReviewedDevelopments
-              snapshot={snapshot}
-              instrument={instrument}
-              reference={reference}
-            />
-            <MorningMarket
-              instrument={instrument}
-              horizon={horizon}
-              theme={theme}
-              historical={historical}
-            />
-            <div className={styles.sectionHeading}>
-              <div>
-                <span className={styles.eyebrow}>
-                  THE FORCES BEHIND THE MARKET
-                </span>
-                <h2>Start with the big picture.</h2>
-              </div>
-              <span>{names[instrument]} · source dates vary</span>
-            </div>
-            <div className={styles.dashboardGrid}>
-              <section className={styles.panel}>
-                <div className={styles.panelHead}>
-                  <h3>The price of money</h3>
-                  <button
-                    onClick={() => setFamily("rates")}
-                    aria-label="Inspect rates sources"
+                {scheduled.slice(0, 3).map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <ArrowUpRight size={18} />
-                  </button>
-                </div>
-                <p className={styles.panelSubtitle}>US Treasury curve</p>
-                <Curve signals={snapshot.signals} />
+                    <span>{eventLabel(item)}</span>
+                    <strong>{item.title}</strong>
+                    <small>
+                      {item.source} · {item.kind} <ArrowUpRight size={12} />
+                    </small>
+                  </a>
+                ))}
+                {!scheduled.length && (
+                  <p className={styles.muted}>
+                    No upcoming events returned by the connected calendar.
+                  </p>
+                )}
               </section>
-              <section className={styles.panel}>
-                <div className={styles.panelHead}>
-                  <h3>Liquidity underneath</h3>
-                  <button
-                    onClick={() => setFamily("liquidity")}
-                    aria-label="Inspect liquidity sources"
-                  >
-                    <ArrowUpRight size={18} />
-                  </button>
-                </div>
-                <p className={styles.panelSubtitle}>
-                  A same-date view of the Fed, Treasury and repo
-                </p>
-                <Liquidity signals={snapshot.signals} />
-              </section>
-              <section className={`${styles.panel} ${styles.fxPanel}`}>
-                <div className={styles.panelHead}>
-                  <h3>The world against the dollar</h3>
-                  <button
-                    onClick={() => setFamily("fx")}
-                    aria-label="Inspect currency sources"
-                  >
-                    <ArrowUpRight size={18} />
-                  </button>
-                </div>
-                <p className={styles.panelSubtitle}>
-                  Daily change · ECB reference fixes, not live quotes
-                </p>
-                <div className={styles.fxGrid}>
-                  {fx.map((signal) => {
-                    const change =
-                      signal.metrics.find(
-                        (metric) => metric.label === "Daily change",
-                      )?.value ?? null;
-                    return (
-                      <button
-                        key={signal.id}
-                        onClick={() => setFamily("fx")}
-                        className={
-                          change !== null && change >= 0
-                            ? styles.fxUp
-                            : styles.fxDown
-                        }
-                      >
-                        <span>
-                          {signal.id.slice(3)}
-                          <small>/ USD</small>
-                        </span>
-                        <strong>
-                          {change === null
-                            ? "—"
-                            : `${change >= 0 ? "+" : ""}${number(change)}%`}
-                        </strong>
-                        <Sparkline
-                          series={signal.series}
-                          color={
-                            change !== null && change >= 0
-                              ? "var(--positive)"
-                              : "var(--negative)"
-                          }
-                          label={signal.title}
-                        />
-                        <small>
-                          {signal.source.observedAt
-                            ? date(signal.source.observedAt)
-                            : "Unavailable"}
-                        </small>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            </div>
-            <PolicyRates
-              signals={snapshot.signals}
-              reference={reference}
-              onInspect={setFamily}
-            />
-            <div className={styles.twoColumns}>
-              <section className={styles.panel}>
-                <div className={styles.panelHead}>
-                  <h3>Where institutions stand</h3>
-                  <button
-                    onClick={() => setFamily("institutions")}
-                    aria-label="Inspect institutional positioning"
-                  >
-                    <ArrowUpRight size={18} />
-                  </button>
-                </div>
-                <p className={styles.panelSubtitle}>
-                  Net futures positions as a share of open interest
-                </p>
-                <div className={styles.positioning}>
-                  {institutions
-                    .slice(0, instrument === "MARKET" ? 8 : 4)
-                    .map((signal) => (
-                      <button
-                        key={signal.id}
-                        onClick={() => setFamily("institutions")}
-                      >
-                        <span>
-                          {signal.title}
-                          <small>
-                            Measured {date(signal.source.observedAt!)}
-                          </small>
-                        </span>
-                        <Divergence
-                          value={Math.max(
-                            -1,
-                            Math.min(1, signal.metrics[0].value / 60),
-                          )}
-                        />
-                        <strong
-                          className={
-                            signal.metrics[0].value >= 0
-                              ? styles.up
-                              : styles.down
-                          }
-                        >
-                          {signal.metrics[0].value >= 0 ? "+" : ""}
-                          {number(signal.metrics[0].value, 1)}%
-                        </strong>
-                      </button>
-                    ))}
-                </div>
-                <p className={styles.finePrint}>
-                  CFTC weekly, futures only. These are category positions, not
-                  ETF flows or named-investor intent.
-                </p>
-              </section>
-              <section className={styles.panel}>
-                <div className={styles.panelHead}>
-                  <h3>Across the policy desks</h3>
-                  <button
-                    onClick={() => setFamily("international")}
-                    aria-label="Inspect international sources"
-                  >
-                    <ArrowUpRight size={18} />
-                  </button>
-                </div>
-                <p className={styles.panelSubtitle}>
-                  Latest official releases · publication time in New York
-                </p>
-                <div className={styles.timeline}>
-                  {snapshot.catalysts
-                    .filter((item) => item.kind === "release")
-                    .slice(0, 6)
-                    .map((item) => (
+              {scheduled.length > 0 && (
+                <details className={styles.calendarExpand}>
+                  <summary>
+                    Full calendar · {scheduled.length} upcoming events
+                  </summary>
+                  <p className={styles.muted}>
+                    Exact times are shown in Eastern. International date-only
+                    events keep their labelled local date. Schedules can change;
+                    check the linked source.
+                  </p>
+                  <div className={styles.calendarGrid}>
+                    {scheduled.map((item) => (
                       <a
                         key={item.id}
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className={styles.calendarEvent}
                       >
-                        <div className={styles.timelineDate}>
-                          {date(item.at)}
-                          <small>{time(item.at)}</small>
-                        </div>
-                        <div>
-                          <span>{item.source}</span>
-                          <h4>{item.title}</h4>
-                        </div>
-                        <ArrowUpRight size={14} />
+                        <span className={styles.eyebrow}>
+                          {eventLabel(item)}
+                        </span>
+                        <strong>{item.title}</strong>
+                        <small>
+                          {item.source} · {item.kind}
+                          <ArrowUpRight size={13} />
+                        </small>
                       </a>
                     ))}
-                </div>
-              </section>
-            </div>
-            {instrument !== "TLT" && snapshot.holdings && (
-              <InstitutionalHoldings
-                holdings={snapshot.holdings}
-                signals={snapshot.signals}
+                  </div>
+                </details>
+              )}
+              <ReviewedDevelopments
+                snapshot={snapshot}
+                instrument={instrument}
                 reference={reference}
-                onInspect={() => setFamily("institutions")}
               />
-            )}
-            <CapitalPanels
-              signals={snapshot.signals}
-              now={reference}
-              onInspect={() => setFamily("capital")}
-            />
-            {snapshot.news && (
-              <NewsPanel
-                pulse={snapshot.news}
-                onInspect={() => setFamily("news")}
-                collectionNote={
-                  snapshot.signals.find((s) => s.id === "gdelt-finance-news")
-                    ?.collectionNote
-                }
-              />
-            )}
-            {!!reported.length && (
-              <section
-                className={styles.earningsStrip}
-                aria-label="Reported company revenues"
-              >
+              <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>
-                    COMPANY REPORTED RESULTS
+                    THE FORCES BEHIND THE MARKET
                   </span>
-                  <h3>Inside the earnings cycle</h3>
+                  <h2>Start with the big picture.</h2>
+                </div>
+                <span>{names[instrument]} · source dates vary</span>
+              </div>
+              <div className={styles.dashboardGrid}>
+                <section className={styles.panel}>
+                  <div className={styles.panelHead}>
+                    <h3>The price of money</h3>
+                    <button
+                      onClick={() => setFamily("rates")}
+                      aria-label="Inspect rates sources"
+                    >
+                      <ArrowUpRight size={18} />
+                    </button>
+                  </div>
+                  <p className={styles.panelSubtitle}>US Treasury curve</p>
+                  <Curve signals={snapshot.signals} />
+                </section>
+                <section className={styles.panel}>
+                  <div className={styles.panelHead}>
+                    <h3>Liquidity underneath</h3>
+                    <button
+                      onClick={() => setFamily("liquidity")}
+                      aria-label="Inspect liquidity sources"
+                    >
+                      <ArrowUpRight size={18} />
+                    </button>
+                  </div>
+                  <p className={styles.panelSubtitle}>
+                    A same-date view of the Fed, Treasury and repo
+                  </p>
+                  <Liquidity signals={snapshot.signals} />
+                </section>
+                <section className={`${styles.panel} ${styles.fxPanel}`}>
+                  <div className={styles.panelHead}>
+                    <h3>The world against the dollar</h3>
+                    <button
+                      onClick={() => setFamily("fx")}
+                      aria-label="Inspect currency sources"
+                    >
+                      <ArrowUpRight size={18} />
+                    </button>
+                  </div>
+                  <p className={styles.panelSubtitle}>
+                    Daily change · ECB reference fixes, not live quotes
+                  </p>
+                  <div className={styles.fxGrid}>
+                    {fx.map((signal) => {
+                      const change =
+                        signal.metrics.find(
+                          (metric) => metric.label === "Daily change",
+                        )?.value ?? null;
+                      return (
+                        <button
+                          key={signal.id}
+                          onClick={() => setFamily("fx")}
+                          className={
+                            change !== null && change >= 0
+                              ? styles.fxUp
+                              : styles.fxDown
+                          }
+                        >
+                          <span>
+                            {signal.id.slice(3)}
+                            <small>/ USD</small>
+                          </span>
+                          <strong>
+                            {change === null
+                              ? "—"
+                              : `${change >= 0 ? "+" : ""}${number(change)}%`}
+                          </strong>
+                          <Sparkline
+                            series={signal.series}
+                            color={
+                              change !== null && change >= 0
+                                ? "var(--positive)"
+                                : "var(--negative)"
+                            }
+                            label={signal.title}
+                          />
+                          <small>
+                            {signal.source.observedAt
+                              ? date(signal.source.observedAt)
+                              : "Unavailable"}
+                          </small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              </div>
+              <div className={styles.sectionHeading}>
+                <div>
+                  <span className={styles.eyebrow}>GO A LEVEL DEEPER</span>
+                  <h2>Follow the forces.</h2>
+                </div>
+                <span>Open the research that matters to you</span>
+              </div>
+              <ResearchSection
+                number="01"
+                title="Policy, positioning & capital"
+                description="Central banks · institutional filings · liquidity flows"
+              >
+                <PolicyRates
+                  signals={snapshot.signals}
+                  reference={reference}
+                  onInspect={setFamily}
+                />
+                <div className={styles.twoColumns}>
+                  <section className={styles.panel}>
+                    <div className={styles.panelHead}>
+                      <h3>Where institutions stand</h3>
+                      <button
+                        onClick={() => setFamily("institutions")}
+                        aria-label="Inspect institutional positioning"
+                      >
+                        <ArrowUpRight size={18} />
+                      </button>
+                    </div>
+                    <p className={styles.panelSubtitle}>
+                      Net futures positions as a share of open interest
+                    </p>
+                    <div className={styles.positioning}>
+                      {institutions
+                        .slice(0, instrument === "MARKET" ? 8 : 4)
+                        .map((signal) => (
+                          <button
+                            key={signal.id}
+                            onClick={() => setFamily("institutions")}
+                          >
+                            <span>
+                              {signal.title}
+                              <small>
+                                Measured {date(signal.source.observedAt!)}
+                              </small>
+                            </span>
+                            <Divergence
+                              value={Math.max(
+                                -1,
+                                Math.min(1, signal.metrics[0].value / 60),
+                              )}
+                            />
+                            <strong
+                              className={
+                                signal.metrics[0].value >= 0
+                                  ? styles.up
+                                  : styles.down
+                              }
+                            >
+                              {signal.metrics[0].value >= 0 ? "+" : ""}
+                              {number(signal.metrics[0].value, 1)}%
+                            </strong>
+                          </button>
+                        ))}
+                    </div>
+                    <p className={styles.finePrint}>
+                      CFTC weekly, futures only. These are category positions,
+                      not ETF flows or named-investor intent.
+                    </p>
+                  </section>
+                  <section className={styles.panel}>
+                    <div className={styles.panelHead}>
+                      <h3>Across the policy desks</h3>
+                      <button
+                        onClick={() => setFamily("international")}
+                        aria-label="Inspect international sources"
+                      >
+                        <ArrowUpRight size={18} />
+                      </button>
+                    </div>
+                    <p className={styles.panelSubtitle}>
+                      Latest official releases · publication time in New York
+                    </p>
+                    <div className={styles.timeline}>
+                      {snapshot.catalysts
+                        .filter((item) => item.kind === "release")
+                        .slice(0, 6)
+                        .map((item) => (
+                          <a
+                            key={item.id}
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className={styles.timelineDate}>
+                              {date(item.at)}
+                              <small>{time(item.at)}</small>
+                            </div>
+                            <div>
+                              <span>{item.source}</span>
+                              <h4>{item.title}</h4>
+                            </div>
+                            <ArrowUpRight size={14} />
+                          </a>
+                        ))}
+                    </div>
+                  </section>
+                </div>
+                {instrument !== "TLT" && snapshot.holdings && (
+                  <InstitutionalHoldings
+                    holdings={snapshot.holdings}
+                    signals={snapshot.signals}
+                    reference={reference}
+                    onInspect={() => setFamily("institutions")}
+                  />
+                )}
+                <CapitalPanels
+                  signals={snapshot.signals}
+                  now={reference}
+                  onInspect={() => setFamily("capital")}
+                />
+              </ResearchSection>
+              <ResearchSection
+                number="02"
+                title="News & company earnings"
+                description="The news sample · reported results · original sources"
+              >
+                {snapshot.news && (
+                  <NewsPanel
+                    pulse={snapshot.news}
+                    onInspect={() => setFamily("news")}
+                    collectionNote={
+                      snapshot.signals.find(
+                        (s) => s.id === "gdelt-finance-news",
+                      )?.collectionNote
+                    }
+                  />
+                )}
+                {!!reported.length && (
+                  <section
+                    className={styles.earningsStrip}
+                    aria-label="Reported company revenues"
+                  >
+                    <div>
+                      <span className={styles.eyebrow}>
+                        COMPANY REPORTED RESULTS
+                      </span>
+                      <h3>Inside the earnings cycle</h3>
+                      <p>
+                        Selected mega-cap revenue. This is not an index-wide
+                        earnings surprise measure.
+                      </p>
+                    </div>
+                    {reported.map((signal) => {
+                      const growth = signal.metrics.find(
+                        (metric) =>
+                          metric.label === "Year-over-year revenue change",
+                      );
+                      return (
+                        <button
+                          key={signal.id}
+                          onClick={() => setFamily("earnings")}
+                        >
+                          <span>
+                            {signal.id.replace("earnings-", "")}
+                            <small>
+                              Quarter ended {date(signal.source.observedAt!)}
+                            </small>
+                          </span>
+                          <strong>
+                            ${number(signal.metrics[0].value, 2)}bn
+                          </strong>
+                          <span
+                            className={
+                              growth && growth.value >= 0
+                                ? styles.up
+                                : styles.down
+                            }
+                          >
+                            {growth
+                              ? `${growth.value >= 0 ? "+" : ""}${number(growth.value, 1)}% YoY`
+                              : "No comparable period"}
+                          </span>
+                          <Sparkline
+                            series={signal.series}
+                            label={signal.title}
+                          />
+                          {signal.source.frequency ===
+                            "quarterly company release" && (
+                            <small className={styles.comparisonNote}>
+                              Current vs year-earlier quarter · GAAP EPS $
+                              {number(
+                                signal.metrics.find(
+                                  (metric) =>
+                                    metric.label === "GAAP diluted EPS",
+                                )!.value,
+                                2,
+                              )}
+                            </small>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </section>
+                )}
+              </ResearchSection>
+              <ResearchSection
+                number="03"
+                title="Price chart & technicals"
+                description="Current TradingView display · separate from saved consensus"
+              >
+                <MorningMarket
+                  instrument={instrument}
+                  horizon={horizon}
+                  theme={theme}
+                  historical={historical}
+                />
+              </ResearchSection>
+              <section className={styles.scenario}>
+                <div>
+                  <span className={styles.eyebrow}>
+                    {consensus.abstain
+                      ? "CONDITIONS TO WATCH · CALL WITHHELD"
+                      : "BUILD YOUR PLAN"}
+                  </span>
+                  <h2>
+                    {horizon === "daily"
+                      ? "What would change the picture?"
+                      : `${horizon === "weekly" ? "The week" : "The month"} ahead: conditions, not certainty.`}
+                  </h2>
+                </div>
+                <div>
                   <p>
-                    Selected mega-cap revenue. This is not an index-wide
-                    earnings surprise measure.
+                    <ArrowUpRight
+                      className={consensus.abstain ? styles.muted : styles.up}
+                      size={20}
+                    />
+                    <span>
+                      <strong>Constructive conditions</strong>
+                      {describeFamilies(supportive)}
+                      {supportive.length
+                        ? " leaned supportive under the rules at publication."
+                        : "."}{" "}
+                      Inspect their observation dates and assumptions before
+                      using them in a plan.
+                    </span>
+                  </p>
+                  <p>
+                    <ArrowDownRight
+                      className={consensus.abstain ? styles.muted : styles.down}
+                      size={20}
+                    />
+                    <span>
+                      <strong>Defensive conditions</strong>
+                      {describeFamilies(defensive)}
+                      {defensive.length
+                        ? " leaned defensive under the rules at publication."
+                        : "."}{" "}
+                      Disagreement is part of the setup, not an input to
+                      discard.
+                    </span>
+                  </p>
+                  <p className={styles.finePrint}>
+                    {consensus.abstain &&
+                      "These partial inputs do not qualify as a trade setup. "}
+                    Daily, weekly and monthly views use distinct change windows.
+                    Numeric return projections remain unavailable until a model
+                    passes historical and prospective evaluation.
                   </p>
                 </div>
-                {reported.map((signal) => {
-                  const growth = signal.metrics.find(
-                    (metric) =>
-                      metric.label === "Year-over-year revenue change",
-                  );
+              </section>
+            </>
+          )}
+        </div>
+        <section
+          role="tabpanel"
+          id="signals-panel"
+          aria-labelledby="signals-tab"
+          hidden={tab !== "signals"}
+          tabIndex={0}
+        >
+          {tab === "signals" && (
+            <>
+              {overview}
+              <div className={styles.sectionHeading}>
+                <div>
+                  <span className={styles.eyebrow}>NO HIDDEN VOTES</span>
+                  <h2>Every piece of the picture.</h2>
+                </div>
+                <span>Click a family to inspect its inputs</span>
+              </div>
+              <div className={styles.signalGrid}>
+                {FAMILIES.map((definition) => {
+                  const reading = consensus.families.find(
+                      (item) => item.id === definition.id,
+                    )!,
+                    members = current.filter(
+                      (signal) => signal.family === definition.id,
+                    ),
+                    example =
+                      members.find(
+                        (signal) =>
+                          effectiveStatus(signal, reference) === "available" &&
+                          signal.series.length > 1,
+                      ) ??
+                      members.find(
+                        (signal) =>
+                          effectiveStatus(signal, reference) === "available",
+                      ),
+                    availableCount = reading.available;
                   return (
-                    <button
-                      key={signal.id}
-                      onClick={() => setFamily("earnings")}
+                    <article
+                      key={definition.id}
+                      className={`${styles.signalCard} ${availableCount ? "" : styles.missingCard}`}
                     >
-                      <span>
-                        {signal.id.replace("earnings-", "")}
-                        <small>
-                          Quarter ended {date(signal.source.observedAt!)}
-                        </small>
-                      </span>
-                      <strong>${number(signal.metrics[0].value, 2)}bn</strong>
-                      <span
-                        className={
-                          growth && growth.value >= 0 ? styles.up : styles.down
-                        }
-                      >
-                        {growth
-                          ? `${growth.value >= 0 ? "+" : ""}${number(growth.value, 1)}% YoY`
-                          : "No comparable period"}
-                      </span>
-                      <Sparkline series={signal.series} label={signal.title} />
-                      {signal.source.frequency ===
-                        "quarterly company release" && (
-                        <small className={styles.comparisonNote}>
-                          Current vs year-earlier quarter · GAAP EPS $
-                          {number(
-                            signal.metrics.find(
-                              (metric) => metric.label === "GAAP diluted EPS",
-                            )!.value,
-                            2,
+                      <h3>
+                        <button
+                          className={styles.cardAction}
+                          onClick={() => setFamily(definition.id)}
+                          aria-label={`Inspect ${definition.label} inputs`}
+                        >
+                          <span>{definition.label}</span>
+                          <ChevronRight size={15} aria-hidden="true" />
+                        </button>
+                      </h3>
+                      <p className={styles.cardStatus}>
+                        {reading.score === null
+                          ? availableCount
+                            ? "Context available"
+                            : reading.status === "stale"
+                              ? "Needs a refresh"
+                              : "Not connected"
+                          : reading.score > 0.1
+                            ? "Supportive"
+                            : reading.score < -0.1
+                              ? "Defensive"
+                              : "Balanced"}
+                      </p>
+                      {example?.series.length ? (
+                        <Sparkline
+                          series={example.series}
+                          label={example.title}
+                          color={
+                            reading.score !== null && reading.score < 0
+                              ? "var(--negative)"
+                              : "var(--accent)"
+                          }
+                        />
+                      ) : (
+                        <div className={styles.signalEmpty}>
+                          {availableCount ? (
+                            <Globe2 size={25} />
+                          ) : (
+                            <Layers3 size={25} />
                           )}
-                        </small>
+                          <span>{definition.detail}</span>
+                        </div>
                       )}
-                    </button>
+                      <p>
+                        {example
+                          ? example.title
+                          : (members[0]?.summary ?? definition.detail)}
+                      </p>
+                      <div className={styles.cardFoot}>
+                        <span>
+                          {availableCount}/{reading.expected} inputs current
+                        </span>
+                        <span>
+                          {example?.source.observedAt
+                            ? date(example.source.observedAt)
+                            : "No directional vote"}
+                        </span>
+                      </div>
+                    </article>
                   );
                 })}
-              </section>
-            )}
-            <section className={styles.scenario}>
-              <div>
-                <span className={styles.eyebrow}>{consensus.abstain ? "CONDITIONS TO WATCH · CALL WITHHELD" : "BUILD YOUR PLAN"}</span>
-                <h2>
-                  {horizon === "daily"
-                    ? "What would change the picture?"
-                    : `${horizon === "weekly" ? "The week" : "The month"} ahead: conditions, not certainty.`}
-                </h2>
               </div>
-              <div>
-                <p>
-                  <ArrowUpRight className={consensus.abstain ? styles.muted : styles.up} size={20} />
-                  <span>
-                    <strong>Constructive conditions</strong>
-                    {describeFamilies(supportive)}
-                    {supportive.length
-                      ? " leaned supportive under the rules at publication."
-                      : "."}{" "}
-                    Inspect their observation dates and assumptions before using
-                    them in a plan.
-                  </span>
-                </p>
-                <p>
-                  <ArrowDownRight className={consensus.abstain ? styles.muted : styles.down} size={20} />
-                  <span>
-                    <strong>Defensive conditions</strong>
-                    {describeFamilies(defensive)}
-                    {defensive.length
-                      ? " leaned defensive under the rules at publication."
-                      : "."}{" "}
-                    Disagreement is part of the setup, not an input to discard.
-                  </span>
-                </p>
-                <p className={styles.finePrint}>
-                  {consensus.abstain && "These partial inputs do not qualify as a trade setup. "}
-                  Daily, weekly and monthly views use distinct change windows.
-                  Numeric return projections remain unavailable until a model
-                  passes historical and prospective evaluation.
-                </p>
-              </div>
-            </section>
-          </>)}
-        </div>
-        <section role="tabpanel" id="signals-panel" aria-labelledby="signals-tab" hidden={tab !== "signals"} tabIndex={0}>
-          {tab === "signals" && (<>
-            {overview}
-            <div className={styles.sectionHeading}>
-              <div>
-                <span className={styles.eyebrow}>NO HIDDEN VOTES</span>
-                <h2>Every piece of the picture.</h2>
-              </div>
-              <span>Click a family to inspect its inputs</span>
-            </div>
-            <div className={styles.signalGrid}>
-              {FAMILIES.map((definition) => {
-                const reading = consensus.families.find(
-                    (item) => item.id === definition.id,
-                  )!,
-                  members = current.filter(
-                    (signal) => signal.family === definition.id,
-                  ),
-                  example =
-                    members.find(
-                      (signal) =>
-                        effectiveStatus(signal, reference) === "available" &&
-                        signal.series.length > 1,
-                    ) ??
-                    members.find(
-                      (signal) =>
-                        effectiveStatus(signal, reference) === "available",
-                    ),
-                  availableCount = reading.available;
-                return (
-                  <article
-                    key={definition.id}
-                    className={`${styles.signalCard} ${availableCount ? "" : styles.missingCard}`}
-                  >
-                    <h3>
-                      <button className={styles.cardAction} onClick={() => setFamily(definition.id)}
-                        aria-label={`Inspect ${definition.label} inputs`}>
-                        <span>{definition.label}</span><ChevronRight size={15} aria-hidden="true" />
-                      </button>
-                    </h3>
-                    <p className={styles.cardStatus}>
-                      {reading.score === null
-                        ? availableCount
-                          ? "Context available"
-                          : reading.status === "stale"
-                            ? "Needs a refresh"
-                            : "Not connected"
-                        : reading.score > 0.1
-                          ? "Supportive"
-                          : reading.score < -0.1
-                            ? "Defensive"
-                            : "Balanced"}
-                    </p>
-                    {example?.series.length ? (
-                      <Sparkline
-                        series={example.series}
-                        label={example.title}
-                        color={
-                          reading.score !== null && reading.score < 0
-                            ? "var(--negative)"
-                            : "var(--accent)"
-                        }
-                      />
-                    ) : (
-                      <div className={styles.signalEmpty}>
-                        {availableCount ? (
-                          <Globe2 size={25} />
-                        ) : (
-                          <Layers3 size={25} />
-                        )}
-                        <span>{definition.detail}</span>
-                      </div>
-                    )}
-                    <p>
-                      {example
-                        ? example.title
-                        : (members[0]?.summary ?? definition.detail)}
-                    </p>
-                    <div className={styles.cardFoot}>
-                      <span>
-                        {availableCount}/{reading.expected} inputs current
-                      </span>
-                      <span>
-                        {example?.source.observedAt
-                          ? date(example.source.observedAt)
-                          : "No directional vote"}
-                      </span>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </>)}
+            </>
+          )}
         </section>
-        <section role="tabpanel" id="history-panel" aria-labelledby="history-tab" hidden={tab !== "history"} tabIndex={0}>
-          {tab === "history" && (<>
-            <div className={styles.sectionHeading}>
-              <div>
-                <span className={styles.eyebrow}>
-                  ACCOUNTABILITY COMES WITH THE CALL
-                </span>
-                <h2>Remember. Measure. Improve.</h2>
-              </div>
-              <label className={styles.issueSelect}>
-                Saved edition
-                <select
-                  value={snapshot.id}
-                  disabled={loading}
-                  onChange={(event) => void chooseIssue(event.target.value)}
-                >
-                  {[...history].reverse().map((entry) => (
-                    <option value={entry.id} key={entry.id}>
-                      {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            {historyError && <p role="alert">{historyError}</p>}
-            <div className={styles.historyStats}>
-              <div>
-                <span>As-issued editions</span>
-                <strong>{history.length}</strong>
-                <small>Immutable, source-linked snapshots</small>
-              </div>
-              <div>
-                <span>{instrument === "MARKET" ? "Instrument outcomes" : "Scored outcomes"}</span>
-                <strong>{cohort.resolved ?? "—"}</strong>
-                <small>
-                  {performance.status === "awaiting_price_evidence"
-                    ? "Requires verified future session prices"
-                    : `${horizon} outcomes · ${instrument === "MARKET" ? "across five instruments" : "verified session prices"}`}
-                </small>
-              </div>
-              <div>
-                <span>Directional accuracy</span>
-                <strong>
-                  {pct(cohort.accuracy)}
-                </strong>
-                <small>
-                  {cohort.calls ?? "—"} {horizon} calls · {timing.ruleLabel}
-                </small>
-              </div>
-              <div>
-                <span>Trained model</span>
-                <strong>
-                  {learning.some((item) => item.activeModelId || (item.activeModelId === undefined && item.promoted))
-                    ? "Active"
-                    : "Pending"}
-                </strong>
-                <small>
-                  {Math.max(0, ...learning.map((item) => item.samples))} resolved observations per target
-                </small>
-              </div>
-            </div>
-            <p className={styles.finePrint}>
-              {instrument === "MARKET" && "MARKET is context only; it has no scored trade. Figures above summarize this horizon across the five instrument editions. "}
-              Figures and training are specific to {timing.ruleLabel}. Scoring uses the last edition before each session opens, including when the rule version changes.
-              Earlier editions remain in the audit record. Model qualification
-              requires at least 100 new, non-overlapping test outcomes and an uncertainty check against the baselines.
-            </p>
-            <p className={styles.finePrint}>
-              This conservative gate takes time: roughly 500 daily, 2,500 weekly or
-              10,500 monthly session labels before a first candidate can be tested
-              (about 2, 10 or 42 trading years). Extra editions do not shorten that wait.
-              Missing data can extend it. Promotion may never occur; unqualified
-              projections stay withheld.
-            </p>
-            <div className={styles.twoColumns}>
-              <section className={styles.panel}>
-                <h3>The record, exactly as it was</h3>
-                <p className={styles.muted}>
-                  Each publication preserves its cutoff, observations and
-                  calculation version. Later revisions cannot quietly rewrite an
-                  old call.
-                </p>
-                <div className={styles.editionList}>
-                  {[...history]
-                    .reverse()
-                    .slice(0, 20)
-                    .map((entry) => (
-                      <button
-                        key={entry.id}
-                        onClick={async () => {
-                          if (await chooseIssue(entry.id)) setTab("morning");
-                        }}
-                      >
-                        <History size={17} />
-                        <span>
-                          {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
-                          <small>{entry.engineVersion}</small>
-                        </span>
-                        <ChevronRight size={17} />
-                      </button>
-                    ))}
-                </div>
-              </section>
-              <section className={styles.panel}>
-                <h3>How improvement earns its place</h3>
-                <ol className={styles.learningSteps}>
-                  <li>
-                    <strong>Freeze the forecast</strong>
-                    <span>
-                      Inputs are preserved before the target session opens.
-                    </span>
-                  </li>
-                  <li>
-                    <strong>Wait for the outcome</strong>
-                    <span>
-                      Compare the next 1, 5 and 21 complete sessions, adjusted
-                      for splits and distributions.
-                    </span>
-                  </li>
-                  <li>
-                    <strong>Train on the past</strong>
-                    <span>
-                      Chronological splits exclude labels that overlap
-                      validation or test dates.
-                    </span>
-                  </li>
-                  <li>
-                    <strong>Challenge the baseline</strong>
-                    <span>
-                      Evaluate calibration and Brier score against a base-rate
-                      model and the current model.
-                    </span>
-                  </li>
-                  <li>
-                    <strong>Promote only with evidence</strong>
-                    <span>
-                      Versioned candidates must improve held-out results. No
-                      learning or accuracy is claimed before that.
-                    </span>
-                  </li>
-                </ol>
-              </section>
-            </div>
-            <section className={`${styles.panel} ${styles.experiments}`}>
-              <div className={styles.panelHead}>
+        <section
+          role="tabpanel"
+          id="history-panel"
+          aria-labelledby="history-tab"
+          hidden={tab !== "history"}
+          tabIndex={0}
+        >
+          {tab === "history" && (
+            <>
+              <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>
-                    REAL DATA · HISTORICAL RECONSTRUCTION
+                    ACCOUNTABILITY COMES WITH THE CALL
                   </span>
-                  <h3>The first models had to prove themselves.</h3>
+                  <h2>Remember. Measure. Improve.</h2>
                 </div>
-                <span className={styles.status}>
-                  {
-                    experiments.experiments.filter(
-                      (item) => item.baselineBeaten,
-                    ).length
-                  }{" "}
-                  / {experiments.experiments.length} cleared the gate
-                </span>
-              </div>
-              <p className={styles.muted}>
-                Nine currency models were trained on ECB reference-rate history
-                using momentum, RSI, volatility and moving-average distance.
-                None cleared the required improvement over the baselines. These
-                experiments are separate from the prospective daily-consensus
-                record.
-              </p>
-              <div className={styles.tableScroll}>
-                <table>
-                  <caption>
-                    Chronological holdout results. Brier score measures
-                    probability error; lower is better.
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th>Currency</th>
-                      <th>Horizon</th>
-                      <th>Test samples</th>
-                      <th>Model error</th>
-                      <th>Base-rate error</th>
-                      <th>Decision</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {experiments.experiments.map((item) => (
-                      <tr key={item.id}>
-                        <th>{item.instrument}</th>
-                        <td>{item.horizon}</td>
-                        <td>{item.testSamples ?? "—"}</td>
-                        <td>{item.candidateBrier?.toFixed(4) ?? "—"}</td>
-                        <td>{item.baseRateBrier?.toFixed(4) ?? "—"}</td>
-                        <td>
-                          {item.baselineBeaten
-                            ? "Shadow evaluation required"
-                            : "Not promoted"}
-                        </td>
-                      </tr>
+                <label className={styles.issueSelect}>
+                  Saved edition
+                  <select
+                    value={snapshot.id}
+                    disabled={loading}
+                    onChange={(event) => void chooseIssue(event.target.value)}
+                  >
+                    {[...history].reverse().map((entry) => (
+                      <option value={entry.id} key={entry.id}>
+                        {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
+                      </option>
                     ))}
-                  </tbody>
-                </table>
+                  </select>
+                </label>
               </div>
-              <p className={styles.finePrint}>{experiments.note}</p>
-              <a
-                className={styles.textButton}
-                href={experiments.source.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Source: European Central Bank <ExternalLink size={13} />
-              </a>
-            </section>
-          </>)}
+              {historyError && <p role="alert">{historyError}</p>}
+              <div className={styles.historyStats}>
+                <div>
+                  <span>As-issued editions</span>
+                  <strong>{history.length}</strong>
+                  <small>Immutable, source-linked snapshots</small>
+                </div>
+                <div>
+                  <span>
+                    {instrument === "MARKET"
+                      ? "Instrument outcomes"
+                      : "Scored outcomes"}
+                  </span>
+                  <strong>{cohort.resolved ?? "—"}</strong>
+                  <small>
+                    {performance.status === "awaiting_price_evidence"
+                      ? "Requires verified future session prices"
+                      : `${horizon} outcomes · ${instrument === "MARKET" ? "across five instruments" : "verified session prices"}`}
+                  </small>
+                </div>
+                <div>
+                  <span>Directional accuracy</span>
+                  <strong>{pct(cohort.accuracy)}</strong>
+                  <small>
+                    {cohort.calls ?? "—"} {horizon} calls · {timing.ruleLabel}
+                  </small>
+                </div>
+                <div>
+                  <span>Trained model</span>
+                  <strong>
+                    {learning.some(
+                      (item) =>
+                        item.activeModelId ||
+                        (item.activeModelId === undefined && item.promoted),
+                    )
+                      ? "Active"
+                      : "Pending"}
+                  </strong>
+                  <small>
+                    {Math.max(0, ...learning.map((item) => item.samples))}{" "}
+                    resolved observations per target
+                  </small>
+                </div>
+              </div>
+              <p className={styles.finePrint}>
+                {instrument === "MARKET" &&
+                  "MARKET is context only; it has no scored trade. Figures above summarize this horizon across the five instrument editions. "}
+                Figures and training are specific to {timing.ruleLabel}. Scoring
+                uses the last edition before each session opens, including when
+                the rule version changes. Earlier editions remain in the audit
+                record. Model qualification requires at least 100 new,
+                non-overlapping test outcomes and an uncertainty check against
+                the baselines.
+              </p>
+              <p className={styles.finePrint}>
+                This conservative gate takes time: roughly 500 daily, 2,500
+                weekly or 10,500 monthly session labels before a first candidate
+                can be tested (about 2, 10 or 42 trading years). Extra editions
+                do not shorten that wait. Missing data can extend it. Promotion
+                may never occur; unqualified projections stay withheld.
+              </p>
+              <div className={styles.twoColumns}>
+                <section className={styles.panel}>
+                  <h3>The record, exactly as it was</h3>
+                  <p className={styles.muted}>
+                    Each publication preserves its cutoff, observations and
+                    calculation version. Later revisions cannot quietly rewrite
+                    an old call.
+                  </p>
+                  <div className={styles.editionList}>
+                    {[...history]
+                      .reverse()
+                      .slice(0, 20)
+                      .map((entry) => (
+                        <button
+                          key={entry.id}
+                          onClick={async () => {
+                            if (await chooseIssue(entry.id)) setTab("morning");
+                          }}
+                        >
+                          <History size={17} />
+                          <span>
+                            {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
+                            <small>{entry.engineVersion}</small>
+                          </span>
+                          <ChevronRight size={17} />
+                        </button>
+                      ))}
+                  </div>
+                </section>
+                <section className={styles.panel}>
+                  <h3>How improvement earns its place</h3>
+                  <ol className={styles.learningSteps}>
+                    <li>
+                      <strong>Freeze the forecast</strong>
+                      <span>
+                        Inputs are preserved before the target session opens.
+                      </span>
+                    </li>
+                    <li>
+                      <strong>Wait for the outcome</strong>
+                      <span>
+                        Compare the next 1, 5 and 21 complete sessions, adjusted
+                        for splits and distributions.
+                      </span>
+                    </li>
+                    <li>
+                      <strong>Train on the past</strong>
+                      <span>
+                        Chronological splits exclude labels that overlap
+                        validation or test dates.
+                      </span>
+                    </li>
+                    <li>
+                      <strong>Challenge the baseline</strong>
+                      <span>
+                        Evaluate calibration and Brier score against a base-rate
+                        model and the current model.
+                      </span>
+                    </li>
+                    <li>
+                      <strong>Promote only with evidence</strong>
+                      <span>
+                        Versioned candidates must improve held-out results. No
+                        learning or accuracy is claimed before that.
+                      </span>
+                    </li>
+                  </ol>
+                </section>
+              </div>
+              <section className={`${styles.panel} ${styles.experiments}`}>
+                <div className={styles.panelHead}>
+                  <div>
+                    <span className={styles.eyebrow}>
+                      REAL DATA · HISTORICAL RECONSTRUCTION
+                    </span>
+                    <h3>The first models had to prove themselves.</h3>
+                  </div>
+                  <span className={styles.status}>
+                    {
+                      experiments.experiments.filter(
+                        (item) => item.baselineBeaten,
+                      ).length
+                    }{" "}
+                    / {experiments.experiments.length} cleared the gate
+                  </span>
+                </div>
+                <p className={styles.muted}>
+                  Nine currency models were trained on ECB reference-rate
+                  history using momentum, RSI, volatility and moving-average
+                  distance. None cleared the required improvement over the
+                  baselines. These experiments are separate from the prospective
+                  daily-consensus record.
+                </p>
+                <div className={styles.tableScroll}>
+                  <table>
+                    <caption>
+                      Chronological holdout results. Brier score measures
+                      probability error; lower is better.
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th>Currency</th>
+                        <th>Horizon</th>
+                        <th>Test samples</th>
+                        <th>Model error</th>
+                        <th>Base-rate error</th>
+                        <th>Decision</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {experiments.experiments.map((item) => (
+                        <tr key={item.id}>
+                          <th>{item.instrument}</th>
+                          <td>{item.horizon}</td>
+                          <td>{item.testSamples ?? "—"}</td>
+                          <td>{item.candidateBrier?.toFixed(4) ?? "—"}</td>
+                          <td>{item.baseRateBrier?.toFixed(4) ?? "—"}</td>
+                          <td>
+                            {item.baselineBeaten
+                              ? "Shadow evaluation required"
+                              : "Not promoted"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className={styles.finePrint}>{experiments.note}</p>
+                <a
+                  className={layout.inspectLink}
+                  href={experiments.source.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Source: European Central Bank <ExternalLink size={13} />
+                </a>
+              </section>
+            </>
+          )}
         </section>
         <footer className={styles.footer}>
           <div>

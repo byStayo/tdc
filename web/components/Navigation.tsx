@@ -1,4 +1,5 @@
 "use client";
+import Brand from "./Brand";
 import {
   Activity,
   ArrowUpRight,
@@ -34,25 +35,6 @@ export const NAVIGATION = [
   { id: "sources", label: "Sources & methodology", icon: Database },
 ] as const;
 export type View = (typeof NAVIGATION)[number]["id"];
-function Brand() {
-  return (
-    <a className="brand" href="/" aria-label="The Daily Consensus morning overview" style={{ color: "inherit", textDecoration: "none" }}>
-      <span className="brand-symbol" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-        <i />
-      </span>
-      <span>
-        the daily
-        <br />
-        <strong>
-          consensus<span className="brand-period">.</span>
-        </strong>
-      </span>
-    </a>
-  );
-}
 
 export default function Navigation({
   view,
@@ -63,7 +45,9 @@ export default function Navigation({
 }) {
   return (
     <>
-      <Brand />
+      <div className="brand">
+        <Brand label="The Daily Consensus morning overview" />
+      </div>
       <nav aria-label="Main navigation">
         {NAVIGATION.map((item) => (
           <div key={item.id}>
