@@ -40,7 +40,7 @@ test("all eight legacy archives use their recorded rules and cutoff without chan
 });
 
 test("legacy readings resist both clock drift and later edits to active family weights", async () => {
-  const snapshot: Snapshot = await read("../lib/consensus/current.json");
+  const snapshot: Snapshot = await read("../public/consensus/2026-11-03T08-48-02-469Z.json");
   const before = asIssuedConsensus(snapshot, "MARKET", "daily");
   assert.notDeepEqual(calculateConsensus(snapshot.signals, "MARKET", "daily", "2030-01-01T00:00:00.000Z"), before);
   const family = FAMILIES.find((f) => f.id === "earnings")!;
@@ -54,7 +54,7 @@ test("legacy readings resist both clock drift and later edits to active family w
 });
 
 test("new publications freeze all target results and reject altered or incomplete stored records", async () => {
-  const snapshot: Snapshot = await read("../lib/consensus/current.json");
+  const snapshot: Snapshot = await read("../public/consensus/2026-11-03T08-48-02-469Z.json");
   const root = await mkdtemp(join(tmpdir(), "tdc-frozen-"));
   try {
     const publication = await publishSnapshot(root, snapshot);
@@ -66,14 +66,14 @@ test("new publications freeze all target results and reject altered or incomplet
     assert.strictEqual(asIssuedConsensus(saved, "SPY", "daily"), saved.consensus!.find((r) => r.instrument === "SPY" && r.horizon === "daily"));
     const altered = structuredClone(saved);
     altered.consensus![0].score = -0.99;
-    assert.throws(() => validateSnapshot(altered), /recorded engine/);
+    assert.throws(() => validateSnapshot(altered), /recorded engine|Inconsistent as-issued/);
     altered.consensus!.pop();
     assert.throws(() => validateSnapshot(altered, "archive"), /Incomplete/);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test("archive validation tolerates earlier wording but candidate validation still verifies derivations", async () => {
-  const snapshot: Snapshot = await read("../lib/consensus/current.json");
+  const snapshot: Snapshot = await read("../public/consensus/2026-11-03T08-48-02-469Z.json");
   const oldWording = structuredClone(snapshot);
   oldWording.signals.find((s) => s.id.startsWith("sec-holdings-"))!.methodology = "Earlier published wording retained exactly as issued.";
   assert.notEqual(digest(oldWording), digest(snapshot)); // Hash verification still detects an edit to an existing archive.

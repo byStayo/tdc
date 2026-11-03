@@ -13,7 +13,7 @@ const outcome = (hour: number, overrides: Partial<Outcome> = {}): Outcome => ({
   entryAt: "2026-11-03T14:30:00.000Z", exitAt: "2026-11-03T21:00:00.000Z",
   entry: 100, exit: 102, returnPct: 2, predictedScore: 0.6,
   predictedProbability: 0.8, abstained: false, directionCorrect: true,
-  source: "https://example.com/synthetic-price-fixture", adjustment: "split-adjusted",
+  source: "https://example.com/synthetic-price-fixture", adjustment: "total-return-adjusted",
   ...overrides,
 });
 
@@ -69,4 +69,10 @@ test("MARKET performance is a labelled instrument summary for one horizon, never
   assert.deepEqual(performanceView(report, "SPY", "daily"), { resolved: 5, calls: 1, accuracy: 0 });
   assert.deepEqual(performanceView(report, "MARKET", "weekly"), { resolved: null, calls: null, accuracy: null });
   assert.deepEqual(performanceView(report, "SPY", "monthly"), { resolved: null, calls: null, accuracy: null });
+});
+
+test('outcome cohorts cannot mix or silently accept unadjusted split/dividend returns', () => {
+  for (const adjustment of ['unadjusted','split-adjusted','unknown']) {
+    assert.throws(()=>selectScoredOutcomes([outcome(6),outcome(7,{entryAt:'2026-11-04T14:30:00.000Z',exitAt:'2026-11-04T21:00:00.000Z',adjustment})]),/total-return-adjusted/);
+  }
 });

@@ -4,6 +4,10 @@ import {
   isWidgetKind,
   providerSymbol,
   tradingViewDocument,
+  WIDGET_SANDBOX,
+  WIDGET_READY_SCRIPT,
+  PROVIDER_FRAME_SANDBOX,
+  isProviderFrameURL,
 } from "../lib/tradingview-config.ts";
 
 test("widget documents reject script injection and unknown providers", () => {
@@ -45,11 +49,30 @@ test("current hosted intervals follow the selected horizon without exposing raw 
     assert.match(chart, /"symbol":"NASDAQ:QQQ"/);
     assert.match(technical, /"colorTheme":"light"/);
     assert.match(technical, /"isTransparent":false/);
-    assert.ok(!chart.includes("postMessage"));
+    assert.ok(chart.includes(WIDGET_READY_SCRIPT));
   }
   assert.throws(() =>
     tradingViewDocument("chart", "SPY", "dark", "symbol", "intraday" as never),
   );
+});
+
+test("hosted lifecycle message is isolated from the parent origin and carries no provider data", () => {
+  assert.ok(WIDGET_SANDBOX.includes('allow-scripts'));
+  assert.ok(!WIDGET_SANDBOX.includes('allow-same-origin'));
+  assert.match(WIDGET_READY_SCRIPT, /postMessage\(\{type: 'tdc-widget-frame', version: 1, url: frame.src\}/);
+  assert.ok(!/localStorage|cookie|innerText|contentDocument|fetch\(/.test(WIDGET_READY_SCRIPT));
+  assert.ok(PROVIDER_FRAME_SANDBOX.includes('allow-same-origin'));
+  assert.ok(isProviderFrameURL('https://www.tradingview-widget.com/embed-widget/advanced-chart/?locale=en#config', 'chart'));
+  for (const url of [
+    'https://thedailyconsensus.com/widgets/chart',
+    'https://www.tradingview-widget.com.evil.test/embed-widget/advanced-chart/',
+    'https://evil.test/embed-widget/advanced-chart/',
+    'https://www.tradingview-widget.com:8443/embed-widget/advanced-chart/',
+    'https://user:password@www.tradingview-widget.com/embed-widget/advanced-chart/',
+    'https://www.tradingview-widget.com/embed-widget/timeline/',
+    'https://www.tradingview-widget.com/redirect',
+    'javascript:alert(1)',
+  ]) assert.equal(isProviderFrameURL(url, 'chart'), false);
 });
 
 test("isolated widgets retain provider configuration and separate ETF market headlines from stock-specific news", () => {

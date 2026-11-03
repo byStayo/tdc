@@ -182,24 +182,17 @@ export function ecbPolicyPoints(text: string, cutoff: string): Point[] {
   }
   return ordered(points);
 }
+const BOE_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export function boeRequestDate(date: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || publicDate(date) !== date)
+    throw new Error("Invalid Bank Rate request date");
+  return `${date.slice(8, 10)}/${BOE_MONTHS[Number(date.slice(5, 7)) - 1]}/${date.slice(0, 4)}`;
+}
 export function boePolicyPoints(text: string, cutoff: string): Point[] {
   const [header, ...rows] = policyCsv(text);
   if (header?.join(",") !== "DATE,IUDBEDR")
     throw new Error("Unexpected Bank Rate schema");
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  const months = BOE_MONTHS;
   const points = new Map<string, number>();
   for (const row of rows) {
     if (row.length !== 2) throw new Error("Malformed Bank Rate row");
@@ -240,14 +233,7 @@ export async function collectPolicyRates(
   const from = new Date(Date.parse(now) - 730 * 86400000)
     .toISOString()
     .slice(0, 10);
-  const boeFrom = new Date(`${from}T00:00:00Z`)
-    .toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      timeZone: "UTC",
-    })
-    .replace(/ /g, "/");
+  const boeFrom = boeRequestDate(from);
   const specs = [
     {
       id: "fed-lower",

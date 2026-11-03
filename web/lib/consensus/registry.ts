@@ -1,6 +1,6 @@
 import type { FamilyDefinition, Family, Signal, Instrument } from "./types.ts";
 
-export const ENGINE_VERSION = "consensus-rules-1.1.0";
+export const ENGINE_VERSION = "consensus-rules-2.0.0";
 export const FAMILIES: FamilyDefinition[] = [
   {
     id: "social",

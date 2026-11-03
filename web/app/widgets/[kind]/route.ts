@@ -1,8 +1,11 @@
 import { isPublicSymbol } from "@/lib/public-normalization";
+import { createHash } from "node:crypto";
 import {
   isWidgetKind,
   isWidgetHorizon,
   tradingViewDocument,
+  WIDGET_READY_SCRIPT,
+  WIDGET_SANDBOX,
 } from "@/lib/tradingview-config";
 
 export async function GET(
@@ -34,7 +37,15 @@ export async function GET(
         "Referrer-Policy": "strict-origin-when-cross-origin",
         // Only this public widget document may be framed, and only by this site.
         "X-Frame-Options": "SAMEORIGIN",
-        "Content-Security-Policy": "frame-ancestors 'self'",
+        "Content-Security-Policy": [
+          `sandbox ${WIDGET_SANDBOX}`,
+          "default-src 'none'",
+          `script-src 'sha256-${createHash('sha256').update(WIDGET_READY_SCRIPT).digest('base64')}' https://s3.tradingview.com`,
+          "style-src 'unsafe-inline'",
+          "frame-src https://*.tradingview.com https://*.tradingview-widget.com",
+          "img-src https://s3.tradingview.com data:",
+          "base-uri 'none'", "form-action 'none'", "frame-ancestors 'self'",
+        ].join("; "),
       },
     },
   );

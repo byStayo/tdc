@@ -1,6 +1,7 @@
 import type { Horizon, Instrument, Snapshot } from "./types.ts";
 import { asIssuedConsensus } from "./as-issued.ts";
 import type { PromotionEvidence } from "./learning-audit.ts";
+import { OUTCOME_PRICE_BASIS, requireOutcomePriceBasis } from "./price-basis.ts";
 
 export interface LogisticModel {
   intercept: number;
@@ -18,6 +19,7 @@ export interface ActiveModel {
   datasetHash: string;
   samples: number;
   featureSchema: "family-score-plus-observation-mask-v1";
+  priceAdjustment: typeof OUTCOME_PRICE_BASIS;
   model: LogisticModel;
   testBrier: number;
   baselineBrier: number;
@@ -31,6 +33,7 @@ export interface Forecast {
   modelId: string;
   trainedAt: string;
   target: "next-session-open-to-horizon-close";
+  priceAdjustment: typeof OUTCOME_PRICE_BASIS;
 }
 export function predict(model: LogisticModel, features: number[]) {
   if (
@@ -58,6 +61,7 @@ export function forecastSnapshot(
   models: ActiveModel[],
 ): Forecast[] {
   return models.map((active) => {
+    requireOutcomePriceBasis(active.priceAdjustment);
     if (
       active.trainedAt > snapshot.cutoff ||
       active.labelsThrough >= active.trainedAt ||
@@ -79,6 +83,7 @@ export function forecastSnapshot(
       modelId: active.id,
       trainedAt: active.trainedAt,
       target: "next-session-open-to-horizon-close",
+      priceAdjustment: active.priceAdjustment,
       probabilityUp: predict(active.model, features),
     };
   });

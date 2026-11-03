@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { chronologicalSplit, planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
 import { readReservations, reserveEvaluation, validateReservations, attemptAlpha,
-  pairedLossEvidence, promotionEvidence, validateActivePromotion } from "../lib/consensus/learning-audit.ts";
+  pairedLossEvidence, promotionEvidence, validateActivePromotion, reservationAnchors, resamplesForAlpha } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -38,7 +38,7 @@ test("the 250 to 251-row reuse probe is refused after a failed/aborted reserved 
     const restored = await readReservations(root);
     assert.deepEqual(restored, [first]);
     assert.equal(planCandidate(rows(501), asOf, { ...policy, consumedThrough: restored[0].consumedThrough }).status, "insufficient_data");
-    await assert.rejects(reserveEvaluation(root, [], plan, "SPY", "daily", asOf), /EEXIST/);
+    await assert.rejects(reserveEvaluation(root, [], plan, "SPY", "daily", asOf), /Stale reservation/);
     const next = planCandidate(rows(601), asOf, { ...policy, consumedThrough: first.consumedThrough });
     assert.equal(next.status, "ready");
     if (next.status !== "ready") throw new Error("fixture next plan");
@@ -88,12 +88,13 @@ test("activation needs matched reservation and improvements over every baseline 
     const result = evaluateCandidate(plan);
     const gate = promotionEvidence(plan, result.model, reservation);
     assert.equal(gate.passes, true);
-    assert.equal(promotionEvidence(plan, result.model, reservation, result.model).passes, false);
+    assert.throws(() => promotionEvidence(plan, result.model, reservation, result.model), /Incumbent comparison/);
     assert.throws(() => promotionEvidence(plan, result.model, { ...reservation, datasetHash: "0".repeat(64) }), /differs/);
     const model: ActiveModel = {
       id: "synthetic", instrument: "QQQ", horizon: "daily", trainedAt: asOf,
       labelsThrough: gate.consumedThrough, datasetHash: plan.datasetHash,
       samples: plan.samples, featureSchema: "family-score-plus-observation-mask-v1",
+          priceAdjustment: "total-return-adjusted",
       model: result.model, testBrier: result.candidateBrier, baselineBrier: result.coinBrier,
       testSamples: result.split.test, promotionEvidence: gate,
     };
@@ -132,18 +133,25 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
         entryAt: row.issuedAt.replace("T12:", "T14:"), exitAt: row.labelKnownAt,
         entry: 100, exit: 100 + score * 2, returnPct: score * 2,
         predictedScore: score, predictedProbability: null, abstained: true, directionCorrect: null,
-        source: "https://example.com/synthetic-fixture", adjustment: "split-adjusted" });
+        source: "https://example.com/synthetic-fixture", adjustment: "total-return-adjusted" });
     }
     await writeFile(join(directory, "index.json"), JSON.stringify(index));
     await writeFile(join(directory, "outcomes.json"), JSON.stringify(outcomes));
     await writeFile(join(root, "lib/consensus/models.json"), '{"schemaVersion":1,"models":[],"note":"Synthetic test only"}');
     const run = () => promisify(execFile)(process.execPath, ["--experimental-strip-types", "scripts/evaluate-consensus.ts"], { cwd: root });
+    const git = (...args: string[]) => promisify(execFile)("git", args, {cwd:root});
+    await git("init", "--quiet");
+    await git("add", ".");
+    const commit = () => git("-c", "user.name=Test fixture", "-c", "user.email=test@example.invalid", "commit", "--quiet", "-m", "Synthetic fixture audit");
+    await commit();
     await run();
     const first = await readReservations(root);
     assert.equal(first.length, 1);
     const registry = JSON.parse(await readFile(join(root, "lib/consensus/models.json"), "utf8"));
     assert.equal(registry.models.length, 1);
     validateActivePromotion(registry.models[0], first);
+    await assert.rejects(run(), /Commit the pending evaluation reservations/);
+    await git("add", "public/consensus/evaluations"); await commit();
     await run();
     assert.deepEqual(await readReservations(root), first);
     const report = JSON.parse(await readFile(join(root, "lib/consensus/performance.json"), "utf8"));
@@ -153,6 +161,61 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
     assert.equal(cohort.status, "insufficient_data");
     assert.deepEqual(JSON.parse(await readFile(join(directory, "outcomes.json"), "utf8")), outcomes);
     await rm(join(directory, "evaluations"), { recursive: true });
-    await assert.rejects(run(), /missing its durable test reservation/);
+    await assert.rejects(run(), /pending evaluation reservations|durable anchor/);
   } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('two cohorts across three rounds retain hash-linked heads after a Git reset or lost local anchor', async () => {
+  const root = await mkdtemp(join(tmpdir(),'tdc-ledger-heads-'));
+  try {
+    let records=await readReservations(root);
+    for (let round=0;round<3;round++) for (const instrument of ['SPY','QQQ'] as const) {
+      const prior=records.filter(r=>r.instrument===instrument).sort((a,b)=>b.attempt-a.attempt)[0];
+      const plan=planCandidate(rows(500+round*101),asOf,{...policy,consumedThrough:prior?.consumedThrough});
+      if(plan.status!=='ready') throw Error('fixture plan');
+      await reserveEvaluation(root,records,plan,instrument,'daily',asOf);
+      records=await readReservations(root);
+    }
+    assert.equal(records.length,6);
+    assert.deepEqual(reservationAnchors(records).map(a=>a.attempt),[3,3]);
+    const id='2026-11-03T15-00-00-000Z',dir=join(root,'public/consensus');
+    await writeFile(join(dir,`${id}.json`),JSON.stringify({id,evaluationAnchors:reservationAnchors(records)}));
+    await writeFile(join(dir,'index.json'),JSON.stringify([{id}]));
+    const tail=join(dir,'evaluations/SPY-daily-000003.json');
+    const bytes=await readFile(tail);
+    await rm(tail);
+    await assert.rejects(readReservations(root),/durable anchor/);
+    await rm(join(root,'.consensus/learning-ledger-head.json'));
+    await assert.rejects(readReservations(root),/durable anchor/);
+    await writeFile(tail,bytes);
+    assert.equal((await readReservations(root)).length,6);
+    const changed=structuredClone(records);changed.find(r=>r.instrument==='SPY'&&r.attempt===2)!.datasetHash='f'.repeat(64);
+    assert.throws(()=>validateReservations(changed),/Invalid or reused/);
+  } finally {await rm(root,{recursive:true,force:true});}
+});
+
+test('later attempt resolution scales rather than making attempt eight impossible', () => {
+  const alpha=attemptAlpha(8);
+  assert.ok(resamplesForAlpha(alpha)>19999);
+  const strong=pairedLossEvidence(Array(100).fill(.2),'synthetic-eighth-attempt',alpha);
+  assert.ok(strong.pValue<alpha);
+  assert.throws(()=>resamplesForAlpha(1e-12),/computation budget/);
+});
+
+test('a replacement is bound to the reserved incumbent and exact candidate coefficients',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'tdc-bound-incumbent-'));
+  try {
+    const plan=planCandidate(rows(500),asOf,policy);if(plan.status!=='ready')throw Error('fixture plan');
+    const result=evaluateCandidate(plan);
+    const base:ActiveModel={id:'synthetic-incumbent',instrument:'SPY',horizon:'daily',trainedAt:'2023-01-01T00:00:00.000Z',labelsThrough:'2022-01-01T00:00:00.000Z',datasetHash:'a'.repeat(64),samples:500,featureSchema:'family-score-plus-observation-mask-v1',priceAdjustment:'total-return-adjusted',model:{...result.model,intercept:0,weights:result.model.weights.map(()=>0)},testBrier:.25,baselineBrier:.25,testSamples:100};
+    const reservation=await reserveEvaluation(root,[],plan,'SPY','daily',asOf,base);
+    assert.throws(()=>promotionEvidence(plan,result.model,reservation),/Incumbent comparison/);
+    const gate=promotionEvidence(plan,result.model,reservation,base.model);
+    assert.ok(gate.passes);assert.equal(gate.incumbentId,base.id);
+    const active:ActiveModel={...base,id:'synthetic-replacement',trainedAt:asOf,labelsThrough:reservation.consumedThrough,datasetHash:plan.datasetHash,model:result.model,promotionEvidence:gate};
+    assert.doesNotThrow(()=>validateActivePromotion(active,[reservation],base));
+    assert.throws(()=>validateActivePromotion(active,[reservation]),/promotion evidence/);
+    assert.throws(()=>validateActivePromotion({...active,model:{...active.model,intercept:4}},[reservation],base),/promotion evidence/);
+    assert.throws(()=>validateActivePromotion({...active,promotionEvidence:{...gate,comparisons:gate.comparisons.filter(c=>c.baseline!=='incumbent')}},[reservation],base),/promotion evidence/);
+  }finally{await rm(root,{recursive:true,force:true});}
 });

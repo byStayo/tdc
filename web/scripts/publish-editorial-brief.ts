@@ -2,6 +2,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { link, mkdir, open, readFile, rename, unlink } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { acquirePublicationLock } from '../lib/publication-lock.ts';
+import { savedPublicData } from '../lib/saved-public-data.ts';
 import type { ResearchResponse } from '../lib/contracts.ts';
 import { validateResearch } from '../lib/research-schema.ts';
 import { publicDate } from '../lib/public-normalization.ts';
@@ -89,6 +91,7 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
   const [candidate, evidenceInput] = await Promise.all([readJSON(candidatePath), readJSON(evidencePath)]);
   // Complete validation before creating directories, locks, archive files or a replacement publication.
   const { brief, evidence } = validateEditorialPublication(candidate, evidenceInput, options.now ?? Date.now());
+  const workspaceData = savedPublicData(evidence);
   const briefText = `${JSON.stringify(brief, null, 2)}\n`, evidenceText = `${JSON.stringify(evidence, null, 2)}\n`;
   const digest = createHash('sha256').update(briefText).update(evidenceText).digest('hex').slice(0, 12);
   const stem = `${brief.createdAt.slice(0, 10)}-${brief.createdAt.slice(11, 19).replaceAll(':', '')}Z-${brief.symbol ? `${brief.symbol}-` : ''}${digest}`;
@@ -97,11 +100,9 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
   const briefArchive = resolve(reports, `${stem}-brief.json`), evidenceArchive = resolve(reports, `${stem}-evidence.json`);
   const result = { checked: true as const, published: false, latest, briefArchive, evidenceArchive };
   if (options.checkOnly) return result;
-  await mkdir(resolve(root, '.editorial'), { recursive: true, mode: 0o700 });
-  const lockPath = resolve(root, '.editorial/publish.lock'), lock = await open(lockPath, 'wx', 0o600);
+  const release = await acquirePublicationLock(root, 'editorial');
   const staged: string[] = [], createdArchives: string[] = []; let replaced = false;
   try {
-    await lock.writeFile(JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }));
     try {
       const previous = JSON.parse(await readFile(latest, 'utf8')) as { createdAt?: string };
       if (previous.createdAt && Date.parse(previous.createdAt) > Date.parse(brief.createdAt)) throw new Error('Candidate predates the current publication');
@@ -114,13 +115,22 @@ export async function publishEditorialBrief(candidatePath: string, evidencePath:
     if (!alreadyEvidence) { await link(temporaryEvidence, evidenceArchive); createdArchives.push(evidenceArchive); }
     // Readers see either the complete previous brief or the complete validated replacement.
     await rename(temporaryLatest, latest); replaced = true;
+    const workspacePath = resolve(root, 'lib/saved-public-data.json');
+    let previousCollection: string | undefined;
+    try { previousCollection = JSON.parse(await readFile(workspacePath, 'utf8')).collectedAt; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+    if (!previousCollection || evidence.collectedAt >= previousCollection) {
+      const workspaceTemp = `${workspacePath}.${token}.tmp`; staged.push(workspaceTemp);
+      await stage(workspaceTemp, `${JSON.stringify(workspaceData, null, 2)}\n`);
+      await rename(workspaceTemp, workspacePath);
+    }
     return { ...result, published: true };
   } catch (error) {
     if (!replaced) for (const path of createdArchives) await unlink(path).catch(() => undefined);
     throw error;
   } finally {
     for (const path of staged) await unlink(path).catch(() => undefined);
-    await lock.close(); await unlink(lockPath).catch(() => undefined);
+    await release();
   }
 }
 

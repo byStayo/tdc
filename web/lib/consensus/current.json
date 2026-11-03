@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-03T08-48-02-469Z",
-  "issuedAt": "2026-11-03T08:48:02.469Z",
-  "cutoff": "2026-11-03T08:48:02.469Z",
+  "id": "2026-11-03T14-51-40-702Z",
+  "issuedAt": "2026-11-03T14:51:40.702Z",
+  "cutoff": "2026-11-03T14:51:40.702Z",
   "origin": "prospective",
-  "engineVersion": "consensus-rules-1.1.0",
+  "engineVersion": "consensus-rules-2.0.0",
   "signals": [
     {
       "id": "fred-DGS2",
@@ -32,7 +32,7 @@
         "url": "https://fred.stlouisfed.org/series/DGS2",
         "retrievedAt": "2026-11-03T08:11:56.667Z"
       },
-      "methodology": "Change in the published series scaled by 0.2 %, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -1096,7 +1096,14 @@
         "monthly": 1
       },
       "staleAfterDays": 7,
-      "unit": "%"
+      "unit": "%",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-DGS10",
@@ -1124,7 +1131,7 @@
         "url": "https://fred.stlouisfed.org/series/DGS10",
         "retrievedAt": "2026-11-03T08:11:56.663Z"
       },
-      "methodology": "Change in the published series scaled by 0.2 %, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -2188,7 +2195,15 @@
         "monthly": 1
       },
       "staleAfterDays": 7,
-      "unit": "%"
+      "unit": "%",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ]
     },
     {
       "id": "fred-DGS30",
@@ -2216,7 +2231,7 @@
         "url": "https://fred.stlouisfed.org/series/DGS30",
         "retrievedAt": "2026-11-03T08:11:56.861Z"
       },
-      "methodology": "Change in the published series scaled by 0.2 %, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -3280,7 +3295,15 @@
         "monthly": 1
       },
       "staleAfterDays": 7,
-      "unit": "%"
+      "unit": "%",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ]
     },
     {
       "id": "fred-SOFR",
@@ -3308,7 +3331,7 @@
         "url": "https://fred.stlouisfed.org/series/SOFR",
         "retrievedAt": "2026-11-03T08:11:56.848Z"
       },
-      "methodology": "Change in the published series scaled by 0.2 %, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -4372,7 +4395,14 @@
         "monthly": -0.25000000000000133
       },
       "staleAfterDays": 7,
-      "unit": "%"
+      "unit": "%",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-EFFR",
@@ -4400,7 +4430,7 @@
         "url": "https://fred.stlouisfed.org/series/EFFR",
         "retrievedAt": "2026-11-03T08:11:56.864Z"
       },
-      "methodology": "Change in the published series scaled by 0.25 %, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 0.25 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -5464,7 +5494,14 @@
         "monthly": 0
       },
       "staleAfterDays": 7,
-      "unit": "%"
+      "unit": "%",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-WALCL",
@@ -5492,7 +5529,7 @@
         "url": "https://fred.stlouisfed.org/series/WALCL",
         "retrievedAt": "2026-11-03T08:11:56.671Z"
       },
-      "methodology": "Change in the published series scaled by 200000 $m, capped to [-1,1], with rises treated as a supportive prior. Daily/weekly/monthly views use 1/4/13 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published weekly changes scaled by 200000 $m and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -5967,12 +6004,19 @@
         }
       ],
       "scores": {
-        "daily": -0.039845,
-        "weekly": 0.01302,
-        "monthly": 0.037225
+        "daily": null,
+        "weekly": -0.039845,
+        "monthly": 0.01302
       },
       "staleAfterDays": 14,
-      "unit": "$m"
+      "unit": "$m",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-WTREGEN",
@@ -6000,7 +6044,7 @@
         "url": "https://fred.stlouisfed.org/series/WTREGEN",
         "retrievedAt": "2026-11-03T08:11:56.672Z"
       },
-      "methodology": "Change in the published series scaled by 100000 $m, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/4/13 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published weekly changes scaled by 100000 $m and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -6475,12 +6519,19 @@
         }
       ],
       "scores": {
-        "daily": -0.47725,
-        "weekly": -0.51053,
-        "monthly": -0.88951
+        "daily": null,
+        "weekly": -0.47725,
+        "monthly": -0.51053
       },
       "staleAfterDays": 14,
-      "unit": "$m"
+      "unit": "$m",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-RRPONTSYD",
@@ -6508,7 +6559,7 @@
         "url": "https://fred.stlouisfed.org/series/RRPONTSYD",
         "retrievedAt": "2026-11-03T08:11:56.676Z"
       },
-      "methodology": "Change in the published series scaled by 100 $bn, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 100 $bn and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -7572,7 +7623,14 @@
         "monthly": -0.04737
       },
       "staleAfterDays": 7,
-      "unit": "$bn"
+      "unit": "$bn",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-WRESBAL",
@@ -7600,7 +7658,7 @@
         "url": "https://fred.stlouisfed.org/series/WRESBAL",
         "retrievedAt": "2026-11-03T08:11:56.866Z"
       },
-      "methodology": "Change in the published series scaled by 200000 $m, capped to [-1,1], with rises treated as a supportive prior. Daily/weekly/monthly views use 1/4/13 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published weekly changes scaled by 200000 $m and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -8075,12 +8133,19 @@
         }
       ],
       "scores": {
-        "daily": -0.344185,
-        "weekly": -0.2716,
-        "monthly": -0.454
+        "daily": null,
+        "weekly": -0.344185,
+        "monthly": -0.2716
       },
       "staleAfterDays": 14,
-      "unit": "$m"
+      "unit": "$m",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-DTWEXBGS",
@@ -8108,7 +8173,7 @@
         "url": "https://fred.stlouisfed.org/series/DTWEXBGS",
         "retrievedAt": "2026-11-03T08:11:56.859Z"
       },
-      "methodology": "Change in the published series scaled by 2 index, capped to [-1,1], with falls treated as a supportive prior. Daily/weekly/monthly views use 1/5/21 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published daily changes scaled by 2 index and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -9172,7 +9237,14 @@
         "monthly": -0.34814999999999685
       },
       "staleAfterDays": 14,
-      "unit": "index"
+      "unit": "index",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-BUSLOANS",
@@ -9200,7 +9272,7 @@
         "url": "https://fred.stlouisfed.org/series/BUSLOANS",
         "retrievedAt": "2026-11-03T08:11:56.958Z"
       },
-      "methodology": "Change in the published series scaled by 60 $bn, capped to [-1,1], with rises treated as a supportive prior. Daily/weekly/monthly views use 1/3/6 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published monthly changes scaled by 60 $bn and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -9323,12 +9395,19 @@
         }
       ],
       "scores": {
-        "daily": 0.40891833333333427,
-        "weekly": 1,
-        "monthly": 1
+        "daily": null,
+        "weekly": null,
+        "monthly": 0.40891833333333427
       },
       "staleAfterDays": 70,
-      "unit": "$bn"
+      "unit": "$bn",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fred-TOTBKCR",
@@ -9356,7 +9435,7 @@
         "url": "https://fred.stlouisfed.org/series/TOTBKCR",
         "retrievedAt": "2026-11-03T08:11:56.866Z"
       },
-      "methodology": "Change in the published series scaled by 150 $bn, capped to [-1,1], with rises treated as a supportive prior. Daily/weekly/monthly views use 1/4/13 observations. These are context windows, not validated return predictions.",
+      "methodology": "Published weekly changes scaled by 150 $bn and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
@@ -9827,12 +9906,19 @@
         }
       ],
       "scores": {
-        "daily": 0.19238333333334595,
-        "weekly": 0.9534133333333253,
-        "monthly": 1
+        "daily": null,
+        "weekly": 0.19238333333334595,
+        "monthly": 0.9534133333333253
       },
       "staleAfterDays": 21,
-      "unit": "$bn"
+      "unit": "$bn",
+      "directionalInstruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ]
     },
     {
       "id": "fx-EUR",
@@ -12012,7 +12098,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -12225,7 +12311,7 @@
         }
       ],
       "scores": {
-        "daily": 0.333738923567157,
+        "daily": null,
         "weekly": -0.11646729122380713,
         "monthly": -0.24021032067562942
       },
@@ -12254,7 +12340,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -12467,7 +12553,7 @@
         }
       ],
       "scores": {
-        "daily": 0.0026190580121349684,
+        "daily": null,
         "weekly": 0.22897837596891488,
         "monthly": 0.4198576970420234
       },
@@ -12496,7 +12582,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -12709,7 +12795,7 @@
         }
       ],
       "scores": {
-        "daily": 0.6087435011247337,
+        "daily": null,
         "weekly": -0.42010303376695185,
         "monthly": -0.09523186544841357
       },
@@ -12738,7 +12824,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -12951,7 +13037,7 @@
         }
       ],
       "scores": {
-        "daily": 0.02142394267582344,
+        "daily": null,
         "weekly": 0.050828523160517156,
         "monthly": 0.6663249814500591
       },
@@ -12980,7 +13066,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -13193,7 +13279,7 @@
         }
       ],
       "scores": {
-        "daily": 0.10677424345094007,
+        "daily": null,
         "weekly": -0.23615773014170544,
         "monthly": -0.33463847443471756
       },
@@ -13222,7 +13308,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -13435,7 +13521,7 @@
         }
       ],
       "scores": {
-        "daily": -0.2619024793064304,
+        "daily": null,
         "weekly": 0.08855653056974919,
         "monthly": 1
       },
@@ -13464,7 +13550,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -13677,7 +13763,7 @@
         }
       ],
       "scores": {
-        "daily": 1,
+        "daily": null,
         "weekly": 0.06465918013310841,
         "monthly": -0.030891609145903942
       },
@@ -13706,7 +13792,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -13919,7 +14005,7 @@
         }
       ],
       "scores": {
-        "daily": -0.5120950897141756,
+        "daily": null,
         "weekly": -0.1302674457141581,
         "monthly": -0.05579673521179203
       },
@@ -13932,7 +14018,6 @@
       "shortLabel": "Treasury bond futures · asset managers",
       "family": "institutions",
       "instruments": [
-        "MARKET",
         "TLT"
       ],
       "status": "available",
@@ -13948,7 +14033,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -14161,7 +14246,7 @@
         }
       ],
       "scores": {
-        "daily": 0.5077587793721252,
+        "daily": null,
         "weekly": -0.14211719029600473,
         "monthly": -0.19614786049103566
       },
@@ -14174,7 +14259,6 @@
       "shortLabel": "Treasury bond futures · leveraged funds",
       "family": "institutions",
       "instruments": [
-        "MARKET",
         "TLT"
       ],
       "status": "available",
@@ -14190,7 +14274,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -14403,7 +14487,7 @@
         }
       ],
       "scores": {
-        "daily": -0.19887277262706232,
+        "daily": null,
         "weekly": 0.1160794485750217,
         "monthly": 0.3615365627952089
       },
@@ -14416,7 +14500,6 @@
       "shortLabel": "10-year Treasury futures · asset managers",
       "family": "institutions",
       "instruments": [
-        "MARKET",
         "TLT"
       ],
       "status": "available",
@@ -14432,7 +14515,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -14645,9 +14728,9 @@
         }
       ],
       "scores": {
-        "daily": 1,
-        "weekly": 0.11582123535238935,
-        "monthly": 0.13981172550358043
+        "daily": null,
+        "weekly": null,
+        "monthly": null
       },
       "staleAfterDays": 14,
       "unit": "% OI"
@@ -14658,7 +14741,6 @@
       "shortLabel": "10-year Treasury futures · leveraged funds",
       "family": "institutions",
       "instruments": [
-        "MARKET",
         "TLT"
       ],
       "status": "available",
@@ -14674,7 +14756,7 @@
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602",
         "retrievedAt": "2026-11-03T08:11:57.306Z"
       },
-      "methodology": "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+      "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
       "series": [
         {
@@ -14887,9 +14969,9 @@
         }
       ],
       "scores": {
-        "daily": -0.9467149858167556,
-        "weekly": -0.19599752070646587,
-        "monthly": -0.13294475642297623
+        "daily": null,
+        "weekly": null,
+        "monthly": null
       },
       "staleAfterDays": 14,
       "unit": "% OI"
@@ -15143,7 +15225,7 @@
         "usage": "Selected factual financial figures with original-source attribution",
         "sha256": "bf4b4b934fd06703a63feb63c2e4f5b0c6bd17cb96d3a67a7188307d71034d83"
       },
-      "methodology": "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
+      "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
       "limitation": "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
       "series": [
         {
@@ -15182,9 +15264,9 @@
         }
       ],
       "scores": {
-        "daily": 0.5860968516385934,
-        "weekly": 0.5860968516385934,
-        "monthly": 0.5860968516385934
+        "daily": null,
+        "weekly": null,
+        "monthly": null
       },
       "staleAfterDays": 150,
       "unit": "$bn"
@@ -15213,7 +15295,7 @@
         "usage": "Selected factual financial figures with original-source attribution",
         "sha256": "2fd8780c45a7f1151e51bd8cfab07a1462d203a1cf95a43ef0afcde32a2cc413"
       },
-      "methodology": "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
+      "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
       "limitation": "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
       "series": [
         {
@@ -15252,9 +15334,9 @@
         }
       ],
       "scores": {
-        "daily": 0.9402237585776263,
-        "weekly": 0.9402237585776263,
-        "monthly": 0.9402237585776263
+        "daily": null,
+        "weekly": null,
+        "monthly": null
       },
       "staleAfterDays": 150,
       "unit": "$bn"
@@ -15283,7 +15365,7 @@
         "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0001045810/us-gaap/Revenues.json",
         "retrievedAt": "2026-11-03T08:11:57.157Z"
       },
-      "methodology": "Only 75–105-day US GAAP revenue periods from 10-Q/10-K filings are used. Latest known filing per period; prior year matched within 350–380 days. YoY growth / 20 percentage points is a capped contextual prior, identical across horizons until the next quarter.",
+      "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
       "limitation": "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
       "series": [
         {
@@ -15366,9 +15448,9 @@
         }
       ],
       "scores": {
-        "daily": 1,
-        "weekly": 1,
-        "monthly": 1
+        "daily": null,
+        "weekly": null,
+        "monthly": null
       },
       "staleAfterDays": 150,
       "unit": "$bn"
@@ -28812,6 +28894,136 @@
       }
     },
     {
+      "id": "sec-holdings-berkshire",
+      "family": "institutions",
+      "title": "Berkshire Hathaway · disclosed share holdings",
+      "shortLabel": "Berkshire Hathaway 13F",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ],
+      "status": "available",
+      "summary": "Berkshire Hathaway reported 29 non-option share positions for 2026-06-30, filed 2026-08-14. This selected filing is delayed broad-equity context.",
+      "source": {
+        "name": "SEC EDGAR · Form 13F",
+        "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
+        "observedAt": "2026-06-30",
+        "releasedAt": "2026-08-14",
+        "retrievedAt": "2026-11-03T08:45:00.106Z",
+        "frequency": "quarterly holdings",
+        "sha256": "d1fc785d975f0425b11cd3720f9333c1a8c34ed9a4a3ab1371eb2d6bc6c6e5d5",
+        "attribution": "Berkshire Hathaway; original filing via SEC EDGAR",
+        "usage": "Selected factual aggregates and largest positions derived from public SEC filings; original documents linked. No personal contact or signature information is republished."
+      },
+      "methodology": "Original current and preceding-quarter 13F-HR cover and information tables reconcile by entry count and reported dollar value. Non-option SH rows aggregate by security identifier and class. Five largest positions are ranked by disclosed value; their weights use the non-option share subtotal. Each manager is separate; no directional vote or cross-manager market total.",
+      "limitation": "Quarter-end positions can lag publication by 45 days and do not cover the complete portfolio, cash or shorts. Changes in disclosed value mix price and position changes; they are not returns or capital flows. Amendments/notices require reconciliation. These two selected managers do not represent all institutions or an ETF's holdings.",
+      "series": [
+        {
+          "date": "2026-03-31",
+          "value": 263.09570357
+        },
+        {
+          "date": "2026-06-30",
+          "value": 299.253556246
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Reported non-option shares",
+          "value": 299.253556246,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Distinct share positions",
+          "value": 29,
+          "unit": "positions",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Other reported value excluded",
+          "value": 0,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 150,
+      "unit": "USD billion"
+    },
+    {
+      "id": "sec-holdings-bridgewater",
+      "family": "institutions",
+      "title": "Bridgewater Associates · disclosed share holdings",
+      "shortLabel": "Bridgewater Associates 13F",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA"
+      ],
+      "status": "available",
+      "summary": "Bridgewater Associates reported 997 non-option share positions for 2026-06-30, filed 2026-08-14. This selected filing is delayed broad-equity context.",
+      "source": {
+        "name": "SEC EDGAR · Form 13F",
+        "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
+        "observedAt": "2026-06-30",
+        "releasedAt": "2026-08-14",
+        "retrievedAt": "2026-11-03T08:45:01.550Z",
+        "frequency": "quarterly holdings",
+        "sha256": "05261c97a9122da8f29af1bd8317b50802924d9bc9da070487b432777730baab",
+        "attribution": "Bridgewater Associates; original filing via SEC EDGAR",
+        "usage": "Selected factual aggregates and largest positions derived from public SEC filings; original documents linked. No personal contact or signature information is republished."
+      },
+      "methodology": "Original current and preceding-quarter 13F-HR cover and information tables reconcile by entry count and reported dollar value. Non-option SH rows aggregate by security identifier and class. Five largest positions are ranked by disclosed value; their weights use the non-option share subtotal. Each manager is separate; no directional vote or cross-manager market total.",
+      "limitation": "Quarter-end positions can lag publication by 45 days and do not cover the complete portfolio, cash or shorts. Changes in disclosed value mix price and position changes; they are not returns or capital flows. Amendments/notices require reconciliation. These two selected managers do not represent all institutions or an ETF's holdings.",
+      "series": [
+        {
+          "date": "2026-03-31",
+          "value": 22.404547213
+        },
+        {
+          "date": "2026-06-30",
+          "value": 24.37608653
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Reported non-option shares",
+          "value": 24.37608653,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Distinct share positions",
+          "value": 997,
+          "unit": "positions",
+          "date": "2026-06-30"
+        },
+        {
+          "label": "Other reported value excluded",
+          "value": 0,
+          "unit": "USD billion",
+          "date": "2026-06-30"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 150,
+      "unit": "USD billion"
+    },
+    {
       "id": "review-apple-quarter",
       "family": "news",
       "title": "Apple's new quarter updates the earnings picture",
@@ -29084,136 +29296,6 @@
         "weekly": null,
         "monthly": null
       }
-    },
-    {
-      "id": "sec-holdings-berkshire",
-      "family": "institutions",
-      "title": "Berkshire Hathaway · disclosed share holdings",
-      "shortLabel": "Berkshire Hathaway 13F",
-      "instruments": [
-        "MARKET",
-        "SPY",
-        "QQQ",
-        "IWM",
-        "DIA"
-      ],
-      "status": "available",
-      "summary": "Berkshire Hathaway reported 29 non-option share positions for 2026-06-30, filed 2026-08-14. This selected filing is delayed broad-equity context.",
-      "source": {
-        "name": "SEC EDGAR · Form 13F",
-        "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
-        "observedAt": "2026-06-30",
-        "releasedAt": "2026-08-14",
-        "retrievedAt": "2026-11-03T08:45:00.106Z",
-        "frequency": "quarterly holdings",
-        "sha256": "d1fc785d975f0425b11cd3720f9333c1a8c34ed9a4a3ab1371eb2d6bc6c6e5d5",
-        "attribution": "Berkshire Hathaway; original filing via SEC EDGAR",
-        "usage": "Selected factual aggregates and largest positions derived from public SEC filings; original documents linked. No personal contact or signature information is republished."
-      },
-      "methodology": "Original current and preceding-quarter 13F-HR cover and information tables reconcile by entry count and reported dollar value. Non-option SH rows aggregate by security identifier and class. Five largest positions are ranked by disclosed value; their weights use the non-option share subtotal. Each manager is separate; no directional vote or cross-manager market total.",
-      "limitation": "Quarter-end positions can lag publication by 45 days and do not cover the complete portfolio, cash or shorts. Changes in disclosed value mix price and position changes; they are not returns or capital flows. Amendments/notices require reconciliation. These two selected managers do not represent all institutions or an ETF's holdings.",
-      "series": [
-        {
-          "date": "2026-03-31",
-          "value": 263.09570357
-        },
-        {
-          "date": "2026-06-30",
-          "value": 299.253556246
-        }
-      ],
-      "metrics": [
-        {
-          "label": "Reported non-option shares",
-          "value": 299.253556246,
-          "unit": "USD billion",
-          "date": "2026-06-30"
-        },
-        {
-          "label": "Distinct share positions",
-          "value": 29,
-          "unit": "positions",
-          "date": "2026-06-30"
-        },
-        {
-          "label": "Other reported value excluded",
-          "value": 0,
-          "unit": "USD billion",
-          "date": "2026-06-30"
-        }
-      ],
-      "scores": {
-        "daily": null,
-        "weekly": null,
-        "monthly": null
-      },
-      "staleAfterDays": 150,
-      "unit": "USD billion"
-    },
-    {
-      "id": "sec-holdings-bridgewater",
-      "family": "institutions",
-      "title": "Bridgewater Associates · disclosed share holdings",
-      "shortLabel": "Bridgewater Associates 13F",
-      "instruments": [
-        "MARKET",
-        "SPY",
-        "QQQ",
-        "IWM",
-        "DIA"
-      ],
-      "status": "available",
-      "summary": "Bridgewater Associates reported 997 non-option share positions for 2026-06-30, filed 2026-08-14. This selected filing is delayed broad-equity context.",
-      "source": {
-        "name": "SEC EDGAR · Form 13F",
-        "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
-        "observedAt": "2026-06-30",
-        "releasedAt": "2026-08-14",
-        "retrievedAt": "2026-11-03T08:45:01.550Z",
-        "frequency": "quarterly holdings",
-        "sha256": "05261c97a9122da8f29af1bd8317b50802924d9bc9da070487b432777730baab",
-        "attribution": "Bridgewater Associates; original filing via SEC EDGAR",
-        "usage": "Selected factual aggregates and largest positions derived from public SEC filings; original documents linked. No personal contact or signature information is republished."
-      },
-      "methodology": "Original current and preceding-quarter 13F-HR cover and information tables reconcile by entry count and reported dollar value. Non-option SH rows aggregate by security identifier and class. Five largest positions are ranked by disclosed value; their weights use the non-option share subtotal. Each manager is separate; no directional vote or cross-manager market total.",
-      "limitation": "Quarter-end positions can lag publication by 45 days and do not cover the complete portfolio, cash or shorts. Changes in disclosed value mix price and position changes; they are not returns or capital flows. Amendments/notices require reconciliation. These two selected managers do not represent all institutions or an ETF's holdings.",
-      "series": [
-        {
-          "date": "2026-03-31",
-          "value": 22.404547213
-        },
-        {
-          "date": "2026-06-30",
-          "value": 24.37608653
-        }
-      ],
-      "metrics": [
-        {
-          "label": "Reported non-option shares",
-          "value": 24.37608653,
-          "unit": "USD billion",
-          "date": "2026-06-30"
-        },
-        {
-          "label": "Distinct share positions",
-          "value": 997,
-          "unit": "positions",
-          "date": "2026-06-30"
-        },
-        {
-          "label": "Other reported value excluded",
-          "value": 0,
-          "unit": "USD billion",
-          "date": "2026-06-30"
-        }
-      ],
-      "scores": {
-        "daily": null,
-        "weekly": null,
-        "monthly": null
-      },
-      "staleAfterDays": 150,
-      "unit": "USD billion"
     }
   ],
   "catalysts": [
@@ -30675,6 +30757,2824 @@
           }
         ]
       }
+    }
+  ],
+  "consensus": [
+    {
+      "instrument": "MARKET",
+      "horizon": "daily",
+      "score": 0.039376666666666324,
+      "coverage": 0.5483549783549784,
+      "directionalCoverage": 0.2,
+      "agreement": null,
+      "bullish": 0,
+      "bearish": 0,
+      "neutral": 3,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.007119999999999998,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.09000000000000119,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": 0.03524999999999778,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "MARKET",
+      "horizon": "weekly",
+      "score": -0.017320155608688804,
+      "coverage": 0.5483549783549784,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.5,
+      "bullish": 2,
+      "bearish": 2,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": -0.058746611376791616,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.2275375,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.1800000000000006,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.17269999999999897,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.19238333333334595,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "MARKET",
+      "horizon": "monthly",
+      "score": 0.16901450850605718,
+      "coverage": 0.5483549783549784,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.6,
+      "bullish": 3,
+      "bearish": 2,
+      "neutral": 0,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": 0.16617670919695324,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.20412000000000002,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.5499999999999997,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.34814999999999685,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.6811658333333298,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "daily",
+      "score": 0.039376666666666324,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.2,
+      "agreement": null,
+      "bullish": 0,
+      "bearish": 0,
+      "neutral": 3,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.007119999999999998,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.09000000000000119,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": 0.03524999999999778,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "score": -0.012131659891435453,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.5,
+      "bullish": 2,
+      "bearish": 2,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": -0.03280413279052485,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.2275375,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.1800000000000006,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.17269999999999897,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.19238333333334595,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "score": 0.12711033223089693,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.5,
+      "bullish": 2,
+      "bearish": 2,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": -0.043344172178847985,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.20412000000000002,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.5499999999999997,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.34814999999999685,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.6811658333333298,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "score": 0.039376666666666324,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.2,
+      "agreement": null,
+      "bullish": 0,
+      "bearish": 0,
+      "neutral": 3,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.007119999999999998,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.09000000000000119,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": 0.03524999999999778,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "score": -0.04249828439397395,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.6,
+      "bullish": 2,
+      "bearish": 3,
+      "neutral": 0,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": -0.18463725530321734,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.2275375,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.1800000000000006,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.17269999999999897,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.19238333333334595,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "score": 0.1928884782668311,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.6,
+      "bullish": 3,
+      "bearish": 2,
+      "neutral": 0,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": 0.2855465580008228,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.20412000000000002,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.5499999999999997,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.34814999999999685,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.6811658333333298,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "daily",
+      "score": 0.039376666666666324,
+      "coverage": 0.49108225108225106,
+      "directionalCoverage": 0.2,
+      "agreement": null,
+      "bullish": 0,
+      "bearish": 0,
+      "neutral": 3,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 3,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.007119999999999998,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.09000000000000119,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": 0.03524999999999778,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "score": -0.02033095329052611,
+      "coverage": 0.49108225108225106,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.5,
+      "bullish": 2,
+      "bearish": 2,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": -0.07380059978597812,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 3,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.2275375,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.1800000000000006,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.17269999999999897,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.19238333333334595,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "score": 0.20231531922319473,
+      "coverage": 0.49108225108225106,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.6,
+      "bullish": 3,
+      "bearish": 2,
+      "neutral": 0,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": 0.33268076278264125,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 3,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.20412000000000002,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.5499999999999997,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.34814999999999685,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.6811658333333298,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "daily",
+      "score": 0.039376666666666324,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.2,
+      "agreement": null,
+      "bullish": 0,
+      "bearish": 0,
+      "neutral": 3,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.007119999999999998,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.09000000000000119,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": 0.03524999999999778,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "score": 0.005680275141180291,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.5,
+      "bullish": 2,
+      "bearish": 2,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": 0.056255542372553875,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.2275375,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.1800000000000006,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.17269999999999897,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.19238333333334595,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "score": 0.15374390430330592,
+      "coverage": 0.541082251082251,
+      "directionalCoverage": 0.3333333333333333,
+      "agreement": 0.5,
+      "bullish": 2,
+      "bearish": 2,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": 0.089823688183197,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 5,
+          "available": 5,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 4,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": -0.20412000000000002,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.5499999999999997,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": -0.34814999999999685,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": 0.6811658333333298,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "daily",
+      "score": 0.12500000000000178,
+      "coverage": 0.49108225108225106,
+      "directionalCoverage": 0.06666666666666667,
+      "agreement": 1,
+      "bullish": 1,
+      "bearish": 0,
+      "neutral": 0,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 3,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.12500000000000178,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "score": 0.09349056456975433,
+      "coverage": 0.49108225108225106,
+      "directionalCoverage": 0.13333333333333333,
+      "agreement": 1,
+      "bullish": 1,
+      "bearish": 0,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": -0.013018870860491513,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 3,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 0.20000000000000018,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
+    },
+    {
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "score": 0.5413471755760433,
+      "coverage": 0.49108225108225106,
+      "directionalCoverage": 0.13333333333333333,
+      "agreement": 1,
+      "bullish": 1,
+      "bearish": 0,
+      "neutral": 1,
+      "abstain": true,
+      "reasons": [
+        "Less than 70% of the requested evidence is current.",
+        "Less than 70% of independent families can cast a directional vote for this horizon.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured.",
+        "Fewer than five independent families provide directional readings."
+      ],
+      "families": [
+        {
+          "id": "social",
+          "label": "Social pulse",
+          "weight": 1,
+          "expected": 2,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "retail",
+          "label": "Retail crowd",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "institutions",
+          "label": "Institutional positioning",
+          "weight": 1,
+          "expected": 5,
+          "available": 4,
+          "score": 0.08269435115208662,
+          "status": "available"
+        },
+        {
+          "id": "options",
+          "label": "Options & volatility",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "technicals",
+          "label": "Price & mathematics",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "premarket",
+          "label": "Before the bell",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "events",
+          "label": "Binary catalysts",
+          "weight": 1,
+          "expected": 11,
+          "available": 10,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "analysts",
+          "label": "Analyst revisions",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "news",
+          "label": "News cycle",
+          "weight": 1,
+          "expected": 3,
+          "available": 3,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "earnings",
+          "label": "Earnings",
+          "weight": 1,
+          "expected": 1,
+          "available": 0,
+          "score": null,
+          "status": "unavailable"
+        },
+        {
+          "id": "liquidity",
+          "label": "Liquidity",
+          "weight": 1,
+          "expected": 4,
+          "available": 4,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "rates",
+          "label": "Rates & bonds",
+          "weight": 1,
+          "expected": 7,
+          "available": 7,
+          "score": 1,
+          "status": "available"
+        },
+        {
+          "id": "fx",
+          "label": "Currency markets",
+          "weight": 1,
+          "expected": 8,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "international",
+          "label": "Around the world",
+          "weight": 1,
+          "expected": 7,
+          "available": 6,
+          "score": null,
+          "status": "available"
+        },
+        {
+          "id": "capital",
+          "label": "Capital flows",
+          "weight": 1,
+          "expected": 10,
+          "available": 8,
+          "score": null,
+          "status": "available"
+        }
+      ],
+      "label": "Incomplete picture"
     }
   ]
 }

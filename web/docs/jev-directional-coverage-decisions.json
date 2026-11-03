@@ -1,0 +1,20 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "coverage_layout": {
+      "type": "choice",
+      "choice": "primary_bar_secondary_text",
+      "confidence": 0.39,
+      "probabilities": {
+        "paired_bars": 0.38,
+        "primary_bar_secondary_text": 0.54,
+        "two_columns": 0.07,
+        "none_fit": 0.01
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 771,
+    "output_tokens": 56
+  }
+}

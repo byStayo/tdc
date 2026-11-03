@@ -9,6 +9,7 @@ import { collectHoldings } from "./holdings.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
 import { clamp } from "./engine.ts";
+import { applyScoringPolicy } from "./scoring-policy.ts";
 import {
   latestPublicPositioning,
   PUBLIC_CONTRACT_CODES,
@@ -292,15 +293,18 @@ export function ecbPoints(xml: string): Map<string, Point[]> {
     points.sort((a, b) => a.date.localeCompare(b.date));
   return result;
 }
-async function currencies(fetcher: Fetcher): Promise<Signal[]> {
+export const FX_CURRENCIES = ["EUR", "JPY", "GBP", "CHF", "CAD", "AUD", "CNY"] as const;
+export async function currencies(fetcher: Fetcher): Promise<Signal[]> {
   const url =
     "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
+  let received = false;
   try {
-    const response = await publicText(url, fetcher),
-      rows = ecbPoints(response.text),
+    const response = await publicText(url, fetcher);
+    received = true;
+    const rows = ecbPoints(response.text),
       usd = rows.get("USD");
     if (!usd?.length) throw new Error("No ECB dollar series");
-    return ["EUR", "JPY", "GBP", "CHF", "CAD", "AUD", "CNY"].map((currency) => {
+    return FX_CURRENCIES.map((currency) => {
       const input =
         currency === "EUR"
           ? usd.map((point) => ({ ...point, value: 1 }))
@@ -323,6 +327,7 @@ async function currencies(fetcher: Fetcher): Promise<Signal[]> {
       return {
         ...signal,
         status: latest ? ("available" as const) : ("unavailable" as const),
+        ...(latest ? {} : { failureKind: "validation" as const }),
         series: pairs,
         unit: "USD",
         metrics: latest
@@ -365,15 +370,10 @@ async function currencies(fetcher: Fetcher): Promise<Signal[]> {
       };
     });
   } catch {
-    return [
-      blank(
-        "fx-ecb",
-        "ECB currency reference rates",
-        "fx",
-        url,
-        new Date().toISOString(),
-      ),
-    ];
+    return FX_CURRENCIES.map((currency) => ({
+      ...blank(`fx-${currency}`, `${currency} / USD`, "fx", url, new Date().toISOString()),
+      failureKind: received ? "validation" as const : "transport" as const,
+    }));
   }
 }
 const CONTRACTS: Record<string, { symbol: Instrument; title: string }> = {
@@ -926,7 +926,7 @@ export async function collectSnapshot(
       ...missingSignals(issuedAt),
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
-  return {
+  return applyScoringPolicy({
     schemaVersion: 1,
     id,
     issuedAt,
@@ -948,5 +948,5 @@ export async function collectSnapshot(
           signal.status === "unavailable" && !signal.id.startsWith("social-"),
       )
       .map((signal) => `${signal.id}: ${signal.summary}`),
-  };
+  });
 }

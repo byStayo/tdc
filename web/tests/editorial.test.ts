@@ -9,7 +9,7 @@ import { publishEditorialBrief, validateEditorialPublication } from '../scripts/
 const NOW = Date.parse('2026-11-03T03:00:00Z');
 function fixture() {
   const url = 'https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A';
-  const evidence: EditorialEvidence = { schemaVersion: 1, scope: 'market', collectedAt: '2026-11-03T02:00:00Z', sources: [{ id: 'CFTC_ES', kind: 'cftc', title: 'CFTC futures evidence', url, retrievalUrl: url, retrievedAt: '2026-11-03T01:59:00Z', observationDates: ['2026-10-27'], status: 'ok', data: { openInterest: 0 } }], limitations: ['Weekly report, not a live flow.'] };
+  const evidence: EditorialEvidence = { schemaVersion: 1, scope: 'market', collectedAt: '2026-11-03T02:00:00Z', sources: [{ id: 'CFTC_ES', kind: 'cftc', title: 'CFTC futures evidence', url, retrievalUrl: url, retrievedAt: '2026-11-03T01:59:00Z', observationDates: ['2026-10-27'], status: 'ok', data: { id: 'fixture-es', contractCode: '13874A', market: 'Synthetic S&P futures', units: 'contracts', reportDate: '2026-10-27', openInterest: 0, assetManagerLong: null, assetManagerShort: null, leveragedLong: null, leveragedShort: null, dealerLong: null, dealerShort: null } }], limitations: ['Weekly report, not a live flow.'] };
   const candidate = { status: 'ok', scope: 'market', createdAt: '2026-11-03T02:30:00Z', model: 'Codex editorial workflow', message: 'Published public-source research.', data: { headline: 'Read the report in context', summary: 'A descriptive summary of the cited evidence.', bull: [{ text: 'This observation has a source.', sourceIds: ['CFTC_ES'] }], bear: [], watch: [], limitations: ['Weekly data is delayed.'] }, sources: [{ id: 'CFTC_ES', title: 'CFTC evidence', url }] };
   return { candidate, evidence };
 }
@@ -97,7 +97,7 @@ test('publisher writes immutable evidence/brief archives then atomically replace
   assert.deepEqual(JSON.parse(await readFile(result.briefArchive, 'utf8')), latest);
   const repeated = await publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW });
   assert.equal(repeated.briefArchive, result.briefArchive); assert.equal((await readdir(join(input.root, 'public/reports'))).length, 2);
-  await assert.rejects(stat(join(input.root, '.editorial/publish.lock')));
+  assert.ok(JSON.parse(await readFile(join(input.root, '.editorial/publish.lock'), 'utf8')).releasedAt);
 });
 
 test('an archive collision cannot overwrite the current publication or historical evidence', async () => {
@@ -112,7 +112,7 @@ test('an archive collision cannot overwrite the current publication or historica
 test('instrument publications require a supported identity and a claim citing that instrument’s contract', () => {
   const { candidate, evidence } = fixture();
   const instrument = { ...candidate, scope: 'instrument', symbol: 'SPY' };
-  const input = { ...evidence, sources: [{ ...evidence.sources[0], data: { contractCode: '13874A', openInterest: 0 } }] };
+  const input = { ...evidence, sources: [{ ...evidence.sources[0], data: evidence.sources[0].data }] };
   const valid = validateEditorialPublication(instrument, input, NOW).brief;
   assert.equal(valid.scope, 'instrument'); assert.equal(valid.symbol, 'SPY');
   assert.throws(() => validateEditorialPublication({ ...instrument, symbol: 'QQQ' }, input, NOW));
@@ -127,7 +127,7 @@ test('publishing one instrument preserves the market edition, other instruments 
   await writeFile(join(input.root, 'lib/published-brief.json'), '{"market":"unchanged"}');
   await writeFile(join(input.root, 'lib/published-instruments/QQQ.json'), '{"other":"unchanged"}');
   const candidate = { ...input.candidate, scope: 'instrument', symbol: 'SPY' };
-  const evidence = { ...input.evidence, sources: [{ ...input.evidence.sources[0], data: { contractCode: '13874A', openInterest: 0 } }] };
+  const evidence = { ...input.evidence, sources: [{ ...input.evidence.sources[0], data: input.evidence.sources[0].data }] };
   await writeFile(input.candidatePath, JSON.stringify(candidate)); await writeFile(input.evidencePath, JSON.stringify(evidence));
   const result = await publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW });
   assert.equal(result.latest, join(input.root, 'lib/published-instruments/SPY.json'));

@@ -1,15 +1,14 @@
 import 'server-only';
 import type { Company, Envelope, SourceState, Workspace } from './contracts';
 import archive from './research-archive.json';
-import { getMacro } from './macro';
-import { getSECFilings } from './sec';
-import { getCFTCPositioning } from './cftc';
+import saved from './saved-public-data.json';
+import { savedPublicContext, type SavedPublicData } from './saved-public-data';
 import { isPublicRange, isPublicSymbol } from './public-normalization';
 
 export async function getPublicWorkspace(symbol: string, range = '3M'): Promise<Workspace> {
   if (!isPublicSymbol(symbol) || !isPublicRange(range)) throw new Error('Invalid public workspace request');
-  const fetchedAt = new Date().toISOString();
-  const [macro, filings, positioning] = await Promise.all([getMacro(), getSECFilings(symbol), getCFTCPositioning(symbol)]);
+  const fetchedAt = saved.collectedAt;
+  const {macro, filings, positioning} = savedPublicContext(saved as SavedPublicData, symbol);
   const empty = <T>(data: T, source: string, message: string): Envelope<T> => ({ status: 'unavailable', source, asOf: null, fetchedAt, data, message });
   const quotes = empty<Workspace['quotes']['data']>([], 'TradingView hosted market display', 'Price data is displayed only within the official hosted market widget. This public API does not redistribute a private market-data subscription.');
   const history = empty<Workspace['history']['data']>([], 'TradingView hosted chart', 'Interactive prices and technical studies are available in the official hosted chart. No separately licensed price history is supplied by this public API.');

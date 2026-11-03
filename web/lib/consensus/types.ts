@@ -53,6 +53,8 @@ export interface Signal {
   title: string;
   shortLabel: string;
   instruments: Instrument[];
+  /** When present, other instruments retain context but cannot receive its vote. */
+  directionalInstruments?: Instrument[];
   status: SignalStatus;
   summary: string;
   source: Provenance;
@@ -98,6 +100,8 @@ export interface Consensus {
   score: number | null;
   label: string;
   coverage: number;
+  /** Weighted share of families with a vote; absent on legacy rule versions. */
+  directionalCoverage?: number;
   agreement: number | null;
   bullish: number;
   bearish: number;
@@ -119,6 +123,7 @@ export interface Snapshot {
   collectionErrors: string[];
   /** Complete frozen results for new publications; legacy editions use a pinned engine. */
   consensus?: Consensus[];
+  evaluationAnchors?: import("./learning-audit").EvaluationAnchor[];
   forecasts?: import("./model").Forecast[];
   news?: import("./news").NewsPulse;
   review?: import("./reviewed").ReviewPacket;

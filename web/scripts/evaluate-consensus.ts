@@ -2,14 +2,15 @@ import {
   readFile,
   writeFile,
   mkdir,
-  open,
-  unlink,
   rename,
   readdir,
 } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
+import { acquirePublicationLock } from "../lib/publication-lock.ts";
+import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
+import { assertCommittedReservations } from "../lib/consensus/learning-audit.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
@@ -17,7 +18,7 @@ import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
 import { readReservations, reserveEvaluation, promotionEvidence, LEARNING_POLICY,
-  PROSPECTIVE_MINIMUM, MINIMUM_TEST_LABELS, validateActivePromotion } from "../lib/consensus/learning-audit.ts";
+  PROSPECTIVE_MINIMUM, MINIMUM_TEST_LABELS, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
 import type {
@@ -55,13 +56,9 @@ if (
   supplied.some((item) => !INSTRUMENTS.includes(item.instrument))
 )
   throw new Error("One verified price evidence set per instrument required");
-await mkdir(resolve(root, ".editorial"), { recursive: true });
-const lockPath = resolve(root, ".editorial/publish.lock"),
-  lock = await open(lockPath, "wx", 0o600);
+const release = await acquirePublicationLock(root, "evaluation");
 try {
-  await lock.writeFile(
-    JSON.stringify({ kind: "evaluation", startedAt: now, pid: process.pid }),
-  );
+  await assertCommittedReservations(root);
   let outcomes: Outcome[] = [];
   try {
     outcomes = JSON.parse(
@@ -101,7 +98,7 @@ try {
       record.attempt === saved.promotionEvidence.attempt && record.datasetHash === saved.datasetHash))
       throw new Error("Candidate is missing its durable test reservation");
   }
-  registry.models.forEach((model) => validateActivePromotion(model, reservations));
+  for (const model of registry.models) await validateActiveModelTree(root, model, reservations);
   for (const instrument of INSTRUMENTS.filter((symbol) => symbol !== "MARKET"))
     for (const horizon of HORIZONS) {
       const sample = outcomes.filter(
@@ -156,14 +153,14 @@ try {
       });
       // Reserve before fitting/evaluating: failed candidates and crashes consume their test window too.
       const reservation = plan.status === "ready"
-        ? await reserveEvaluation(root, reservations, plan, instrument, horizon, now) : null;
+        ? await reserveEvaluation(root, reservations, plan, instrument, horizon, now, incumbent) : null;
       if (reservation) reservations.push(reservation);
       const result = plan.status === "ready" ? evaluateCandidate(plan, incumbent?.model) : plan;
       const gate = plan.status === "ready" && result.status === "evaluated" && reservation
         ? promotionEvidence(plan, result.model, reservation, incumbent?.model) : null;
-      const contextHash = digest({ datasetHash: result.datasetHash, policy: LEARNING_POLICY,
+      const contextHash = digest({ datasetHash: result.datasetHash, policy: LEARNING_POLICY, priceAdjustment: OUTCOME_PRICE_BASIS,
         priorAttempt: prior?.attempt ?? 0, incumbent: incumbent?.id ?? null });
-      const artifact = `models/${instrument}-${horizon}-wf1-${contextHash.slice(0, 16)}.json`;
+      const artifact = `models/${instrument}-${horizon}-wf2-${contextHash.slice(0, 16)}.json`;
       const promote =
         result.status === "evaluated" &&
         result.promoted &&
@@ -179,6 +176,7 @@ try {
           datasetHash: result.datasetHash,
           samples: result.samples,
           featureSchema: "family-score-plus-observation-mask-v1",
+          priceAdjustment: OUTCOME_PRICE_BASIS,
           model: result.model,
           testBrier: result.candidateBrier,
           baselineBrier: Math.min(result.coinBrier, result.baseRateBrier),
@@ -203,7 +201,7 @@ try {
       try {
         await writeFile(
           resolve(dir, artifact),
-          `${JSON.stringify({ ...result, promoted: promote, promotionEvidence: gate, instrument, horizon, evaluatedAt: now, activated: promote, featureSchema: "family-score-plus-observation-mask-v1" }, null, 2)}\n`,
+          `${JSON.stringify({ ...result, promoted: promote, promotionEvidence: gate, instrument, horizon, priceAdjustment: OUTCOME_PRICE_BASIS, evaluatedAt: now, activated: promote, featureSchema: "family-score-plus-observation-mask-v1" }, null, 2)}\n`,
           { flag: "wx" },
         );
       } catch (error) {
@@ -256,6 +254,5 @@ try {
     }),
   );
 } finally {
-  await lock.close();
-  await unlink(lockPath).catch(() => undefined);
+  await release();
 }

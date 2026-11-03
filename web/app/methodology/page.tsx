@@ -32,7 +32,7 @@ export default function Methodology() {
               technical family's vote.
             </p>
             <p>
-              Coverage measures the share of expected inputs currently
+              Observation coverage measures the share of expected inputs currently
               available, averaged across all {FAMILIES.length} families. Neutral
               is a measured reading. Missing, stale and not-yet-formed are
               different states and do not cast a neutral vote.
@@ -43,9 +43,27 @@ export default function Methodology() {
               money.
             </p>
             <p>
-              A complete trading call is withheld below 70% coverage, without
+              Directional coverage is the weighted share of families that have
+              an eligible vote for the selected instrument and horizon. Context-only
+              observations do not raise it. Under rules 2.0, a complete trading call
+              is withheld below 70% observation or directional coverage, without
               verified price and options inputs, or with fewer than five
               directional families.
+            </p>
+            <p>
+              Quarterly revenue growth is context, not an earnings-surprise vote.
+              Standing futures positions never cast a daily vote; weekly and monthly
+              readings use changes across one and four reports. Monthly macro series
+              vote only monthly; weekly series only weekly and monthly. MARKET combines
+              equity-market context. Treasury futures are excluded from its votes;
+              the 10-year contract is context only for TLT. TLT receives only long-yield
+              and Treasury-bond positioning priors, with falling yields treated as
+              supportive. These are explicit assumptions, not learned accuracy.
+            </p>
+            <p>
+              Earlier editions preserve their original rule version, coverage and
+              votes. A methodology correction creates a new edition; it never rewrites
+              an earlier call or makes old observations look freshly collected.
             </p>
           </section>
           <section className={styles.panel}>
@@ -209,6 +227,14 @@ export default function Methodology() {
           </section>
           <section className={styles.panel}>
             <h2>Calculation assumptions</h2>
+            <p>
+              ETF outcomes use the next session's total-return-adjusted open and
+              the adjusted close after 1, 5 or 21 complete sessions. The same basis
+              must account for both splits and distributions at both endpoints.
+              Unadjusted and split-only series are rejected for every horizon;
+              model forecasts and labels must declare the same basis. This is a
+              total-return research target, not an executable quote or a portfolio return.
+            </p>
             <p>
               Government-series changes are scaled by declared constants and
               capped to −1 to +1. Falling rates and a weaker broad dollar are

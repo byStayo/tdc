@@ -13,6 +13,7 @@ export function retainLastKnown(
   const retainedHoldings = new Set<string>();
   const signals = snapshot.signals.map((signal) => {
     if (signal.status !== "unavailable") return signal;
+    if (signal.id.startsWith("fx-") && signal.failureKind !== "transport") return signal;
     const prior = previous.signals.find((item) => item.id === signal.id);
     if (
       !prior ||

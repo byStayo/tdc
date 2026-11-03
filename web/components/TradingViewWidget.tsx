@@ -6,6 +6,9 @@ import { ExternalLink } from "./ui";
 import {
   EMBEDS,
   providerSymbol,
+  WIDGET_SANDBOX,
+  PROVIDER_FRAME_SANDBOX,
+  isProviderFrameURL,
   type WidgetKind,
   type WidgetHorizon,
 } from "@/lib/tradingview-config";
@@ -68,37 +71,32 @@ export default function TradingViewWidget({
     // removed. An owned child document is cancelled as a unit during navigation.
     const frame = document.createElement("iframe");
     frame.title = `${widgetTitle} hosted by TradingView`;
+    frame.setAttribute("sandbox", WIDGET_SANDBOX);
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
     frame.src = `/widgets/${kind}?${new URLSearchParams({ symbol, theme, newsScope, horizon })}`;
     frame.style.width = "100%";
     frame.style.height = "100%";
     frame.style.border = "0";
-    const children = new Set<HTMLIFrameElement>();
-    let observer: MutationObserver | undefined;
-    const ready = () => {
-      if (!disposed) setState("ready");
+    let providerFrame: HTMLIFrameElement | undefined;
+    const ready = (event: MessageEvent) => {
+      if (!disposed && event.source === frame.contentWindow && event.origin === "null" &&
+          event.data?.type === "tdc-widget-frame" && event.data?.version === 1 &&
+          !providerFrame && isProviderFrameURL(event.data.url, kind)) {
+        providerFrame = document.createElement("iframe");
+        providerFrame.title = frame.title;
+        providerFrame.setAttribute("sandbox", PROVIDER_FRAME_SANDBOX);
+        providerFrame.referrerPolicy = frame.referrerPolicy;
+        providerFrame.style.cssText = frame.style.cssText;
+        providerFrame.addEventListener("load", () => {
+          if (!disposed) setState("ready");
+        }, { once: true });
+        providerFrame.src = event.data.url;
+        // Removing the opaque bootstrap cancels its nested document. Only the
+        // provider-origin iframe survives, with no access to our origin.
+        root.replaceChildren(providerFrame);
+      }
     };
-    const documentLoaded = () => {
-      if (disposed) return;
-      const document = frame.contentDocument;
-      if (!document) return;
-      // Some provider scripts create the frame after the wrapper load event.
-      // Observe only frame lifecycle in our own document, never provider data.
-      const trackFrames = () => {
-        for (const child of document.querySelectorAll("iframe")) {
-          if (children.has(child)) continue;
-          children.add(child);
-          child.title = `${widgetTitle} by TradingView`;
-          child.addEventListener("load", ready);
-        }
-      };
-      observer?.disconnect();
-      observer = new MutationObserver(trackFrames);
-      observer.observe(document, { childList: true, subtree: true });
-      trackFrames();
-      // Frames already present when their containing document loads have loaded.
-      if (document.querySelector("iframe")) ready();
-    };
-    frame.addEventListener("load", documentLoaded);
+    window.addEventListener("message", ready);
     const mountTimer = window.setTimeout(() => {
       if (disposed || !root.isConnected) return;
       root.replaceChildren(frame);
@@ -111,10 +109,9 @@ export default function TradingViewWidget({
       disposed = true;
       window.clearTimeout(mountTimer);
       window.clearTimeout(timeout);
-      observer?.disconnect();
-      for (const child of children) child.removeEventListener("load", ready);
-      frame.removeEventListener("load", documentLoaded);
+      window.removeEventListener("message", ready);
       frame.remove();
+      providerFrame?.remove();
     };
   }, [kind, symbol, newsScope, theme, horizon, retry, widgetTitle, visible]);
 

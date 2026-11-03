@@ -15,6 +15,7 @@ export async function GET(request: Request) {
       { status: 400 },
     );
   const data = snapshot as Snapshot;
+  const consensus = asIssuedConsensus(data, symbol as Instrument, horizon as Horizon);
   return Response.json(
     {
       edition: data.id,
@@ -23,11 +24,10 @@ export async function GET(request: Request) {
       engineVersion: data.engineVersion,
       runtimeGeneration: false,
       consensusBasis: "as-issued",
-      consensus: asIssuedConsensus(
-        data,
-        symbol as Instrument,
-        horizon as Horizon,
-      ),
+      directional: !consensus.abstain,
+      scoreMeaning: consensus.abstain ? "partial-input-balance" : "heuristic-directional-balance",
+      performanceBasis: symbol === "MARKET" ? "unscored-context" : "instrument-outcomes",
+      consensus,
       snapshot: `/consensus/${data.id}.json`,
     },
     {

@@ -13,7 +13,6 @@ const config: NextConfig = {
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
     ] }, { source: '/widgets/:path*', headers: [
       { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-      { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
     ] }];
   },
 };

@@ -55,6 +55,32 @@ export function usesBroadMarketNews(symbol: string) {
   return BROAD_NEWS_ETFS.has(symbol);
 }
 
+export const WIDGET_SANDBOX = "allow-scripts allow-popups allow-popups-to-escape-sandbox";
+export const PROVIDER_FRAME_SANDBOX = `${WIDGET_SANDBOX} allow-same-origin`;
+// The official bootstrap executes only in an opaque document. Hand its generated
+// cross-origin frame URL to the parent; no quotes, text, storage or cookies cross.
+// The displayed provider frame needs its own origin for its own storage APIs.
+export const WIDGET_READY_SCRIPT = `(() => {
+  const tracked = new WeakSet();
+  const scan = () => document.querySelectorAll('iframe').forEach(frame => {
+    if (tracked.has(frame) || !frame.getAttribute('src')) return;
+    tracked.add(frame);
+    parent.postMessage({type: 'tdc-widget-frame', version: 1, url: frame.src}, '*');
+  });
+  new MutationObserver(scan).observe(document.documentElement, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
+  scan();
+})();`;
+
+export function isProviderFrameURL(value: unknown, kind: WidgetKind): value is string {
+  if (typeof value !== 'string' || value.length > 16000) return false;
+  try {
+    const url = new URL(value);
+    return url.origin === 'https://www.tradingview-widget.com' &&
+      !url.username && !url.password &&
+      url.pathname === `/embed-widget/${EMBEDS[kind].script}/`;
+  } catch { return false; }
+}
+
 /** The official embed runs in a separate document, cancelled as a unit on unmount. */
 export function tradingViewDocument(
   kind: WidgetKind,
@@ -113,5 +139,5 @@ export function tradingViewDocument(
             }
           : { ...shared, symbol: mappedSymbol };
   const config = JSON.stringify(options).replaceAll("<", "\\u003c");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${symbol} ${EMBEDS[kind].label}</title><style>html,body,.tradingview-widget-container,.tradingview-widget-container__widget{margin:0;width:100%;height:100%;background:transparent}iframe{border:0}</style></head><body><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-${EMBEDS[kind].script}.js" async>${config}</script></div></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${symbol} ${EMBEDS[kind].label}</title><style>html,body,.tradingview-widget-container,.tradingview-widget-container__widget{margin:0;width:100%;height:100%;background:transparent}iframe{border:0}</style></head><body><script>${WIDGET_READY_SCRIPT}</script><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-${EMBEDS[kind].script}.js" async>${config}</script></div></body></html>`;
 }

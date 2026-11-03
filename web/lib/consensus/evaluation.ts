@@ -3,6 +3,7 @@ import { asIssuedConsensus } from "./as-issued.ts";
 import { newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
+import { requireOutcomePriceBasis } from "./price-basis.ts";
 
 const canonicalInstant = (value: string) =>
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
@@ -36,6 +37,7 @@ export function evaluateOutcome(
 ): Outcome | null {
   if (!prices.source || !prices.adjustment || !prices.expectedSessions.length)
     throw new Error("Price provenance and exchange calendar required");
+  requireOutcomePriceBasis(prices.adjustment);
   if (
     !INSTRUMENTS.includes(prices.instrument) ||
     prices.instrument === "MARKET" ||
@@ -125,6 +127,8 @@ export function evaluateOutcome(
     ),
     score = forecast ? forecast.probabilityUp * 2 - 1 : consensus.score;
   const called = !consensus.abstain && score !== null && Math.abs(score) > 0.1;
+  if (forecast && forecast.priceAdjustment !== prices.adjustment)
+    throw new Error("Forecast and outcome price bases differ");
   return {
     snapshotId: snapshot.id,
     instrument: prices.instrument,
@@ -157,6 +161,7 @@ export function selectScoredOutcomes(outcomes: Outcome[]) {
   const winners = new Map<string, Outcome>();
   const group = (row: Outcome) => `${row.instrument}:${row.horizon}:${row.entryAt}`;
   for (const row of outcomes) {
+    requireOutcomePriceBasis(row.adjustment);
     if (!canonicalInstant(row.issuedAt) || !canonicalInstant(row.entryAt) ||
         !canonicalInstant(row.exitAt) || row.issuedAt >= row.entryAt || row.exitAt <= row.entryAt)
       throw new Error("Outcome must follow its publication and entry timestamps");

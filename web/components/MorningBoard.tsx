@@ -1303,16 +1303,20 @@ export default function MorningBoard({
                   : "A transparent balance of independent market inputs. Inspect the drivers before forming your plan."}
               </p>
               <div className={styles.coverageLabel}>
-                <span>Evidence coverage at publication</span>
-                <strong>{pct(consensus.coverage)}</strong>
+                <span>{consensus.directionalCoverage !== undefined ? "Directional coverage at publication" : "Evidence coverage at publication"}</span>
+                <strong>{pct(consensus.directionalCoverage ?? consensus.coverage)}</strong>
               </div>
               <div className={styles.coverageTrack}>
-                <i style={{ width: pct(consensus.coverage) }} />
+                <i style={{ width: pct(consensus.directionalCoverage ?? consensus.coverage) }} />
               </div>
               <small>
-                {consensus.families.filter((item) => item.available > 0).length}{" "}
-                of {FAMILIES.length} families had current observations at publication
+                {consensus.families.filter((item) => consensus.directionalCoverage !== undefined ? item.score !== null : item.available > 0).length}{" "}
+                of {FAMILIES.length} families {consensus.directionalCoverage !== undefined ? "can vote for this instrument and horizon" : "had current observations at publication"}
               </small>
+              {consensus.directionalCoverage !== undefined && <p className={styles.finePrint}>
+                {pct(consensus.coverage)} observation coverage, including context that cannot vote.
+                These percentages measure completeness, not accuracy.
+              </p>}
               {agedSincePublication > 0 && <p className={styles.finePrint}>
                 {agedSincePublication} observations have aged out since publication.
                 This saved reading stays unchanged; inspect source dates before use.
@@ -1930,6 +1934,13 @@ export default function MorningBoard({
               Earlier editions remain in the audit record. Model qualification
               requires at least 100 new, non-overlapping test outcomes and an uncertainty check against the baselines.
             </p>
+            <p className={styles.finePrint}>
+              This conservative gate takes time: roughly 500 daily, 2,500 weekly or
+              10,500 monthly session labels before a first candidate can be tested
+              (about 2, 10 or 42 trading years). Extra editions do not shorten that wait.
+              Missing data can extend it. Promotion may never occur; unqualified
+              projections stay withheld.
+            </p>
             <div className={styles.twoColumns}>
               <section className={styles.panel}>
                 <h3>The record, exactly as it was</h3>
@@ -1971,8 +1982,8 @@ export default function MorningBoard({
                   <li>
                     <strong>Wait for the outcome</strong>
                     <span>
-                      Compare the next 1, 5 and 21 complete sessions, with a
-                      stated price basis.
+                      Compare the next 1, 5 and 21 complete sessions, adjusted
+                      for splits and distributions.
                     </span>
                   </li>
                   <li>

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-03T13:32:45.346Z",
+  "generatedAt": "2026-11-03T15:04:23.513Z",
   "status": "awaiting_price_evidence",
   "resolved": 0,
   "calls": 0,
@@ -170,7 +170,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/SPY-daily-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/SPY-daily-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "SPY",
@@ -181,7 +181,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/SPY-weekly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/SPY-weekly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "SPY",
@@ -192,7 +192,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/SPY-monthly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/SPY-monthly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "QQQ",
@@ -203,7 +203,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-daily-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/QQQ-daily-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "QQQ",
@@ -214,7 +214,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-weekly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/QQQ-weekly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "QQQ",
@@ -225,7 +225,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-monthly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/QQQ-monthly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "IWM",
@@ -236,7 +236,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/IWM-daily-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/IWM-daily-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "IWM",
@@ -247,7 +247,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/IWM-weekly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/IWM-weekly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "IWM",
@@ -258,7 +258,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/IWM-monthly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/IWM-monthly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "DIA",
@@ -269,7 +269,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/DIA-daily-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/DIA-daily-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "DIA",
@@ -280,7 +280,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/DIA-weekly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/DIA-weekly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "DIA",
@@ -291,7 +291,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/DIA-monthly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/DIA-monthly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "TLT",
@@ -302,7 +302,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/TLT-daily-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/TLT-daily-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "TLT",
@@ -313,7 +313,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/TLT-weekly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/TLT-weekly-wf2-ff737c0fe085b529.json"
     },
     {
       "instrument": "TLT",
@@ -324,7 +324,7 @@
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/TLT-monthly-wf1-62b247be4efdc3f5.json"
+      "artifact": "models/TLT-monthly-wf2-ff737c0fe085b529.json"
     }
   ],
   "note": "Raw provider prices stay private. The outcome audit ledger is never rewritten. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio."

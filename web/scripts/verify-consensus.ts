@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import type { Snapshot, HistoryEntry } from "../lib/consensus/types.ts";
 import { performance } from "../lib/consensus/evaluation.ts";
-import { readReservations, validateActivePromotion } from "../lib/consensus/learning-audit.ts";
+import { readReservations, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const current: Snapshot = JSON.parse(
@@ -49,7 +49,7 @@ const registry = JSON.parse(
 );
 const reservations = await readReservations(root);
 for (const model of registry.models) {
-  validateActivePromotion(model, reservations);
+  await validateActiveModelTree(root, model, reservations);
   const archived = JSON.parse(
     await readFile(
       resolve(root, "public/consensus/models", `active-${model.id}.json`),

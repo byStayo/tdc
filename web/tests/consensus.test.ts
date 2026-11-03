@@ -336,7 +336,7 @@ test("immutable publication rejects overwrite, shares editorial lock, and skips 
     await writeFile(join(root, ".editorial/publish.lock"), "other publisher");
     await assert.rejects(
       publishSnapshot(root, { ...next, engineVersion: "v2" }),
-      /EEXIST/,
+      /Unrecognized legacy publication lock/,
     );
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -346,7 +346,7 @@ test("outcomes wait for the correct future session and reject missing entry sess
   const evidence = {
     instrument: "SPY" as const,
     source: "https://example.com/approved-test-fixture",
-    adjustment: "split-adjusted",
+    adjustment: "total-return-adjusted",
     expectedSessions: ["2026-11-02", "2026-11-03", "2026-11-04"],
     sessions: [
       {
@@ -528,6 +528,7 @@ test("model inference refuses invalid features and models trained after the issu
           datasetHash: "a",
           samples: 150,
           featureSchema: "family-score-plus-observation-mask-v1",
+          priceAdjustment: "total-return-adjusted",
           model,
           testBrier: 0.1,
           baselineBrier: 0.25,

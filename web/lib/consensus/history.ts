@@ -4,17 +4,18 @@ import {
   writeFile,
   mkdir,
   rename,
-  open,
   unlink,
   link,
 } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
+import { acquirePublicationLock } from "../publication-lock.ts";
 import { FAMILIES } from "./registry.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { freezeConsensus, validateConsensusRecords } from "./as-issued.ts";
+import { applyScoringPolicy } from "./scoring-policy.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
   reviewedSignals,
@@ -88,6 +89,11 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       Date.parse(signal.source.observedAt) > Date.parse(snapshot.cutoff)
     )
       throw new Error("Future observation");
+    if (signal.directionalInstruments && (
+      !Array.isArray(signal.directionalInstruments) ||
+      new Set(signal.directionalInstruments).size !== signal.directionalInstruments.length ||
+      signal.directionalInstruments.some(instrument => !signal.instruments.includes(instrument))
+    )) throw new Error("Invalid directional instrument scope");
     for (const horizon of HORIZONS) {
       const score = signal.scores[horizon];
       if (
@@ -209,7 +215,8 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       !date(forecast.trainedAt) ||
       forecast.trainedAt > snapshot.cutoff ||
       !forecast.modelId ||
-      forecast.target !== "next-session-open-to-horizon-close"
+      forecast.target !== "next-session-open-to-horizon-close" ||
+      forecast.priceAdjustment !== "total-return-adjusted"
     )
       throw new Error("Invalid as-issued model forecast");
   }
@@ -279,6 +286,9 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     issuerCatalysts.length
   )
     throw new Error("Reviewed signals require their saved evidence packet");
+  if (mode === "candidate" && snapshot.engineVersion === "consensus-rules-2.0.0" &&
+      JSON.stringify(snapshot.signals) !== JSON.stringify(applyScoringPolicy(snapshot).signals))
+    throw new Error("Signals do not match the recorded directional policy");
 }
 export function observationDigest(snapshot: Snapshot): string {
   // A refetch alone must not create a new edition. Source revision or engine change does.
@@ -344,17 +354,8 @@ export async function publishSnapshot(
   const currentPath = resolve(root, "lib/consensus/current.json"),
     archive = resolve(root, "public/consensus"),
     indexPath = resolve(archive, "index.json");
-  await mkdir(resolve(root, ".editorial"), { recursive: true });
-  const lockPath = resolve(root, ".editorial/publish.lock"),
-    lock = await open(lockPath, "wx", 0o600);
+  const release = await acquirePublicationLock(root, "consensus");
   try {
-    await lock.writeFile(
-      JSON.stringify({
-        pid: process.pid,
-        startedAt: new Date().toISOString(),
-        kind: "consensus",
-      }),
-    );
     let prior: Snapshot | null = null;
     try {
       prior = JSON.parse(await readFile(currentPath, "utf8"));
@@ -400,7 +401,6 @@ export async function publishSnapshot(
     await atomic(currentPath, snapshot);
     return { changed: true, id: snapshot.id, sha256: hash };
   } finally {
-    await lock.close();
-    await unlink(lockPath).catch(() => undefined);
+    await release();
   }
 }
