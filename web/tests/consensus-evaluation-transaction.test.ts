@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile, rm, readdir, cp, symlink } from "n
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
-import { commitEvaluationTransaction, recoverEvaluationTransaction, assertNoPendingEvaluation, type EvaluationWrite } from "../lib/consensus/evaluation-transaction.ts";
+import { commitEvaluationTransaction, recoverEvaluationTransaction, assertNoPendingEvaluation, assertEvaluationReleaseState, type EvaluationWrite } from "../lib/consensus/evaluation-transaction.ts";
 import { rollbackActiveModel } from "../lib/consensus/model-rollback.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { digest } from "../lib/consensus/history.ts";
@@ -57,6 +57,7 @@ test("the actual evaluator finishes a pending transaction and exits without fitt
   const root=await mkdtemp(join(tmpdir(),"tdc-evaluation-resume-"));
   try {
     await cp(new URL("../lib",import.meta.url),join(root,"lib"),{recursive:true});
+    await rm(join(root,"lib/consensus/evaluation-state.json"),{force:true}); // New synthetic fixture, not the production ledgers.
     await mkdir(join(root,"scripts"));
     await cp(new URL("../scripts/evaluate-consensus.ts",import.meta.url),join(root,"scripts/evaluate-consensus.ts"));
     await writeFile(join(root,"package.json"),'{"type":"module"}');
@@ -71,6 +72,7 @@ test("the actual evaluator scores a covered date and records uncovered targets a
   const root=await mkdtemp(join(tmpdir(),"tdc-mixed-calendar-evaluation-"));
   try {
     await cp(new URL("../lib",import.meta.url),join(root,"lib"),{recursive:true});
+    await rm(join(root,"lib/consensus/evaluation-state.json"),{force:true}); // New synthetic fixture, not the production ledgers.
     await mkdir(join(root,"scripts"));await mkdir(join(root,"public/consensus/models"),{recursive:true});
     await cp(new URL("../scripts/evaluate-consensus.ts",import.meta.url),join(root,"scripts/evaluate-consensus.ts"));
     await writeFile(join(root,"package.json"),'{"type":"module"}');
@@ -96,6 +98,30 @@ test("the actual evaluator scores a covered date and records uncovered targets a
     assert.ok(JSON.parse(await readFile(join(root,"public/consensus/outcomes.json"),"utf8")).some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-11-02")&&row.horizon==="daily"));
     for(const entry of index)assert.equal(digest(JSON.parse(await readFile(join(root,`public/consensus/${entry.id}.json`),"utf8"))),entry.sha256);
   }finally{await rm(root,{recursive:true,force:true});}
+});
+
+test("remote release checks reject partial exports without a private journal and detect selectively omitted state",async()=>{
+  const root=await mkdtemp(join(tmpdir(),"tdc-release-source-")), exported=await mkdtemp(join(tmpdir(),"tdc-release-export-"));
+  try {
+    await assert.rejects(assertEvaluationReleaseState(exported),/Missing evaluation release state/);
+    await assert.rejects(commitEvaluationTransaction(root,writes,path=>{if(path===writes[1].path)throw new Error("stop");}),/stop/);
+    await cp(join(root,"lib"),join(exported,"lib"),{recursive:true});
+    await cp(join(root,"public"),join(exported,"public"),{recursive:true});
+    await assert.rejects(readFile(join(exported,".consensus/evaluation-transaction.json")),/ENOENT/);
+    await assert.rejects(assertEvaluationReleaseState(exported),/Incomplete evaluation release/);
+    await assert.rejects(recoverEvaluationTransaction(exported),/Incomplete evaluation release/);
+    await recoverEvaluationTransaction(root);
+    await cp(join(root,"lib"),join(exported,"lib"),{recursive:true});
+    await cp(join(root,"public"),join(exported,"public"),{recursive:true});
+    await assertEvaluationReleaseState(exported);
+    for(const path of ["public/consensus/outcomes.json","public/consensus/outcome-selection.json","lib/consensus/models.json","lib/consensus/performance.json"]){
+      const before=await readFile(join(exported,path),"utf8");
+      await writeFile(join(exported,path),JSON.stringify({unexpected:"uncommitted release state"}));
+      await assert.rejects(assertEvaluationReleaseState(exported),/Evaluation release hash mismatch/);
+      await writeFile(join(exported,path),before);
+    }
+    await assertEvaluationReleaseState(exported);
+  }finally{await rm(root,{recursive:true,force:true});await rm(exported,{recursive:true,force:true});}
 });
 
 test("model deactivation writes an audit action and preserves prior forecasts, models and reservations",async()=>{

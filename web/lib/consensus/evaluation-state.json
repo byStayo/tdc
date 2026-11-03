@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "transactionId": "initial",
+  "status": "complete",
+  "hashes": {
+    "public/consensus/outcomes.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "public/consensus/outcome-selection.json": "f05dc25f6ccbc46247da57461955d0d16452d307e4270db5729f657c7bf2a807",
+    "lib/consensus/models.json": "448bba0a144f2fa440af9a5cc014f48da830b4eb11516466ab0cc392435548a9",
+    "lib/consensus/performance.json": "b9005811031ed8d585e06f8b800e88ee51e6ab42f0ef89eefae57ddfd0247d5b"
+  }
+}

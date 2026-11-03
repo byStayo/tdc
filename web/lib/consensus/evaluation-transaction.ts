@@ -6,7 +6,10 @@ import { durableDirectory, durableJSON, syncDirectory } from "../publication-sto
 export interface EvaluationWrite { path: string; value: unknown; immutable?: boolean }
 interface PlannedWrite extends EvaluationWrite { before: string | null; after: string }
 interface Journal { schemaVersion: 1; id: string; createdAt: string; writes: PlannedWrite[] }
+type ReleaseState = { schemaVersion: 1; transactionId: string; status: "pending" } |
+  { schemaVersion: 1; transactionId: string; status: "complete"; hashes: Record<string, string | null> };
 const journalPath = (root: string) => resolve(root, ".consensus/evaluation-transaction.json");
+const releasePath = (root: string) => resolve(root, "lib/consensus/evaluation-state.json");
 const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const mutable = new Set(["public/consensus/outcomes.json", "public/consensus/outcome-selection.json", "lib/consensus/models.json", "lib/consensus/performance.json"]);
 function checkPath(write: EvaluationWrite): void {
@@ -40,24 +43,57 @@ async function readJournal(root: string): Promise<Journal | null> {
   }
   return journal;
 }
+async function readReleaseState(root: string): Promise<ReleaseState | null> {
+  // Check the marker's parent chain too; it must not redirect a write outside the tree.
+  await currentHash(root, "lib/consensus/evaluation-state.json");
+  let state: ReleaseState;
+  try { state = JSON.parse(await readFile(releasePath(root), "utf8")); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
+  if (state.schemaVersion !== 1 || !/^(initial|[0-9a-f-]{36})$/.test(state.transactionId) ||
+      (state.status !== "pending" && state.status !== "complete")) throw new Error("Invalid evaluation release state");
+  if (state.status === "complete" && (!state.hashes || Object.keys(state.hashes).length !== mutable.size ||
+      [...mutable].some(path => state.hashes[path] !== null && !/^[a-f0-9]{64}$/.test(state.hashes[path] ?? ""))))
+    throw new Error("Invalid evaluation release hashes");
+  return state;
+}
+/** This tracked, non-secret manifest survives Git/Vercel copies without the private journal. */
+export async function assertEvaluationReleaseState(root: string, required = true): Promise<void> {
+  const state = await readReleaseState(root);
+  if (!state) {
+    if (required) throw new Error("Missing evaluation release state");
+    return;
+  }
+  if (state.status !== "complete") throw new Error("Incomplete evaluation release; recover in the original workspace before deployment");
+  for (const path of mutable) if (await currentHash(root, path) !== state.hashes[path])
+    throw new Error(`Evaluation release hash mismatch: ${path}`);
+}
 export async function assertNoPendingEvaluation(root: string): Promise<void> {
   if (await readJournal(root)) throw new Error("Incomplete evaluation transaction; run consensus:recover before publishing or building");
+  await assertEvaluationReleaseState(root, false);
 }
 
 /** Caller must hold the shared publication lock. Finish the recorded writes; never rerun a model/test window. */
 export async function recoverEvaluationTransaction(root: string, afterWrite?: (path: string) => void | Promise<void>): Promise<boolean> {
   const journal = await readJournal(root);
-  if (!journal) return false;
+  if (!journal) { await assertEvaluationReleaseState(root, false); return false; }
   // Check every destination before replaying any step; unknown intervening edits fail closed.
   for (const write of journal.writes) {
     const current = await currentHash(root, write.path);
     if (current !== write.before && current !== write.after) throw new Error("Evaluation recovery conflicts with an intervening file change");
     if (write.immutable && write.before !== null && write.before !== write.after) throw new Error("Immutable evaluation artifact cannot be replaced");
   }
+  const release = await readReleaseState(root);
+  if (release?.status === "pending" && release.transactionId !== journal.id) throw new Error("Evaluation release belongs to another transaction");
+  // Durable tracked marker BEFORE any output changes; remote builds reject incomplete exports.
+  await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "pending" } satisfies ReleaseState);
   for (const write of journal.writes) {
     if (await currentHash(root, write.path) !== write.after) await durableJSON(resolve(root, write.path), write.value, write.immutable);
     await afterWrite?.(write.path);
   }
+  const hashes: Record<string, string | null> = {};
+  for (const path of mutable) hashes[path] = await currentHash(root, path);
+  // Hashes also catch selectively committing changed outputs without their new release marker.
+  await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "complete", hashes } satisfies ReleaseState);
   const completed = resolve(root, ".consensus/evaluation-transactions", `${journal.id}.json`);
   await durableDirectory(dirname(completed), 0o700);
   // All files are durable before the pending marker is removed.

@@ -5,9 +5,11 @@ import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import type { Outcome } from "../lib/consensus/types.ts";
 import { performance } from "../lib/consensus/evaluation.ts";
 import { readReservations, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
+import { assertEvaluationReleaseState } from "../lib/consensus/evaluation-transaction.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { current, history } = await verifyPublicationTree(root);
+await assertEvaluationReleaseState(root);
 const outcomes: Outcome[] = JSON.parse(
   await readFile(resolve(root, "public/consensus/outcomes.json"), "utf8"),
 );

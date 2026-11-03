@@ -137,6 +137,7 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
   const root = await mkdtemp(join(tmpdir(), "tdc-evaluator-fixture-"));
   try {
     await cp(new URL("../lib", import.meta.url), join(root, "lib"), { recursive: true });
+    await rm(join(root,"lib/consensus/evaluation-state.json"),{force:true}); // Independent synthetic ledgers need their own release manifest.
     await mkdir(join(root, "scripts"));
     await cp(new URL("../scripts/evaluate-consensus.ts", import.meta.url), join(root, "scripts/evaluate-consensus.ts"));
     await writeFile(join(root, "package.json"), '{"type":"module"}\n');
