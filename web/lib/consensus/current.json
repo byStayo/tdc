@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-04T21-29-43-446Z",
-  "issuedAt": "2026-11-04T21:29:43.446Z",
-  "cutoff": "2026-11-04T21:29:43.446Z",
+  "id": "2026-11-04T22-24-25-360Z",
+  "issuedAt": "2026-11-04T22:24:25.360Z",
+  "cutoff": "2026-11-04T22:24:25.360Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -28593,10 +28593,10 @@
     {
       "id": "global-equities",
       "family": "international",
-      "title": "International equity markets",
-      "reason": "International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
+      "title": "Broader international equity markets",
+      "reason": "Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
       "url": "https://thedailyconsensus.com/methodology",
-      "shortLabel": "International equity markets",
+      "shortLabel": "Broader international equity markets",
       "instruments": [
         "MARKET",
         "SPY",
@@ -28606,9 +28606,9 @@
         "TLT"
       ],
       "status": "unavailable",
-      "summary": "International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
+      "summary": "Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
       "methodology": "No observation or directional vote until a permitted source passes validation.",
-      "limitation": "International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
+      "limitation": "Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
       "series": [],
       "metrics": [],
       "scores": {
@@ -29029,6 +29029,154 @@
         "usage": "Not integrated",
         "sha256": null
       }
+    },
+    {
+      "id": "twse-taiex-price",
+      "title": "Taiwan · TAIEX price index",
+      "shortLabel": "TAIEX price index",
+      "family": "international",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "directionalInstruments": [],
+      "status": "available",
+      "summary": "TAIEX price index: 42948.91 index points on 2026-11-04 (Taiwan session). 3 dated observations; Taiwan context only, no directional vote.",
+      "source": {
+        "name": "Taiwan Stock Exchange · TAIEX price index",
+        "url": "https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST",
+        "retrievedAt": "2026-11-04T22:24:25.345Z",
+        "observedAt": "2026-11-04",
+        "releasedAt": null,
+        "frequency": "daily Taiwan end of day",
+        "attribution": "Taiwan Stock Exchange (TWSE); Securities and Futures Bureau, FSC; 2026 TAIEX price index; Open Government Data License 1.0. Date conversion, charts and changes by The Daily Consensus.",
+        "usage": "Open Government Data License 1.0: https://data.gov.tw/en/license. Attributed reuse, retention and derived analysis permitted; no endorsement implied.",
+        "sha256": "a7409cf6d41e043e1202f119ba437c238f2ae52f511d2c8267958a71e90f6035"
+      },
+      "methodology": "Taiwan listed-equity price index; opening, high, low and closing levels. Latest-month daily observations; session change compares the last two returned observations. ROC dates converted to Gregorian dates. No forward fill or directional vote. Dataset https://data.gov.tw/dataset/11755.",
+      "limitation": "Taiwan only. These related indices are not independent directional evidence, US ETF prices, executable returns or broad global equity coverage. Latest-month data can contain just one session; prior-month history is not supplied by this endpoint. Release clock time is not supplied.",
+      "series": [
+        {
+          "date": "2026-11-02",
+          "value": 44920.14
+        },
+        {
+          "date": "2026-11-03",
+          "value": 43307.54
+        },
+        {
+          "date": "2026-11-04",
+          "value": 42948.91
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Index level",
+          "value": 42948.91,
+          "unit": "index points",
+          "date": "2026-11-04"
+        },
+        {
+          "label": "Open",
+          "value": 43449.45,
+          "unit": "index points",
+          "date": "2026-11-04"
+        },
+        {
+          "label": "High",
+          "value": 43741.54,
+          "unit": "index points",
+          "date": "2026-11-04"
+        },
+        {
+          "label": "Low",
+          "value": 41855.82,
+          "unit": "index points",
+          "date": "2026-11-04"
+        },
+        {
+          "label": "Observed-session change",
+          "value": -0.8281006032667682,
+          "unit": "%",
+          "date": "2026-11-04"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 7,
+      "unit": "index points"
+    },
+    {
+      "id": "twse-taiex-return",
+      "title": "Taiwan · TAIEX total-return index",
+      "shortLabel": "TAIEX total-return index",
+      "family": "international",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
+        "TLT"
+      ],
+      "directionalInstruments": [],
+      "status": "available",
+      "summary": "TAIEX total-return index: 99315.03 index points on 2026-11-04 (Taiwan session). 3 dated observations; Taiwan context only, no directional vote.",
+      "source": {
+        "name": "Taiwan Stock Exchange · TAIEX total-return index",
+        "url": "https://openapi.twse.com.tw/v1/indicesReport/MFI94U",
+        "retrievedAt": "2026-11-04T22:24:25.359Z",
+        "observedAt": "2026-11-04",
+        "releasedAt": null,
+        "frequency": "daily Taiwan end of day",
+        "attribution": "Taiwan Stock Exchange (TWSE); Securities and Futures Bureau, FSC; 2026 TAIEX total-return index; Open Government Data License 1.0. Date conversion, charts and changes by The Daily Consensus.",
+        "usage": "Open Government Data License 1.0: https://data.gov.tw/en/license. Attributed reuse, retention and derived analysis permitted; no endorsement implied.",
+        "sha256": "bd9f726f3d11cacdca2d7e814306d8d0a7ab611cc9c62889e5719351e5a050ae"
+      },
+      "methodology": "Taiwan listed-equity total-return index with distributions reinvested, as defined by TWSE. Latest-month daily observations; session change compares the last two returned observations. ROC dates converted to Gregorian dates. No forward fill or directional vote. Dataset https://data.gov.tw/dataset/11871.",
+      "limitation": "Taiwan only. These related indices are not independent directional evidence, US ETF prices, executable returns or broad global equity coverage. Latest-month data can contain just one session; prior-month history is not supplied by this endpoint. Release clock time is not supplied.",
+      "series": [
+        {
+          "date": "2026-11-02",
+          "value": 103873.24
+        },
+        {
+          "date": "2026-11-03",
+          "value": 100144.27
+        },
+        {
+          "date": "2026-11-04",
+          "value": 99315.03
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Index level",
+          "value": 99315.03,
+          "unit": "index points",
+          "date": "2026-11-04"
+        },
+        {
+          "label": "Observed-session change",
+          "value": -0.8280453789318187,
+          "unit": "%",
+          "date": "2026-11-04"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 7,
+      "unit": "index points"
     },
     {
       "id": "fed-private-credit-loans",
@@ -31100,7 +31248,7 @@
       }
     }
   ],
-  "sourcesAttempted": 42,
+  "sourcesAttempted": 2,
   "collectionErrors": [
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
@@ -31118,7 +31266,7 @@
       "instrument": "MARKET",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5371091871091871,
+      "coverage": 0.5392255892255893,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -31254,8 +31402,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31275,7 +31423,7 @@
       "instrument": "MARKET",
       "horizon": "weekly",
       "score": -0.012977155608689107,
-      "coverage": 0.5371091871091871,
+      "coverage": 0.5392255892255893,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31410,8 +31558,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31431,7 +31579,7 @@
       "instrument": "MARKET",
       "horizon": "monthly",
       "score": 0.16192000850605726,
-      "coverage": 0.5371091871091871,
+      "coverage": 0.5392255892255893,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -31566,8 +31714,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31587,7 +31735,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5298364598364598,
+      "coverage": 0.531952861952862,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -31723,8 +31871,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31744,7 +31892,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "score": -0.007788659891435757,
-      "coverage": 0.5298364598364598,
+      "coverage": 0.531952861952862,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31879,8 +32027,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31900,7 +32048,7 @@
       "instrument": "SPY",
       "horizon": "monthly",
       "score": 0.12001583223089703,
-      "coverage": 0.5298364598364598,
+      "coverage": 0.531952861952862,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -32035,8 +32183,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32056,7 +32204,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5298364598364598,
+      "coverage": 0.531952861952862,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -32192,8 +32340,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32213,7 +32361,7 @@
       "instrument": "QQQ",
       "horizon": "weekly",
       "score": -0.038155284393974254,
-      "coverage": 0.5298364598364598,
+      "coverage": 0.531952861952862,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 2,
@@ -32348,8 +32496,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32369,7 +32517,7 @@
       "instrument": "QQQ",
       "horizon": "monthly",
       "score": 0.18579397826683117,
-      "coverage": 0.5298364598364598,
+      "coverage": 0.531952861952862,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32504,8 +32652,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32525,7 +32673,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.4742809042809043,
+      "coverage": 0.4763973063973064,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -32661,8 +32809,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32682,7 +32830,7 @@
       "instrument": "IWM",
       "horizon": "weekly",
       "score": -0.015987953290526415,
-      "coverage": 0.4742809042809043,
+      "coverage": 0.4763973063973064,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -32817,8 +32965,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32838,7 +32986,7 @@
       "instrument": "IWM",
       "horizon": "monthly",
       "score": 0.19522081922319484,
-      "coverage": 0.4742809042809043,
+      "coverage": 0.4763973063973064,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32973,8 +33121,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32994,7 +33142,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5187253487253487,
+      "coverage": 0.5208417508417509,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -33130,8 +33278,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33151,7 +33299,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "score": 0.010023275141179988,
-      "coverage": 0.5187253487253487,
+      "coverage": 0.5208417508417509,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33286,8 +33434,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33307,7 +33455,7 @@
       "instrument": "DIA",
       "horizon": "monthly",
       "score": 0.14664940430330603,
-      "coverage": 0.5187253487253487,
+      "coverage": 0.5208417508417509,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33442,8 +33590,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33463,7 +33611,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "score": 0.14999999999999902,
-      "coverage": 0.4742809042809043,
+      "coverage": 0.4763973063973064,
       "directionalCoverage": 0.06666666666666667,
       "agreement": 1,
       "bullish": 1,
@@ -33599,8 +33747,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33620,7 +33768,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "score": 0.14349056456975326,
-      "coverage": 0.4742809042809043,
+      "coverage": 0.4763973063973064,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33756,8 +33904,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33777,7 +33925,7 @@
       "instrument": "TLT",
       "horizon": "monthly",
       "score": 0.5413471755760433,
-      "coverage": 0.4742809042809043,
+      "coverage": 0.4763973063973064,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33913,8 +34061,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 7,
-          "available": 6,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },

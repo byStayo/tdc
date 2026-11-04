@@ -243,9 +243,9 @@ const REQUIRED_FEEDS: {
   {
     id: "global-equities",
     family: "international",
-    title: "International equity markets",
+    title: "Broader international equity markets",
     reason:
-      "International equity prices are not currently measured. Central-bank releases and currency fixes provide separate context.",
+      "Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
     url: "https://thedailyconsensus.com/methodology",
   },
   {

@@ -7,6 +7,7 @@ import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
+import { collectTaiwan } from "./taiwan.ts";
 import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
@@ -42,6 +43,7 @@ const HOSTS = new Set([
   "ticdata.treasury.gov",
   "www.treasurydirect.gov",
   "www.optionseducation.org",
+  "openapi.twse.com.tw",
 ]);
 const noScores = () => ({ daily: null, weekly: null, monthly: null });
 export function safeURL(input: string): string {
@@ -907,6 +909,7 @@ export async function collectSnapshot(
     privateCredit,
     policyRates,
     holdings,
+    taiwan,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -921,6 +924,7 @@ export async function collectSnapshot(
     collectPrivateCredit((url) => publicText(url, fetcher)),
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
+    collectTaiwan((url) => publicText(url, fetcher)),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -939,6 +943,7 @@ export async function collectSnapshot(
       ...missingSignals(issuedAt),
       // Match the scoped addition's position so a full refresh cannot create
       // an edition solely by moving otherwise identical source evidence.
+      ...taiwan,
       privateCredit,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
@@ -957,7 +962,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 30,
+    sourcesAttempted: MACRO_SERIES.length + 32,
     collectionErrors: signals
       .filter(
         (signal) =>

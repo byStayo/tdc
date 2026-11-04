@@ -148,6 +148,51 @@ function Sparkline({
     </svg>
   );
 }
+function TaiwanMarket({ signals, reference, onInspect }: { signals: Signal[]; reference: string; onInspect: () => void }) {
+  const rows = signals.filter(signal => signal.id === "twse-taiex-price" || signal.id === "twse-taiex-return");
+  if (!rows.length) return null;
+  return (
+    <section className={`${styles.panel} ${styles.taiwanPanel}`} aria-label="Taiwan equity indices">
+      <div className={styles.panelHead}>
+        <div><span className={styles.eyebrow}>INTERNATIONAL EQUITIES</span><h3>Taiwan, at the close.</h3></div>
+        <button onClick={onInspect} aria-label="Inspect Taiwan index sources"><ArrowUpRight size={18} /></button>
+      </div>
+      <p className={styles.panelSubtitle}>TAIEX · Taiwan listed equities · dated end-of-day observations</p>
+      <div className={styles.taiwanRows}>
+        {rows.map(signal => {
+          const latest = signal.series.at(-1), change = signal.metrics.find(m => m.label === "Observed-session change"), status = effectiveStatus(signal, reference);
+          return (
+            <div className={styles.taiwanRow} key={signal.id}>
+              <div className={styles.taiwanLabel}>
+                <strong>{signal.shortLabel}</strong>
+                <span>{latest ? `${datedYear(latest.date)} · Taiwan session` : "Observation unavailable"}</span>
+                <span>{signal.id === "twse-taiex-return" ? "Distributions reinvested" : "Price index · distributions excluded"}</span>
+                {status !== "available" && <span className={styles.status}>{status === "stale" ? "Stale observation" : "Unavailable"}</span>}
+              </div>
+              <div className={styles.taiwanValue}>
+                <strong>{latest ? latest.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}</strong>
+                <span>index points</span>
+                <span className={change ? change.value >= 0 ? styles.up : styles.down : undefined}>
+                  {change ? `${change.value < 0 ? "−" : change.value > 0 ? "+" : ""}${Math.abs(change.value).toFixed(2)}% vs prior observation` : "Prior observation unavailable"}
+                </span>
+              </div>
+              <div className={styles.taiwanChart}>
+                {signal.series.length > 1 ? <Sparkline series={signal.series} label={`${signal.shortLabel}, index points, independent scale`} /> : <div className={styles.noChart}>{latest ? "One observed session" : "No observed series"}</div>}
+                {latest && <span>{signal.series.length} sessions · {date(signal.series[0].date)}–{date(latest.date)}</span>}
+              </div>
+              {signal.collectionNote && <p className={styles.taiwanNotice}>{signal.collectionNote}</p>}
+            </div>
+          );
+        })}
+      </div>
+      <p className={styles.finePrint}>Two related measures, each on its own scale. Taiwan context only; neither casts a directional vote or supplies US ETF outcomes. Other regions remain incomplete. The source provides the latest month, so the first session has no prior-session comparison.</p>
+      <div className={styles.taiwanAttribution}>
+        <span>Source: Taiwan Stock Exchange / FSC · {rows.find(s => s.source.observedAt)?.source.observedAt?.slice(0, 4)} · date conversion, charts and changes by The Daily Consensus</span>
+        <a href="https://data.gov.tw/en/license" target="_blank" rel="noopener noreferrer">Open Government Data License 1.0 <ExternalLink size={13} /></a>
+      </div>
+    </section>
+  );
+}
 function Gauge({ score, abstain }: { score: number | null; abstain: boolean }) {
   const value = score ?? 0,
     angle = Math.PI * (1 - (value + 1) / 2),
@@ -1680,6 +1725,7 @@ export default function MorningBoard({
                   </div>
                 </section>
               </div>
+              <TaiwanMarket signals={current} reference={reference} onInspect={() => setFamily("international")} />
               <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>GO A LEVEL DEEPER</span>

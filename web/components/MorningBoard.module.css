@@ -1702,3 +1702,23 @@ button.policyRow:hover {
 
 .editionList button[aria-current] { color: var(--accent); }
 .historyToggle { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); padding: 8px 0; margin-top: 8px; font-size: 13px; }
+.taiwanPanel { margin-top: 20px; }
+.taiwanRows { display: grid; }
+.taiwanRow { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 20px; padding: 18px 0; border-top: 1px solid var(--border); }
+.taiwanLabel, .taiwanValue, .taiwanChart { min-width: 0; }
+.taiwanLabel { display: grid; gap: 5px; }
+.taiwanLabel strong { font-size: 14px; }
+.taiwanLabel > span, .taiwanValue > span, .taiwanChart > span { display: block; font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+.taiwanValue strong { font-size: 24px; font-family: var(--font-display), sans-serif; font-variant-numeric: tabular-nums; }
+.taiwanValue > .up { color: var(--positive); }
+.taiwanValue > .down { color: var(--negative); }
+.taiwanChart > span { text-align: right; }
+.taiwanNotice { grid-column: 1 / -1; margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+.taiwanAttribution { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; margin-top: 10px; color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+.taiwanAttribution span { flex: 1 1 320px; }
+.taiwanAttribution a { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; text-decoration: underline; }
+@media (max-width: 700px) {
+  .taiwanRow { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .taiwanValue strong { font-size: 26px; }
+  .taiwanChart { max-width: 100%; }
+}
