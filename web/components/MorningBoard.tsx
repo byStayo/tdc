@@ -41,6 +41,7 @@ import ResearchSection from "./ResearchSection";
 import CommunityPanel from "./CommunityPanel";
 import RetailOutlook from "./RetailOutlook";
 import GuidancePanel from "./GuidancePanel";
+import ReportedEpsComparison from "./ReportedEpsComparison";
 import PrivateCreditContext from "./PrivateCreditContext";
 import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
@@ -1837,14 +1838,6 @@ export default function MorningBoard({
                           (metric) =>
                             metric.label === "Year-over-year revenue change",
                         );
-                        const eps = signal.metrics.find(
-                          (metric) => metric.label === "GAAP diluted EPS",
-                        );
-                        const priorEps = signal.metrics.find(
-                          (metric) => metric.label === "Prior-year GAAP diluted EPS",
-                        );
-                        const epsValue = (value: number) =>
-                          `${value < 0 ? "−" : ""}$${number(Math.abs(value), 2)}`;
                         return (
                           <button
                             key={signal.id}
@@ -1867,20 +1860,18 @@ export default function MorningBoard({
                               }
                             >
                               {growth
-                                ? `${growth.value >= 0 ? "+" : ""}${number(growth.value, 1)}% YoY`
+                                ? `${growth.value < 0 ? "−" : "+"}${number(Math.abs(growth.value), 1)}% YoY`
                                 : "No comparable period"}
                             </span>
                             <Sparkline
                               series={signal.series}
                               label={signal.title}
                             />
-                            {signal.source.frequency ===
-                              "quarterly company release" && eps && (
-                              <small className={styles.comparisonNote}>
-                                Current vs year-earlier quarter · GAAP EPS {epsValue(eps.value)}
-                                {priorEps && <> vs {epsValue(priorEps.value)}</>}
-                              </small>
-                            )}
+                            <ReportedEpsComparison
+                              frequency={signal.source.frequency}
+                              metrics={signal.metrics}
+                              className={styles.comparisonNote}
+                            />
                           </button>
                         );
                       })}

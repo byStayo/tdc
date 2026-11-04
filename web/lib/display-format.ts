@@ -1,5 +1,15 @@
 import type { Family, Metric } from "./consensus/types.ts";
 
+/** Currency values retain the loss sign and equal precision; no EPS growth inference. */
+export function gaapEpsPair(current: number, prior?: number): string {
+  const dollars = (value: number) =>
+    `${value < 0 ? "−" : ""}$${Math.abs(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  return `GAAP EPS ${dollars(current)}${prior === undefined ? "" : ` vs ${dollars(prior)}`}`;
+}
+
 /** Replace only the known tooling blurb; preserve stale/error/source notices. */
 export function publicationNotice(message: string): string {
   return message === "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation."
