@@ -48,3 +48,20 @@ test('dated rate citations remain outside the three workspace panels and their r
  assert.throws(()=>savedPublicData({...source,sources:[...source.sources,{...citations[0],data:{...citations[0].data,sha256:'missing'}}]}),/editorial-only/);
  assert.throws(()=>savedPublicData({...source,sources:[...source.sources,{...citations[0],id:'FRED_UNKNOWN',data:{...citations[0].data,seriesId:'UNKNOWN'}}]}),/Unknown saved/);
 });
+
+const validRateCitation={
+ id:'FRED_RRPONTSYD',kind:'fred',status:'ok',retrievedAt:'2026-11-04T13:07:40.000Z',
+ data:{seriesId:'RRPONTSYD',unit:'billions USD',frequency:'daily',sha256:'a'.repeat(64),observations:[{date:'2026-11-03',value:0.427}]},
+};
+for(const [name,invalidData] of [
+ ['wrong unit',{unit:'percent'}],
+ ['non-daily frequency',{frequency:'monthly'}],
+ ['invalid observation date',{observations:[{date:'2026-13-40',value:0.427}]}],
+ ['non-number observation',{observations:[{date:'2026-11-03',value:'4.5'}]}],
+ ['all-null observations',{observations:[{date:'2026-11-03',value:null}]}],
+] as const){
+ test(`saved editorial rate citations reject ${name}`,()=>{
+  const citation={...validRateCitation,data:{...validRateCitation.data,...invalidData}};
+  assert.throws(()=>savedPublicData({...source,sources:[...source.sources,citation]}),/editorial-only/);
+ });
+}
