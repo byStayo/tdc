@@ -1,8 +1,8 @@
 .panel { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:24px; }
 .heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
-.eyebrow { color:var(--text-muted); font-size:10px; letter-spacing:.12em; }
+.eyebrow { color:var(--text-muted); font-size: var(--type-small); letter-spacing:.12em; }
 .heading h3 { margin:8px 0 0; font-size:22px; line-height:1.25; }
-.badge { flex-shrink:0; color:var(--text-secondary); font-size:11px; border:1px solid var(--border); border-radius:999px; padding:5px 9px; }
+.badge { flex-shrink:0; color:var(--text-secondary); font-size: var(--type-small); border:1px solid var(--border); border-radius:999px; padding:5px 9px; }
 .window { margin:14px 0 6px; color:var(--text-muted); font-size:12px; line-height:1.7; }
 .lead { color:var(--text-secondary); line-height:1.6; font-size:14px; }
 .lead strong { color:var(--text); font-size:24px; font-variant-numeric:tabular-nums; }

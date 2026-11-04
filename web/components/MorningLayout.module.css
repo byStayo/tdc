@@ -450,7 +450,8 @@
     font-size: 12px;
   }
   .tabs {
-    gap: 18px;
+    gap: 8px 12px;
+    flex-wrap: wrap;
     margin: 8px 0 16px;
   }
   .tabs button {

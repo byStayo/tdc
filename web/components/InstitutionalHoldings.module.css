@@ -10,7 +10,7 @@
 .eyebrow {
   display: block;
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--type-small);
   letter-spacing: 0.18em;
   margin-bottom: 10px;
 }
@@ -69,7 +69,7 @@
 }
 .badge,
 .stale {
-  font-size: 10px;
+  font-size: var(--type-small);
   padding: 5px 8px;
   border-radius: 20px;
   border: 1px solid var(--border);
@@ -80,7 +80,7 @@
 }
 .dates {
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.8;
   margin: 14px 0 18px;
 }
@@ -97,12 +97,12 @@
 }
 .total span {
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.6;
 }
 .allocationLabel {
   margin: 24px 0 18px;
-  font-size: 10px;
+  font-size: var(--type-small);
   color: var(--text-muted);
 }
 .allocations {
@@ -116,7 +116,7 @@
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.45;
 }
 .row > span {
@@ -133,7 +133,7 @@
 .row small {
   display: block;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: var(--type-small);
   margin-top: 2px;
   font-weight: 400;
 }
@@ -157,7 +157,7 @@
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--text-muted);
 }
 .remainder strong {
@@ -166,7 +166,7 @@
 }
 .prior,
 .notice {
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.65;
   color: var(--text-muted);
   margin: 18px 0 10px;
@@ -179,7 +179,7 @@
   gap: 6px;
   align-items: center;
   min-height: 44px;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--accent);
   text-decoration: none;
 }

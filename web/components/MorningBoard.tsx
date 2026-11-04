@@ -1076,6 +1076,7 @@ export default function MorningBoard({
     [historyError, setHistoryError] = useState(""),
     [loading, setLoading] = useState(false);
   const issueRequest = useRef(0);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const [showAllEditions, setShowAllEditions] = useState(false);
   useEffect(() => {
     setNow(new Date().toISOString());
@@ -1257,7 +1258,7 @@ export default function MorningBoard({
         </p>
         {agedSincePublication > 0 && (
           <p className={layout.coverageNote}>
-            {agedSincePublication} observations have aged out since publication;
+            {agedSincePublication} {agedSincePublication === 1 ? "observation has" : "observations have"} aged out since publication;
             this saved reading is unchanged.
           </p>
         )}
@@ -1387,7 +1388,7 @@ export default function MorningBoard({
             <span className={styles.eyebrow}>
               <Coffee size={14} /> YOUR MORNING, IN FOCUS
             </span>
-            <h1>
+            <h1 ref={headingRef} tabIndex={-1}>
               The morning briefing<span>.</span>
             </h1>
             <p>The signals. The context. A clearer start.</p>
@@ -1425,7 +1426,9 @@ export default function MorningBoard({
         </div>
         {historical && <div className={layout.historyBanner} role="status">
           <div><strong>Viewing an as-issued edition</strong><span>{datedYear(snapshot.issuedAt)} · {time(snapshot.issuedAt)} ET. Observations and verdicts are preserved as published.</span></div>
-          <button onClick={() => void chooseIssue(initial.id)}>Return to latest <ArrowRight size={15} aria-hidden="true" /></button>
+          <button onClick={async () => {
+            if (await chooseIssue(initial.id)) headingRef.current?.focus({ preventScroll: true });
+          }}>Return to latest <ArrowRight size={15} aria-hidden="true" /></button>
         </div>}
         <div className={layout.toolbar}>
           <div

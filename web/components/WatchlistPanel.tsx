@@ -82,7 +82,7 @@ export default function WatchlistPanel({
                     onSelect(item);
                   }}
                 >
-                  <span className="ticker-mark">{item.slice(0, 2)}</span>
+                  <span className="ticker-mark" aria-hidden="true">{item}</span>
                   <span>
                     <strong>{item}</strong>
                     <small>{quote?.name ?? "Open instrument research"}</small>

@@ -974,6 +974,7 @@ input {
   color: var(--text-muted);
 }
 .rail-link {
+  min-height: 44px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1077,6 +1078,7 @@ input {
   color: var(--text-secondary);
 }
 .workspace-footer button {
+  min-height: 44px;
   margin-left: auto;
   font-size: var(--type-micro);
   color: var(--text-muted);
@@ -1168,7 +1170,7 @@ input {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 9px 11px;
+  padding: 0 11px;
   flex: 1;
   min-width: 150px;
   color: var(--text-muted);
@@ -1177,6 +1179,7 @@ input {
   border-color: var(--accent);
 }
 .field-search input {
+  min-height: 44px;
   border: 0;
   background: none;
   color: var(--text);
@@ -1270,7 +1273,9 @@ input {
   letter-spacing: -0.15px;
 }
 .archive-card h3 a {
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .archive-card h3 svg {
   display: none;
@@ -1744,6 +1749,7 @@ tbody th {
   border-top: 1px solid var(--border-subtle);
 }
 .watchlist-symbol-button {
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1757,6 +1763,17 @@ tbody th {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+}
+.watchlist-symbol-button .ticker-mark {
+  display: block;
+  width: auto;
+  min-width: 44px;
+  max-width: 96px;
+  min-height: 34px;
+  height: auto;
+  padding: 6px;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 .watchlist-symbol-button strong {
   font-size: 12px;
@@ -2286,7 +2303,7 @@ tbody th {
     gap: 8px;
   }
   .field-search {
-    padding: 10px;
+    padding: 0 10px;
     min-width: 130px;
   }
   .field-search input {
@@ -2601,6 +2618,7 @@ tbody th {
   padding-top: 9px;
 }
 .macro-source-link {
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -2929,7 +2947,9 @@ tbody th {
   font-weight: 500;
 }
 .filing-body h3 a {
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .filing-body h3 a svg {
   display: inline;

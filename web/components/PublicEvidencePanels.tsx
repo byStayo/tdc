@@ -15,7 +15,7 @@ import {
   StatusBadge,
 } from "./ui";
 
-const issuerNames: Record<string, string> = { "320193": "Apple Inc.", "789019": "Microsoft Corp.", "2488": "Advanced Micro Devices, Inc." };
+const issuerNames: Record<string, string> = { "320193": "Apple Inc.", "789019": "Microsoft Corp.", "2488": "Advanced Micro Devices, Inc.", "1045810": "NVIDIA Corp." };
 function positioningCategories(item: Positioning) {
   return [
     { name: "Asset managers", long: item.assetManagerLong, short: item.assetManagerShort },
