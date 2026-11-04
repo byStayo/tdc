@@ -1,7 +1,6 @@
 "use client";
 import {
   ArrowRight,
-  ArrowUpRight,
   BookOpen,
   ChevronRight,
   Plus,
@@ -56,15 +55,10 @@ export default function ContextRail({
                 onClick={() => onSelect(item)}
                 aria-pressed={symbol === item}
               >
-                <span className="mini-ticker-mark">{item.slice(0, 2)}</span>
+                <span className="mini-ticker-mark" aria-hidden="true">{item}</span>
                 <span className="rail-watch-name">
                   <strong>{item}</strong>
-                  <small>
-                    {quote?.name ??
-                      (publicMode
-                        ? "Explore market view"
-                        : "Select to research")}
-                  </small>
+                  {quote?.name && <small>{quote.name}</small>}
                 </span>
                 {publicMode ? (
                   <ChevronRight size={14} className="rail-watch-chevron" />
@@ -155,7 +149,7 @@ export default function ContextRail({
           view, and notice what’s missing.
         </p>
         <button className="text-button" onClick={() => onNavigate("sources")}>
-          Our methodology <ArrowUpRight size={14} />
+          Our methodology <ArrowRight size={14} />
         </button>
       </section>
     </aside>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { FAMILIES, MACRO_SERIES } from "@/lib/consensus/registry";
 import styles from "@/components/MorningBoard.module.css";
+import PublicationHeader from "@/components/PublicationHeader";
+import reading from "./methodology.module.css";
 export const metadata = {
   title: "Sources & Methodology | The Daily Consensus",
   alternates: { canonical: "/methodology" },
@@ -8,11 +10,10 @@ export const metadata = {
 export default function Methodology() {
   return (
     <div className={styles.board}>
-      <main className={styles.main}>
-        <Link href="/" className={styles.textButton}>
-          ← Back to the morning view
-        </Link>
-        <div className={styles.intro}>
+      <a href="#methodology-main" className={styles.skip}>Skip to methodology</a>
+      <PublicationHeader active="methodology" />
+      <main id="methodology-main" className={reading.main}>
+        <div className={reading.intro}>
           <div>
             <span className={styles.eyebrow}>A VIEW YOU CAN INSPECT</span>
             <h1>Every signal has a source.</h1>
@@ -22,9 +23,10 @@ export default function Methodology() {
             </p>
           </div>
         </div>
-        <div className={styles.twoColumns}>
-          <section className={styles.panel}>
-            <h2>Balance, coverage and agreement</h2>
+        <nav className={reading.contents} aria-label="On this page"><span>On this page</span><div><a href="#balance">Balance and coverage</a><a href="#dates">Source dates</a><a href="#sources">Public observations</a><a href="#calculations">Calculations</a><a href="#history">Immutable history</a><a href="#learning">Model evaluation</a></div></nav>
+        <div className={reading.sections}>
+          <section id="balance" aria-labelledby="balance-heading">
+            <h2 id="balance-heading">Balance, coverage and agreement</h2>
             <p>
               The balance is an average of directional readings across
               independent source families. Every family has an equal declared
@@ -66,8 +68,8 @@ export default function Methodology() {
               an earlier call or makes old observations look freshly collected.
             </p>
           </section>
-          <section className={styles.panel}>
-            <h2>The time on the label matters</h2>
+          <section id="dates" aria-labelledby="dates-heading">
+            <h2 id="dates-heading">The time on the label matters</h2>
             <p>
               Each input records its observation date, collection time, source
               hash, frequency and release time when supplied. Daily means a
@@ -86,8 +88,8 @@ export default function Methodology() {
               forecast.
             </p>
           </section>
-          <section className={styles.panel}>
-            <h2>Official public observations</h2>
+          <section id="sources" aria-labelledby="sources-heading">
+            <h2 id="sources-heading">Official public observations</h2>
             <ul>
               <li>
                 <a
@@ -225,8 +227,8 @@ export default function Methodology() {
               </li>
             </ul>
           </section>
-          <section className={styles.panel}>
-            <h2>Calculation assumptions</h2>
+          <section id="calculations" aria-labelledby="calculations-heading">
+            <h2 id="calculations-heading">Calculation assumptions</h2>
             <p>
               ETF outcomes use the next session's total-return-adjusted open and
               the adjusted close after 1, 5 or 21 complete sessions. The same basis
@@ -256,8 +258,8 @@ export default function Methodology() {
               not observed dealer inventory.
             </p>
           </section>
-          <section className={styles.panel}>
-            <h2>An immutable track record</h2>
+          <section id="history" aria-labelledby="history-heading">
+            <h2 id="history-heading">An immutable track record</h2>
             <p>
               As-issued snapshots preserve source observations, cutoff, engine
               version and a SHA-256 digest. Collection alone does not justify a
@@ -283,8 +285,8 @@ export default function Methodology() {
               instruments must not be presented as independent trading profits.
             </p>
           </section>
-          <section className={styles.panel}>
-            <h2>Learning has to earn its place</h2>
+          <section id="learning" aria-labelledby="learning-heading">
+            <h2 id="learning-heading">Learning has to earn its place</h2>
             <p>
               Each instrument and horizon needs at least 500 resolved
               observations and 100 previously uninspected, non-overlapping test

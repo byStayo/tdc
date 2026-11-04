@@ -1,4 +1,5 @@
 "use client";
+import { publicationNotice } from "@/lib/display-format";
 
 import {
   ArrowRight,
@@ -76,7 +77,7 @@ export default function ResearchBriefPanel({
             <Activity size={13} />
           )}
           {publicEdition
-            ? "Free for all readers"
+            ? "Published research"
             : research
               ? "AI-assisted research"
               : "Market observations"}
@@ -187,7 +188,7 @@ export default function ResearchBriefPanel({
           </ul>
         </details>
       )}
-      {visibleBrief?.message && <Notice>{visibleBrief.message}</Notice>}
+      {visibleBrief?.message && <Notice>{publicEdition ? publicationNotice(visibleBrief.message) : visibleBrief.message}</Notice>}
       <div className="brief-footer">
         <button
           className="button button-primary"
@@ -219,7 +220,7 @@ export default function ResearchBriefPanel({
         </button>
         <span>
           {publicEdition
-            ? unavailableEdition ? "No account or payment required" : instrumentEdition ? "Instrument edition · No account or payment required" : "Market-wide edition · No account or payment required"
+            ? unavailableEdition ? "No saved report available" : instrumentEdition ? "Instrument edition" : "Market-wide edition"
             : research
               ? `Generated ${timestamp(brief?.createdAt)}${brief?.model ? ` · ${brief.model}` : ""}`
               : "Optional AI synthesis · Source-linked"}

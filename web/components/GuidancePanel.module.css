@@ -5,23 +5,23 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
-.eyebrow { font-size: 10px; letter-spacing: 1.6px; color: var(--text-muted); }
+.eyebrow { font-size: 11px; letter-spacing: 1.6px; color: var(--text-muted); }
 .panel h3 { font-family: var(--font-display), sans-serif; font-size: 22px; font-weight: 500; margin: 10px 0; }
-.panel p { color: var(--text-secondary); font-size: 12px; line-height: 1.7; }
+.panel p { color: var(--text-secondary); font-size: var(--type-body); line-height: 1.7; }
 .rows { margin-top: 24px; }
 .row { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 2fr); gap: 32px; padding: 24px 0; border-top: 1px solid var(--border); }
 .row:last-child { padding-bottom: 0; }
 .identity h4 { margin: 0 0 5px; font-size: 17px; font-weight: 600; }
 .identity span { color: var(--text-secondary); font-size: 12px; }
-.panel small { display: block; color: var(--text-muted); font-size: 11px; line-height: 1.6; }
+.panel small { display: block; color: var(--text-muted); font-size: 12px; line-height: 1.6; }
 .identity small { margin-top: 10px; }
 .range { display: flex; align-items: center; gap: 18px; max-width: 470px; }
 .range strong { font-size: 25px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.range small { font-size: 10px; letter-spacing: 1px; }
+.range small { font-size: 11px; letter-spacing: 1px; }
 .range em { font-style: normal; font-size: 13px; margin-left: 4px; color: var(--text-secondary); }
 .range > i { flex: 1; min-width: 16px; border-top: 1px dashed var(--text-muted); margin-top: 14px; }
 .range > span:last-child { text-align: right; }
-.panel .basis { font-size: 11px; color: var(--text-muted); margin: 10px 0 0; }
+.panel .basis { font-size: 12px; color: var(--text-muted); margin: 10px 0 0; }
 .panel .reviewDue { color: var(--warning); }
 .panel summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 12px; list-style: none; }
 .panel summary::before { content: "+"; font-size: 16px; }

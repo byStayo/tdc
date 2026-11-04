@@ -1,8 +1,10 @@
+import { archiveDisplayTitle } from "@/lib/archive-title";
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight, BookOpen } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import { archiveArticles, archiveDate, archivePath } from '@/lib/archive';
 import styles from './archive.module.css';
+import PublicationHeader from '@/components/PublicationHeader';
 
 export const metadata: Metadata = {
   title: 'Research Archive | The Daily Consensus',
@@ -15,10 +17,7 @@ export default function ResearchArchivePage() {
   const years = [...new Set(articles.map((article) => article.publishedAt.slice(0, 4)))];
   return <div className={styles.page}>
     <a href="#archive" className="skip-link">Skip to research archive</a>
-    <header className={styles.header}>
-      <Link href="/" className={styles.brand}><span>DC</span>The Daily Consensus</Link>
-      <Link href="/research-desk" className={styles.deskLink}><ArrowLeft size={14} aria-hidden="true" /> Research desk</Link>
-    </header>
+    <PublicationHeader active="archive" />
     <main id="archive" className={styles.main}>
       <div className={styles.intro}>
         <p className={styles.eyebrow}><BookOpen size={15} aria-hidden="true" /> Free public research</p>
@@ -31,10 +30,10 @@ export default function ResearchArchivePage() {
         <div className={styles.yearHeading}><h2 id={`heading-${year}`}>{year}</h2><span>{articles.filter((item) => item.publishedAt.startsWith(year)).length} archived articles</span></div>
         <div className={styles.articleList}>{articles.filter((item) => item.publishedAt.startsWith(year)).map((article) => <article key={article.id} className={styles.article}>
           <div className={styles.meta}><time dateTime={article.publishedAt}>{archiveDate(article.publishedAt)}</time><span>{article.publisher} · {article.readingMinutes} min read</span></div>
-          <div className={styles.articleInfo}><Link href={archivePath(article.id)} className={styles.articleLink}><h3>{article.title}</h3><ArrowUpRight size={18} aria-hidden="true" /></Link><p>{article.excerpt}</p><span className={styles.author}>{article.author}</span></div>
+          <div className={styles.articleInfo}><Link href={archivePath(article.id)} className={styles.articleLink}><h3>{archiveDisplayTitle(article)}</h3><ArrowRight size={18} aria-hidden="true" /></Link><p>{article.excerpt}</p><span className={styles.author}>{article.author}</span></div>
         </article>)}</div>
       </section>)}
     </main>
-    <footer className={styles.footer}><Link href="/research-desk">Return to the research desk <ArrowUpRight size={14} aria-hidden="true" /></Link><span>Research, open to everyone.</span></footer>
+    <footer className={styles.footer}><Link href="/research-desk">Return to the research desk <ArrowRight size={14} aria-hidden="true" /></Link><span>Research, open to everyone.</span></footer>
   </div>;
 }

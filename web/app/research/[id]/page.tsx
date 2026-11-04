@@ -1,3 +1,4 @@
+import { archiveDisplayTitle } from "@/lib/archive-title";
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -8,6 +9,7 @@ import {
   type ArchiveBlock, type ArchiveInline,
 } from '@/lib/archive';
 import styles from './article.module.css';
+import PublicationHeader from '@/components/PublicationHeader';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -23,12 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!article) notFound();
   const description = `From the archive, ${archiveDate(article.publishedAt)}. ${article.excerpt}`;
   return {
-    title: `${article.title} | The Daily Consensus Archive`,
+    title: `${archiveDisplayTitle(article)} | The Daily Consensus Archive`,
     description,
     authors: [{ name: article.author }],
     alternates: { canonical: archivePath(article.id) },
     openGraph: {
-      type: 'article', title: article.title, description,
+      type: 'article', title: archiveDisplayTitle(article), description,
       siteName: 'The Daily Consensus', publishedTime: article.publishedAt,
       authors: [article.author],
     },
@@ -99,16 +101,13 @@ export default async function ArchiveArticlePage({ params }: Props) {
 
   return <div className={styles.page}>
     <a href="#article" className="skip-link">Skip to article</a>
-    <header className={styles.siteHeader}>
-      <Link href="/" className={styles.brand} aria-label="The Daily Consensus home"><span className={styles.brandMark}>DC</span><span>The Daily Consensus<small>Free public research</small></span></Link>
-      <Link href="/research-desk" className={styles.homeLink}>Research desk <ArrowUpRight size={16} aria-hidden="true" /></Link>
-    </header>
+    <PublicationHeader active="archive" />
     <main className={styles.main}>
       <Link href="/research" className={styles.backLink}><ArrowLeft size={15} aria-hidden="true" /> Research archive</Link>
       <article id="article" className={styles.article}>
         <header className={styles.articleHeader}>
           <p className={styles.eyebrow}><BookOpen size={14} aria-hidden="true" /> From the archive · {article.publisher}</p>
-          <h1>{article.title}</h1>
+          <h1>{archiveDisplayTitle(article)}</h1>
           <div className={styles.byline}><span>{article.author}</span><span aria-hidden="true">·</span><time dateTime={article.publishedAt}>{archiveDate(article.publishedAt)}</time><span aria-hidden="true">·</span><span>{article.readingMinutes} min read</span></div>
         </header>
         <aside className={styles.archiveNotice} aria-label="Historical article context">
@@ -117,6 +116,7 @@ export default async function ArchiveArticlePage({ params }: Props) {
         </aside>
         <div className={styles.body}><ArticleBlocks blocks={article.blocks} /></div>
         <footer className={styles.articleFooter}>
+          {archiveDisplayTitle(article) !== article.title && <details className={styles.originalTitle}><summary>Original archive title</summary><p>The displayed headline omits a leading sentence fragment from the recovered title. Original title: {article.title}</p></details>}
           <p>Originally published on {article.publisher}. Article text, attribution, and original figures have been preserved with their source links; subscription widgets have been removed.</p>
           {safeArchiveUrl(article.sourceUrl) && <a href={safeArchiveUrl(article.sourceUrl)} target="_blank" rel="noopener noreferrer">View original publication <ArrowUpRight size={15} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>}
         </footer>
@@ -125,8 +125,8 @@ export default async function ArchiveArticlePage({ params }: Props) {
         <div className={styles.relatedHeading}><h2 id="more-archive">More from the archive</h2><Link href="/research">All {archiveArticles().length} articles <ChevronRight size={15} aria-hidden="true" /></Link></div>
         <div className={styles.relatedGrid}>{related.map((item) => <Link href={archivePath(item.id)} key={item.id} className={styles.relatedCard}>
           <time dateTime={item.publishedAt}>{archiveDate(item.publishedAt)}</time>
-          <h3>{item.title}</h3>
-          <span>Read archived article <ArrowUpRight size={15} aria-hidden="true" /></span>
+          <h3>{archiveDisplayTitle(item)}</h3>
+          <span>Read archived article <ChevronRight size={15} aria-hidden="true" /></span>
         </Link>)}</div>
       </section>
     </main>

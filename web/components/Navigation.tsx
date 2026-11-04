@@ -2,7 +2,7 @@
 import Brand from "./Brand";
 import {
   Activity,
-  ArrowUpRight,
+  ArrowRight,
   BarChart3,
   BookOpen,
   CircleHelp,
@@ -12,6 +12,7 @@ import {
   Newspaper,
   ShieldCheck,
   Star,
+  Coffee,
 } from "lucide-react";
 
 export const NAVIGATION = [
@@ -49,6 +50,7 @@ export default function Navigation({
         <Brand label="The Daily Consensus morning overview" />
       </div>
       <nav aria-label="Main navigation">
+        <a className="nav-item" href="/"><Coffee size={17} strokeWidth={1.7} /><span>Morning view</span></a>
         {NAVIGATION.map((item) => (
           <div key={item.id}>
             {"group" in item && <p className="nav-group">{item.group}</p>}
@@ -81,9 +83,8 @@ export default function Navigation({
         >
           <CircleHelp size={14} />
           How to read the data
-          <ArrowUpRight size={13} />
+          <ArrowRight size={13} />
         </button>
-        <span className="sidebar-copyright">No account. No paywall.</span>
       </div>
     </>
   );

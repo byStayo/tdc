@@ -9,11 +9,6 @@
 .board * {
   box-sizing: border-box;
 }
-.board button,
-.board select,
-.board a {
-  font: inherit;
-}
 .board button {
   cursor: pointer;
 }
@@ -24,10 +19,6 @@
 .board [role="tabpanel"]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
-}
-.board a {
-  color: inherit;
-  text-decoration: none;
 }
 .skip {
   position: absolute;
@@ -58,7 +49,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 1.7px;
   text-transform: uppercase;
@@ -141,7 +132,7 @@
 .marketContext,
 .historicalMarket {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.7;
   margin: -8px 0 20px;
   max-width: 900px;
@@ -171,7 +162,7 @@
 }
 .marketPanel > p {
   margin: -4px 20px 12px;
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--text-muted);
 }
@@ -228,7 +219,7 @@
 }
 .curveMetrics span {
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.5px;
 }
 .curveMetrics strong {
@@ -310,7 +301,7 @@
 }
 .fxGrid button > span small {
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 400;
   margin-left: 3px;
 }
@@ -321,7 +312,7 @@
   margin: 7px 0;
 }
 .fxGrid button > small {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 .fxUp strong {
@@ -354,7 +345,7 @@
 .positioning button small {
   display: block;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 3px;
 }
 .positioning button strong {
@@ -377,11 +368,11 @@
 .timelineDate small {
   display: block;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 4px;
 }
 .timeline a > div:nth-child(2) > span {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.7px;
   color: var(--accent);
   text-transform: uppercase;
@@ -416,7 +407,7 @@
   display: flex;
   align-items: start;
   gap: 16px;
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-secondary);
   margin: 0 0 18px;
 }
@@ -472,7 +463,7 @@
   flex: none;
 }
 .signalCard h3 {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   margin: -6px 0 0;
 }
@@ -486,7 +477,7 @@
   color: var(--text);
 }
 .signalCard > p {
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-secondary);
   line-height: 1.65;
   min-height: 33px;
@@ -497,7 +488,7 @@
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
   padding-top: 14px;
   border-top: 1px solid var(--border-subtle);
@@ -521,8 +512,8 @@
   background: transparent;
 }
 .missingCard h3 {
-  color: var(--text-muted);
-  font-size: 19px;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 .issueSelect {
   display: flex;
@@ -570,7 +561,7 @@
 }
 .muted {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.7;
 }
 .editionList button {
@@ -629,7 +620,7 @@
   margin-bottom: 5px;
 }
 .learningSteps span {
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-muted);
   display: block;
 }
@@ -707,12 +698,12 @@
   margin: 0;
 }
 .sourceItem > p {
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-secondary);
   line-height: 1.7;
 }
 .status {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
   padding: 4px 7px;
   border: 1px solid var(--border);
@@ -726,7 +717,7 @@
   gap: 15px;
 }
 .sourceFacts dt {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -736,7 +727,7 @@
   margin: 4px 0 0;
 }
 .sourceItem details {
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-secondary);
   line-height: 1.8;
 }
@@ -856,7 +847,7 @@
     max-height: 75px;
   }
   .signalCard > p {
-    font-size: 12px;
+    font-size: var(--type-body);
   }
   .cardFoot {
     font-size: 12px;
@@ -901,7 +892,7 @@
     font-size: 14px;
   }
   .eyebrow {
-    font-size: 9px;
+    font-size: 12px;
     letter-spacing: 1.3px;
   }
 }
@@ -948,7 +939,7 @@
   font-weight: 500;
 }
 .catalystStrip > a > small {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -970,7 +961,7 @@
   margin: 13px 0;
 }
 .earningsStrip p {
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-muted);
   line-height: 1.7;
 }
@@ -994,7 +985,7 @@
 }
 .earningsStrip small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
   margin-top: 3px;
 }
@@ -1103,7 +1094,7 @@
 }
 
 .calendarExpand {
-  margin: -12px 0 28px;
+  margin: 12px 0 28px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--panel);
@@ -1183,7 +1174,7 @@
   margin: 18px 0 12px;
 }
 .reviewedCard p {
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.75;
   color: var(--text-secondary);
   margin: 0 0 18px;
@@ -1221,7 +1212,7 @@
   color: var(--text-secondary);
 }
 .reviewedCard details p {
-  font-size: 12px;
+  font-size: var(--type-body);
 }
 .reviewedCard details a {
   display: flex;
@@ -1290,7 +1281,7 @@
 }
 .creditBars small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 .creditBarTrack {
@@ -1334,7 +1325,7 @@
   font-variant-numeric: tabular-nums;
 }
 .creditMetrics dd small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 .creditSources {
@@ -1468,7 +1459,7 @@ button.policyRow:hover {
 .policyAxis > div > span {
   position: absolute;
   transform: translateX(-50%);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 @media (max-width: 700px) {
@@ -1674,19 +1665,19 @@ button.policyRow:hover {
 }
 .reviewedCard details .eyebrow {
   margin-top: 18px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .reviewedCard summary {
-  font-size: 11px;
+  font-size: 12px;
 }
 .reviewedMeta {
-  font-size: 10px;
+  font-size: 12px;
 }
 .transmission {
   margin-top: 16px;
 }
 .transmission .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
 }
 .transmission strong {
   font-size: 12px;
@@ -1700,9 +1691,12 @@ button.policyRow:hover {
     font-size: 18px;
   }
   .researchSection > summary small {
-    font-size: 11px;
+    font-size: 12px;
   }
   .reviewedGrid {
     gap: 12px;
   }
 }
+
+.editionList button[aria-current] { color: var(--accent); }
+.historyToggle { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); padding: 8px 0; margin-top: 8px; font-size: 13px; }

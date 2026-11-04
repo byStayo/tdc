@@ -12,8 +12,6 @@ import {
   History,
   Info,
   Layers3,
-  Moon,
-  Sun,
   X,
 } from "lucide-react";
 import { eventUpcoming } from "@/lib/consensus/time";
@@ -38,7 +36,7 @@ import type {
 } from "@/lib/consensus/types";
 import styles from "./MorningBoard.module.css";
 import MorningMarket from "./MorningMarket";
-import Brand from "./Brand";
+import PublicationHeader from "./PublicationHeader";
 import ResearchSection from "./ResearchSection";
 import CommunityPanel from "./CommunityPanel";
 import RetailOutlook from "./RetailOutlook";
@@ -46,6 +44,7 @@ import GuidancePanel from "./GuidancePanel";
 import PrivateCreditContext from "./PrivateCreditContext";
 import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
+import { signalMetricLabel } from "@/lib/display-format";
 
 const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
@@ -313,7 +312,7 @@ function SourceDrawer({
                   <div key={metric.label}>
                     <dt>{metric.label}</dt>
                     <dd>
-                      {number(metric.value, 4)} {metric.unit} ·{" "}
+                      {signalMetricLabel(metric, signal.family)} ·{" "}
                       {datedYear(metric.date)}
                     </dd>
                   </div>
@@ -1015,7 +1014,7 @@ function ReviewedDevelopments({
               </div>
               <h3>{item.title}</h3>
               <div className={styles.transmission}>
-                <ArrowDownRight size={20} aria-hidden="true" />
+                <ArrowRight size={20} aria-hidden="true" />
                 <div>
                   <span className={styles.eyebrow}>POSSIBLE MARKET EFFECT</span>
                   <strong>{impact.channel}</strong>
@@ -1077,6 +1076,7 @@ export default function MorningBoard({
     [historyError, setHistoryError] = useState(""),
     [loading, setLoading] = useState(false);
   const issueRequest = useRef(0);
+  const [showAllEditions, setShowAllEditions] = useState(false);
   useEffect(() => {
     setNow(new Date().toISOString());
     setTheme(
@@ -1380,26 +1380,7 @@ export default function MorningBoard({
       <a href="#morning-main" className={styles.skip}>
         Skip to market overview
       </a>
-      <header className={layout.header}>
-        <Brand />
-        <nav aria-label="Primary">
-          <a href="/" aria-current="page">
-            Morning view
-          </a>
-          <a href="/research-desk">Research desk</a>
-          <a href="/research">Archive</a>
-        </nav>
-        <div className={layout.headerRight}>
-          <span className={layout.free}>Free. For everyone.</span>
-          <button
-            onClick={toggleTheme}
-            className={styles.iconButton}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-        </div>
-      </header>
+      <PublicationHeader active="morning" theme={theme} onToggleTheme={toggleTheme} />
       <main id="morning-main" className={layout.main}>
         <div className={layout.intro}>
           <div>
@@ -1442,6 +1423,10 @@ export default function MorningBoard({
             </details>
           </div>
         </div>
+        {historical && <div className={layout.historyBanner} role="status">
+          <div><strong>Viewing an as-issued edition</strong><span>{datedYear(snapshot.issuedAt)} · {time(snapshot.issuedAt)} ET. Observations and verdicts are preserved as published.</span></div>
+          <button onClick={() => void chooseIssue(initial.id)}>Return to latest <ArrowRight size={15} aria-hidden="true" /></button>
+        </div>}
         <div className={layout.toolbar}>
           <div
             className={layout.instruments}
@@ -2180,10 +2165,11 @@ export default function MorningBoard({
                   <div className={styles.editionList}>
                     {[...history]
                       .reverse()
-                      .slice(0, 20)
+                      .slice(0, showAllEditions ? history.length : 5)
                       .map((entry) => (
                         <button
                           key={entry.id}
+                          aria-current={entry.id === snapshot.id ? "true" : undefined}
                           onClick={async () => {
                             if (await chooseIssue(entry.id)) setTab("morning");
                           }}
@@ -2191,12 +2177,13 @@ export default function MorningBoard({
                           <History size={17} />
                           <span>
                             {date(entry.issuedAt)} · {time(entry.issuedAt)} ET
-                            <small>{entry.engineVersion}</small>
+                            <small>{entry.engineVersion}{entry.id === initial.id ? " · Latest" : ""}{entry.id === snapshot.id ? " · Viewing" : ""}</small>
                           </span>
                           <ChevronRight size={17} />
                         </button>
                       ))}
                   </div>
+                  {history.length > 5 && <button className={styles.historyToggle} aria-expanded={showAllEditions} onClick={() => setShowAllEditions(value => !value)}>{showAllEditions ? "Show latest 5 editions" : `Show all ${history.length} editions`}</button>}
                 </section>
                 <section className={styles.panel}>
                   <h3>How improvement earns its place</h3>

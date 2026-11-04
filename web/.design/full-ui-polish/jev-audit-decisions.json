@@ -1,0 +1,57 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "phone_positioning": {
+      "type": "choice",
+      "choice": "stacked_categories",
+      "confidence": 0.5,
+      "probabilities": {
+        "stacked_categories": 0.67,
+        "net_first_scroll": 0.2,
+        "scroll_hint_only": 0.13
+      }
+    },
+    "history_presentation": {
+      "type": "choice",
+      "choice": "banner_compact_list",
+      "confidence": 0.8,
+      "probabilities": {
+        "banner_compact_list": 0.87,
+        "banner_full_list": 0.03,
+        "fixed_notice": 0.1
+      }
+    },
+    "desk_mobile_brand": {
+      "type": "choice",
+      "choice": "two_rows",
+      "confidence": 0.73,
+      "probabilities": {
+        "two_rows": 0.82,
+        "brand_above": 0.12,
+        "compact_mark": 0.06
+      }
+    },
+    "archive_title_presentation": {
+      "type": "choice",
+      "choice": "exact_headline_with_original",
+      "confidence": 0.28,
+      "probabilities": {
+        "exact_headline_with_original": 0.64,
+        "verbatim_only": 0.36
+      }
+    },
+    "polish_details": {
+      "type": "choice",
+      "choice": "consistent_semantics",
+      "confidence": 0.94,
+      "probabilities": {
+        "consistent_semantics": 0.97,
+        "critical_only": 0.03
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1214,
+    "output_tokens": 223
+  }
+}

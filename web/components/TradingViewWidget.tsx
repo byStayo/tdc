@@ -168,10 +168,18 @@ export default function TradingViewWidget({
         <ExternalLink href={providerLink}>
           {widgetTitle} by TradingView
         </ExternalLink>
+        <button
+          className="provider-widget-reload"
+          onClick={() => setRetry((value) => value + 1)}
+          aria-label={`Reload ${widgetTitle.toLowerCase()}`}
+        >
+          <RefreshCw size={14} aria-hidden="true" />
+          Reload view
+        </button>
       </div>
       <p className="provider-widget-note">
         Third-party hosted view. Availability and delays are shown by
-        TradingView.
+        TradingView. If nothing appears, reload the view or open TradingView.
       </p>
     </div>
   );

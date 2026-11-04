@@ -133,10 +133,12 @@ export function ExternalLink({
   href,
   children,
   className = "",
+  title,
 }: {
   href: string | null | undefined;
   children: ReactNode;
   className?: string;
+  title?: string;
 }) {
   const url = safeUrl(href);
   const internal = url?.startsWith("/research/");
@@ -144,6 +146,7 @@ export function ExternalLink({
     <a
       href={url}
       className={className}
+      title={title}
       target={internal ? undefined : "_blank"}
       rel={internal ? undefined : "noopener noreferrer"}
     >

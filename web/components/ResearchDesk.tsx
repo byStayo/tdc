@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   Menu,
   Moon,
   RefreshCw,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import Navigation, { NAVIGATION, type View } from "./Navigation";
 import ContextRail from "./ContextRail";
+import Brand from "./Brand";
 import WatchlistPanel from "./WatchlistPanel";
 import MacroPanel from "./MacroPanel";
 import PublicMarket from "./PublicMarket";
@@ -103,9 +103,18 @@ export default function ResearchDesk() {
   const [menuOpen, setMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousView = useRef(view);
   const researchRequest = useRef<AbortController | null>(null);
   const publicMode = workspace?.mode !== "private";
   const instrumentEdition = publicMode && view === "reports";
+  const hasSavedReport = INSTRUMENT_REPORTS.some(report => report.symbol === symbol);
+  useEffect(() => {
+    if (previousView.current === view) return;
+    previousView.current = view;
+    window.scrollTo({ top: 0, behavior: "instant" });
+    headingRef.current?.focus({ preventScroll: true });
+  }, [view]);
 
   const generateBrief = useCallback(async () => {
     researchRequest.current?.abort();
@@ -362,6 +371,7 @@ export default function ResearchDesk() {
       </dialog>
       <div className="workspace-shell">
         <header className="topbar">
+          <div className="desk-mobile-brand"><Brand /></div>
           <button
             className="icon-button menu-button"
             aria-label="Open navigation"
@@ -409,9 +419,8 @@ export default function ResearchDesk() {
             </button>
             <kbd aria-hidden="true">/</kbd>
           </form>
-          <div className="topbar-actions">
             <button
-              className="icon-button"
+              className="icon-button workspace-refresh"
               aria-label="Refresh workspace"
               title="Refresh workspace"
               onClick={() => setRefresh((value) => value + 1)}
@@ -419,6 +428,7 @@ export default function ResearchDesk() {
             >
               <RefreshCw size={17} className={loading ? "spin" : ""} />
             </button>
+          <div className="topbar-actions">
             <button
               className="icon-button"
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
@@ -427,7 +437,6 @@ export default function ResearchDesk() {
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <span className="free-service-badge">Free for everyone</span>
           </div>
         </header>
         {searchError && (
@@ -435,7 +444,7 @@ export default function ResearchDesk() {
             {searchError}
           </p>
         )}
-        <div className="workspace-content">
+        <div className={`workspace-content ${view === "watchlist" ? "workspace-content-wide" : ""}`}>
           <main
             id="main-content"
             className="main-workspace"
@@ -445,7 +454,7 @@ export default function ResearchDesk() {
               {loading
                 ? `Loading ${symbol} research workspace.`
                 : workspace
-                  ? `${symbol} research workspace loaded.`
+                  ? publicMode && !hasSavedReport ? `No saved instrument report for ${symbol}. A hosted provider view may be available.` : `${symbol} research workspace loaded.`
                   : "The research workspace could not be loaded."}
             </p>
             <div className="page-heading">
@@ -457,7 +466,7 @@ export default function ResearchDesk() {
                     ? localDateLabel(workspace.fetchedAt).toUpperCase()
                     : "THE DAILY CONSENSUS"}
                 </p>
-                <h1>{VIEW_COPY[view].title}</h1>
+                <h1 ref={headingRef} tabIndex={-1}>{VIEW_COPY[view].title}</h1>
                 <p className="page-description">
                   {VIEW_COPY[view].description}
                 </p>
@@ -482,6 +491,7 @@ export default function ResearchDesk() {
                 </span>
               </div>
             </div>
+            {publicMode && !hasSavedReport && ["brief", "reports", "market"].includes(view) && <div className="notice ticker-coverage-notice" role="status"><p>No saved instrument report for <strong>{symbol}</strong>. The market-wide brief remains available. TradingView may provide a hosted view if it recognises this symbol; its availability is separate from our saved research.</p></div>}
             {error && (
               <div className="error-banner" role="alert">
                 <div>
@@ -756,11 +766,11 @@ export default function ResearchDesk() {
                 Research for perspective. Not a recommendation to buy or sell.
               </p>
               <button onClick={() => navigate("sources")}>
-                Sources & methodology <ArrowUpRight size={12} />
+                Sources & methodology <ArrowRight size={12} />
               </button>
             </footer>
           </main>
-          <ContextRail
+          {view !== "watchlist" && <ContextRail
             publicMode={publicMode}
             workspace={workspace}
             quotes={quotes}
@@ -772,7 +782,7 @@ export default function ResearchDesk() {
               selectSymbol(next);
               navigate("market");
             }}
-          />
+          />}
         </div>
       </div>
     </div>

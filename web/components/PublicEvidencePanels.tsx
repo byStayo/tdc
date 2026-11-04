@@ -15,6 +15,15 @@ import {
   StatusBadge,
 } from "./ui";
 
+const issuerNames: Record<string, string> = { "320193": "Apple Inc.", "789019": "Microsoft Corp.", "2488": "Advanced Micro Devices, Inc." };
+function positioningCategories(item: Positioning) {
+  return [
+    { name: "Asset managers", long: item.assetManagerLong, short: item.assetManagerShort },
+    { name: "Leveraged funds", long: item.leveragedLong, short: item.leveragedShort },
+    { name: "Dealers / intermediaries", long: item.dealerLong, short: item.dealerShort },
+  ].map(category => ({ ...category, net: category.long !== null && category.short !== null ? category.long - category.short : null }));
+}
+
 export function FilingsPanel({
   filings,
   loading,
@@ -96,8 +105,8 @@ export function FilingsPanel({
               </span>
               <div className="filing-body">
                 <h3>
-                  <ExternalLink href={filing.url}>
-                    {filing.company}
+                  <ExternalLink href={filing.url} title={filing.company}>
+                    {issuerNames[String(Number(filing.cik))] ?? filing.company}
                   </ExternalLink>
                 </h3>
                 <p>{filing.description || `${filing.form} filing`}</p>
@@ -195,7 +204,7 @@ export function PositioningPanel({
                 </div>
               </div>
               <div
-                className="table-scroll"
+                className="table-scroll positioning-desktop"
                 tabIndex={0}
                 role="region"
                 aria-label={`${item.market} positions by category`}
@@ -220,27 +229,8 @@ export function PositioningPanel({
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      {
-                        name: "Asset managers",
-                        long: item.assetManagerLong,
-                        short: item.assetManagerShort,
-                      },
-                      {
-                        name: "Leveraged funds",
-                        long: item.leveragedLong,
-                        short: item.leveragedShort,
-                      },
-                      {
-                        name: "Dealers / intermediaries",
-                        long: item.dealerLong,
-                        short: item.dealerShort,
-                      },
-                    ].map((category) => {
-                      const net =
-                        category.long !== null && category.short !== null
-                          ? category.long - category.short
-                          : null;
+                    {positioningCategories(item).map((category) => {
+                      const net = category.net;
                       return (
                         <tr key={category.name}>
                           <th scope="row">{category.name}</th>
@@ -259,6 +249,16 @@ export function PositioningPanel({
                     })}
                   </tbody>
                 </table>
+              </div>
+              <div className="positioning-mobile">
+                {positioningCategories(item).map(category => <div className="positioning-category" key={category.name}>
+                  <h4>{category.name}</h4>
+                  <dl>
+                    <div><dt>Long</dt><dd>{number(category.long, 0)}</dd></div>
+                    <div><dt>Short</dt><dd>{number(category.short, 0)}</dd></div>
+                    <div><dt>Net</dt><dd>{category.net !== null && category.net > 0 ? "+" : ""}{number(category.net, 0)}</dd></div>
+                  </dl>
+                </div>)}
               </div>
               <p className="positioning-unit">
                 Contract specification: {item.units}. Values are contract

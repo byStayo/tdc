@@ -1,7 +1,9 @@
 "use client";
 
+import { archiveDisplayTitle } from "@/lib/archive-title";
 import { useMemo, useState } from "react";
 import {
+  ArrowRight,
   ArrowUpRight,
   BookOpen,
   ChevronRight,
@@ -114,7 +116,7 @@ export function NewsPanel({
                   )}
                 </div>
                 <h3>
-                  <ExternalLink href={item.url}>{item.title}</ExternalLink>
+                  <ExternalLink href={item.url}>{archiveDisplayTitle(item)}</ExternalLink>
                 </h3>
                 {!compact && (
                   <p className="article-excerpt">{item.description}</p>
@@ -378,7 +380,7 @@ export function ArchivePanel({
                 <span>{dateLabel(item.publishedAt)}</span>
               </div>
               <h3>
-                <ExternalLink href={item.url}>{item.title}</ExternalLink>
+                <ExternalLink href={item.url}>{archiveDisplayTitle(item)}</ExternalLink>
               </h3>
               <p>{item.excerpt}</p>
               <div className="archive-author">
@@ -386,7 +388,7 @@ export function ArchivePanel({
                   {item.author.slice(0, 1)}
                 </span>
                 <span>{item.author}</span>
-                <ArrowUpRight size={15} className="muted" />
+                <ArrowRight size={15} className="muted" />
               </div>
             </article>
           ))}
