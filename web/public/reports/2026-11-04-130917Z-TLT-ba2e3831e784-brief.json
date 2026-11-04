@@ -1,0 +1,66 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-04T13:09:17.947Z",
+  "model": "Codex editorial workflow",
+  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
+  "data": {
+    "headline": "TLT: distinguish lower long yields from overnight funding.",
+    "summary": "November 2 long Treasury yields fell, providing a dated input directly relevant to duration analysis. Overnight secured funding then moved higher. Those are different parts of the rates market; neither observation supplies TLT total return, distribution adjustments or a measured release-day price response.",
+    "bull": [
+      {
+        "text": "The thirty-year Treasury yield declined from 5.31% to 5.28%, and the ten-year from 4.94% to 4.91%, between October 30 and November 2. Lower yields generally support existing fixed-rate bond values, all else equal; TLT performance was not measured.",
+        "sourceIds": [
+          "FRED_DGS30",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "SOFR rose to 3.97% on November 3 from 3.95%. This overnight secured rate is not TLT’s long-duration yield and does not establish a change in the FOMC target or the Treasury term premium.",
+        "sourceIds": [
+          "FRED_SOFR"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Treasury bond futures asset managers were net long 383,981 contracts on October 27, while leveraged funds were net short 150,393. The earlier leveraged net short was 162,757; both gross longs and shorts rose, so this was not simply short covering.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
+      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
+      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
+      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified.",
+      "Treasury futures and TLT differ in instruments and duration. No verified total-return-adjusted price history or prospective outcome has been added."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Overnight funding · SOFR",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    }
+  ]
+}

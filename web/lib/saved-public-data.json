@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-03T17:34:12.103Z",
-  "macroRetrievedAt": "2026-11-03T17:05:38.754Z",
-  "positioningRetrievedAt": "2026-11-03T17:05:38.995Z",
+  "collectedAt": "2026-11-04T13:07:40.897Z",
+  "macroRetrievedAt": "2026-11-04T13:04:16.028Z",
+  "positioningRetrievedAt": "2026-11-04T13:04:16.237Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -841,7 +841,7 @@
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-03T17:05:38.984Z",
+      "retrievedAt": "2026-11-04T13:04:16.278Z",
       "data": [
         {
           "id": "sec:0000320193:0000320193-26-000026",
@@ -927,7 +927,7 @@
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-03T17:05:39.201Z",
+      "retrievedAt": "2026-11-04T13:04:16.476Z",
       "data": [
         {
           "id": "sec:0000789019:0001193125-26-442618",
@@ -1013,7 +1013,7 @@
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-03T17:05:39.496Z",
+      "retrievedAt": "2026-11-04T13:04:16.661Z",
       "data": [
         {
           "id": "sec:0001045810:0002152188-26-000007",

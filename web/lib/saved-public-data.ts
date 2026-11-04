@@ -4,6 +4,12 @@ import type { EditorialEvidence } from "../scripts/collect-editorial-evidence.ts
 
 const ETF_CONTEXT = new Set(["SPY", "QQQ", "IWM", "DIA", "TLT", "GLD", "VTI", "VOO", "IEF"]);
 const KNOWN_SERIES = new Set(["FEDFUNDS", "DPRIME", "TNWBSHNO"]);
+// Cited rate/funding evidence is archived with the report. It does not expand
+// the workspace's three declared macro panels or refresh their retrieval age.
+const EDITORIAL_ONLY_SERIES = new Map([
+  ["DGS2", "percent"], ["DGS10", "percent"], ["DGS30", "percent"],
+  ["SOFR", "percent"], ["RRPONTSYD", "billions USD"],
+]);
 export interface SavedPublicData {
   schemaVersion: 1;
   collectedAt: string;
@@ -22,6 +28,18 @@ export function savedPublicData(evidence: EditorialEvidence): SavedPublicData {
   // an unrelated source must not refresh the panel's provider-check timestamp.
   const oldest = (current: string | null | undefined, next: string) => !current || next < current ? next : current;
   for (const source of evidence.sources) {
+    const editorialSeries = source.id.startsWith("FRED_") ? source.id.slice(5) : "";
+    if (source.kind === "fred" && EDITORIAL_ONLY_SERIES.has(editorialSeries)) {
+      if (source.status === "ok") {
+        const data = source.data as { seriesId: string; unit: string; frequency: string; sha256: string; observations: {date: string; value: number | null}[] };
+        if (data.seriesId !== editorialSeries || data.unit !== EDITORIAL_ONLY_SERIES.get(editorialSeries) ||
+            data.frequency !== "daily" || !/^[a-f0-9]{64}$/.test(data.sha256) || !Array.isArray(data.observations) ||
+            !data.observations.some(row => row.value !== null) ||
+            data.observations.some(row => !publicDate(row.date) || (row.value !== null && !Number.isFinite(row.value))))
+          throw new Error("Invalid editorial-only macro evidence");
+      }
+      continue;
+    }
     if (source.kind === "fred") result.macroRetrievedAt = oldest(result.macroRetrievedAt, source.retrievedAt);
     if (source.kind === "cftc") result.positioningRetrievedAt = oldest(result.positioningRetrievedAt, source.retrievedAt);
     if (source.status !== "ok") continue;

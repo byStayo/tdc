@@ -36,3 +36,15 @@ test('saved providers retain outage and age distinctions',()=>{
  const old=savedPublicContext(saved,'SPY','2027-01-01T12:00:00.000Z');
  assert.equal(old.filings.status,'stale');assert.equal(old.positioning.status,'stale');assert.equal(old.macro.status,'stale');
 });
+
+test('dated rate citations remain outside the three workspace panels and their retrieval age',()=>{
+ const citations=['DGS2','DGS10','DGS30','SOFR','RRPONTSYD'].map(seriesId=>({
+  id:`FRED_${seriesId}`,kind:'fred',status:'ok',retrievedAt:'2026-10-01T12:00:00.000Z',
+  data:{seriesId,unit:seriesId==='RRPONTSYD'?'billions USD':'percent',frequency:'daily',sha256:'a'.repeat(64),observations:[{date:'2026-09-30',value:0},{date:'2026-10-01',value:null}]},
+ }));
+ const enriched=savedPublicData({...source,sources:[...source.sources,...citations]});
+ assert.deepEqual(enriched,saved);
+ assert.throws(()=>savedPublicData({...source,sources:[...source.sources,{...citations[0],data:{...citations[0].data,seriesId:'DGS10'}}]}),/editorial-only/);
+ assert.throws(()=>savedPublicData({...source,sources:[...source.sources,{...citations[0],data:{...citations[0].data,sha256:'missing'}}]}),/editorial-only/);
+ assert.throws(()=>savedPublicData({...source,sources:[...source.sources,{...citations[0],id:'FRED_UNKNOWN',data:{...citations[0].data,seriesId:'UNKNOWN'}}]}),/Unknown saved/);
+});

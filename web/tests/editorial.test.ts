@@ -114,6 +114,20 @@ test('publisher writes immutable evidence/brief archives then atomically replace
   assert.ok(JSON.parse(await readFile(join(input.root, '.editorial/publish.lock'), 'utf8')).releasedAt);
 });
 
+test('publisher archives cited Treasury evidence without adding an undeclared workspace macro panel', async () => {
+  const input = await inputFiles(), url = 'https://fred.stlouisfed.org/series/DGS10';
+  const source = { id:'FRED_DGS10', kind:'fred', title:'Synthetic Treasury evidence', url, retrievalUrl:'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10', retrievedAt:'2026-11-03T01:59:00Z', observationDates:['2026-11-02'], status:'ok', data:{seriesId:'DGS10',unit:'percent',frequency:'daily',sha256:'a'.repeat(64),observations:[{date:'2026-11-02',value:4}]} };
+  const evidence = {...input.evidence,sources:[...input.evidence.sources,source]};
+  const candidate = {...input.candidate,sources:[...input.candidate.sources,{id:source.id,title:source.title,url}],data:{...input.candidate.data,watch:[{text:'Dated yield observation, not an ETF return.',sourceIds:[source.id]}]}};
+  await writeFile(input.evidencePath,JSON.stringify(evidence)); await writeFile(input.candidatePath,JSON.stringify(candidate));
+  const result = await publishEditorialBrief(input.candidatePath,input.evidencePath,{root:input.root,now:NOW});
+  assert.equal(result.published,true);
+  assert.deepEqual(JSON.parse(await readFile(result.evidenceArchive,'utf8')).sources.at(-1),source);
+  assert.equal(JSON.parse(await readFile(result.latest,'utf8')).sources.at(-1).id,'FRED_DGS10');
+  const workspace=JSON.parse(await readFile(join(input.root,'lib/saved-public-data.json'),'utf8'));
+  assert.deepEqual(workspace.macro,[]); assert.equal(workspace.macroRetrievedAt,null);
+});
+
 test('an archive collision cannot overwrite the current publication or historical evidence', async () => {
   const input = await inputFiles(), plan = await publishEditorialBrief(input.candidatePath, input.evidencePath, { root: input.root, now: NOW, checkOnly: true });
   await mkdir(join(input.root, 'public/reports'), { recursive: true }); await mkdir(join(input.root, 'lib'));

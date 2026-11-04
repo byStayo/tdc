@@ -2,65 +2,65 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-03T17:34:12.119Z",
+  "createdAt": "2026-11-04T13:09:17.947Z",
   "model": "Codex editorial workflow",
-  "message": "Provenance correction: the BLS citation now points to its dated November 3 archive, and the public evidence includes the cited sector and establishment-size details. Figures and interpretation are unchanged from the 12:11 PM ET edition.",
+  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
   "data": {
-    "headline": "TLT: keep the labor reading separate from the yield response.",
-    "summary": "The new September labor report combines little-changed openings and hires with increased quits. That leaves competing interpretations for future policy and inflation pressure. TLT’s long-duration exposure also depends on term premium and long yields; neither a price response nor an economist surprise is measured here.",
+    "headline": "TLT: distinguish lower long yields from overnight funding.",
+    "summary": "November 2 long Treasury yields fell, providing a dated input directly relevant to duration analysis. Overnight secured funding then moved higher. Those are different parts of the rates market; neither observation supplies TLT total return, distribution adjustments or a measured release-day price response.",
     "bull": [
       {
-        "text": "BLS described September openings of 7.5 million and hires of 5.4 million as little changed. That limits a simple claim of accelerating labor demand, while providing no direct forecast of long-term Treasury yields.",
+        "text": "The thirty-year Treasury yield declined from 5.31% to 5.28%, and the ten-year from 4.94% to 4.91%, between October 30 and November 2. Lower yields generally support existing fixed-rate bond values, all else equal; TLT performance was not measured.",
         "sourceIds": [
-          "BLS_JOLTS"
+          "FRED_DGS30",
+          "FRED_DGS10"
         ]
       }
     ],
     "bear": [
       {
-        "text": "Quits increased to 3.4 million while layoffs and discharges were little changed at 1.6 million. This mixed evidence is insufficient to infer easier monetary policy or a lower long-bond yield.",
+        "text": "SOFR rose to 3.97% on November 3 from 3.95%. This overnight secured rate is not TLT’s long-duration yield and does not establish a change in the FOMC target or the Treasury term premium.",
         "sourceIds": [
-          "BLS_JOLTS"
+          "FRED_SOFR"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Treasury bond futures asset managers were net long 383,981 contracts on October 27; leveraged funds were net short 150,393. The leveraged net short was smaller than October 20’s 162,757, but both gross longs and shorts grew, so the change is not simply short covering.",
+        "text": "Treasury bond futures asset managers were net long 383,981 contracts on October 27, while leveraged funds were net short 150,393. The earlier leveraged net short was 162,757; both gross longs and shorts rose, so this was not simply short covering.",
         "sourceIds": [
           "CFTC_BOND"
-        ]
-      },
-      {
-        "text": "The effective federal funds rate averaged 3.88% in October versus 3.75% in September. That overnight monthly average is distinct from TLT’s long-term Treasury yields and the FOMC target range.",
-        "sourceIds": [
-          "FRED_RATE"
         ]
       }
     ],
     "limitations": [
-      "BLS observations describe September and were released November 3 at 10:00 AM ET; they are survey estimates subject to revision. No economist consensus or release-day price reaction was collected.",
-      "CFTC observations are October 27 futures-only category positions, released with a lag. Related futures are not ETF holdings, live fund flows or named-investor intent.",
-      "Current price levels, option chains, gamma, social sentiment and dark-pool direction are not independently measured here. Hosted TradingView displays remain separate.",
-      "This AI-assisted contextual report has no validated directional forecast or conviction score.",
-      "Treasury bond futures and TLT differ in instruments and duration; the overnight federal funds average is not a long-bond yield."
+      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
+      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
+      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
+      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified.",
+      "Treasury futures and TLT differ in instruments and duration. No verified total-return-adjusted price history or prospective outcome has been added."
     ]
   },
   "sources": [
-    {
-      "id": "BLS_JOLTS",
-      "title": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
-      "url": "https://www.bls.gov/news.release/archives/jolts_11032026.htm"
-    },
     {
       "id": "CFTC_BOND",
       "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
       "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
     },
     {
-      "id": "FRED_RATE",
-      "title": "Federal Reserve / FRED · Effective federal funds rate",
-      "url": "https://fred.stlouisfed.org/series/FEDFUNDS"
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Overnight funding · SOFR",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
     }
   ]
 }
