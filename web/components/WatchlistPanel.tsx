@@ -49,7 +49,7 @@ export default function WatchlistPanel({
             onChange={(event) => {
               onInput(event.target.value);
             }}
-            placeholder="Add a symbol, e.g. AAPL"
+            placeholder="Symbol"
             autoCapitalize="characters"
             autoComplete="off"
             maxLength={16}

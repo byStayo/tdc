@@ -1595,6 +1595,7 @@ tbody th {
 .source-detail h3 a {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 6px;
 }
 .source-detail h3 a svg {
@@ -1782,9 +1783,8 @@ tbody th {
 .watchlist-symbol-button small {
   font-size: var(--type-small);
   color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .watchlist-symbol-button:hover strong {
   color: var(--accent);
@@ -1803,6 +1803,10 @@ tbody th {
 .watchlist-price > span {
   font-size: var(--type-micro);
   color: var(--text-muted);
+}
+.remove-watch {
+  min-width: 44px;
+  flex: 0 0 44px;
 }
 .remove-watch:hover {
   color: var(--negative);
@@ -2434,9 +2438,6 @@ tbody th {
   }
   .watchlist-price strong {
     font-size: var(--type-body);
-  }
-  .remove-watch {
-    width: 27px;
   }
   .local-storage-note {
     padding: 15px 18px;
