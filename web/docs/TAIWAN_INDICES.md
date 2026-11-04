@@ -6,6 +6,8 @@ The connected source is Taiwan Stock Exchange (TWSE) end-of-day index data. It s
 
 The government catalogue identifies [TAIEX price-index history](https://data.gov.tw/en/datasets/11755) and the [TAIEX total-return index](https://data.gov.tw/dataset/11871) as free daily datasets under [Open Government Data License 1.0](https://data.gov.tw/en/license). Both point to TWSE's [official OpenAPI schema](https://openapi.twse.com.tw/v1/swagger.json). The licence permits retention, public reuse and derived analysis with attribution; it grants no trademark or endorsement rights. TWSE's [general website terms, section 8](https://www.twse.com.tw/zh/terms/use.html) recognize the separate government open-data licence.
 
+The public panel and new saved provenance use the full agency and dataset names, observation year, licence Exhibit statement and canonical licence URL. No dataset version is supplied by the catalogue. `/consensus/ATTRIBUTION.txt` supplies this complete notice for archived Taiwan data and test fixtures, including the immutable first Taiwan edition. That exact first archive is accepted only in archive mode with its pinned canonical hash; its abbreviated attribution cannot pass new-publication validation. The attribution correction creates a new edition without rewriting earlier data.
+
 Two documented no-key endpoints:
 
 - `https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST`: latest-month opening, high, low and closing price-index levels.

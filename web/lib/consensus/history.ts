@@ -50,9 +50,15 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     new Set(snapshot.signals.map((s) => s.id)).size !== snapshot.signals.length
   )
     throw new Error("Signals must have unique identities");
+  // Preserve the exact first Taiwan archive; its complete licence notice is supplied
+  // separately at /consensus/ATTRIBUTION.txt and in the rendered source panel.
+  // No new candidate or altered copy can use the earlier attribution format.
+  const legacyTaiwanAttribution = mode === "archive" &&
+    snapshot.id === "2026-11-04T22-24-25-360Z" &&
+    digest(snapshot) === "cbfa41bc9745578cb32c7d6a5f872b29c4b10664d1df729f0114826ae7be973e";
   for (const signal of snapshot.signals) {
     validatePrivateCredit(signal);
-    validateTaiwan(signal);
+    validateTaiwan(signal, legacyTaiwanAttribution);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||
       !signal.instruments.length ||

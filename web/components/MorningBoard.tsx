@@ -46,6 +46,7 @@ import PrivateCreditContext from "./PrivateCreditContext";
 import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
 import { signalMetricLabel } from "@/lib/display-format";
+import { taiwanDataCredit, TAIWAN_LICENSE_URL, TAIWAN_OPEN_DATA_NOTICE, TAIWAN_TRANSFORM_NOTICE } from "@/lib/consensus/taiwan-attribution";
 
 const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
@@ -187,8 +188,10 @@ function TaiwanMarket({ signals, reference, onInspect }: { signals: Signal[]; re
       </div>
       <p className={styles.finePrint}>Two related measures, each on its own scale. Taiwan context only; neither casts a directional vote or supplies US ETF outcomes. Other regions remain incomplete. The source provides the latest month, so the first session has no prior-session comparison.</p>
       <div className={styles.taiwanAttribution}>
-        <span>Source: Taiwan Stock Exchange / FSC · {rows.find(s => s.source.observedAt)?.source.observedAt?.slice(0, 4)} · date conversion, charts and changes by The Daily Consensus</span>
-        <a href="https://data.gov.tw/en/license" target="_blank" rel="noopener noreferrer">Open Government Data License 1.0 <ExternalLink size={13} /></a>
+        {rows.filter(s => s.source.observedAt).map(s => <span key={s.id}>{taiwanDataCredit(s.id, s.source.observedAt!.slice(0, 4))}</span>)}
+        <span>{TAIWAN_OPEN_DATA_NOTICE}</span>
+        <a href={TAIWAN_LICENSE_URL} target="_blank" rel="noopener noreferrer">Open Government Data License 1.0 <ExternalLink size={13} /></a>
+        <span>{TAIWAN_TRANSFORM_NOTICE}</span>
       </div>
     </section>
   );

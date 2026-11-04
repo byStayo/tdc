@@ -4,6 +4,7 @@ import { INSTRUMENTS, type Point, type Signal, type Snapshot } from "./types.ts"
 import type { PublicDocument } from "./calendars.ts";
 import { sourceFailureKind } from "./source-failure.ts";
 import { missingSignals } from "./registry.ts";
+import { taiwanAttribution } from "./taiwan-attribution.ts";
 
 export const TWSE_SERIES = [
   { id: "twse-taiex-price", title: "TAIEX price index", path: "MI_5MINS_HIST", catalog: "11755", field: "ClosingIndex" },
@@ -83,14 +84,14 @@ export async function collectTaiwan(read: (url: string) => Promise<PublicDocumen
       return { ...signal, status: "available", series, metrics,
         summary: `${spec.title}: ${latest.value.toFixed(2)} index points on ${latest.date} (Taiwan session). ${rows.length} dated observation${rows.length === 1 ? "" : "s"}; Taiwan context only, no directional vote.`,
         source: { ...signal.source, observedAt: latest.date, retrievedAt: doc.retrievedAt, sha256: doc.sha256,
-          attribution: `${signal.source.attribution}; ${latest.date.slice(0, 4)} ${spec.title}; Open Government Data License 1.0. Date conversion, charts and changes by The Daily Consensus.` },
+          attribution: taiwanAttribution(spec.id, latest.date.slice(0, 4)) },
       };
     } catch (error) { return { ...signal, failureKind: sourceFailureKind(error) }; }
   }));
 }
 
 /** New feeds never silently become votes, US price inputs or an invented release timestamp. */
-export function validateTaiwan(signal: Signal): void {
+export function validateTaiwan(signal: Signal, immutableLegacyAttribution = false): void {
   if (!signal.id.startsWith("twse-")) return;
   const spec = TWSE_SERIES.find(s => s.id === signal.id);
   if (!spec || signal.family !== "international" || signal.unit !== UNIT || signal.staleAfterDays !== 7 ||
@@ -105,8 +106,11 @@ export function validateTaiwan(signal: Signal): void {
   }
   const latest = signal.series.at(-1), isPrice = spec.field === "ClosingIndex";
   if (!latest || signal.series.length > 31 || signal.series.some(p => p.value <= 0) ||
-      new Set(signal.series.map(p => p.date.slice(0, 7))).size !== 1 || signal.source.observedAt !== latest.date ||
-      !signal.source.attribution.includes(`${latest.date.slice(0, 4)} ${spec.title}`)) throw new Error("Invalid TWSE observations");
+      new Set(signal.series.map(p => p.date.slice(0, 7))).size !== 1 || signal.source.observedAt !== latest.date) throw new Error("Invalid TWSE observations");
+  const attribution = immutableLegacyAttribution
+    ? `Taiwan Stock Exchange (TWSE); Securities and Futures Bureau, FSC; ${latest.date.slice(0, 4)} ${spec.title}; Open Government Data License 1.0. Date conversion, charts and changes by The Daily Consensus.`
+    : taiwanAttribution(spec.id, latest.date.slice(0, 4));
+  if (signal.source.attribution !== attribution) throw new Error("Invalid TWSE licence attribution");
   const labels = ["Index level", ...(isPrice ? ["Open", "High", "Low"] : []), ...(signal.series.length > 1 ? ["Observed-session change"] : [])];
   if (signal.metrics.map(m => m.label).join() !== labels.join() || signal.metrics.some(m => m.date !== latest.date || m.unit !== (m.label === "Observed-session change" ? "%" : UNIT)) ||
       signal.metrics[0].value !== latest.value) throw new Error("Invalid TWSE index metrics");

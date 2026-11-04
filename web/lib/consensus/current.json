@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-04T22-24-25-360Z",
-  "issuedAt": "2026-11-04T22:24:25.360Z",
-  "cutoff": "2026-11-04T22:24:25.360Z",
+  "id": "2026-11-04T22-38-16-339Z",
+  "issuedAt": "2026-11-04T22:38:16.339Z",
+  "cutoff": "2026-11-04T22:38:16.339Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -29049,11 +29049,11 @@
       "source": {
         "name": "Taiwan Stock Exchange · TAIEX price index",
         "url": "https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST",
-        "retrievedAt": "2026-11-04T22:24:25.345Z",
+        "retrievedAt": "2026-11-04T22:38:16.339Z",
         "observedAt": "2026-11-04",
         "releasedAt": null,
         "frequency": "daily Taiwan end of day",
-        "attribution": "Taiwan Stock Exchange (TWSE); Securities and Futures Bureau, FSC; 2026 TAIEX price index; Open Government Data License 1.0. Date conversion, charts and changes by The Daily Consensus.",
+        "attribution": "Securities and Futures Bureau, Financial Supervisory Commission, Executive Yuan, R.O.C. 2026 Weighted Stock Price Index Historical Data (dataset version not stated). The Open Data is made available to the public under the Open Government Data License, User can make use of it when complying to the condition and obligation of its terms. Open Government Data License 1.0: https://data.gov.tw/license. Via the TWSE OpenAPI. Date conversion, charts and changes by The Daily Consensus.",
         "usage": "Open Government Data License 1.0: https://data.gov.tw/en/license. Attributed reuse, retention and derived analysis permitted; no endorsement implied.",
         "sha256": "a7409cf6d41e043e1202f119ba437c238f2ae52f511d2c8267958a71e90f6035"
       },
@@ -29132,11 +29132,11 @@
       "source": {
         "name": "Taiwan Stock Exchange · TAIEX total-return index",
         "url": "https://openapi.twse.com.tw/v1/indicesReport/MFI94U",
-        "retrievedAt": "2026-11-04T22:24:25.359Z",
+        "retrievedAt": "2026-11-04T22:38:16.327Z",
         "observedAt": "2026-11-04",
         "releasedAt": null,
         "frequency": "daily Taiwan end of day",
-        "attribution": "Taiwan Stock Exchange (TWSE); Securities and Futures Bureau, FSC; 2026 TAIEX total-return index; Open Government Data License 1.0. Date conversion, charts and changes by The Daily Consensus.",
+        "attribution": "Securities and Futures Bureau, Financial Supervisory Commission, Executive Yuan, R.O.C. 2026 Weighted Stock Price Return Index (dataset version not stated). The Open Data is made available to the public under the Open Government Data License, User can make use of it when complying to the condition and obligation of its terms. Open Government Data License 1.0: https://data.gov.tw/license. Via the TWSE OpenAPI. Date conversion, charts and changes by The Daily Consensus.",
         "usage": "Open Government Data License 1.0: https://data.gov.tw/en/license. Attributed reuse, retention and derived analysis permitted; no endorsement implied.",
         "sha256": "bd9f726f3d11cacdca2d7e814306d8d0a7ab611cc9c62889e5719351e5a050ae"
       },

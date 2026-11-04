@@ -9,6 +9,7 @@ import { observationDigest, validateSnapshot } from "../lib/consensus/history.ts
 import { retainLastKnown } from "../lib/consensus/last-known.ts";
 import { SourceTransportError } from "../lib/consensus/source-failure.ts";
 import { effectiveStatus } from "../lib/consensus/engine.ts";
+import { TAIWAN_DATA_AGENCY, TAIWAN_DATASETS, TAIWAN_LICENSE_URL, TAIWAN_OPEN_DATA_NOTICE } from "../lib/consensus/taiwan-attribution.ts";
 import { INSTRUMENTS, HORIZONS, type Signal, type Snapshot } from "../lib/consensus/types.ts";
 
 const texts = await Promise.all(["twse-price-2026-11-04.json", "twse-return-2026-11-04.json"].map(name => readFile(new URL(`./fixtures/${name}`, import.meta.url), "utf8")));
@@ -57,6 +58,44 @@ test("first session of a month keeps a real level without a fabricated prior ret
   }, () => at);
   assert.ok(result.every(s => s.status === "available" && s.series.length === 1));
   assert.ok(result.every(s => !s.metrics.some(m => m.label === "Observed-session change")));
+});
+
+test("numeric spellings cannot bypass the documented index format", () => {
+  // Use the return series so rejection cannot accidentally come from OHLC bounds.
+  for (const value of ["0x10", "1e5", "+1", " 42948.91"]) {
+    const rows = [{ Date: "1151104", TAIEXTotalReturnIndex: value }];
+    assert.throws(() => taiwanObservations(JSON.stringify(rows), TWSE_SERIES[1], at), /index value/);
+  }
+  const rows = [{ Date: "1151104", TAIEXTotalReturnIndex: "42,948.91" }];
+  assert.equal(taiwanObservations(JSON.stringify(rows), TWSE_SERIES[1], at)[0].value, 42948.91);
+});
+
+test("saved series cannot mix months even when ordered dates and arithmetic remain valid", async () => {
+  const bad = await saved();
+  bad.signals.find(s => s.id === TWSE_SERIES[1].id)!.series[0].date = "2026-10-30";
+  assert.throws(() => validateSnapshot(bad), /TWSE observations/);
+});
+
+test("new provenance requires the full agency, dataset and OGDL Exhibit notice", async () => {
+  const original = await saved();
+  for (const signal of original.signals.filter(s => s.id.startsWith("twse-"))) {
+    for (const required of [TAIWAN_DATA_AGENCY, TAIWAN_DATASETS[signal.id], TAIWAN_LICENSE_URL, TAIWAN_OPEN_DATA_NOTICE]) {
+      assert.ok(signal.source.attribution.includes(required));
+      const bad = structuredClone(original);
+      const edited = bad.signals.find(s => s.id === signal.id)!;
+      edited.source.attribution = edited.source.attribution.replace(required, "");
+      assert.throws(() => validateSnapshot(bad), /licence attribution/);
+    }
+  }
+});
+
+test("the immutable first Taiwan edition is readable but its old attribution cannot be republished", async () => {
+  const archive: Snapshot = JSON.parse(await readFile(new URL("../public/consensus/2026-11-04T22-24-25-360Z.json", import.meta.url), "utf8"));
+  validateSnapshot(archive, "archive");
+  assert.throws(() => validateSnapshot(archive), /licence attribution/);
+  const altered = structuredClone(archive);
+  altered.signals.find(s => s.id === TWSE_SERIES[0].id)!.summary += " changed";
+  assert.throws(() => validateSnapshot(altered, "archive"), /licence attribution/);
 });
 
 test("collector binds original hash, date, licence and actual index arithmetic without votes", async () => {
