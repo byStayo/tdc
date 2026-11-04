@@ -1837,6 +1837,14 @@ export default function MorningBoard({
                           (metric) =>
                             metric.label === "Year-over-year revenue change",
                         );
+                        const eps = signal.metrics.find(
+                          (metric) => metric.label === "GAAP diluted EPS",
+                        );
+                        const priorEps = signal.metrics.find(
+                          (metric) => metric.label === "Prior-year GAAP diluted EPS",
+                        );
+                        const epsValue = (value: number) =>
+                          `${value < 0 ? "−" : ""}$${number(Math.abs(value), 2)}`;
                         return (
                           <button
                             key={signal.id}
@@ -1867,16 +1875,10 @@ export default function MorningBoard({
                               label={signal.title}
                             />
                             {signal.source.frequency ===
-                              "quarterly company release" && (
+                              "quarterly company release" && eps && (
                               <small className={styles.comparisonNote}>
-                                Current vs year-earlier quarter · GAAP EPS $
-                                {number(
-                                  signal.metrics.find(
-                                    (metric) =>
-                                      metric.label === "GAAP diluted EPS",
-                                  )!.value,
-                                  2,
-                                )}
+                                Current vs year-earlier quarter · GAAP EPS {epsValue(eps.value)}
+                                {priorEps && <> vs {epsValue(priorEps.value)}</>}
                               </small>
                             )}
                           </button>

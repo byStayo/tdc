@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-04T21:28:17.273Z",
+  "reviewer": "Codex subscription editorial review",
+  "sources": [
+    {
+      "id": "apple-release",
+      "name": "Apple · fourth-quarter release",
+      "url": "https://www.apple.com/newsroom/2026/11/apple-reports-fourth-quarter-results/",
+      "publishedAt": "2026-11-02",
+      "retrievedAt": "2026-11-03T07:27:51.857Z",
+      "sha256": "ef9dbe93e58deecceee4151855ad0e896e2a092248a2451e69a86f7591dee22e"
+    },
+    {
+      "id": "apple-statements",
+      "name": "Apple · quarterly financial statements",
+      "url": "https://www.apple.com/newsroom/pdfs/fy2026q4/FY26_Q4_Consolidated_Financial_Statements.pdf",
+      "publishedAt": "2026-11-02",
+      "retrievedAt": "2026-11-03T07:28:17.812Z",
+      "sha256": "bf4b4b934fd06703a63feb63c2e4f5b0c6bd17cb96d3a67a7188307d71034d83"
+    },
+    {
+      "id": "microsoft-release",
+      "name": "Microsoft · fiscal 2027 first-quarter results",
+      "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+      "publishedAt": "2026-10-28",
+      "retrievedAt": "2026-11-03T07:28:18.283Z",
+      "sha256": "2fd8780c45a7f1151e51bd8cfab07a1462d203a1cf95a43ef0afcde32a2cc413"
+    },
+    {
+      "id": "fed-october",
+      "name": "Federal Reserve · October policy decision",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+      "publishedAt": "2026-10-28T18:00:00.000Z",
+      "retrievedAt": "2026-11-03T07:28:18.412Z",
+      "sha256": "fe15455925ea426646f2a015793df93cf66c7fa08783dc895ff7211d563dcbc9"
+    },
+    {
+      "id": "boj-october",
+      "name": "Bank of Japan · October policy decision",
+      "url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k261030a.pdf",
+      "publishedAt": "2026-10-30",
+      "retrievedAt": "2026-11-03T07:46:20.344Z",
+      "sha256": "f62859324bd87cc493b9bd2ec09b9030012602cfe66b7298543ad7cffc97a044"
+    },
+    {
+      "id": "amd-schedule",
+      "name": "AMD · third-quarter earnings schedule",
+      "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results",
+      "publishedAt": "2026-10-06",
+      "retrievedAt": "2026-11-03T08:27:02.239Z",
+      "sha256": "5b68a7c4e439b5818d8cf1b8efba10727c78774f87983fbe9afa470fb339e0ca"
+    },
+    {
+      "id": "qualcomm-schedule",
+      "name": "Qualcomm · fourth-quarter earnings schedule",
+      "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
+      "publishedAt": "2026-10-22",
+      "retrievedAt": "2026-11-03T08:27:01.000Z",
+      "sha256": "82890f8099c8463ffdc15a875dc9c68b908533f375ac1ae30f87a35e9dd6fc18",
+      "format": "retrieved_text"
+    },
+    {
+      "id": "nvidia-schedule",
+      "name": "NVIDIA · third-quarter earnings schedule",
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+      "publishedAt": "2026-10-28",
+      "retrievedAt": "2026-11-03T08:27:58.000Z",
+      "sha256": "70889c49f07cb1a6a27ad07b953106976e3b001248882a0855c297b164507ddf",
+      "format": "retrieved_text"
+    },
+    {
+      "id": "bls-jolts-september",
+      "name": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
+      "url": "https://www.bls.gov/news.release/archives/jolts_11032026.htm",
+      "publishedAt": "2026-11-03T15:00:00.000Z",
+      "retrievedAt": "2026-11-03T17:31:54.836Z",
+      "sha256": "8eaf43218eb7a7f3d57a7a9ecf20dab5a40bab05e7faaca569053b9d95a258d1",
+      "format": "document"
+    },
+    {
+      "id": "microsoft-fy27-q1-call",
+      "name": "Microsoft · FY2027 Q1 call and Q2 outlook",
+      "url": "https://www.microsoft.com/en-us/investor/events/fy-2027/earnings-fy-2027-q1",
+      "publishedAt": "2026-10-28",
+      "retrievedAt": "2026-11-03T18:30:30.680Z",
+      "sha256": "ed52974e7e786bad5a5c2d3b3dde1b3636ae0e55d9746fb4745553149a8b73e8",
+      "format": "document"
+    },
+    {
+      "id": "nvidia-fy27-q2-release",
+      "name": "NVIDIA · FY2027 Q2 release and Q3 outlook · SEC exhibit",
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000073/q2fy27pr.htm",
+      "publishedAt": "2026-08-26",
+      "retrievedAt": "2026-11-03T18:30:31.301Z",
+      "sha256": "046fc73ace052d4dce99d75740a7d4cd632575e7b9141db585da95681affcfb8",
+      "format": "document"
+    },
+    {
+      "id": "amd-fy26-q3-release",
+      "name": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+      "url": "https://ir.amd.com/news-events/press-releases/detail/1303/amd-reports-third-quarter-2026-financial-results",
+      "publishedAt": "2026-11-03T21:15:00.000Z",
+      "retrievedAt": "2026-11-03T21:48:33.754Z",
+      "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6",
+      "format": "document"
+    },
+    {
+      "id": "qualcomm-fy26-q4-release",
+      "name": "Qualcomm · fiscal 2026 fourth-quarter results",
+      "url": "https://investor.qualcomm.com/files/content_files/FY2026-4th-Quarter-Earnings-Release.pdf",
+      "publishedAt": "2026-11-04",
+      "retrievedAt": "2026-11-04T21:25:43.078Z",
+      "sha256": "6aa674a7f42a75aae351ccce55ae33ac2da34774827fdec43297f9ae6e12c4c6",
+      "format": "document"
+    }
+  ],
+  "developments": [
+    {
+      "id": "qualcomm-quarter",
+      "title": "Qualcomm reports lower Q4 revenue and a $10.4–11.2bn outlook",
+      "facts": "Qualcomm reported $10.322bn revenue for the September 27 quarter versus $11.270bn a year earlier. GAAP diluted EPS was $1.17 versus a $2.89 loss; the prior-year quarter included $6.088bn of income tax expense. Management expects FY2027 Q1 revenue of $10.4–11.2bn. This outlook is separate from the reported quarter.",
+      "sourceIds": [
+        "qualcomm-fy26-q4-release"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Consumer-device demand and business mix",
+          "interpretation": "The revenue decline at one chip supplier adds a different demand signal from other recent company reports. Its handset, automotive and licensing mix cannot stand for the whole economy."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Company earnings and sector breadth",
+          "interpretation": "Qualcomm broadens the selected large-company earnings sample. A market-wide conclusion still needs other sectors and verified expectations; the shift from a GAAP loss to profit is not an analyst beat."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Technology demand and management outlook",
+          "interpretation": "The next-quarter revenue range is a management execution benchmark for this technology supplier. The prior-year GAAP loss and tax expense make a simple EPS growth percentage misleading; no QQQ price response is measured."
+        }
+      ],
+      "limitation": "Selected issuer context only. GAAP results differ from adjusted results; analyst expectations and after-hours prices are unavailable. The PDF supplies a publication date, not an exact release time. Management guidance can differ from eventual results."
+    },
+    {
+      "id": "amd-quarter",
+      "title": "AMD reports Q3 results and a $17bn Q4 outlook",
+      "facts": "AMD reported $13.377bn revenue for the September 26 quarter, compared with $9.246bn a year earlier. GAAP diluted EPS was $1.46 versus $0.75. Data Center revenue reached $8.5bn. Management expects fourth-quarter revenue of $17bn, plus or minus 3%; that is guidance, not a reported result.",
+      "sourceIds": [
+        "amd-fy26-q3-release"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Data-center demand and capital spending",
+          "interpretation": "AMD adds evidence of spending on data-center hardware at one supplier. It cannot establish the return on that investment across the economy or the direction of the overall market."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Semiconductor earnings and broad-market expectations",
+          "interpretation": "The new quarter adds to the large-company earnings picture. A broad-market conclusion still requires other sectors, verified expectations and prices; revenue growth alone is not an earnings beat."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Technology demand and next-quarter execution",
+          "interpretation": "The $17bn next-quarter revenue midpoint makes delivery against management expectations a relevant technology-sector question. The outlook remains forward-looking and is separate from analyst estimates or a measured QQQ response."
+        }
+      ],
+      "limitation": "One company release, with GAAP EPS kept separate from adjusted EPS. Analyst consensus, a verified earnings surprise and any after-hours price reaction are unavailable. Management guidance can differ from eventual results."
+    },
+    {
+      "id": "jolts-september",
+      "title": "Openings were steady; more workers quit",
+      "facts": "BLS reported September job openings of 7.5 million and hires of 5.4 million, both little changed. Quits increased to 3.4 million; layoffs and discharges were little changed at 1.6 million. August openings were revised to 7.2 million. The release was published November 3 at 10:00 AM ET.",
+      "sourceIds": [
+        "bls-jolts-september"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Labor demand and turnover",
+          "interpretation": "Stable reported openings and hiring sit alongside increased quits. Labor demand and wage pressure can move differently; one lagged survey does not settle growth or the next rate decision."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Demand and labor costs",
+          "interpretation": "Broad-company earnings can be affected by both household demand and wage costs. The survey supplies a dated labor observation, not an S&P 500 earnings surprise or measured return."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Discount rates and business demand",
+          "interpretation": "Labor data can affect rate expectations and business demand, which may matter for technology valuations. These economy-wide counts do not measure technology hiring or a Nasdaq price reaction."
+        },
+        {
+          "instrument": "IWM",
+          "channel": "Small-establishment conditions and finance",
+          "interpretation": "BLS reported a lower layoffs rate at establishments with 1–9 employees. That size class is not the Russell 2000; company margins, refinancing costs and actual small-cap prices remain separate inputs."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Sector mix and customer demand",
+          "interpretation": "BLS identified more hiring in accommodation and food services. The sector mix may inform customer demand, but it is not a direct reading of hiring or margins across Dow constituents."
+        },
+        {
+          "instrument": "TLT",
+          "channel": "Expected rates and long-bond yields",
+          "interpretation": "Stable openings alongside increased quits can leave competing interpretations of labor pressure. TLT depends on expected future rates and term premium; no long-yield response is measured here."
+        }
+      ],
+      "limitation": "Lagged, seasonally adjusted survey estimates that can be revised. Economist expectations, an employment-payroll surprise and instrument price reactions are not measured. Provenance correction: the citation now uses the dated BLS archive; the figures and interpretation are unchanged."
+    },
+    {
+      "id": "apple-quarter",
+      "title": "Apple's new quarter updates the earnings picture",
+      "facts": "Apple reported $114.477bn revenue for the September 26 quarter, up from $102.466bn a year earlier. GAAP diluted EPS rose to $2.10 from $1.85. A tariff refund added $0.05 to EPS; that benefit is not recurring operating growth.",
+      "sourceIds": [
+        "apple-statements",
+        "apple-release"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Consumer demand and margins",
+          "interpretation": "Apple adds a newer consumer and technology earnings observation. Separate sales growth from the refund benefit when assessing the durability of margins."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Large-company earnings",
+          "interpretation": "Apple is one contributor to broad-market earnings. Its improved reported quarter does not establish whether the S&P 500 will rise or whether expectations were exceeded."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Technology earnings quality",
+          "interpretation": "The sales and EPS comparison informs the technology earnings picture. The refund benefit warrants separating reported EPS growth from recurring business performance."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Consumer and technology demand",
+          "interpretation": "Apple contributes a company-specific demand signal for the Dow. Translating it into an index effect also requires prices and the other constituents."
+        }
+      ],
+      "limitation": "Selected company release. No independently verified analyst consensus, index-weight calculation or market-price response is included."
+    },
+    {
+      "id": "microsoft-quarter",
+      "title": "Microsoft's growth comes with a GAAP distinction",
+      "facts": "Microsoft reported September-quarter revenue of $92.279bn, up from $77.673bn a year earlier. GAAP diluted EPS was $4.92; adjusted EPS was $4.89. The company reported 48% Azure revenue growth.",
+      "sourceIds": [
+        "microsoft-release"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Cloud investment and earnings",
+          "interpretation": "Cloud growth is evidence of demand at one large supplier. It does not on its own measure economy-wide AI returns or justify current equity valuations."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Large-company growth",
+          "interpretation": "Revenue growth supports the earnings backdrop for a major index constituent. The index impact still depends on expectations, valuation and other companies."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Cloud and technology demand",
+          "interpretation": "Azure growth informs the technology demand picture. Distinguish GAAP from adjusted EPS, and compare with a verified expectation before describing a beat."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Enterprise spending",
+          "interpretation": "Microsoft supplies a company-specific view of enterprise demand. Strong reported growth is not a measured next-session return for the Dow."
+        }
+      ],
+      "limitation": "Company-reported actuals. Analyst expectations, a verified earnings surprise and the market reaction are not measured."
+    },
+    {
+      "id": "fed-october-decision",
+      "title": "The Fed held rates; two members wanted a hike",
+      "facts": "On October 28, the Fed kept its target range at 3.75–4.00%. The vote was 10–2, with both dissenters preferring a quarter-point increase. The statement described inflation as elevated.",
+      "sourceIds": [
+        "fed-october"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Funding costs and discount rates",
+          "interpretation": "A hold leaves the current policy target unchanged. The dissent highlights disagreement over inflation; it does not establish the direction of the next decision."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Valuation and financing",
+          "interpretation": "Policy rates influence financing costs and equity discount rates. The effect on the index depends on the path already priced and subsequent data."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Long-duration valuations",
+          "interpretation": "Technology valuations can be sensitive to discount rates. An unchanged policy rate is not an unchanged long-term yield or a measured price response."
+        },
+        {
+          "instrument": "IWM",
+          "channel": "Borrowing and refinancing",
+          "interpretation": "Small-company funding conditions depend partly on short-term rates and credit spreads. A hold leaves that policy-rate hurdle in place."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Financing and economic demand",
+          "interpretation": "Rates affect company funding and customer demand through different channels. A single policy decision does not imply a uniform response across the Dow."
+        },
+        {
+          "instrument": "TLT",
+          "channel": "Long-term yields and duration",
+          "interpretation": "Long Treasuries respond to expected future rates and term premium, not only today's target. The hold alone is insufficient to infer TLT's next move."
+        }
+      ],
+      "limitation": "The official decision is known; future policy, priced expectations and instrument returns are not predictions in this review."
+    }
+  ],
+  "earnings": [
+    {
+      "ticker": "AAPL",
+      "sourceId": "apple-statements",
+      "periodEnd": "2026-09-26",
+      "priorPeriodEnd": "2025-09-27",
+      "revenueBillions": 114.477,
+      "priorRevenueBillions": 102.466,
+      "dilutedEPS": 2.1,
+      "priorDilutedEPS": 1.85
+    },
+    {
+      "ticker": "MSFT",
+      "sourceId": "microsoft-release",
+      "periodEnd": "2026-09-30",
+      "priorPeriodEnd": "2025-09-30",
+      "revenueBillions": 92.279,
+      "priorRevenueBillions": 77.673,
+      "dilutedEPS": 4.92,
+      "priorDilutedEPS": 3.72
+    },
+    {
+      "ticker": "AMD",
+      "sourceId": "amd-fy26-q3-release",
+      "periodEnd": "2026-09-26",
+      "priorPeriodEnd": "2025-09-27",
+      "revenueBillions": 13.377,
+      "priorRevenueBillions": 9.246,
+      "dilutedEPS": 1.46,
+      "priorDilutedEPS": 0.75
+    },
+    {
+      "ticker": "QCOM",
+      "sourceId": "qualcomm-fy26-q4-release",
+      "periodEnd": "2026-09-27",
+      "priorPeriodEnd": "2025-09-28",
+      "revenueBillions": 10.322,
+      "priorRevenueBillions": 11.27,
+      "dilutedEPS": 1.17,
+      "priorDilutedEPS": -2.89
+    }
+  ],
+  "policies": [
+    {
+      "bank": "BOJ",
+      "sourceId": "boj-october",
+      "rate": 1.25,
+      "qualification": "approximate"
+    }
+  ],
+  "earningsSchedule": [
+    {
+      "ticker": "NVDA",
+      "sourceId": "nvidia-schedule",
+      "fiscalPeriod": "FY2027 Q3",
+      "reportDate": "2026-11-17",
+      "releaseTiming": "approximate",
+      "approximateReleaseAt": "2026-11-17T21:20:00.000Z",
+      "webcastAt": "2026-11-17T22:00:00.000Z"
+    }
+  ],
+  "guidance": [
+    {
+      "ticker": "MSFT",
+      "sourceId": "microsoft-fy27-q1-call",
+      "fiscalPeriod": "FY2027 Q2",
+      "revenue": {
+        "kind": "range",
+        "low": 96,
+        "high": 97.1
+      },
+      "assumptions": "Management stated its second-quarter outlook in US dollars. At then-current exchange rates, Microsoft expected no meaningful FX impact on total revenue growth. These expectations can differ from eventual results."
+    },
+    {
+      "ticker": "NVDA",
+      "sourceId": "nvidia-fy27-q2-release",
+      "fiscalPeriod": "FY2027 Q3",
+      "revenue": {
+        "kind": "midpoint_tolerance",
+        "midpoint": 108,
+        "tolerancePercent": 2
+      },
+      "assumptions": "NVIDIA assumed no Data Center compute revenue from China in this outlook. The plus-or-minus 2% is the company’s guidance range, not a probability or confidence interval. These expectations can differ from eventual results."
+    },
+    {
+      "ticker": "AMD",
+      "sourceId": "amd-fy26-q3-release",
+      "fiscalPeriod": "FY2026 Q4",
+      "revenue": {
+        "kind": "midpoint_tolerance",
+        "midpoint": 17,
+        "tolerancePercent": 3
+      },
+      "assumptions": "AMD based its outlook on current expectations and warned that market conditions and other risks can cause actual results to differ. The plus-or-minus 3% is management’s revenue range, not a probability or confidence interval."
+    },
+    {
+      "ticker": "QCOM",
+      "sourceId": "qualcomm-fy26-q4-release",
+      "fiscalPeriod": "FY2027 Q1",
+      "revenue": {
+        "kind": "range",
+        "low": 10.4,
+        "high": 11.2
+      },
+      "assumptions": "Qualcomm described this as its current outlook, with actual results subject to uncertainty. QCT guidance includes Data Center from FY2027 Q1. The revenue range is management guidance, not analyst consensus or a probability interval."
+    }
+  ]
+}

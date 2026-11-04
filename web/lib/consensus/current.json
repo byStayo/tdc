@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-04T13-16-31-369Z",
-  "issuedAt": "2026-11-04T13:16:31.369Z",
-  "cutoff": "2026-11-04T13:03:13.763Z",
+  "id": "2026-11-04T21-29-43-446Z",
+  "issuedAt": "2026-11-04T21:29:43.446Z",
+  "cutoff": "2026-11-04T21:29:43.446Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -29191,6 +29191,110 @@
       }
     },
     {
+      "id": "earnings-QCOM",
+      "family": "earnings",
+      "title": "Qualcomm · reported revenue",
+      "shortLabel": "QCOM revenue",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ"
+      ],
+      "unit": "$bn",
+      "staleAfterDays": 150,
+      "status": "available",
+      "source": {
+        "name": "Qualcomm · fiscal 2026 fourth-quarter results",
+        "url": "https://investor.qualcomm.com/files/content_files/FY2026-4th-Quarter-Earnings-Release.pdf",
+        "retrievedAt": "2026-11-04T21:25:43.078Z",
+        "observedAt": "2026-09-27",
+        "releasedAt": "2026-11-04",
+        "frequency": "quarterly company release",
+        "attribution": "Qualcomm · fiscal 2026 fourth-quarter results",
+        "usage": "Selected factual financial figures with original-source attribution",
+        "sha256": "6aa674a7f42a75aae351ccce55ae33ac2da34774827fdec43297f9ae6e12c4c6"
+      },
+      "series": [
+        {
+          "date": "2025-09-28",
+          "value": 11.27
+        },
+        {
+          "date": "2026-09-27",
+          "value": 10.322
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Quarter revenue",
+          "value": 10.322,
+          "unit": "$bn",
+          "date": "2026-09-27"
+        },
+        {
+          "label": "Year-over-year revenue change",
+          "value": -8.411712511091396,
+          "unit": "%",
+          "date": "2026-09-27"
+        },
+        {
+          "label": "GAAP diluted EPS",
+          "value": 1.17,
+          "unit": "$ / share",
+          "date": "2026-09-27"
+        },
+        {
+          "label": "Prior-year GAAP diluted EPS",
+          "value": -2.89,
+          "unit": "$ / share",
+          "date": "2025-09-28"
+        }
+      ],
+      "summary": "QCOM released $10.322bn quarterly revenue, 8.4% below the comparable year-earlier quarter; GAAP diluted EPS $1.17. Released 2026-11-04.",
+      "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
+      "limitation": "Selected company, not an index-wide earnings result. GAAP EPS is distinct from adjusted EPS and analyst expectations. Positive revenue growth does not establish an earnings surprise or market price response.",
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
+      "id": "review-qualcomm-quarter",
+      "family": "news",
+      "title": "Qualcomm reports lower Q4 revenue and a $10.4–11.2bn outlook",
+      "shortLabel": "Qualcomm reports lower Q4 revenue and a $10.4–11.2bn outlook",
+      "instruments": [
+        "MARKET",
+        "SPY",
+        "QQQ"
+      ],
+      "status": "available",
+      "summary": "Qualcomm reported $10.322bn revenue for the September 27 quarter versus $11.270bn a year earlier. GAAP diluted EPS was $1.17 versus a $2.89 loss; the prior-year quarter included $6.088bn of income tax expense. Management expects FY2027 Q1 revenue of $10.4–11.2bn. This outlook is separate from the reported quarter.",
+      "source": {
+        "name": "Qualcomm · fiscal 2026 fourth-quarter results",
+        "url": "https://investor.qualcomm.com/files/content_files/FY2026-4th-Quarter-Earnings-Release.pdf",
+        "retrievedAt": "2026-11-04T21:25:43.078Z",
+        "observedAt": "2026-11-04",
+        "releasedAt": "2026-11-04",
+        "frequency": "reviewed primary-source development",
+        "attribution": "Qualcomm · fiscal 2026 fourth-quarter results",
+        "usage": "Cited factual summary and separately labelled editorial interpretation; original text stays with the publisher",
+        "sha256": "6aa674a7f42a75aae351ccce55ae33ac2da34774827fdec43297f9ae6e12c4c6"
+      },
+      "methodology": "Source-checked facts saved by the subscription publisher. Instrument-specific transmission channels are editorial interpretation, not measured price reactions or calibrated forecasts. No directional vote; the related earnings or rates family contains its separately defined quantitative inputs. The full review packet retains all supporting citations and its review timestamp.",
+      "limitation": "Selected issuer context only. GAAP results differ from adjusted results; analyst expectations and after-hours prices are unavailable. The PDF supplies a publication date, not an exact release time. Management guidance can differ from eventual results.",
+      "series": [],
+      "metrics": [],
+      "unit": "",
+      "staleAfterDays": 7,
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      }
+    },
+    {
       "id": "review-amd-quarter",
       "family": "news",
       "title": "AMD reports Q3 results and a $17bn Q4 outlook",
@@ -29417,44 +29521,6 @@
       ],
       "unit": "%",
       "staleAfterDays": 60,
-      "scores": {
-        "daily": null,
-        "weekly": null,
-        "monthly": null
-      }
-    },
-    {
-      "id": "issuer-calendar-qcom",
-      "family": "events",
-      "title": "QCOM · confirmed earnings schedule",
-      "shortLabel": "QCOM earnings",
-      "instruments": [
-        "MARKET",
-        "SPY",
-        "QQQ",
-        "IWM",
-        "DIA",
-        "TLT"
-      ],
-      "status": "available",
-      "summary": "2026-11-04: QCOM FY2026 Q4 results · after US close · call 4:45 PM ET. The issuer's announcement was published 2026-10-22.",
-      "source": {
-        "name": "Qualcomm · fourth-quarter earnings schedule",
-        "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
-        "observedAt": "2026-11-03T08:27:01.000Z",
-        "releasedAt": "2026-10-22",
-        "retrievedAt": "2026-11-03T08:27:01.000Z",
-        "sha256": "82890f8099c8463ffdc15a875dc9c68b908533f375ac1ae30f87a35e9dd6fc18",
-        "frequency": "scheduled events",
-        "attribution": "Qualcomm · fourth-quarter earnings schedule",
-        "usage": "Selected issuer schedule facts with attribution and direct source link. Evidence hash covers the retrieved primary-page text extract."
-      },
-      "methodology": "Saved subscription review of an actual issuer announcement. One date-only earnings event preserves the announced release window or approximate time, separately from a confirmed webcast time. No estimates, result, price response or directional vote is inferred.",
-      "limitation": "Selected issuers only, not a comprehensive earnings calendar. Dates may change; consult the linked issuer. A conference call time is not the results release time.",
-      "series": [],
-      "metrics": [],
-      "unit": "scheduled result",
-      "staleAfterDays": 3,
       "scores": {
         "daily": null,
         "weekly": null,
@@ -30083,16 +30149,6 @@
       "url": "https://www.optionseducation.org/referencelibrary/expiration-calendar",
       "source": "OCC / Options Industry Council",
       "kind": "expiry",
-      "importance": "major"
-    },
-    {
-      "id": "issuer-earnings-qcom-2026-11-04",
-      "at": "2026-11-04",
-      "dateZone": "America/New_York",
-      "title": "QCOM FY2026 Q4 results · after US close · call 4:45 PM ET",
-      "source": "Qualcomm · fourth-quarter earnings schedule",
-      "url": "https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-Schedules-Fourth-Quarter-and-Fiscal-2026-Earnings-Release-and-Conference-Call/default.aspx",
-      "kind": "scheduled",
       "importance": "major"
     },
     {
@@ -31062,7 +31118,7 @@
       "instrument": "MARKET",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5427705627705628,
+      "coverage": 0.5371091871091871,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -31135,8 +31191,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31153,7 +31209,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -31162,8 +31218,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -31219,7 +31275,7 @@
       "instrument": "MARKET",
       "horizon": "weekly",
       "score": -0.012977155608689107,
-      "coverage": 0.5427705627705628,
+      "coverage": 0.5371091871091871,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31291,8 +31347,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31309,7 +31365,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -31318,8 +31374,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -31375,7 +31431,7 @@
       "instrument": "MARKET",
       "horizon": "monthly",
       "score": 0.16192000850605726,
-      "coverage": 0.5427705627705628,
+      "coverage": 0.5371091871091871,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -31447,8 +31503,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31465,7 +31521,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -31474,8 +31530,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -31531,7 +31587,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5354978354978355,
+      "coverage": 0.5298364598364598,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -31604,8 +31660,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31622,7 +31678,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -31631,8 +31687,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -31688,7 +31744,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "score": -0.007788659891435757,
-      "coverage": 0.5354978354978355,
+      "coverage": 0.5298364598364598,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31760,8 +31816,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31778,7 +31834,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -31787,8 +31843,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -31844,7 +31900,7 @@
       "instrument": "SPY",
       "horizon": "monthly",
       "score": 0.12001583223089703,
-      "coverage": 0.5354978354978355,
+      "coverage": 0.5298364598364598,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -31916,8 +31972,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -31934,7 +31990,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -31943,8 +31999,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -32000,7 +32056,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5354978354978355,
+      "coverage": 0.5298364598364598,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -32073,8 +32129,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32091,7 +32147,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -32100,8 +32156,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -32157,7 +32213,7 @@
       "instrument": "QQQ",
       "horizon": "weekly",
       "score": -0.038155284393974254,
-      "coverage": 0.5354978354978355,
+      "coverage": 0.5298364598364598,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 2,
@@ -32229,8 +32285,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32247,7 +32303,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -32256,8 +32312,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -32313,7 +32369,7 @@
       "instrument": "QQQ",
       "horizon": "monthly",
       "score": 0.18579397826683117,
-      "coverage": 0.5354978354978355,
+      "coverage": 0.5298364598364598,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32385,8 +32441,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32403,7 +32459,7 @@
           "id": "news",
           "label": "News cycle",
           "weight": 1,
-          "expected": 7,
+          "expected": 8,
           "available": 6,
           "score": null,
           "status": "available"
@@ -32412,8 +32468,8 @@
           "id": "earnings",
           "label": "Earnings",
           "weight": 1,
-          "expected": 5,
-          "available": 4,
+          "expected": 6,
+          "available": 5,
           "score": null,
           "status": "available"
         },
@@ -32469,7 +32525,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.4916883116883117,
+      "coverage": 0.4742809042809043,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -32542,8 +32598,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32561,7 +32617,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 4,
-          "available": 4,
+          "available": 3,
           "score": null,
           "status": "available"
         },
@@ -32626,7 +32682,7 @@
       "instrument": "IWM",
       "horizon": "weekly",
       "score": -0.015987953290526415,
-      "coverage": 0.4916883116883117,
+      "coverage": 0.4742809042809043,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -32698,8 +32754,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32717,7 +32773,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 4,
-          "available": 4,
+          "available": 3,
           "score": null,
           "status": "available"
         },
@@ -32782,7 +32838,7 @@
       "instrument": "IWM",
       "horizon": "monthly",
       "score": 0.19522081922319484,
-      "coverage": 0.4916883116883117,
+      "coverage": 0.4742809042809043,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -32854,8 +32910,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -32873,7 +32929,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 4,
-          "available": 4,
+          "available": 3,
           "score": null,
           "status": "available"
         },
@@ -32938,7 +32994,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "score": 0.03061666666666571,
-      "coverage": 0.5305772005772006,
+      "coverage": 0.5187253487253487,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -33011,8 +33067,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33030,7 +33086,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 6,
-          "available": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -33095,7 +33151,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "score": 0.010023275141179988,
-      "coverage": 0.5305772005772006,
+      "coverage": 0.5187253487253487,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33167,8 +33223,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33186,7 +33242,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 6,
-          "available": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -33251,7 +33307,7 @@
       "instrument": "DIA",
       "horizon": "monthly",
       "score": 0.14664940430330603,
-      "coverage": 0.5305772005772006,
+      "coverage": 0.5187253487253487,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -33323,8 +33379,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33342,7 +33398,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 6,
-          "available": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -33407,7 +33463,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "score": 0.14999999999999902,
-      "coverage": 0.4916883116883117,
+      "coverage": 0.4742809042809043,
       "directionalCoverage": 0.06666666666666667,
       "agreement": 1,
       "bullish": 1,
@@ -33480,8 +33536,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33499,7 +33555,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 4,
-          "available": 4,
+          "available": 3,
           "score": null,
           "status": "available"
         },
@@ -33564,7 +33620,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "score": 0.14349056456975326,
-      "coverage": 0.4916883116883117,
+      "coverage": 0.4742809042809043,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33637,8 +33693,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33656,7 +33712,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 4,
-          "available": 4,
+          "available": 3,
           "score": null,
           "status": "available"
         },
@@ -33721,7 +33777,7 @@
       "instrument": "TLT",
       "horizon": "monthly",
       "score": 0.5413471755760433,
-      "coverage": 0.4916883116883117,
+      "coverage": 0.4742809042809043,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -33794,8 +33850,8 @@
           "id": "events",
           "label": "Binary catalysts",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 9,
+          "available": 8,
           "score": null,
           "status": "available"
         },
@@ -33813,7 +33869,7 @@
           "label": "News cycle",
           "weight": 1,
           "expected": 4,
-          "available": 4,
+          "available": 3,
           "score": null,
           "status": "available"
         },
@@ -33878,7 +33934,7 @@
   "forecasts": [],
   "review": {
     "schemaVersion": 1,
-    "reviewedAt": "2026-11-03T21:54:26.891Z",
+    "reviewedAt": "2026-11-04T21:28:17.273Z",
     "reviewer": "Codex subscription editorial review",
     "sources": [
       {
@@ -33982,9 +34038,44 @@
         "retrievedAt": "2026-11-03T21:48:33.754Z",
         "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6",
         "format": "document"
+      },
+      {
+        "id": "qualcomm-fy26-q4-release",
+        "name": "Qualcomm · fiscal 2026 fourth-quarter results",
+        "url": "https://investor.qualcomm.com/files/content_files/FY2026-4th-Quarter-Earnings-Release.pdf",
+        "publishedAt": "2026-11-04",
+        "retrievedAt": "2026-11-04T21:25:43.078Z",
+        "sha256": "6aa674a7f42a75aae351ccce55ae33ac2da34774827fdec43297f9ae6e12c4c6",
+        "format": "document"
       }
     ],
     "developments": [
+      {
+        "id": "qualcomm-quarter",
+        "title": "Qualcomm reports lower Q4 revenue and a $10.4–11.2bn outlook",
+        "facts": "Qualcomm reported $10.322bn revenue for the September 27 quarter versus $11.270bn a year earlier. GAAP diluted EPS was $1.17 versus a $2.89 loss; the prior-year quarter included $6.088bn of income tax expense. Management expects FY2027 Q1 revenue of $10.4–11.2bn. This outlook is separate from the reported quarter.",
+        "sourceIds": [
+          "qualcomm-fy26-q4-release"
+        ],
+        "impacts": [
+          {
+            "instrument": "MARKET",
+            "channel": "Consumer-device demand and business mix",
+            "interpretation": "The revenue decline at one chip supplier adds a different demand signal from other recent company reports. Its handset, automotive and licensing mix cannot stand for the whole economy."
+          },
+          {
+            "instrument": "SPY",
+            "channel": "Company earnings and sector breadth",
+            "interpretation": "Qualcomm broadens the selected large-company earnings sample. A market-wide conclusion still needs other sectors and verified expectations; the shift from a GAAP loss to profit is not an analyst beat."
+          },
+          {
+            "instrument": "QQQ",
+            "channel": "Technology demand and management outlook",
+            "interpretation": "The next-quarter revenue range is a management execution benchmark for this technology supplier. The prior-year GAAP loss and tax expense make a simple EPS growth percentage misleading; no QQQ price response is measured."
+          }
+        ],
+        "limitation": "Selected issuer context only. GAAP results differ from adjusted results; analyst expectations and after-hours prices are unavailable. The PDF supplies a publication date, not an exact release time. Management guidance can differ from eventual results."
+      },
       {
         "id": "amd-quarter",
         "title": "AMD reports Q3 results and a $17bn Q4 outlook",
@@ -34187,6 +34278,16 @@
         "priorRevenueBillions": 9.246,
         "dilutedEPS": 1.46,
         "priorDilutedEPS": 0.75
+      },
+      {
+        "ticker": "QCOM",
+        "sourceId": "qualcomm-fy26-q4-release",
+        "periodEnd": "2026-09-27",
+        "priorPeriodEnd": "2025-09-28",
+        "revenueBillions": 10.322,
+        "priorRevenueBillions": 11.27,
+        "dilutedEPS": 1.17,
+        "priorDilutedEPS": -2.89
       }
     ],
     "policies": [
@@ -34198,14 +34299,6 @@
       }
     ],
     "earningsSchedule": [
-      {
-        "ticker": "QCOM",
-        "sourceId": "qualcomm-schedule",
-        "fiscalPeriod": "FY2026 Q4",
-        "reportDate": "2026-11-04",
-        "releaseTiming": "after_close",
-        "webcastAt": "2026-11-04T21:45:00.000Z"
-      },
       {
         "ticker": "NVDA",
         "sourceId": "nvidia-schedule",
@@ -34249,6 +34342,17 @@
           "tolerancePercent": 3
         },
         "assumptions": "AMD based its outlook on current expectations and warned that market conditions and other risks can cause actual results to differ. The plus-or-minus 3% is management’s revenue range, not a probability or confidence interval."
+      },
+      {
+        "ticker": "QCOM",
+        "sourceId": "qualcomm-fy26-q4-release",
+        "fiscalPeriod": "FY2027 Q1",
+        "revenue": {
+          "kind": "range",
+          "low": 10.4,
+          "high": 11.2
+        },
+        "assumptions": "Qualcomm described this as its current outlook, with actual results subject to uncertainty. QCT guidance includes Data Center from FY2027 Q1. The revenue range is management guidance, not analyst consensus or a probability interval."
       }
     ]
   },

@@ -121,7 +121,7 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     !Array.isArray(packet.developments) ||
     packet.developments.length > 12 ||
     !Array.isArray(packet.earnings) ||
-    packet.earnings.length > 3
+    packet.earnings.length > Object.keys(REVIEWED_ISSUERS).length
   )
     throw new Error("Invalid reviewed evidence packet");
   const ids = new Set<string>();
@@ -199,7 +199,7 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     tickers.add(item.ticker);
   }
   if (packet.guidance !== undefined) {
-    if (!Array.isArray(packet.guidance) || packet.guidance.length > 3)
+    if (!Array.isArray(packet.guidance) || packet.guidance.length > Object.keys(REVIEWED_ISSUERS).length)
       throw new Error("Invalid reviewed guidance");
     const guided = new Set<string>();
     for (const item of packet.guidance) {
@@ -485,6 +485,9 @@ function reviewedEarningsSignal(
     throw new Error("Conflicting same-period earnings evidence");
   const growth = (item.revenueBillions / item.priorRevenueBillions - 1) * 100,
     score = clamp(growth / 20);
+  const comparison = growth === 0
+    ? "unchanged from"
+    : `${Math.abs(growth).toFixed(1)}% ${growth < 0 ? "below" : "above"}`;
   const issuer = REVIEWED_ISSUERS[item.ticker];
   return {
     id: `earnings-${item.ticker}`,
@@ -539,7 +542,7 @@ function reviewedEarningsSignal(
         date: item.priorPeriodEnd,
       },
     ],
-    summary: `${item.ticker} released $${item.revenueBillions.toFixed(3)}bn quarterly revenue, ${growth.toFixed(1)}% above the comparable year-earlier quarter; GAAP diluted EPS $${item.dilutedEPS.toFixed(2)}. Released ${source.publishedAt.slice(0, 10)}.`,
+    summary: `${item.ticker} released $${item.revenueBillions.toFixed(3)}bn quarterly revenue, ${comparison} the comparable year-earlier quarter; GAAP diluted EPS $${item.dilutedEPS.toFixed(2)}. Released ${source.publishedAt.slice(0, 10)}.`,
     methodology:
       "Reviewed company financial statement for the named quarter. Chart compares only the current and same quarter a year earlier; it is not a continuous quarterly series. YoY revenue growth /20 percentage points is the same capped context prior used for SEC results. A later-period SEC filing supersedes this saved review; conflicting same-period values require review.",
     limitation:

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-11-03T21:54:26.891Z",
+  "reviewedAt": "2026-11-04T21:28:17.273Z",
   "reviewer": "Codex subscription editorial review",
   "sources": [
     {
@@ -104,9 +104,44 @@
       "retrievedAt": "2026-11-03T21:48:33.754Z",
       "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6",
       "format": "document"
+    },
+    {
+      "id": "qualcomm-fy26-q4-release",
+      "name": "Qualcomm · fiscal 2026 fourth-quarter results",
+      "url": "https://investor.qualcomm.com/files/content_files/FY2026-4th-Quarter-Earnings-Release.pdf",
+      "publishedAt": "2026-11-04",
+      "retrievedAt": "2026-11-04T21:25:43.078Z",
+      "sha256": "6aa674a7f42a75aae351ccce55ae33ac2da34774827fdec43297f9ae6e12c4c6",
+      "format": "document"
     }
   ],
   "developments": [
+    {
+      "id": "qualcomm-quarter",
+      "title": "Qualcomm reports lower Q4 revenue and a $10.4–11.2bn outlook",
+      "facts": "Qualcomm reported $10.322bn revenue for the September 27 quarter versus $11.270bn a year earlier. GAAP diluted EPS was $1.17 versus a $2.89 loss; the prior-year quarter included $6.088bn of income tax expense. Management expects FY2027 Q1 revenue of $10.4–11.2bn. This outlook is separate from the reported quarter.",
+      "sourceIds": [
+        "qualcomm-fy26-q4-release"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Consumer-device demand and business mix",
+          "interpretation": "The revenue decline at one chip supplier adds a different demand signal from other recent company reports. Its handset, automotive and licensing mix cannot stand for the whole economy."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Company earnings and sector breadth",
+          "interpretation": "Qualcomm broadens the selected large-company earnings sample. A market-wide conclusion still needs other sectors and verified expectations; the shift from a GAAP loss to profit is not an analyst beat."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Technology demand and management outlook",
+          "interpretation": "The next-quarter revenue range is a management execution benchmark for this technology supplier. The prior-year GAAP loss and tax expense make a simple EPS growth percentage misleading; no QQQ price response is measured."
+        }
+      ],
+      "limitation": "Selected issuer context only. GAAP results differ from adjusted results; analyst expectations and after-hours prices are unavailable. The PDF supplies a publication date, not an exact release time. Management guidance can differ from eventual results."
+    },
     {
       "id": "amd-quarter",
       "title": "AMD reports Q3 results and a $17bn Q4 outlook",
@@ -309,6 +344,16 @@
       "priorRevenueBillions": 9.246,
       "dilutedEPS": 1.46,
       "priorDilutedEPS": 0.75
+    },
+    {
+      "ticker": "QCOM",
+      "sourceId": "qualcomm-fy26-q4-release",
+      "periodEnd": "2026-09-27",
+      "priorPeriodEnd": "2025-09-28",
+      "revenueBillions": 10.322,
+      "priorRevenueBillions": 11.27,
+      "dilutedEPS": 1.17,
+      "priorDilutedEPS": -2.89
     }
   ],
   "policies": [
@@ -320,14 +365,6 @@
     }
   ],
   "earningsSchedule": [
-    {
-      "ticker": "QCOM",
-      "sourceId": "qualcomm-schedule",
-      "fiscalPeriod": "FY2026 Q4",
-      "reportDate": "2026-11-04",
-      "releaseTiming": "after_close",
-      "webcastAt": "2026-11-04T21:45:00.000Z"
-    },
     {
       "ticker": "NVDA",
       "sourceId": "nvidia-schedule",
@@ -371,6 +408,17 @@
         "tolerancePercent": 3
       },
       "assumptions": "AMD based its outlook on current expectations and warned that market conditions and other risks can cause actual results to differ. The plus-or-minus 3% is management’s revenue range, not a probability or confidence interval."
+    },
+    {
+      "ticker": "QCOM",
+      "sourceId": "qualcomm-fy26-q4-release",
+      "fiscalPeriod": "FY2027 Q1",
+      "revenue": {
+        "kind": "range",
+        "low": 10.4,
+        "high": 11.2
+      },
+      "assumptions": "Qualcomm described this as its current outlook, with actual results subject to uncertainty. QCT guidance includes Data Center from FY2027 Q1. The revenue range is management guidance, not analyst consensus or a probability interval."
     }
   ]
 }
