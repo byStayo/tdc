@@ -2,6 +2,8 @@
 
 Implementation is ready for private verification; no live FINRA query has succeeded yet. Public dashboard coverage remains missing until real data and the distribution conditions are verified.
 
+November4 verification: the owner replied "FINRA configured", but the private verifier returned exit2 before any network request. The local private directory/file and both FINRA environment variables were absent. No credential values were inspected or logged. A specific local-setup clarification is pending; do not repeat the same question or query without new setup evidence.
+
 The [Public credential costs $0/month](https://developer.finra.org/fees). Create an **Individual** account through the [FINRA developer console instructions](https://developer.finra.org/docs), then create a credential of type **Public**, not Firm/Organization. Check the displayed fee is $0. A test/mock credential returns synthetic data and does not satisfy this requirement. The user must set the account password and API client secret in FINRA's own forms and review its terms.
 
 ## What the owner needs to do
