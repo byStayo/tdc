@@ -7,6 +7,7 @@ import {
 } from "./types.ts";
 import { eventUpcoming, newYorkDate } from "./time.ts";
 import { reconcileReleasedCalendars } from "./international-calendars.ts";
+import { validateVenueActivity, type VenueActivity } from "./venue-activity.ts";
 import { publicDate } from "../public-normalization.ts";
 import { clamp, effectiveStatus } from "./engine.ts";
 import { missingSignals } from "./registry.ts";
@@ -61,6 +62,7 @@ export interface ReviewPacket {
   developments: ReviewedDevelopment[];
   earnings: ReviewedEarnings[];
   guidance?: ReviewedGuidance[];
+  venueActivity?: VenueActivity;
   earningsSchedule?: {
     ticker: "AAPL" | "MSFT" | "NVDA" | "AMD" | "QCOM";
     sourceId: string;
@@ -150,6 +152,7 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
       throw new Error("Invalid reviewed source provenance");
     ids.add(source.id);
   }
+  validateVenueActivity(packet.venueActivity, packet.sources);
   for (const source of packet.sources) {
     if (source.publicationTimeSourceId === undefined) continue;
     const clock = packet.sources.find(s => s.id === source.publicationTimeSourceId);

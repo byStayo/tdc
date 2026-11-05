@@ -1,6 +1,10 @@
 # FINRA public-data connection
 
-Implementation is ready for private verification; no live FINRA query has succeeded yet. Public dashboard coverage remains missing until real data and the distribution conditions are verified.
+Readers can open the five weekly ETF reports from [Off-exchange trading](https://thedailyconsensus.com/#off-exchange). Tapeboard hosts the per-symbol weekly tables. [FINRA’s own reader](https://otctransparency.finra.org/otctransparency/Agreement) presents its data agreement. These are outbound links. The market-wide quarterly figures on the board come from the operators’ public SEC filings.
+
+For an existing FINRA individual account registered with Google, open the [API console](https://gateway.finra.org/app/dfo-console), select **Individual**, then **Sign In With Google** using the matching Google account. FINRA may also ask for its account password when linking an existing sign-in. The [FINRA Google sign-in guide](https://www.finra.org/sites/default/files/2024-04/Social-Login-Sign-In-With-Google-User-Guide.pdf) covers both cases. After sign-in, create or activate a Public API credential in My Credentials.
+
+The private weekly Query API collector is ready for verification with an activated Public credential. Its on-site weekly feed requires verified observations and a separate display that meets FINRA's distribution conditions.
 
 November4 verification: the owner replied "FINRA configured", but the private verifier returned exit2 before any network request. The local private directory/file and both FINRA environment variables were absent. No credential values were inspected or logged. A specific local-setup clarification is pending; do not repeat the same question or query without new setup evidence.
 

@@ -43,6 +43,7 @@ import RetailOutlook from "./RetailOutlook";
 import GuidancePanel from "./GuidancePanel";
 import ReportedEpsComparison from "./ReportedEpsComparison";
 import PrivateCreditContext from "./PrivateCreditContext";
+import OffExchangeActivity from "./OffExchangeActivity";
 import layout from "./MorningLayout.module.css";
 import InstitutionalHoldings from "./InstitutionalHoldings";
 import { signalMetricLabel } from "@/lib/display-format";
@@ -1729,6 +1730,7 @@ export default function MorningBoard({
                 </section>
               </div>
               <TaiwanMarket signals={current} reference={reference} onInspect={() => setFamily("international")} />
+              <OffExchangeActivity review={snapshot.review} instrument={instrument} historical={historical} />
               <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>GO A LEVEL DEEPER</span>

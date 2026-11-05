@@ -20,7 +20,13 @@ The full goal remains incomplete. Narrow context additions cannot replace US pri
 
 Verified November 3, 2026. This guide distinguishes access research from verified integrations. The product remains free to readers and this plan requires no paid feed or paid model API. Fed private-credit collection and presentation are implemented; see the build ledger for release verification. Other new candidates below remain unintegrated unless explicitly recorded there.
 
-## FINRA: the only immediate owner setup
+## Off-exchange trading with and without developer credentials
+
+The current board links directly to [Tapeboard’s ETF-specific reports](https://tapeboard.com/dark-pool/SPY). Anonymous reader checks on November 5 reached real weekly tables for SPY, QQQ, IWM, DIA and TLT, with ATS and non-ATS share columns. The official FINRA portal offers the underlying issue reports after its reader agreement. The board uses ordinary outbound links. No provider rows are copied into the site. [FINRA OTC Transparency](https://www.finra.org/filing-reporting/otc-transparency)
+
+For on-site market-wide context, the publisher records selected corporate operating figures from two public EDGAR documents: Nasdaq’s reporting-facility share of U.S.-listed share volume and Cboe’s average daily touched shares for BIDS. The comparisons use the three months ended September 30, 2026 and 2025, preserve the filing acceptance and retrieval times, and are saved with the edition. These are different venue measures. They supply no individual ETF totals or directional votes. Later vintages require checking the actual quarter headers, units, original filings and hashes before updating the review packet. [Nasdaq 10-Q](https://www.sec.gov/Archives/edgar/data/1120193/000112019326000020/ndaq-20260930.htm), [Cboe 8-K exhibit](https://www.sec.gov/Archives/edgar/data/1374310/000162828026068432/cboe-20261030xex991.htm), [SEC reuse guidance](https://www.sec.gov/about/webmaster-frequently-asked-questions)
+
+## FINRA developer credential for the direct weekly feed
 
 Follow [FINRA_SETUP.md](FINRA_SETUP.md): Individual account, activated Public credential ($0/month), then the hidden-input local setup command. The local publisher can use that file without retrieving Vercel Secrets. Real access still needs private verification. FINRA's equity terms allow conditional free redistribution, not an unrestricted Git/download archive. Weekly ATS/non-ATS volume is delayed activity, not known buying or selling intent.
 

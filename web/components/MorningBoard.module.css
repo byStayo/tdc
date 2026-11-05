@@ -207,6 +207,48 @@
   font-size: 12px;
   margin: 8px 0 22px;
 }
+.venuePanel {
+  margin: 18px 0;
+  scroll-margin-top: 20px;
+}
+.venuePanel h2 { margin: 0; font-size: 21px; }
+.venueReaders p, .venueTile p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 7px 0;
+}
+.venueReaders p { max-width: 78ch; }
+.venueLinks, .venueTiles { gap: 10px; }
+.venueLinks { display: flex; flex-wrap: wrap; margin-top: 12px; }
+.venueLinks a, .venueOfficial, .venueTile a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  color: var(--accent);
+}
+.venueLinks a {
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.venueOfficial, .venueTile a { font-size: 12px; }
+.venueMarket { margin-top: 14px; }
+.venueMarket h3 { margin: 0 0 12px; font-size: 15px; }
+.venueTiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); }
+.venueTile {
+  min-width: 0;
+  border-top: 1px solid var(--border);
+  padding: 14px 0 0;
+}
+.venueTile h4 { margin: 0 0 5px; font-size: 13px; font-weight: 600; }
+.venueTile strong { font-size: 25px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.venueTile strong small { font-size: 13px; color: var(--text-secondary); }
+.venueTile a { overflow-wrap: anywhere; }
 .curveMetrics {
   display: flex;
   gap: 40px;

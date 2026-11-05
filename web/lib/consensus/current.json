@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-05T14-28-10-883Z",
-  "issuedAt": "2026-11-05T14:28:10.883Z",
-  "cutoff": "2026-11-05T14:28:10.883Z",
+  "id": "2026-11-05T18-23-42-514Z",
+  "issuedAt": "2026-11-05T18:23:42.514Z",
+  "cutoff": "2026-11-05T18:23:42.514Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -33403,7 +33403,7 @@
   "forecasts": [],
   "review": {
     "schemaVersion": 1,
-    "reviewedAt": "2026-11-05T14:26:23.053Z",
+    "reviewedAt": "2026-11-05T18:20:09.531Z",
     "reviewer": "Codex subscription editorial review",
     "sources": [
       {
@@ -33533,6 +33533,22 @@
         "publishedAt": "2026-11-05T12:00:00.000Z",
         "retrievedAt": "2026-11-05T13:06:17.268Z",
         "sha256": "a40f52ca3ae219f612aa048fc0d2d66346c37570c901a2658187b67d78297ce7"
+      },
+      {
+        "id": "nasdaq-2026q3-trf",
+        "name": "Nasdaq · quarterly report on Form 10-Q",
+        "url": "https://www.sec.gov/Archives/edgar/data/1120193/000112019326000020/ndaq-20260930.htm",
+        "publishedAt": "2026-10-22T18:03:03.000Z",
+        "retrievedAt": "2026-11-05T18:13:42.057Z",
+        "sha256": "b62b02de6fea671b6a17d6ccb6764cc52bbf6f1e7233aed4b136c786c5db2b58"
+      },
+      {
+        "id": "cboe-2026q3-bids",
+        "name": "Cboe · quarterly results, Form 8-K exhibit 99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1374310/000162828026068432/cboe-20261030xex991.htm",
+        "publishedAt": "2026-10-30T11:30:16.000Z",
+        "retrievedAt": "2026-11-05T18:13:01.556Z",
+        "sha256": "425f19cd846529e98f7e801c8049d7c658260f86382589fc246e3a1316bb66d8"
       }
     ],
     "developments": [
@@ -33877,7 +33893,21 @@
         },
         "assumptions": "Qualcomm described this as its current outlook, with actual results subject to uncertainty. QCT guidance includes Data Center from FY2027 Q1. The revenue range is management guidance, not analyst consensus or a probability interval."
       }
-    ]
+    ],
+    "venueActivity": {
+      "periodEnd": "2026-09-30",
+      "priorPeriodEnd": "2025-09-30",
+      "nasdaqTrfShare": {
+        "sourceId": "nasdaq-2026q3-trf",
+        "current": 47.7,
+        "previous": 47.6
+      },
+      "bidsTouchedMillions": {
+        "sourceId": "cboe-2026q3-bids",
+        "current": 213.5,
+        "previous": 202.3
+      }
+    }
   },
   "evaluationAnchors": []
 }
