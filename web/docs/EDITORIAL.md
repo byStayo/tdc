@@ -27,6 +27,8 @@ Use a dated BLS archive citation when it is available, discovered through the of
 
 A reviewed Bank of England decision can also be attached as `kind: "boe_mpc"`. Use the dated official minutes, keep the document hash, distinguish the meeting end date from the original publication time (check the Bank's release feed), and report each vote against its rate choice. The prior and decided rates must reconcile to the stated change in basis points. The minutes are evidence about UK policy; they do not measure a US Treasury, sterling or ETF response.
 
+For the November 5, 2026 UK decision, the [minutes](https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026) supply the vote and publication date. The matching item in the [Bank’s news feed](https://www.bankofengland.co.uk/rss/news) supplies 12:00 UTC. The reviewed packet links both sources and saves their separate retrieval times and hashes; the feed is a clock citation for the minutes, not another market observation. The as-issued November 5 morning briefs keep their original content and dates.
+
 Saved workspace panels retain the retrieval times of their own providers. The displayed check time is the oldest included source check; SEC freshness uses the selected issuers' actual retrieval dates. A later BLS review or evidence assembly cannot refresh older FRED, CFTC or SEC observations. Legacy saved files without provider timestamps retain their recorded collection time until rebuilt from evidence.
 
 ## 2. Draft through the Codex subscription

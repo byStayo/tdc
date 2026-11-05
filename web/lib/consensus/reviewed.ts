@@ -6,6 +6,7 @@ import {
   type Catalyst,
 } from "./types.ts";
 import { eventUpcoming, newYorkDate } from "./time.ts";
+import { reconcileReleasedCalendars } from "./international-calendars.ts";
 import { publicDate } from "../public-normalization.ts";
 import { clamp, effectiveStatus } from "./engine.ts";
 import { missingSignals } from "./registry.ts";
@@ -18,6 +19,7 @@ export interface ReviewedSource {
   publishedAt: string;
   retrievedAt: string;
   sha256: string;
+  publicationTimeSourceId?: string;
   format?: "document" | "retrieved_text";
 }
 export interface ReviewedDevelopment {
@@ -147,6 +149,13 @@ export function validateReview(packet: ReviewPacket, cutoff: string): void {
     )
       throw new Error("Invalid reviewed source provenance");
     ids.add(source.id);
+  }
+  for (const source of packet.sources) {
+    if (source.publicationTimeSourceId === undefined) continue;
+    const clock = packet.sources.find(s => s.id === source.publicationTimeSourceId);
+    if (!clock || clock.url === source.url || !instant(clock.publishedAt) ||
+        clock.publishedAt !== source.publishedAt || new URL(clock.url).hostname !== new URL(source.url).hostname)
+      throw new Error("Invalid publication-time source");
   }
   const records = new Set<string>();
   for (const item of packet.developments) {
@@ -586,7 +595,7 @@ export function attachReview(
     ...issuerCalendar.signals,
     ...(missing.instruments.length ? [missing] : []),
   ];
-  return {
+  return reconcileReleasedCalendars({
     ...snapshot,
     signals,
     review: packet,
@@ -597,5 +606,5 @@ export function attachReview(
     collectionErrors: snapshot.collectionErrors.filter(
       (e) => !e.startsWith("global-news:"),
     ),
-  };
+  });
 }

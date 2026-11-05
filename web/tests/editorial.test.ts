@@ -25,6 +25,13 @@ test('FRED evidence preserves genuine zero and missing observations without acce
   assert.throws(() => parseFREDCSV('observation_date,WRONG\n2026-10-01,5', 'FEDFUNDS'));
 });
 
+test('the BoE editorial URL allowlist accepts only a dated minutes document without a query or fragment', () => {
+  const url = 'https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026';
+  assert.equal(assertPublicURL(url), url);
+  for (const invalid of ['https://www.bankofengland.co.uk/rss/news', url + '?section=vote', url + '#vote'])
+    assert.throws(() => assertPublicURL(invalid), /Only dated Bank of England MPC minutes/);
+});
+
 test('reviewed BLS releases retain their observation period, original publication time and document hash', () => {
   const {candidate,evidence}=fixture(),url='https://www.bls.gov/news.release/jolts.nr0.htm';
   const source={id:'BLS_JOLTS',kind:'bls' as const,title:'Synthetic reviewed BLS release',url,retrievalUrl:url,retrievedAt:'2026-11-03T01:59:00Z',observationDates:['2026-09-30'],status:'ok' as const,data:{publishedAt:'2026-11-02T15:00:00Z',periodEnd:'2026-09-30',sha256:'a'.repeat(64),jobOpeningsMillions:7.5}};
@@ -49,6 +56,12 @@ test('MPC evidence binds a dated release to the meeting, the rate change and the
     data: { ...candidate.data, watch: [{ text: 'The UK committee recorded a split vote.', sourceIds: [source.id] }] } };
   const check = (entry: unknown) => validateEditorialPublication(draft, { ...evidence, sources: [...evidence.sources, entry] }, NOW);
   assert.equal(check(source).brief.sources?.length, 2);
+  assert.throws(() => check({ ...source, kind: 'bls' }), /Bank of England URLs must identify MPC minutes evidence/);
+  const other = 'https://www.sec.gov/public-document';
+  assert.throws(() => check({ ...source, url: other, retrievalUrl: other }), /Bank of England URLs must identify MPC minutes evidence/);
+  // The changed meeting date matches its observation and precedes retrieval, isolating release order.
+  assert.throws(() => check({ ...source, observationDates: ['2026-11-03'], data: { ...data, meetingEndedOn: '2026-11-03' } }),
+    /Invalid MPC release date, provenance or decision/);
   for (const changed of [
     { ...source, kind: 'fred' }, { ...source, retrievalUrl: 'https://www.sec.gov/different' },
     { ...source, observationDates: ['2026-11-02'] }, { ...source, data: { ...data, sha256: '' } },

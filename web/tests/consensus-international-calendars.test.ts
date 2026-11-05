@@ -4,13 +4,51 @@ import {
   boeEvents,
   ecbEvents,
   bojEvents,
+  reconcileReleasedCalendars,
 } from "../lib/consensus/international-calendars.ts";
+import { readFileSync } from "node:fs";
 import { eventUpcoming } from "../lib/consensus/time.ts";
 import { validateSnapshot } from "../lib/consensus/history.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 
 const cutoff = "2026-11-03T08:00:00.000Z";
+// As issued, before the scoped calendar correction: both schedules and their original releases are present.
+function releasedEdition(): Snapshot {
+  return JSON.parse(readFileSync(new URL("../public/consensus/2026-11-05T13-14-01-431Z.json", import.meta.url), "utf8"));
+}
+const ukSchedule = "boe-decision-2026-11-05";
+const japanSchedule = "boj-minutes-2026-09-18-2026-11-05";
+test("matched releases retire only their own calendar entries and update the saved next event and counts", () => {
+  const original = releasedEdition(), next = reconcileReleasedCalendars(original);
+  assert.deepEqual(next.catalysts, original.catalysts.filter(c => ![ukSchedule, japanSchedule].includes(c.id)));
+  assert.ok(original.catalysts.some(c => c.id === ukSchedule));
+  for (const [id, n, title] of [["boe-calendar", 1, "Bank of England policy decision"], ["boj-calendar", 4, "BoJ summary of opinions"]] as const) {
+    const signal = next.signals.find(s => s.id === id)!;
+    assert.equal(signal.metrics[0].value, n);
+    assert.ok(signal.summary.includes(`next: ${title}`));
+    assert.deepEqual(signal.source, original.signals.find(s => s.id === id)!.source);
+  }
+  assert.equal(reconcileReleasedCalendars(next), next);
+});
+test("a date alone, a future release, an unrelated story or the wrong meeting cannot retire a schedule", () => {
+  const original = releasedEdition(), uk = original.catalysts.find(c => c.id === ukSchedule)!;
+  const jp = original.catalysts.find(c => c.id === japanSchedule)!;
+  const ukRelease = original.catalysts.find(c => c.kind === "release" && c.url.endsWith("/november-2026"))!;
+  const jpRelease = original.catalysts.find(c => c.url.endsWith("/g260918.pdf"))!;
+  for (const wrong of [
+    { ...ukRelease, at: "2026-11-05" }, { ...ukRelease, at: "2026-11-05T18:00:00.000Z" },
+    { ...ukRelease, url: uk.url }, { ...ukRelease, url: ukRelease.url.replace("/november-", "/october-") },
+    { ...ukRelease, source: "Other publisher" }, { ...jpRelease, url: jpRelease.url.replace("g260918", "g261030") },
+    { ...jpRelease, at: "2026-11-05T23:50:00.000Z" },
+  ]) {
+    const pending = { ...original, catalysts: [uk, jp, wrong] };
+    assert.equal(reconcileReleasedCalendars(pending), pending);
+  }
+  const preLondon = reconcileReleasedCalendars({ ...original, cutoff: "2026-11-05T11:59:59.999Z" });
+  assert.ok(preLondon.catalysts.some(c => c.id === ukSchedule));
+  assert.ok(!preLondon.catalysts.some(c => c.id === japanSchedule));
+});
 test("UK confirmed calendars keep the year, report distinction and local date", () => {
   const html =
     "<h2>2026 confirmed dates</h2><table><tr><td>Thursday 5 November</td><td>MPC Summary and minutes and Monetary Policy Report</td></tr><tr><td>Thursday&nbsp;17 December</td><td>MPC Summary and minutes</td></tr><tr><td>Thursday 31 November</td><td>MPC Summary and minutes</td></tr></table><h2>2027 confirmed dates</h2><table><tr><td>Thursday 4 February</td><td>MPC Summary and minutes</td></tr></table>";

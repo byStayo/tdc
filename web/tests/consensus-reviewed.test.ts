@@ -143,6 +143,22 @@ test("review validation rejects future or mismatched sources and altered saved i
   assert.throws(() => validateReview(unsupported, cutoff));
 });
 
+test("a supporting publication clock must identify a distinct same-publisher document with the same timestamp", () => {
+  const valid = structuredClone(packet);
+  const original = valid.sources.find(s => s.publishedAt.includes("T"))!;
+  const clock = { ...original, id: "publisher-clock", url: new URL("/release-feed", original.url).href };
+  valid.sources.push(clock);
+  original.publicationTimeSourceId = clock.id;
+  assert.doesNotThrow(() => validateReview(valid, cutoff));
+  for (const patch of [
+    { id: "different-clock" }, { url: original.url }, { url: "https://www.bls.gov/another-release" },
+    { publishedAt: "2026-10-01T00:00:00.000Z" },
+  ]) {
+    const changed = { ...valid, sources: [...valid.sources.slice(0, -1), { ...clock, ...patch }] };
+    assert.throws(() => validateReview(changed, cutoff), /publication-time source/);
+  }
+});
+
 test("rechecking the same facts does not manufacture an edition, and attachment leaves prior history untouched", () => {
   const prior = snapshot(),
     before = JSON.stringify(prior);

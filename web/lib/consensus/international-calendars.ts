@@ -1,12 +1,64 @@
 import { publicDate } from "../public-normalization.ts";
-import type { Catalyst } from "./types.ts";
-import { eventUpcoming, type CalendarZone } from "./time.ts";
+import type { Catalyst, Snapshot } from "./types.ts";
+import { eventUpcoming, localDate, type CalendarZone } from "./time.ts";
 
 export const INTERNATIONAL_CALENDARS = {
   boe: "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
   ecb: "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
   boj: "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
 };
+
+// Both feeds publish other stories on decision days. Match the official document
+// and the local schedule identity rather than treating the date as proof of release.
+type CompletedSchedule = { id: string; day: string; zone: CalendarZone; issuer: "boe" | "boj" };
+function completedSchedule(release: Catalyst, cutoff: string): CompletedSchedule | undefined {
+  if (release.kind !== "release" || !/^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(release.at) ||
+      !Number.isFinite(Date.parse(release.at)) || Date.parse(release.at) > Date.parse(cutoff)) return;
+  if (release.source === "Bank of England") {
+    const day = localDate(release.at, "Europe/London"), year = day.slice(0, 4);
+    const month = months[Number(day.slice(5, 7)) - 1];
+    if (release.url === `https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/${year}/${month}-${year}`) {
+      return { id: `boe-decision-${day}`, day, zone: "Europe/London", issuer: "boe" } as const;
+    }
+  }
+  if (release.source === "Bank of Japan") {
+    const doc = /^https:\/\/www\.boj\.or\.jp\/en\/mopo\/mpmsche_minu\/minu_(\d{4})\/g(\d{2})(\d{2})(\d{2})\.pdf$/.exec(release.url);
+    if (!doc || doc[1].slice(2) !== doc[2]) return;
+    const meeting = publicDate(`${doc[1]}-${doc[3]}-${doc[4]}`);
+    const day = localDate(release.at, "Asia/Tokyo");
+    if (meeting && meeting <= day) return { id: `boj-minutes-${meeting}-${day}`, day, zone: "Asia/Tokyo", issuer: "boj" } as const;
+  }
+}
+
+/** Publication only: an archived edition keeps the calendar and evidence it originally carried. */
+export function reconcileReleasedCalendars(snapshot: Snapshot): Snapshot {
+  const completed = new Map(snapshot.catalysts.flatMap(release => {
+    const match = completedSchedule(release, snapshot.cutoff);
+    return match ? [[match.id, { ...match, source: release.source }] as const] : [];
+  }));
+  const affected = new Map<string, string>();
+  const catalysts = snapshot.catalysts.filter(item => {
+    const match = completed.get(item.id);
+    if (!match || item.kind !== "scheduled" || item.at !== match.day || item.source !== match.source ||
+        item.dateZone !== match.zone || item.url !== INTERNATIONAL_CALENDARS[match.issuer]) return true;
+    affected.set(`${match.issuer}-calendar`, item.url);
+    return false;
+  });
+  if (!affected.size) return snapshot;
+  const signals = snapshot.signals.map(signal => {
+    const calendar = affected.get(signal.id);
+    if (!calendar || signal.source.url !== calendar || signal.status !== "available") return signal;
+    const remaining = catalysts.filter(item => item.kind === "scheduled" && item.url === calendar &&
+      eventUpcoming(item.at, snapshot.cutoff, 70, item.dateZone)).sort((a, b) => a.at.localeCompare(b.at));
+    return {
+      ...signal,
+      summary: remaining.length ? `${remaining.length} upcoming event${remaining.length === 1 ? "" : "s"}; next: ${remaining[0].title}.`
+        : "No upcoming events remain in the saved schedule.",
+      metrics: signal.metrics.map(metric => metric.label === "Upcoming events · 70 days" ? { ...metric, value: remaining.length } : metric),
+    };
+  });
+  return { ...snapshot, catalysts, signals };
+}
 const plain = (s: string) =>
   s
     .replace(/<[^>]*>/g, " ")

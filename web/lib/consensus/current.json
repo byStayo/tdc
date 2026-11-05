@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-05T13-14-01-431Z",
-  "issuedAt": "2026-11-05T13:14:01.431Z",
-  "cutoff": "2026-11-05T13:14:01.431Z",
+  "id": "2026-11-05T14-28-10-883Z",
+  "issuedAt": "2026-11-05T14:28:10.883Z",
+  "cutoff": "2026-11-05T14:28:10.883Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -15469,7 +15469,7 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "2 upcoming events; next: Bank of England policy decision · Monetary Policy Report.",
+      "summary": "1 upcoming event; next: Bank of England policy decision.",
       "source": {
         "name": "Bank of England",
         "url": "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
@@ -15487,7 +15487,7 @@
       "metrics": [
         {
           "label": "Upcoming events · 70 days",
-          "value": 2,
+          "value": 1,
           "unit": "events",
           "date": "2026-11-05T13:03:50.631Z"
         }
@@ -15559,7 +15559,7 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "5 upcoming events; next: BoJ meeting minutes · 2026-09-18 meeting.",
+      "summary": "4 upcoming events; next: BoJ summary of opinions · 2026-10-30 meeting.",
       "source": {
         "name": "Bank of Japan",
         "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
@@ -15577,7 +15577,7 @@
       "metrics": [
         {
           "label": "Upcoming events · 70 days",
-          "value": 5,
+          "value": 4,
           "unit": "events",
           "date": "2026-11-05T13:03:50.755Z"
         }
@@ -29406,7 +29406,7 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "At its November 4 meeting, eight members voted to raise UK Bank Rate by 25 basis points, from 3.75% to 4%. One voted for 4.25%, a larger increase. The Bank published the decision on November 5 at noon London time (7 a.m. ET).",
+      "summary": "At its November 4 meeting, eight members voted to raise UK Bank Rate by 25 basis points, from 3.75% to 4%. One voted for 4.25%, a larger increase. The Bank’s news feed timestamps the decision at noon London time (7 a.m. ET) on November 5.",
       "source": {
         "name": "Bank of England · November MPC summary and minutes",
         "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026",
@@ -30144,16 +30144,6 @@
       "importance": "context"
     },
     {
-      "id": "boe-decision-2026-11-05",
-      "at": "2026-11-05",
-      "title": "Bank of England policy decision · Monetary Policy Report",
-      "source": "Bank of England",
-      "url": "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
-      "dateZone": "Europe/London",
-      "importance": "major",
-      "kind": "scheduled"
-    },
-    {
       "id": "boe-decision-2026-12-17",
       "at": "2026-12-17",
       "title": "Bank of England policy decision",
@@ -30171,16 +30161,6 @@
       "url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
       "dateZone": "Europe/Berlin",
       "importance": "major",
-      "kind": "scheduled"
-    },
-    {
-      "id": "boj-minutes-2026-09-18-2026-11-05",
-      "at": "2026-11-05",
-      "title": "BoJ meeting minutes · 2026-09-18 meeting",
-      "source": "Bank of Japan",
-      "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
-      "dateZone": "Asia/Tokyo",
-      "importance": "context",
       "kind": "scheduled"
     },
     {
@@ -33423,7 +33403,7 @@
   "forecasts": [],
   "review": {
     "schemaVersion": 1,
-    "reviewedAt": "2026-11-05T13:08:12.218Z",
+    "reviewedAt": "2026-11-05T14:26:23.053Z",
     "reviewer": "Codex subscription editorial review",
     "sources": [
       {
@@ -33543,16 +33523,26 @@
         "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026",
         "publishedAt": "2026-11-05T12:00:00.000Z",
         "retrievedAt": "2026-11-05T13:06:17.313Z",
-        "sha256": "aa05cb8ef5d788b341f77ed7bc440a6c788da8e6311efb973f69afffc3953243"
+        "sha256": "aa05cb8ef5d788b341f77ed7bc440a6c788da8e6311efb973f69afffc3953243",
+        "publicationTimeSourceId": "boe-november-2026-release-time"
+      },
+      {
+        "id": "boe-november-2026-release-time",
+        "name": "Bank of England news feed · decision release time",
+        "url": "https://www.bankofengland.co.uk/rss/news",
+        "publishedAt": "2026-11-05T12:00:00.000Z",
+        "retrievedAt": "2026-11-05T13:06:17.268Z",
+        "sha256": "a40f52ca3ae219f612aa048fc0d2d66346c37570c901a2658187b67d78297ce7"
       }
     ],
     "developments": [
       {
         "id": "boe-november-bank-rate",
         "title": "Bank of England raises Bank Rate to 4%",
-        "facts": "At its November 4 meeting, eight members voted to raise UK Bank Rate by 25 basis points, from 3.75% to 4%. One voted for 4.25%, a larger increase. The Bank published the decision on November 5 at noon London time (7 a.m. ET).",
+        "facts": "At its November 4 meeting, eight members voted to raise UK Bank Rate by 25 basis points, from 3.75% to 4%. One voted for 4.25%, a larger increase. The Bank’s news feed timestamps the decision at noon London time (7 a.m. ET) on November 5.",
         "sourceIds": [
-          "boe-november-2026"
+          "boe-november-2026",
+          "boe-november-2026-release-time"
         ],
         "impacts": [
           {

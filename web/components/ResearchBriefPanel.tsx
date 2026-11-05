@@ -1,5 +1,7 @@
 "use client";
 import { publicationNotice } from "@/lib/display-format";
+import currentReview from "@/lib/consensus/reviewed-developments.json";
+import type { ReviewedSource } from "@/lib/consensus/reviewed";
 
 import {
   ArrowRight,
@@ -39,6 +41,9 @@ export default function ResearchBriefPanel({
     ? brief.scope !== 'instrument' || brief.symbol !== symbol
     : brief.scope !== 'market') ? null : brief;
   const sources = visibleBrief?.sources ?? [];
+  const reviewedSources: ReviewedSource[] = currentReview.sources as ReviewedSource[];
+  const clockSources = publicEdition ? reviewedSources.filter(clock => reviewedSources.some(document =>
+    document.publicationTimeSourceId === clock.id && sources.some(citation => citation.url === document.url))) : [];
   const research = visibleBrief?.data;
   const unavailableEdition = publicEdition && !!visibleBrief && !research && !busy;
   return (
@@ -184,6 +189,9 @@ export default function ResearchBriefPanel({
           <ul>
             {research.limitations.map((limit, i) => (
               <li key={i}>{limit}</li>
+            ))}
+            {clockSources.map(clock => (
+              <li key={clock.id}>Publication time: <ExternalLink href={clock.url}>{clock.name}</ExternalLink></li>
             ))}
           </ul>
         </details>
