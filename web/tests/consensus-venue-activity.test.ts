@@ -48,3 +48,12 @@ test("venue facts change the edition digest while a later check of the same fact
   assert.notEqual(observationDigest(candidate), first);
   assert.deepEqual(candidate.consensus, previous.consensus);
 });
+
+test("Nasdaq filing dates must fall within the reporting window for the stated quarter", () => {
+  for (const publishedAt of ["2026-09-29", "2027-01-15"]) {
+    assert.throws(
+      () => validateVenueActivity(activity, [{ ...sources[0], publishedAt }, sources[1]]),
+      /outside the quarter's reporting window/,
+    );
+  }
+});

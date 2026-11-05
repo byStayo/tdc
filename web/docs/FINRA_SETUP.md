@@ -6,9 +6,9 @@ For an existing FINRA individual account registered with Google, open the [API c
 
 The private weekly Query API collector is ready for verification with an activated Public credential. Its on-site weekly feed requires verified observations and a separate display that meets FINRA's distribution conditions.
 
-November4 verification: the owner replied "FINRA configured", but the private verifier returned exit2 before any network request. The local private directory/file and both FINRA environment variables were absent. No credential values were inspected or logged. A specific local-setup clarification is pending; do not repeat the same question or query without new setup evidence.
+November4 verification: the owner replied "FINRA configured", but the private verifier returned exit2 before any network request. The local private directory/file and both FINRA environment variables were absent. No credential values were inspected or logged. The private Terminal handoff records a successful local check for the weekday publisher. Wait for that receipt or a corrected setup confirmation before running another query.
 
-The [Public credential costs $0/month](https://developer.finra.org/fees). Create an **Individual** account through the [FINRA developer console instructions](https://developer.finra.org/docs), then create a credential of type **Public**, not Firm/Organization. Check the displayed fee is $0. A test/mock credential returns synthetic data and does not satisfy this requirement. The user must set the account password and API client secret in FINRA's own forms and review its terms.
+The [Public credential costs $0/month](https://developer.finra.org/fees). Create an **Individual** account through the [FINRA developer console instructions](https://developer.finra.org/docs), then create a credential of type **Public**, not Firm/Organization. Check the displayed fee is $0. A test/mock credential returns synthetic data and does not satisfy this requirement. The owner completes the Google or FINRA sign-in, reviews the terms and activates the API client secret in FINRA’s own forms.
 
 ## What the owner needs to do
 
