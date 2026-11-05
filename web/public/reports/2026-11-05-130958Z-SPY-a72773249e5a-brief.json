@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "SPY",
+  "createdAt": "2026-11-05T13:09:58.267Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "data": {
+    "headline": "SPY: the curve steepened by two basis points.",
+    "summary": "The difference between US ten- and two-year Treasury yields widened from 32 to 34 basis points between November 2 and 3. Both yields rose. That detail matters: a steeper curve driven by higher long yields does not give every S&P 500 company the same financing or valuation benefit.",
+    "bull": [
+      {
+        "text": "The two-year yield rose only 2 basis points to 4.61%, versus a 4-basis-point rise in the ten-year to 4.95%. The longer benchmark rose more; this spread is useful context for comparing lenders with companies that borrow.",
+        "sourceIds": [
+          "FRED_DGS2",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "At 4.95%, the ten-year yield was higher than the previous 4.91%. All else equal, a higher discount rate reduces the present value of future earnings. The figures do not show what happened to index earnings or prices.",
+        "sourceIds": [
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "October 27 S&P futures showed asset managers net long 923,449 contracts and leveraged funds net short 400,604. The groups were on opposite sides before these yield observations.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "limitations": [
+      "The curve is measured from Treasury yields, not S&P 500 share prices. Futures category positions are weekly and do not measure SPY creations, redemptions or present investor intent.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    }
+  ]
+}

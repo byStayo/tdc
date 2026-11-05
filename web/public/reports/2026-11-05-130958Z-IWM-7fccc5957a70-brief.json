@@ -1,0 +1,57 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-05T13:09:58.268Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "data": {
+    "headline": "IWM: cheaper overnight money is not a cheaper small-business loan.",
+    "summary": "The overnight secured rate fell on November 4, while the two-year Treasury yield had risen the day before. For a small company facing refinancing, a lender’s spread and terms can matter more than either benchmark.",
+    "bull": [
+      {
+        "text": "SOFR slipped from 3.97% to 3.94% between November 3 and 4. A borrower whose rate resets against SOFR could see a lower benchmark component; its spread and reset date would still matter.",
+        "sourceIds": [
+          "FRED_SOFR"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The two-year Treasury yield rose from 4.59% to 4.61% on November 3. A company refinancing for a longer term therefore faced a different benchmark backdrop from the one suggested by overnight funding.",
+        "sourceIds": [
+          "FRED_DGS2"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Russell 2000 futures asset managers were net long 19,602 contracts and leveraged funds net short 48,081 on October 27. Neither balance is a count of loans, defaults or flows into IWM.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "The evidence does not include small-company loan spreads, actual loan resets, IWM prices or credit losses. The October futures report predates November’s funding readings.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Overnight funding · SOFR",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    }
+  ]
+}

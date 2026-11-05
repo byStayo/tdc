@@ -25,13 +25,15 @@ A subscription review may append a separately retrieved BLS release as `kind: "b
 
 Use a dated BLS archive citation when it is available, discovered through the official archive index and verified against the actual release. A rolling `*.nr0.htm` URL will change at the next release. Hash the exact document at the recorded retrieval URL; retain earlier retrieval provenance separately when changing to an archive copy. Include every cited sector or establishment-size observation in the public normalized evidence, with units, comparison period and qualifications. When correcting a published citation or evidence record, make a clearly labelled provenance correction with its actual correction time, leave earlier archives unchanged, and do not describe it as new market data.
 
+A reviewed Bank of England decision can also be attached as `kind: "boe_mpc"`. Use the dated official minutes, keep the document hash, distinguish the meeting end date from the original publication time (check the Bank's release feed), and report each vote against its rate choice. The prior and decided rates must reconcile to the stated change in basis points. The minutes are evidence about UK policy; they do not measure a US Treasury, sterling or ETF response.
+
 Saved workspace panels retain the retrieval times of their own providers. The displayed check time is the oldest included source check; SEC freshness uses the selected issuers' actual retrieval dates. A later BLS review or evidence assembly cannot refresh older FRED, CFTC or SEC observations. Legacy saved files without provider timestamps retain their recorded collection time until rebuilt from evidence.
 
 ## 2. Draft through the Codex subscription
 
 In the existing Codex chat, read the evidence JSON and ask for a concise **market-wide** brief with supporting observations, opposing observations, things to watch and limitations. Save the candidate under `.editorial/candidate-YYYY-MM-DD.json`.
 
-Use the shape of `lib/published-brief.json`: `status: "ok"`, `scope: "market"`, a current ISO `createdAt`, `message`, `data`, and `sources`. `data` contains `headline`, `summary`, arrays `bull`, `bear`, `watch` of `{ "text": "...", "sourceIds": ["..."] }`, and `limitations`. Use source IDs and URLs exactly from the collected manifest. A source can be included only when its status is `ok`. The publication time must be after collection and cannot be in the future.
+Write the public `message` for readers, for example “Reviewed against dated primary sources.” Name the subscription only in private workflow records or the dedicated model metadata. Use the shape of `lib/published-brief.json`: `status: "ok"`, `scope: "market"`, a current ISO `createdAt`, `message`, `data`, and `sources`. `data` contains `headline`, `summary`, arrays `bull`, `bear`, `watch` of `{ "text": "...", "sourceIds": ["..."] }`, and `limitations`. Use source IDs and URLs exactly from the collected manifest. A source can be included only when its status is `ok`. The publication time must be after collection and cannot be in the future.
 
 No provider API key or separate model call is needed for this step. Work inside the subscription-backed Codex chat. The scripts cannot establish who wrote a candidate or whether its interpretation is sound.
 

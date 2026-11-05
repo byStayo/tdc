@@ -39,6 +39,29 @@ test('reviewed BLS releases retain their observation period, original publicatio
   ])assert.throws(()=>validateEditorialPublication(draft,{...reviewed,sources:[evidence.sources[0],changed]},NOW),/BLS evidence/);
 });
 
+test('MPC evidence binds a dated release to the meeting, the rate change and the actual voting choices', () => {
+  const { candidate, evidence } = fixture(), url = 'https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026';
+  const data = { publishedAt: '2026-11-02T12:00:00Z', meetingEndedOn: '2026-11-01', sha256: 'b'.repeat(64),
+    previousRatePercent: 3, bankRatePercent: 3.25, changeBasisPoints: 25, votes: [{ ratePercent: 3.25, members: 7 }, { ratePercent: 3, members: 2 }] };
+  const source = { id: 'BOE_MPC', kind: 'boe_mpc', title: 'Synthetic UK decision', url, retrievalUrl: url,
+    retrievedAt: '2026-11-03T01:59:00Z', observationDates: ['2026-11-01'], status: 'ok', data };
+  const draft = { ...candidate, sources: [...candidate.sources, { id: source.id, title: source.title, url }],
+    data: { ...candidate.data, watch: [{ text: 'The UK committee recorded a split vote.', sourceIds: [source.id] }] } };
+  const check = (entry: unknown) => validateEditorialPublication(draft, { ...evidence, sources: [...evidence.sources, entry] }, NOW);
+  assert.equal(check(source).brief.sources?.length, 2);
+  for (const changed of [
+    { ...source, kind: 'fred' }, { ...source, retrievalUrl: 'https://www.sec.gov/different' },
+    { ...source, observationDates: ['2026-11-02'] }, { ...source, data: { ...data, sha256: '' } },
+    { ...source, data: { ...data, publishedAt: '2026-11-03T02:00:00Z' } },
+    { ...source, url: url.replace('november-', 'october-'), retrievalUrl: url.replace('november-', 'october-') },
+    { ...source, data: { ...data, changeBasisPoints: -25 } }, { ...source, data: { ...data, bankRatePercent: null } },
+    { ...source, data: { ...data, votes: [{ ratePercent: 3, members: 9 }] } },
+    { ...source, data: { ...data, votes: [{ ratePercent: 3.25, members: 1 }, { ratePercent: 3, members: 8 }] } },
+    { ...source, data: { ...data, votes: [...data.votes, { ratePercent: 3.5, members: 1 }] } },
+    { ...source, data: { ...data, votes: [{ ratePercent: 3.25, members: 2 }, { ratePercent: 3.25, members: 4 }] } },
+  ]) assert.throws(() => check(changed), /MPC|Bank of England/);
+});
+
 test('collector uses bounded official reads, retains provenance and marks failed sources unavailable', async () => {
   const calls: URL[] = [];
   const evidence = await collectEditorialEvidence(async (input, init) => {

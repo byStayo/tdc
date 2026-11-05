@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-11-04T21:28:17.273Z",
+  "reviewedAt": "2026-11-05T13:08:12.218Z",
   "reviewer": "Codex subscription editorial review",
   "sources": [
     {
@@ -113,9 +113,53 @@
       "retrievedAt": "2026-11-04T21:25:43.078Z",
       "sha256": "6aa674a7f42a75aae351ccce55ae33ac2da34774827fdec43297f9ae6e12c4c6",
       "format": "document"
+    },
+    {
+      "id": "boe-november-2026",
+      "name": "Bank of England · November MPC summary and minutes",
+      "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026",
+      "publishedAt": "2026-11-05T12:00:00.000Z",
+      "retrievedAt": "2026-11-05T13:06:17.313Z",
+      "sha256": "aa05cb8ef5d788b341f77ed7bc440a6c788da8e6311efb973f69afffc3953243"
     }
   ],
   "developments": [
+    {
+      "id": "boe-november-bank-rate",
+      "title": "Bank of England raises Bank Rate to 4%",
+      "facts": "At its November 4 meeting, eight members voted to raise UK Bank Rate by 25 basis points, from 3.75% to 4%. One voted for 4.25%, a larger increase. The Bank published the decision on November 5 at noon London time (7 a.m. ET).",
+      "sourceIds": [
+        "boe-november-2026"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Differences in central-bank policy",
+          "interpretation": "All nine members favoured tighter UK policy. The disagreement concerned the size of the move; it tells us neither the next Fed decision nor the return on US assets."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Overseas demand and dollar earnings",
+          "interpretation": "UK rates can affect customer demand and sterling revenue for US companies with UK operations. The announcement supplies neither their exposure weights nor a move in SPY."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Sterling revenue translation",
+          "interpretation": "For a US technology company earning sterling, the exchange rate at conversion matters. The UK decision gives no post-announcement exchange rate, company revenue revision or Nasdaq return."
+        },
+        {
+          "instrument": "DIA",
+          "channel": "Orders from UK customers",
+          "interpretation": "Higher sterling borrowing costs can matter to UK customers financing equipment purchases. Exposure varies by industrial company; the release contains no Dow-company order data."
+        },
+        {
+          "instrument": "TLT",
+          "channel": "UK policy versus US long yields",
+          "interpretation": "Bank Rate sets a UK short rate. TLT holds long US Treasuries; a UK policy change can frame a cross-market comparison but does not establish a move in US long yields or in TLT."
+        }
+      ],
+      "limitation": "This is a UK policy decision. No priced expectation, gilt or Treasury price response, sterling reaction or ETF return was measured. The US yield and funding observations in this edition precede the announcement."
+    },
     {
       "id": "qualcomm-quarter",
       "title": "Qualcomm reports lower Q4 revenue and a $10.4–11.2bn outlook",

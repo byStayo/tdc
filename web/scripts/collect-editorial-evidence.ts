@@ -4,12 +4,12 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { latestPublicPositioning, parseSECSubmissions, publicDate, PUBLIC_CONTRACT_CODES } from '../lib/public-normalization.ts';
 
-export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov']);
+export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk']);
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const USER_AGENT = 'The Daily Consensus public editorial research https://thedailyconsensus.com';
 export interface EditorialSource {
-  id: string; kind: 'cftc' | 'fred' | 'sec' | 'methodology' | 'bls'; title: string;
+  id: string; kind: 'cftc' | 'fred' | 'sec' | 'methodology' | 'bls' | 'boe_mpc'; title: string;
   url: string; retrievalUrl: string; retrievedAt: string; observationDates: string[];
   status: 'ok' | 'unavailable'; data: unknown; error?: string;
 }
@@ -20,6 +20,8 @@ export function assertPublicURL(input: unknown): string {
   if (typeof input !== 'string' || input.length > 4000) throw new Error('Invalid public source URL');
   let url: URL; try { url = new URL(input); } catch { throw new Error('Invalid public source URL'); }
   if (url.protocol !== 'https:' || !PUBLIC_HOSTS.has(url.hostname) || url.username || url.password || url.port) throw new Error('Source URL must use an allowlisted public HTTPS host');
+  if (url.hostname === 'www.bankofengland.co.uk' && (url.search || url.hash ||
+      !/^\/monetary-policy-summary-and-minutes\/\d{4}\/[a-z]+-\d{4}$/.test(url.pathname))) throw new Error('Only dated Bank of England MPC minutes are supported');
   for (const key of url.searchParams.keys()) if (/^(?:api[_-]?key|key|token|access[_-]?token|authorization|password|secret)$/i.test(key)) throw new Error('Credential-bearing source URLs are forbidden');
   url.searchParams.sort(); return url.href;
 }

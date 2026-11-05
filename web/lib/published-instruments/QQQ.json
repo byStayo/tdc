@@ -2,42 +2,40 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "QQQ",
-  "createdAt": "2026-11-04T13:09:17.947Z",
+  "createdAt": "2026-11-05T13:09:58.267Z",
   "model": "Codex editorial workflow",
-  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
   "data": {
-    "headline": "QQQ: a lower long yield is only one valuation input.",
-    "summary": "The latest ten-year yield supplies a fresh discount-rate reference for technology-heavy equities. It does not tell us whether earnings expectations or equity risk premiums changed. QQQ remains unscored as a trade because independent prices, options and other required signals are missing.",
+    "headline": "QQQ: the long-rate hurdle rose as overnight funding eased.",
+    "summary": "A higher US ten-year yield puts more pressure on the valuation of distant earnings, all else equal. A lower overnight financing rate is a different observation. Neither measures how investors repriced growth stocks.",
     "bull": [
       {
-        "text": "The ten-year yield declined from 4.94% on October 30 to 4.91% on November 2. Lower discount rates can support the present value of future cash flows, with other inputs held constant; no QQQ response was collected.",
+        "text": "SOFR fell 3 basis points to 3.94% on November 4. That eased the overnight secured rate even though the longer Treasury benchmark had risen the previous day.",
         "sourceIds": [
+          "FRED_SOFR",
           "FRED_DGS10"
         ]
       }
     ],
     "bear": [
       {
-        "text": "SOFR increased from 3.95% to 3.97% on November 3 while the two-year Treasury yield had risen to 4.59% on November 2. The mix does not support treating every funding or valuation benchmark as easing together.",
+        "text": "On November 3 the US ten-year yield reached 4.95%, up from 4.91%. A higher discount rate matters more for cash flows further in the future, but a company’s earnings outlook also matters.",
         "sourceIds": [
-          "FRED_SOFR",
-          "FRED_DGS2"
+          "FRED_DGS10"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Nasdaq mini futures asset managers were net long 65,381 contracts on October 27, down from 77,790 a week earlier. Leveraged funds were net long 2,301. These are related futures categories, not QQQ investor flows.",
+        "text": "Nasdaq-100 futures asset managers were net long 65,381 contracts and leveraged funds net long 2,301 on October 27. The same sign across groups is dated positioning, not a fresh growth-stock signal.",
         "sourceIds": [
           "CFTC_NQ"
         ]
       }
     ],
     "limitations": [
-      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
-      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
-      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
-      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified."
+      "No QQQ price, option chain, company discount rate or analyst revision is measured here. The rate observations are for different maturities and dates.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
     ]
   },
   "sources": [
@@ -50,11 +48,6 @@
       "id": "FRED_DGS10",
       "title": "10-year Treasury",
       "url": "https://fred.stlouisfed.org/series/DGS10"
-    },
-    {
-      "id": "FRED_DGS2",
-      "title": "2-year Treasury",
-      "url": "https://fred.stlouisfed.org/series/DGS2"
     },
     {
       "id": "FRED_SOFR",

@@ -10,9 +10,10 @@ export function gaapEpsPair(current: number, prior?: number): string {
   return `GAAP EPS ${dollars(current)}${prior === undefined ? "" : ` vs ${dollars(prior)}`}`;
 }
 
-/** Replace only the known tooling blurb; preserve stale/error/source notices. */
+/** Replace only known tooling blurbs; preserve stale/error/source notices. */
 export function publicationNotice(message: string): string {
-  return message === "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation."
+  return (message === "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation." ||
+    message === "Reviewed from dated primary evidence using the Codex subscription.")
     ? "Published research reviewed against dated official evidence. Source dates are preserved."
     : message;
 }

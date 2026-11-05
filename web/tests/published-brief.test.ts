@@ -8,11 +8,15 @@ test('published brief has traceable public evidence and a valid publication date
   assert.equal(brief.scope, 'market');
   assert.ok(Number.isFinite(Date.parse(brief.createdAt!)));
   assert.ok(brief.sources?.length);
-  const allowed = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov']);
+  const allowed = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk']);
   for (const source of brief.sources!) {
     const url = new URL(source.url);
     assert.equal(url.protocol, 'https:');
     assert.ok(allowed.has(url.hostname));
+    if (url.hostname === 'www.bankofengland.co.uk') {
+      assert.match(url.pathname, /^\/monetary-policy-summary-and-minutes\/(\d{4})\/[a-z]+-\1$/);
+      assert.equal(url.search + url.hash, '');
+    }
   }
   const ids = new Set(brief.sources!.map(source => source.id));
   for (const claim of [...brief.data!.bull, ...brief.data!.bear, ...brief.data!.watch]) {

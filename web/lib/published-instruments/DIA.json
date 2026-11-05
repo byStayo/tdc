@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "DIA",
-  "createdAt": "2026-11-04T13:09:17.947Z",
+  "createdAt": "2026-11-05T13:09:58.268Z",
   "model": "Codex editorial workflow",
-  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
   "data": {
-    "headline": "DIA: the rate mix calls for company-level distinctions.",
-    "summary": "The new curve observations can affect financing costs, financial-company margins and valuation assumptions through different channels. A Dow-wide directional claim would erase those differences. Read the older Dow futures positioning alongside the dated rate changes, without treating it as current buying.",
+    "headline": "DIA: long borrowing benchmarks rose together.",
+    "summary": "The ten- and thirty-year US Treasury yields each rose 4 basis points on November 3. Their gap stayed at 37 basis points. For industrial companies financing equipment or long projects, the absolute rate and the extra cost of maturity are different questions.",
     "bull": [
       {
-        "text": "Ten- and thirty-year Treasury yields each declined 3 basis points on November 2, to 4.91% and 5.28%. Lower long benchmarks can ease some financing assumptions, but no borrowing-cost change for a Dow constituent was measured.",
+        "text": "The thirty-year-minus-ten-year spread stayed at 37 basis points: 5.28% minus 4.91% on November 2, then 5.32% minus 4.95% on November 3. The Treasury premium for the additional maturity did not widen on these observations.",
         "sourceIds": [
           "FRED_DGS10",
           "FRED_DGS30"
@@ -19,26 +19,23 @@
     ],
     "bear": [
       {
-        "text": "The two-year Treasury yield rose to 4.59% while the ten-year yield fell to 4.91%. Their spread narrowed by 6 basis points to 32; this cannot be translated directly into a bank-margin forecast or a uniform DIA earnings effect.",
+        "text": "The thirty-year benchmark itself rose to 5.32%. A company or customer borrowing long could face a higher base rate even with the spread between the two Treasury maturities unchanged.",
         "sourceIds": [
-          "FRED_DGS2",
-          "FRED_DGS10"
+          "FRED_DGS30"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Dow futures asset managers were net long 12,233 contracts on October 27. Leveraged funds were near balanced at net long 96, after net short 1,967 a week earlier. This related futures contract differs from DIA shares.",
+        "text": "Dow futures leveraged funds were close to flat at net long 96 contracts on October 27; asset managers were net long 12,233. Near balance in one futures category says little about any individual Dow company’s order book.",
         "sourceIds": [
           "CFTC_DOW"
         ]
       }
     ],
     "limitations": [
-      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
-      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
-      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
-      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified."
+      "Treasury rates exclude corporate credit spreads. No new borrowing terms, orders, sector returns or change in the price of DIA were observed.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
     ]
   },
   "sources": [
@@ -51,11 +48,6 @@
       "id": "FRED_DGS10",
       "title": "10-year Treasury",
       "url": "https://fred.stlouisfed.org/series/DGS10"
-    },
-    {
-      "id": "FRED_DGS2",
-      "title": "2-year Treasury",
-      "url": "https://fred.stlouisfed.org/series/DGS2"
     },
     {
       "id": "FRED_DGS30",

@@ -1,56 +1,49 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-04T13:09:17.946Z",
+  "createdAt": "2026-11-05T13:09:58.267Z",
   "model": "Codex editorial workflow",
-  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
   "data": {
-    "headline": "A flatter Treasury curve and firmer overnight funding.",
-    "summary": "The latest collected observations disagree across maturities: the two-year Treasury yield rose while ten- and thirty-year yields fell. Overnight secured funding subsequently edged higher. Keep these differently dated inputs separate from current equity prices; they do not establish a complete morning trading verdict.",
+    "headline": "The UK raised rates. US yields had already moved.",
+    "summary": "The Bank of England raised Bank Rate to 4% this morning. The latest US observations tell a different, earlier story: Treasury yields rose on November 3, and secured overnight funding eased on November 4. The sequence matters when interpreting the two markets.",
     "bull": [
       {
-        "text": "The ten-year yield fell from 4.94% on October 30 to 4.91% on November 2; the thirty-year yield fell from 5.31% to 5.28%. Lower long yields can ease one valuation constraint, but these observations do not measure an equity-market response.",
+        "text": "US overnight secured funding eased: SOFR fell from 3.97% on November 3 to 3.94% on November 4. That is a modest reduction in the observed overnight rate.",
         "sourceIds": [
-          "FRED_DGS10",
-          "FRED_DGS30"
+          "FRED_SOFR"
         ]
       }
     ],
     "bear": [
       {
-        "text": "The two-year yield rose from 4.56% to 4.59% over the same dates. SOFR rose from 3.95% on November 2 to 3.97% on November 3. These are separate Treasury and secured-funding observations, not a new central-bank policy decision.",
+        "text": "The UK vote was 8–1 for a quarter-point rise from 3.75% to 4%; the dissenter wanted a half-point rise to 4.25%. Members disagreed on how much to tighten, not on whether to tighten.",
         "sourceIds": [
-          "FRED_DGS2",
-          "FRED_SOFR"
+          "BOE_MPC"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Overnight reverse-repo usage fell from $5.087 billion to $0.427 billion on November 3. The $4.660 billion decline does not establish that money entered equities or quantify total market liquidity.",
+        "text": "On November 3 the US two-year yielded 4.61%, the ten-year 4.95% and the thirty-year 5.32%. A later US observation is needed to examine any move after the November 5 UK announcement.",
         "sourceIds": [
-          "FRED_RRPONTSYD"
-        ]
-      },
-      {
-        "text": "October 27 S&P futures asset managers were net long 923,449 contracts while leveraged funds were net short 400,604. This older category disagreement cannot identify the present price trend.",
-        "sourceIds": [
-          "CFTC_ES"
+          "FRED_DGS2",
+          "FRED_DGS10",
+          "FRED_DGS30",
+          "BOE_MPC"
         ]
       }
     ],
     "limitations": [
-      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
-      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
-      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
-      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified."
+      "The UK meeting ended November 4. The Bank released the minutes at 7 a.m. ET on November 5. No priced expectation or cross-market price reaction is measured.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
     ]
   },
   "sources": [
     {
-      "id": "CFTC_ES",
-      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+      "id": "BOE_MPC",
+      "title": "Bank of England · November MPC summary and minutes",
+      "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026"
     },
     {
       "id": "FRED_DGS10",
@@ -66,11 +59,6 @@
       "id": "FRED_DGS30",
       "title": "30-year Treasury",
       "url": "https://fred.stlouisfed.org/series/DGS30"
-    },
-    {
-      "id": "FRED_RRPONTSYD",
-      "title": "Overnight reverse repo",
-      "url": "https://fred.stlouisfed.org/series/RRPONTSYD"
     },
     {
       "id": "FRED_SOFR",

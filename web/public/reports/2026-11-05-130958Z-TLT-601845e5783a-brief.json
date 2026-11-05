@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-05T13:09:58.268Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "data": {
+    "headline": "TLT: the long Treasury yield predates the UK rate decision.",
+    "summary": "The US thirty-year Treasury yielded 5.32% on November 3. Two days later the UK raised its short-term policy rate to 4%. The first observation is relevant to long US bond prices; it cannot show how they responded to the second.",
+    "bull": [
+      {
+        "text": "Treasury bond futures asset managers remained net long 383,981 contracts on October 27. This is a positioning counterpoint to the later rise in yields, not proof that TLT holders bought or earned a positive return.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The thirty-year yield rose from 5.28% to 5.32% on November 3. A higher yield generally weighs on the price of an existing fixed-rate bond, all else equal; the yield change is not a measured ETF return.",
+        "sourceIds": [
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The Bank of England’s November 5 decision raised the UK short rate by 25 basis points. Assessing a US long-bond response would require US data from after the release.",
+        "sourceIds": [
+          "BOE_MPC",
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "limitations": [
+      "TLT holds long US Treasuries, not UK gilts or overnight loans. No distribution-adjusted TLT price or prospective outcome is available.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
+    ]
+  },
+  "sources": [
+    {
+      "id": "BOE_MPC",
+      "title": "Bank of England · November MPC summary and minutes",
+      "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026"
+    },
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    }
+  ]
+}

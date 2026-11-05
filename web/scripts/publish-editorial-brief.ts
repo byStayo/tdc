@@ -42,12 +42,40 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
   for (const entry of evidence.sources) {
     const source = record(entry), id = text(source.id, 64);
     if (Object.keys(source).some(key => !['id', 'kind', 'title', 'url', 'retrievalUrl', 'retrievedAt', 'observationDates', 'status', 'data', 'error'].includes(key))) throw new Error('Unknown evidence source fields');
-    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'methodology', 'bls'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
+    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'methodology', 'bls', 'boe_mpc'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
     text(source.title, 400); const url = assertPublicURL(source.url); assertPublicURL(source.retrievalUrl);
     const retrievedAt = time(source.retrievedAt, now); if (retrievedAt > collectedAt) throw new Error('Source retrieval occurred after the manifest collection time');
     if (!Array.isArray(source.observationDates) || source.observationDates.length > 1000 || source.observationDates.some(date => !publicDate(date) || Date.parse(`${publicDate(date)}T00:00:00Z`) > retrievedAt)) throw new Error('Invalid evidence observation dates');
     if (source.status === 'ok' && (source.data === null || source.data === undefined)) throw new Error('Available evidence must contain data');
     if (source.status === 'unavailable' && source.data !== null) throw new Error('Unavailable evidence must not contain substitute data');
+    const boe = source.kind === 'boe_mpc';
+    if ((new URL(url).hostname === 'www.bankofengland.co.uk') !== boe ||
+        (new URL(String(source.retrievalUrl)).hostname === 'www.bankofengland.co.uk') !== boe)
+      throw new Error('Bank of England URLs must identify MPC minutes evidence');
+    if (boe && source.status === 'ok') {
+      const data = record(source.data), released = time(data.publishedAt, now), date = new Date(released);
+      const month = date.toLocaleString('en-GB', { month: 'long', timeZone: 'Europe/London' }).toLowerCase();
+      const year = date.toLocaleString('en-GB', { year: 'numeric', timeZone: 'Europe/London' });
+      const validRate = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= -20 && v <= 100;
+      if (url !== source.retrievalUrl || new URL(url).pathname !== `/monetary-policy-summary-and-minutes/${year}/${month}-${year}` ||
+          typeof data.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(data.sha256) || released > retrievedAt ||
+          typeof data.meetingEndedOn !== 'string' || data.meetingEndedOn.length !== 10 || !publicDate(data.meetingEndedOn) ||
+          Date.parse(data.meetingEndedOn + 'T00:00:00Z') > released || source.observationDates.length !== 1 ||
+          source.observationDates[0] !== data.meetingEndedOn || !validRate(data.previousRatePercent) ||
+          !validRate(data.bankRatePercent) || typeof data.changeBasisPoints !== 'number' || !Number.isFinite(data.changeBasisPoints) ||
+          Math.abs((data.bankRatePercent - data.previousRatePercent) * 100 - data.changeBasisPoints) > 1e-8 ||
+          !Array.isArray(data.votes) || !data.votes.length || data.votes.length > 9)
+        throw new Error('Invalid MPC release date, provenance or decision');
+      const choices = new Map<number, number>();
+      for (const choice of data.votes) {
+        const { ratePercent, members } = record(choice);
+        if (!validRate(ratePercent) || typeof members !== 'number' || !Number.isInteger(members) ||
+            members < 1 || members > 9 || choices.has(ratePercent)) throw new Error('Invalid MPC vote choice');
+        choices.set(ratePercent, members);
+      }
+      if (!choices.has(data.bankRatePercent) || [...choices.values()].reduce((sum, n) => sum + n, 0) > 9 ||
+          choices.get(data.bankRatePercent)! < Math.max(...choices.values())) throw new Error('Invalid MPC vote tally');
+    }
     if (source.kind === 'bls' && source.status === 'ok') {
       const data = record(source.data), release = time(data.publishedAt, now);
       if (new URL(url).hostname !== 'www.bls.gov' || new URL(String(source.retrievalUrl)).hostname !== 'www.bls.gov' ||

@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "DIA",
+  "createdAt": "2026-11-05T13:09:58.268Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "data": {
+    "headline": "DIA: long borrowing benchmarks rose together.",
+    "summary": "The ten- and thirty-year US Treasury yields each rose 4 basis points on November 3. Their gap stayed at 37 basis points. For industrial companies financing equipment or long projects, the absolute rate and the extra cost of maturity are different questions.",
+    "bull": [
+      {
+        "text": "The thirty-year-minus-ten-year spread stayed at 37 basis points: 5.28% minus 4.91% on November 2, then 5.32% minus 4.95% on November 3. The Treasury premium for the additional maturity did not widen on these observations.",
+        "sourceIds": [
+          "FRED_DGS10",
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The thirty-year benchmark itself rose to 5.32%. A company or customer borrowing long could face a higher base rate even with the spread between the two Treasury maturities unchanged.",
+        "sourceIds": [
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Dow futures leveraged funds were close to flat at net long 96 contracts on October 27; asset managers were net long 12,233. Near balance in one futures category says little about any individual Dow company’s order book.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury rates exclude corporate credit spreads. No new borrowing terms, orders, sector returns or change in the price of DIA were observed.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_DOW",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    }
+  ]
+}
