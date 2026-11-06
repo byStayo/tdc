@@ -2,39 +2,39 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "IWM",
-  "createdAt": "2026-11-05T13:09:58.268Z",
+  "createdAt": "2026-11-06T13:09:43.944Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "IWM: cheaper overnight money is not a cheaper small-business loan.",
-    "summary": "The overnight secured rate fell on November 4, while the two-year Treasury yield had risen the day before. For a small company facing refinancing, a lender’s spread and terms can matter more than either benchmark.",
+    "headline": "IWM’s overnight benchmark held steady as the two-year fell",
+    "summary": "The effective federal funds rate held at 3.88% on November 4 while the two-year Treasury yield declined to 4.58%. Small-company borrowing costs depend on contractual reference rates, lender spreads and reset dates. A lower two-year benchmark alone cannot establish a lower payment on an existing floating-rate loan.",
     "bull": [
       {
-        "text": "SOFR slipped from 3.97% to 3.94% between November 3 and 4. A borrower whose rate resets against SOFR could see a lower benchmark component; its spread and reset date would still matter.",
-        "sourceIds": [
-          "FRED_SOFR"
-        ]
-      }
-    ],
-    "bear": [
-      {
-        "text": "The two-year Treasury yield rose from 4.59% to 4.61% on November 3. A company refinancing for a longer term therefore faced a different benchmark backdrop from the one suggested by overnight funding.",
+        "text": "The two-year Treasury yield declined from 4.61% to 4.58% between November 3 and 4. A lower short-maturity Treasury benchmark can help a new funding quote if its credit spread and other pricing terms hold fixed.",
         "sourceIds": [
           "FRED_DGS2"
         ]
       }
     ],
+    "bear": [
+      {
+        "text": "The effective federal funds rate was 3.88% on both November 3 and 4. This overnight market benchmark supplies no observed easing over the interval for loans whose pricing follows it.",
+        "sourceIds": [
+          "FRED_EFFR"
+        ]
+      }
+    ],
     "watch": [
       {
-        "text": "Russell 2000 futures asset managers were net long 19,602 contracts and leveraged funds net short 48,081 on October 27. Neither balance is a count of loans, defaults or flows into IWM.",
+        "text": "October 27 Russell e-mini futures had asset managers net long 19,602 contracts and leveraged funds net short 48,081. Compare this dated positioning context with actual company refinancing terms when available.",
         "sourceIds": [
           "CFTC_RTY"
         ]
       }
     ],
     "limitations": [
-      "The evidence does not include small-company loan spreads, actual loan resets, IWM prices or credit losses. The October futures report predates November’s funding readings.",
-      "The available evidence does not support a calibrated forecast or a directional trading call."
+      "Federal funds, Treasury yields and individual loan reference rates have different definitions. Company credit spreads, loan contracts, delinquencies and IWM returns remain unmeasured.",
+      "Russell futures category positions are weekly. They do not identify present IWM buying or selling, and the report contains no measured intraday price or options setup."
     ]
   },
   "sources": [
@@ -49,9 +49,9 @@
       "url": "https://fred.stlouisfed.org/series/DGS2"
     },
     {
-      "id": "FRED_SOFR",
-      "title": "Overnight funding · SOFR",
-      "url": "https://fred.stlouisfed.org/series/SOFR"
+      "id": "FRED_EFFR",
+      "title": "Effective federal funds rate",
+      "url": "https://fred.stlouisfed.org/series/EFFR"
     }
   ]
 }

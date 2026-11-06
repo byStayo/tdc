@@ -2,40 +2,41 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "DIA",
-  "createdAt": "2026-11-05T13:09:58.268Z",
+  "createdAt": "2026-11-06T13:09:43.944Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "DIA: long borrowing benchmarks rose together.",
-    "summary": "The ten- and thirty-year US Treasury yields each rose 4 basis points on November 3. Their gap stayed at 37 basis points. For industrial companies financing equipment or long projects, the absolute rate and the extra cost of maturity are different questions.",
+    "headline": "DIA’s long-end Treasury spread widened to 38 basis points",
+    "summary": "The 30-year minus ten-year Treasury spread widened from 37 to 38 basis points on November 4, even as both yields declined. This matters when comparing different financing maturities for long-lived projects. Company credit spreads and project cash flows determine the final borrowing and investment decision.",
     "bull": [
       {
-        "text": "The thirty-year-minus-ten-year spread stayed at 37 basis points: 5.28% minus 4.91% on November 2, then 5.32% minus 4.95% on November 3. The Treasury premium for the additional maturity did not widen on these observations.",
+        "text": "The 30-year benchmark fell from 5.32% to 5.28%, a 4-basis-point decline. The ten-year declined from 4.95% to 4.90%, or 5 basis points. Both Treasury benchmarks eased over the November 3–4 interval.",
         "sourceIds": [
-          "FRED_DGS10",
-          "FRED_DGS30"
+          "FRED_DGS30",
+          "FRED_DGS10"
         ]
       }
     ],
     "bear": [
       {
-        "text": "The thirty-year benchmark itself rose to 5.32%. A company or customer borrowing long could face a higher base rate even with the spread between the two Treasury maturities unchanged.",
+        "text": "The 30-year yield retained a 38-basis-point premium over the ten-year, up from 37. Longer financing terms therefore carried a wider Treasury maturity spread in this observation.",
         "sourceIds": [
-          "FRED_DGS30"
+          "FRED_DGS30",
+          "FRED_DGS10"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Dow futures leveraged funds were close to flat at net long 96 contracts on October 27; asset managers were net long 12,233. Near balance in one futures category says little about any individual Dow company’s order book.",
+        "text": "October 27 Dow futures positions showed asset managers net long 12,233 contracts and leveraged funds net long 96. The leveraged category was close to balanced in that older weekly report.",
         "sourceIds": [
           "CFTC_DOW"
         ]
       }
     ],
     "limitations": [
-      "Treasury rates exclude corporate credit spreads. No new borrowing terms, orders, sector returns or change in the price of DIA were observed.",
-      "The available evidence does not support a calibrated forecast or a directional trading call."
+      "These Treasury benchmarks cover different maturities. Actual Dow-company borrowing costs, new orders, capital spending and DIA returns remain unmeasured.",
+      "The futures figures describe the DJIA x $5 contract. They carry weekly reporting lag and provide no direct DIA fund-flow or options reading."
     ]
   },
   "sources": [

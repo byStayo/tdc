@@ -2,52 +2,52 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-05T13:09:58.268Z",
+  "createdAt": "2026-11-06T13:09:43.944Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "TLT: the long Treasury yield predates the UK rate decision.",
-    "summary": "The US thirty-year Treasury yielded 5.32% on November 3. Two days later the UK raised its short-term policy rate to 4%. The first observation is relevant to long US bond prices; it cannot show how they responded to the second.",
+    "headline": "TLT’s long-maturity benchmarks moved lower",
+    "summary": "The November 4 US Treasury observations put the 30-year yield at 5.28% and the ten-year at 4.90%, down 4 and 5 basis points respectively. Falling yields generally support fixed-rate bond prices when other inputs hold fixed. TLT’s actual return still requires its price, duration, distributions and holdings evidence.",
     "bull": [
       {
-        "text": "Treasury bond futures asset managers remained net long 383,981 contracts on October 27. This is a positioning counterpoint to the later rise in yields, not proof that TLT holders bought or earned a positive return.",
+        "text": "The 30-year Treasury yield declined from 5.32% to 5.28%. The direction supports a conditional price scenario for long-duration fixed-rate bonds, subject to the actual portfolio’s maturity exposure.",
         "sourceIds": [
-          "CFTC_BOND"
+          "FRED_DGS30"
         ]
       }
     ],
     "bear": [
       {
-        "text": "The thirty-year yield rose from 5.28% to 5.32% on November 3. A higher yield generally weighs on the price of an existing fixed-rate bond, all else equal; the yield change is not a measured ETF return.",
+        "text": "The 30-year yield fell by 4 basis points while the ten-year fell by 5. The resulting spread widened to 38 basis points, so a single parallel-shift assumption would miss this change in curve shape.",
         "sourceIds": [
-          "FRED_DGS30"
+          "FRED_DGS30",
+          "FRED_DGS10"
         ]
       }
     ],
     "watch": [
       {
-        "text": "The Bank of England’s November 5 decision raised the UK short rate by 25 basis points. Assessing a US long-bond response would require US data from after the release.",
+        "text": "October 27 US Treasury bond futures showed asset managers net long 383,981 contracts and leveraged funds net short 150,393. Hedge and basis-trade activity can contribute to these category totals.",
         "sourceIds": [
-          "BOE_MPC",
-          "FRED_DGS30"
+          "CFTC_BOND"
         ]
       }
     ],
     "limitations": [
-      "TLT holds long US Treasuries, not UK gilts or overnight loans. No distribution-adjusted TLT price or prospective outcome is available.",
-      "The available evidence does not support a calibrated forecast or a directional trading call."
+      "The November 4 Treasury observations precede the UK policy announcement and the scheduled November 6 employment release. Any subsequent market reaction remains unmeasured here.",
+      "Long-bond futures, constant-maturity Treasury benchmarks and TLT have different exposures. Verified total-return prices and options inputs are still required for a measured ETF outcome or a qualified forecast."
     ]
   },
   "sources": [
     {
-      "id": "BOE_MPC",
-      "title": "Bank of England · November MPC summary and minutes",
-      "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026"
-    },
-    {
       "id": "CFTC_BOND",
       "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
       "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
     },
     {
       "id": "FRED_DGS30",
