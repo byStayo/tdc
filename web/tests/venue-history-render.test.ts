@@ -13,11 +13,15 @@ test("historical venue views retain only the dated MARKET filings and hide the e
   // Node's native test runner handles .ts. Compile this actual TSX component for
   // React server rendering and omit only the CSS, which the browser checks cover.
   const loader = registerHooks({
+    resolve(specifier, context, next) {
+      if (specifier === "./FinraWeeklyView") return { url: new URL("../components/FinraWeeklyView.tsx", import.meta.url).href, shortCircuit: true };
+      return next(specifier, context);
+    },
     load(url, context, next) {
-      if (url === css.href)
+      if (url === css.href || url.endsWith("/FinraWeeklyView.module.css"))
         return { format: "module", source: "export default {};", shortCircuit: true };
-      if (url !== component.href) return next(url, context);
-      const { outputText } = ts.transpileModule(readFileSync(component, "utf8"), {
+      if (url !== component.href && !url.endsWith("/FinraWeeklyView.tsx")) return next(url, context);
+      const { outputText } = ts.transpileModule(readFileSync(new URL(url), "utf8"), {
         compilerOptions: { module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
       });
       return { format: "module", source: outputText, shortCircuit: true };
@@ -42,7 +46,7 @@ test("historical venue views retain only the dated MARKET filings and hide the e
       assert.ok(archived.includes(filing.url));
       assert.ok(archived.includes(String(pair.current)));
     }
-    assert.doesNotMatch(archived, /tapeboard\.com|otctransparency\.finra\.org/);
+    assert.doesNotMatch(archived, /tapeboard\.com|otctransparency\.finra\.org|FINRA weekly ETF volume/);
     assert.equal(render("SPY", true), "");
     assert.match(render("SPY", false), /tapeboard\.com\/dark-pool\/SPY/);
   } finally {

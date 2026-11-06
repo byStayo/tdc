@@ -20,6 +20,14 @@ const pair = [
   row,
   { ...row, summaryTypeCode: "OTC_W_SMBL", totalWeeklyShareQuantity: 300 },
 ];
+test("FINRA preserves fractional shares while trade counts remain nonnegative integers", () => {
+  const fractional = pair.map(r => ({ ...r, totalWeeklyShareQuantity: 100.123456 }));
+  assert.equal(finraWeeks(fractional, cutoff)[0].nonAtsShares, 100.123456);
+  for (const bad of [NaN, Infinity, -1, Number.MAX_SAFE_INTEGER + 1, "100.5", null]) {
+    assert.equal(finraWeeks(fractional.map(r => ({ ...r, totalWeeklyShareQuantity: bad })), cutoff).length, 0);
+  }
+  assert.equal(finraWeeks(fractional.map(r => ({ ...r, totalWeeklyTradeCount: 1.5 })), cutoff).length, 0);
+});
 test("FINRA parser keeps ATS and non-ATS separate, ignores firm totals and refuses missing-side zero fills", () => {
   const parsed = finraWeeks(
     [

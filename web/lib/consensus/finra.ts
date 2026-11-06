@@ -85,7 +85,10 @@ export function finraWeeks(input: unknown, cutoff: string): FinraWeek[] {
       updated > cutoff.slice(0, 10) ||
       Date.parse(week) < Date.parse(cutoff.slice(0, 10)) - 90 * 86400000 ||
       !["T1", "T2"].includes(row.tierIdentifier) ||
-      !count(row.totalWeeklyShareQuantity) ||
+      !(typeof row.totalWeeklyShareQuantity === "number" &&
+        Number.isFinite(row.totalWeeklyShareQuantity) &&
+        row.totalWeeklyShareQuantity >= 0 &&
+        row.totalWeeklyShareQuantity <= Number.MAX_SAFE_INTEGER) ||
       !count(row.totalWeeklyTradeCount)
     )
       continue;

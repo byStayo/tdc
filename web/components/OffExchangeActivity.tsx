@@ -3,6 +3,7 @@ import type { ReviewPacket, ReviewedSource } from "@/lib/consensus/reviewed";
 import type { Instrument } from "@/lib/consensus/types";
 import type { VenueComparison } from "@/lib/consensus/venue-activity";
 import styles from "./MorningBoard.module.css";
+import FinraWeeklyView from "./FinraWeeklyView";
 
 const ETFS = ["SPY", "QQQ", "IWM", "DIA", "TLT"] as const;
 const FINRA_READER = "https://otctransparency.finra.org/otctransparency/Agreement";
@@ -40,14 +41,15 @@ export default function OffExchangeActivity({ review, instrument, historical }: 
   historical: boolean;
 }) {
   const activity = review?.venueActivity;
-  if (!activity || (historical && instrument !== "MARKET")) return null;
-  const nasdaq = review.sources.find(source => source.id === activity.nasdaqTrfShare.sourceId);
-  const cboe = review.sources.find(source => source.id === activity.bidsTouchedMillions.sourceId);
+  if (historical && (!activity || instrument !== "MARKET")) return null;
+  const nasdaq = activity && review?.sources.find(source => source.id === activity.nasdaqTrfShare.sourceId);
+  const cboe = activity && review?.sources.find(source => source.id === activity.bidsTouchedMillions.sourceId);
   const market = instrument === "MARKET";
   const tickers = instrument === "MARKET" ? ETFS : [instrument];
   return (
     <section id="off-exchange" className={`${styles.panel} ${styles.venuePanel}`} aria-labelledby="venue-heading">
       <h2 id="venue-heading">{market ? "Off-exchange trading" : `${instrument} off-exchange trading`}</h2>
+      {!historical && <FinraWeeklyView key={instrument} instrument={instrument} />}
       {!historical && (
         <div className={styles.venueReaders}>
           <p>Open a weekly ETF report on Tapeboard to compare shares traded on alternative trading systems (ATS) with other off-exchange volume. FINRA publishes the totals with a delay.</p>
@@ -61,7 +63,7 @@ export default function OffExchangeActivity({ review, instrument, historical }: 
           <a className={styles.venueOfficial} href={FINRA_READER} target="_blank" rel="noopener noreferrer">FINRA’s official tables and reader agreement <ArrowUpRight size={14} aria-hidden="true" /></a>
         </div>
       )}
-      {market && nasdaq && cboe && (
+      {market && activity && nasdaq && cboe && (
         <div className={styles.venueMarket}>
           <h3>U.S. trading venues · {quarter(activity.periodEnd)}</h3>
           <div className={styles.venueTiles}>
