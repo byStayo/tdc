@@ -33,7 +33,7 @@ export default function CommunityPanel({ instrument, historical }: { instrument:
     <div className={styles.heading}><div><span className={styles.eyebrow}>BLUESKY · A SMALL COMMUNITY SAMPLE</span><h3>The language around the market</h3></div><span className={styles.badge}>Context only</span></div>
     {historical ? <p className={styles.notice}>Community samples are current-only. They are not part of this saved edition.</p> : loading ? <p className={styles.notice} role="status">Checking the latest saved sample…</p> : !active || !reading ? <p className={styles.notice}>No current sample meets the publication checks. No sentiment is inferred.</p> : <>
       <p className={styles.window}>Captured {format(active.startedAt)} – {format(active.endedAt)}</p>
-      <p className={styles.lead}><strong>{reading.participants}</strong> distinct accounts matched {instrument === "MARKET" ? "the declared market filters" : `${instrument}/related-index filters`}. One qualifying post per account.</p>
+      <p className={styles.lead}><strong>{reading.participants}</strong> distinct {reading.participants === 1 ? "account" : "accounts"} matched {instrument === "MARKET" ? "the declared market filters" : `${instrument}/related-index filters`}. One qualifying post per account.</p>
       {reading.distribution ? <dl className={styles.lanes}>{Object.entries(COMMUNITY_LABELS).map(([key, label]) => {
         const count = reading.distribution![key as keyof typeof COMMUNITY_LABELS];
         const percent = count / reading.participants * 100;
