@@ -7,8 +7,15 @@ const KNOWN_SERIES = new Set(["FEDFUNDS", "DPRIME", "TNWBSHNO"]);
 // Cited rate/funding evidence is archived with the report. It does not expand
 // the workspace's three declared macro panels or refresh their retrieval age.
 const EDITORIAL_ONLY_SERIES = new Map([
-  ["DGS2", "percent"], ["DGS10", "percent"], ["DGS30", "percent"],
-  ["SOFR", "percent"], ["RRPONTSYD", "billions USD"],
+  ["DGS2", { unit: "percent", frequency: "daily" }],
+  ["DGS10", { unit: "percent", frequency: "daily" }],
+  ["DGS30", { unit: "percent", frequency: "daily" }],
+  ["SOFR", { unit: "percent", frequency: "daily" }],
+  ["EFFR", { unit: "percent", frequency: "daily" }],
+  ["RRPONTSYD", { unit: "billions USD", frequency: "daily" }],
+  ["WALCL", { unit: "millions USD", frequency: "weekly" }],
+  ["WTREGEN", { unit: "millions USD", frequency: "weekly" }],
+  ["WRESBAL", { unit: "millions USD", frequency: "weekly" }],
 ]);
 export interface SavedPublicData {
   schemaVersion: 1;
@@ -29,11 +36,12 @@ export function savedPublicData(evidence: EditorialEvidence): SavedPublicData {
   const oldest = (current: string | null | undefined, next: string) => !current || next < current ? next : current;
   for (const source of evidence.sources) {
     const editorialSeries = source.id.startsWith("FRED_") ? source.id.slice(5) : "";
-    if (source.kind === "fred" && EDITORIAL_ONLY_SERIES.has(editorialSeries)) {
+    const editorialDefinition = EDITORIAL_ONLY_SERIES.get(editorialSeries);
+    if (source.kind === "fred" && editorialDefinition) {
       if (source.status === "ok") {
         const data = source.data as { seriesId: string; unit: string; frequency: string; sha256: string; observations: {date: string; value: number | null}[] };
-        if (data.seriesId !== editorialSeries || data.unit !== EDITORIAL_ONLY_SERIES.get(editorialSeries) ||
-            data.frequency !== "daily" || !/^[a-f0-9]{64}$/.test(data.sha256) || !Array.isArray(data.observations) ||
+        if (data.seriesId !== editorialSeries || data.unit !== editorialDefinition.unit ||
+            data.frequency !== editorialDefinition.frequency || !/^[a-f0-9]{64}$/.test(data.sha256) || !Array.isArray(data.observations) ||
             !data.observations.some(row => row.value !== null) ||
             data.observations.some(row => !publicDate(row.date) || (row.value !== null && !Number.isFinite(row.value))))
           throw new Error("Invalid editorial-only macro evidence");

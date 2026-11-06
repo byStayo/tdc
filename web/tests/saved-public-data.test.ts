@@ -65,3 +65,35 @@ for(const [name,invalidData] of [
   assert.throws(()=>savedPublicData({...source,sources:[...source.sources,citation]}),/editorial-only/);
  });
 }
+
+const fundingCitations = [
+ { seriesId: 'EFFR', unit: 'percent', frequency: 'daily', value: 3.88 },
+ { seriesId: 'WALCL', unit: 'millions USD', frequency: 'weekly', value: 6748145 },
+ { seriesId: 'WTREGEN', unit: 'millions USD', frequency: 'weekly', value: 957175 },
+ { seriesId: 'WRESBAL', unit: 'millions USD', frequency: 'weekly', value: 2930088 },
+].map(({ value, ...definition }) => ({
+ id: `FRED_${definition.seriesId}`, kind: 'fred', status: 'ok',
+ retrievedAt: '2026-11-06T13:00:00.000Z',
+ data: { ...definition, sha256: 'b'.repeat(64), observations: [{ date: '2026-11-04', value }] },
+}));
+
+test('weekly balance and daily funding citations preserve saved workspace panels and provider ages', () => {
+ const enriched = savedPublicData({ ...source, sources: [...source.sources, ...fundingCitations] });
+ assert.deepEqual(enriched, saved);
+});
+
+test('balance citations reject a thousandfold unit relabel and a daily frequency relabel', () => {
+ const reserve = fundingCitations.find(citation => citation.id === 'FRED_WRESBAL')!;
+ for (const invalid of [{ unit: 'billions USD' }, { frequency: 'daily' }]) {
+  const citation = { ...reserve, data: { ...reserve.data, ...invalid } };
+  assert.throws(() => savedPublicData({ ...source, sources: [...source.sources, citation] }), /editorial-only/);
+ }
+});
+
+test('the overnight funds rate cannot be relabelled as a weekly balance', () => {
+ const overnight = fundingCitations.find(citation => citation.id === 'FRED_EFFR')!;
+ for (const invalid of [{ unit: 'millions USD' }, { frequency: 'weekly' }]) {
+  const citation = { ...overnight, data: { ...overnight.data, ...invalid } };
+  assert.throws(() => savedPublicData({ ...source, sources: [...source.sources, citation] }), /editorial-only/);
+ }
+});
