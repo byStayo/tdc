@@ -30,6 +30,10 @@ test('licence removal, future or impossible clocks, false periods and inconsiste
   (x:any)=>x.months[0].values.total++,(x:any)=>x.months[0].values.ratio+=1,
   (x:any)=>x.months[0].breakdown[0].values.total++,(x:any)=>x.months.push(x.months[0]),
   (x:any)=>x.months=x.months.filter((r:any)=>r.month!=='2026-10'),
+  // An older month incorrectly marked partial must fail independently of the latest-closed check.
+  (x:any)=>x.months[0].monthToDate=true,
+  // Preserve global totals and sector sums, isolating the sector's impossible sub-total.
+  (x:any)=>{const m=x.months[0],v=m.values,c=m.breakdown[0].values;const delta=c.total-c.upgrades-c.downgrades+1;c.upgrades+=delta;c.ratio=c.downgrades?c.upgrades/c.downgrades:0;v.upgrades+=delta;v.initiations-=delta;v.ratio=v.upgrades/v.downgrades;},
  ]){const x=JSON.parse(text);edit(x);assert.throws(()=>parseAnalystRatings(JSON.stringify(x),at));}
 });
 test('zero-downgrade sector sentinel is validated without inventing infinite ratios',()=>{
@@ -47,6 +51,14 @@ test('saved licence, scope, units, partial-period dates and arithmetic are enfor
   (x:any)=>x.source.frequency='daily',(x:any)=>x.metrics[0].unit='dollars',
   (x:any)=>x.metrics.at(-1).date='2026-11-30',(x:any)=>x.metrics[0].value++,
   (x:any)=>x.metrics=[],(x:any)=>x.series.at(-1).value+=5,
+  (x:any)=>x.directionalInstruments=['MARKET'],(x:any)=>x.source.usage='',
+  (x:any)=>x.status='unavailable',
+  // End-of-month date isolates the closed-month-only chart rule in this validator.
+  (x:any)=>x.series.push({date:'2026-11-30',value:50}),
+  // Keep its date internally aligned with a partial label, exposing a wrong month label.
+  (x:any)=>{for(const m of x.metrics.filter((m:any)=>m.label.startsWith('2026-10'))){m.label=m.label.replace('full month','month to date');m.date='2026-11-06';}},
+  // Intentionally invalid saved payload: a third closed group with internally matching arithmetic.
+  (x:any)=>{const extra=x.metrics.slice(0,5).map((m:any)=>({...m,label:m.label.replace('2026-09','2026-08'),date:'2026-08-31'}));x.metrics.push(...extra);x.series.unshift({date:'2026-08-31',value:206/(206+205)*100});},
  ]){const bad=structuredClone(good);edit(bad);assert.throws(()=>validateAnalystRatings(bad));}
 });
 test('scoped addition preserves previous sources and every directional reading',async()=>{
