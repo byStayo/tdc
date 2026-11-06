@@ -1,0 +1,41 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "placement": {
+      "type": "choice",
+      "choice": "own_disclosure",
+      "confidence": 0.88,
+      "probabilities": {
+        "own_disclosure": 0.91,
+        "news_subpanel": 0.04,
+        "within_price": 0.04,
+        "expand_candidates": 0.01
+      }
+    },
+    "visual": {
+      "type": "choice",
+      "choice": "horizontal_lanes",
+      "confidence": 0.68,
+      "probabilities": {
+        "horizontal_lanes": 0.76,
+        "stacked_bar": 0.21,
+        "numbers_only": 0.02,
+        "expand_candidates": 0.01
+      }
+    },
+    "method": {
+      "type": "choice",
+      "choice": "essential_inline",
+      "confidence": 0.85,
+      "probabilities": {
+        "essential_inline": 0.9,
+        "all_inline": 0,
+        "source_drawer": 0.1
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1220,
+    "output_tokens": 147
+  }
+}

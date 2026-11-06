@@ -1,0 +1,58 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add verified free Federal Reserve quarterly private-credit flows inside the existing capital section without reintroducing visual overload.",
+    "catalog": [
+      "Existing collapsed Policy, positioning & capital research disclosure",
+      "Two-column capital row: Treasury monthly flow bars, SEC private-equity asset stock panel",
+      "Neutral accessible SVG sparkline",
+      "Six discrete quarter bars with text labels",
+      "Native disclosure",
+      "Source drawer and direct 44px citation links"
+    ],
+    "tokens": {
+      "fonts": "self-hosted Manrope body and Space Grotesk headings",
+      "colors": "existing --panel --text --text-secondary --text-muted --accent --border; charcoal/sage dark and warm neutral light",
+      "constraints": "44px controls; 390px phone and 1280px desktop; no color-only meaning; reduced motion"
+    },
+    "facts": {
+      "series": "Six quarterly observations, 2025Q1 through2026Q2, Fed FA443067205 net acquisition of private-credit loans, values56.2,57.3,34.7,58.0,85.6,50.0.",
+      "latest": "2026Q2: loans50.0, all financial assets81.7, net fund share issues1.7. All in USD billions seasonally adjusted annual rate; not the cash amount during the quarter.",
+      "vintage": "September11,2026 release; source inputs only through2026Q1, so2026Q2 estimated. Each snapshot preserves this vintage; no enrichment of old editions.",
+      "other": "Existing SEC private-equity asset stock is a separate, stale2025Q3 report, not a flow."
+    },
+    "constraints": [
+      "Keep within existing capital disclosure; no new top-level card/hero/tab",
+      "Fed flows and SEC asset stocks must remain explicitly distinct",
+      "No daily/weekly/monthly vote, no probability, no PE flow claim",
+      "Quarter, release vintage, units and estimated status visible without opening source details",
+      "Missing data must not be represented by zero",
+      "Historical editions without new signal must keep original presentation"
+    ],
+    "choices": [
+      "Replace primary emphasis of existing private-capital panel with compact Fed context; retain SEC asset context separately inside it",
+      "No additional full width top-level section"
+    ]
+  },
+  "questions": {
+    "layout": {
+      "type": "choice",
+      "instructions": "Choose a compact visual presentation for six quarterly observations in the existing right capital panel. It must make discrete observations and the last estimated quarter clear.",
+      "criteria": {
+        "quarter_bars": "Six neutral vertical bars around zero with quarter labels; explicit estimated badge and distinct hatched last bar; show latest loan flow and two small related metrics, without a directional color.",
+        "sparkline": "Existing neutral sparkline with six points; label its endpoints and latest estimated value, show two small related metrics.",
+        "table": "Compact semantic six-row quarter/value table, latest estimated row labelled, followed by two related metrics.",
+        "expand_candidates": "No candidate fits; expand choices before implementation."
+      }
+    },
+    "old_assets": {
+      "type": "choice",
+      "instructions": "Choose how to preserve the distinct old SEC private-equity asset context alongside this new quarterly private-credit series.",
+      "criteria": {
+        "collapsed_detail": "A native disclosure titled Older private-equity asset context, showing its date/stale label in summary and full original numbers/source inside.",
+        "inline_divider": "Keep the old full SEC chart and metrics immediately below the Fed panel separated by a rule.",
+        "separate_card": "Add a third full-size peer card for SEC assets outside the two-column row."
+      }
+    }
+  }
+}

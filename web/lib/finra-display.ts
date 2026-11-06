@@ -1,0 +1,29 @@
+import { brotliDecompressSync } from "node:zlib";
+import { publicDate } from "./public-normalization.ts";
+import type { FinraWeek } from "./consensus/finra.ts";
+
+export const FINRA_AGREEMENT = "finra-equity-2022-12-20-v1";
+export const FINRA_SYMBOLS = ["SPY", "QQQ", "IWM", "DIA", "TLT"] as const;
+export type FinraDisplay = { retrievedAt: string; cutoff: string; sha256: string; weeks: FinraWeek[] };
+export function decodeFinraDisplay(encoded: string | undefined, now = Date.now()): FinraDisplay | null {
+  try {
+    if (!encoded || encoded.length > 48000) return null;
+    const data = JSON.parse(brotliDecompressSync(Buffer.from(encoded, "base64"), { maxOutputLength: 64000 }).toString("utf8"));
+    const cutoff = Date.parse(data.cutoff), retrieved = Date.parse(data.retrievedAt);
+    if (!Number.isFinite(cutoff) || !Number.isFinite(retrieved) || retrieved < cutoff || retrieved > now || now - retrieved > 7 * 86400000 || !/^[a-f0-9]{64}$/.test(data.sha256) || !Array.isArray(data.weeks) || !data.weeks.length || data.weeks.length > 65) return null;
+    const seen = new Set<string>();
+    for (const w of data.weeks) {
+      if (!FINRA_SYMBOLS.includes(w.instrument) || ![w.weekStart,w.initialPublished,w.lastUpdated].every(d => typeof d === "string" && d.length === 10 && publicDate(d) === d) || new Date(w.weekStart+"T00:00:00Z").getUTCDay() !== 1 || w.initialPublished < w.weekStart || w.lastUpdated < w.initialPublished || w.lastUpdated > data.cutoff.slice(0,10) || Date.parse(w.weekStart) < cutoff - 91*86400000 || ![w.atsShares,w.nonAtsShares].every(n=>typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= Number.MAX_SAFE_INTEGER) || ![w.atsTrades,w.nonAtsTrades].every(n=>Number.isSafeInteger(n) && n >= 0) || seen.has(w.instrument+":"+w.weekStart)) return null;
+      seen.add(w.instrument+":"+w.weekStart);
+    }
+    return data;
+  } catch { return null; }
+}
+const escape = (s: string) => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
+export function renderFinraView(data: FinraDisplay, symbol: string, dark = false): string {
+  const weeks = data.weeks.filter(w=>w.instrument===symbol).sort((a,b)=>b.weekStart.localeCompare(a.weekStart));
+  if (!weeks.length) throw Error("No verified weeks for instrument");
+  const w = weeks[0], max = Math.max(w.atsShares,w.nonAtsShares,1);
+  const shares = (n:number) => n.toLocaleString("en-US",{maximumFractionDigits:6});
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>${escape(symbol)} FINRA weekly off-exchange volume</title><style>:root{color-scheme:${dark?"dark":"light"}}*{box-sizing:border-box}body{margin:0;padding:12px;font:14px/1.5 system-ui,sans-serif;color:${dark?"#e8edf5":"#172333"};background:${dark?"#111b29":"#fff"};overflow-wrap:anywhere}h3{margin:0;font-size:18px}p{margin:8px 0}.muted{opacity:.75;font-size:12px}.bar{height:9px;border-radius:5px;margin:6px 0 14px}.ats{background:#4b88cb}.other{background:#8997aa}summary{cursor:pointer;min-height:44px;padding:10px 0}summary:focus-visible{outline:2px solid #4b88cb}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:right;padding:9px 3px;border-bottom:1px solid #8997aa55}th:first-child,td:first-child{text-align:left}caption{text-align:left;font-weight:600}small{font-size:12px;font-weight:400}details{margin-top:12px}a{color:inherit}@media(max-width:420px){tbody{display:block}tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 16px}tbody th{grid-column:1/-1;text-align:left}tbody td{text-align:left;min-width:0;overflow-wrap:anywhere}tbody td:before{content:attr(data-label);display:block;font-weight:600}th,td{font-size:12px;padding:9px 2px}table{table-layout:fixed}thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}tbody small{display:inline-block;margin-right:8px}}@media print{body>*{display:none}body:after{content:'FINRA data: no further redistribution permitted.'}}</style><h3>${escape(symbol)} · week of ${w.weekStart}</h3><p class="muted">FINRA is the owner and source of this equity data. Delayed weekly activity; no buying/selling direction or consensus vote.</p><p>ATS · <strong>${shares(w.atsShares)} shares</strong></p><div class="bar ats" style="width:${w.atsShares/max*100}%"></div><p>Non-ATS · <strong>${shares(w.nonAtsShares)} shares</strong></p><div class="bar other" style="width:${w.nonAtsShares/max*100}%"></div><p class="muted">Pair available ${w.initialPublished} · latest venue update ${w.lastUpdated}<br>Retrieved ${escape(data.retrievedAt)} · current view expires ${new Date(Date.parse(data.retrievedAt)+7*86400000).toISOString()}</p><details><summary>View ${weeks.length} verified weeks</summary><table><caption>Shares traded · fractional quantities retained</caption><thead><tr><th scope="col">Week of</th><th scope="col">ATS</th><th scope="col">Non-ATS</th></tr></thead><tbody>${weeks.map(r=>`<tr><th scope="row">${r.weekStart}<br><small>Published ${r.initialPublished}<br>Updated ${r.lastUpdated}</small></th><td data-label="ATS shares">${shares(r.atsShares)}</td><td data-label="Non-ATS shares">${shares(r.nonAtsShares)}</td></tr>`).join("")}</tbody></table></details><p class="muted">Free non-commercial personal/professional use only. No further redistribution. Not part of saved editions, downloads or model evidence. <a href="https://developer.finra.org/specific-terms-equity-data" target="_blank" rel="noopener noreferrer">FINRA Equity Data terms</a>.</p></html>`;
+}

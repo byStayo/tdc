@@ -1,0 +1,69 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-05T13:09:58.267Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "data": {
+    "headline": "The UK raised rates. US yields had already moved.",
+    "summary": "The Bank of England raised Bank Rate to 4% this morning. The latest US observations tell a different, earlier story: Treasury yields rose on November 3, and secured overnight funding eased on November 4. The sequence matters when interpreting the two markets.",
+    "bull": [
+      {
+        "text": "US overnight secured funding eased: SOFR fell from 3.97% on November 3 to 3.94% on November 4. That is a modest reduction in the observed overnight rate.",
+        "sourceIds": [
+          "FRED_SOFR"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The UK vote was 8–1 for a quarter-point rise from 3.75% to 4%; the dissenter wanted a half-point rise to 4.25%. Members disagreed on how much to tighten, not on whether to tighten.",
+        "sourceIds": [
+          "BOE_MPC"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "On November 3 the US two-year yielded 4.61%, the ten-year 4.95% and the thirty-year 5.32%. A later US observation is needed to examine any move after the November 5 UK announcement.",
+        "sourceIds": [
+          "FRED_DGS2",
+          "FRED_DGS10",
+          "FRED_DGS30",
+          "BOE_MPC"
+        ]
+      }
+    ],
+    "limitations": [
+      "The UK meeting ended November 4. The Bank released the minutes at 7 a.m. ET on November 5. No priced expectation or cross-market price reaction is measured.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
+    ]
+  },
+  "sources": [
+    {
+      "id": "BOE_MPC",
+      "title": "Bank of England · November MPC summary and minutes",
+      "url": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/november-2026"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Overnight funding · SOFR",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    }
+  ]
+}

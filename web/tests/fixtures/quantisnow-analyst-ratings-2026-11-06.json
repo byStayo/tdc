@@ -1,0 +1,498 @@
+{
+  "name": "Quantisnow Analyst Sentiment Index",
+  "description": "Monthly count of Wall Street analyst upgrades, downgrades and new coverage on US-listed stocks, with the upgrade-to-downgrade ratio overall and by sector.",
+  "url": "https://www.quantisnow.com/data/analyst-ratings",
+  "creator": "Quantisnow",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "citation": "Quantisnow. (2026). Quantisnow Analyst Sentiment Index [Data set]. Retrieved November 6, 2026, from https://www.quantisnow.com/data/analyst-ratings",
+  "updatedAt": "2026-11-06 06:15:37",
+  "metrics": [
+    {
+      "key": "upgrades",
+      "label": "Upgrades",
+      "format": "int"
+    },
+    {
+      "key": "downgrades",
+      "label": "Downgrades",
+      "format": "int"
+    },
+    {
+      "key": "ratio",
+      "label": "Upgrade-to-downgrade ratio",
+      "format": "ratio",
+      "description": "Upgrades divided by downgrades. Above 1.00 means more upgrades than downgrades."
+    },
+    {
+      "key": "initiations",
+      "label": "Coverage initiated",
+      "format": "int"
+    },
+    {
+      "key": "reiterations",
+      "label": "Ratings reiterated",
+      "format": "int"
+    },
+    {
+      "key": "total",
+      "label": "All rating actions",
+      "format": "int"
+    }
+  ],
+  "breakdown": {
+    "title": "Upgrades and downgrades by sector",
+    "columns": [
+      {
+        "key": "upgrades",
+        "label": "Upgrades",
+        "format": "int"
+      },
+      {
+        "key": "downgrades",
+        "label": "Downgrades",
+        "format": "int"
+      },
+      {
+        "key": "ratio",
+        "label": "Ratio",
+        "format": "ratio"
+      },
+      {
+        "key": "total",
+        "label": "All actions",
+        "format": "int"
+      }
+    ]
+  },
+  "months": [
+    {
+      "month": "2026-09",
+      "monthToDate": false,
+      "values": {
+        "upgrades": 206,
+        "downgrades": 205,
+        "initiations": 601,
+        "reiterations": 266,
+        "total": 1278,
+        "ratio": 1.0048780487804878
+      },
+      "breakdown": [
+        {
+          "label": "Health Care",
+          "values": {
+            "upgrades": 34,
+            "downgrades": 35,
+            "total": 236,
+            "ratio": 0.9714285714285714
+          }
+        },
+        {
+          "label": "Technology",
+          "values": {
+            "upgrades": 26,
+            "downgrades": 38,
+            "total": 232,
+            "ratio": 0.6842105263157895
+          }
+        },
+        {
+          "label": "Consumer Discretionary",
+          "values": {
+            "upgrades": 40,
+            "downgrades": 35,
+            "total": 197,
+            "ratio": 1.1428571428571428
+          }
+        },
+        {
+          "label": "Industrials",
+          "values": {
+            "upgrades": 25,
+            "downgrades": 28,
+            "total": 163,
+            "ratio": 0.8928571428571429
+          }
+        },
+        {
+          "label": "Finance",
+          "values": {
+            "upgrades": 31,
+            "downgrades": 23,
+            "total": 156,
+            "ratio": 1.3478260869565217
+          }
+        },
+        {
+          "label": "Energy",
+          "values": {
+            "upgrades": 12,
+            "downgrades": 7,
+            "total": 78,
+            "ratio": 1.7142857142857142
+          }
+        },
+        {
+          "label": "Real Estate",
+          "values": {
+            "upgrades": 14,
+            "downgrades": 23,
+            "total": 76,
+            "ratio": 0.6086956521739131
+          }
+        },
+        {
+          "label": "Utilities",
+          "values": {
+            "upgrades": 11,
+            "downgrades": 4,
+            "total": 60,
+            "ratio": 2.75
+          }
+        },
+        {
+          "label": "Basic Materials",
+          "values": {
+            "upgrades": 3,
+            "downgrades": 1,
+            "total": 25,
+            "ratio": 3
+          }
+        },
+        {
+          "label": "Consumer Staples",
+          "values": {
+            "upgrades": 4,
+            "downgrades": 4,
+            "total": 20,
+            "ratio": 1
+          }
+        },
+        {
+          "label": "Telecommunications",
+          "values": {
+            "upgrades": 3,
+            "downgrades": 2,
+            "total": 14,
+            "ratio": 1.5
+          }
+        },
+        {
+          "label": "Miscellaneous",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 4,
+            "total": 9,
+            "ratio": 0.25
+          }
+        },
+        {
+          "label": "Unclassified",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 1,
+            "total": 7,
+            "ratio": 1
+          }
+        },
+        {
+          "label": "Public Utilities",
+          "values": {
+            "upgrades": 0,
+            "downgrades": 0,
+            "total": 3,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "Transportation",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 0,
+            "total": 1,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "n/a",
+          "values": {
+            "upgrades": 0,
+            "downgrades": 0,
+            "total": 1,
+            "ratio": 0
+          }
+        }
+      ]
+    },
+    {
+      "month": "2026-10",
+      "monthToDate": false,
+      "values": {
+        "upgrades": 263,
+        "downgrades": 295,
+        "initiations": 559,
+        "reiterations": 101,
+        "total": 1218,
+        "ratio": 0.8915254237288136
+      },
+      "breakdown": [
+        {
+          "label": "Health Care",
+          "values": {
+            "upgrades": 29,
+            "downgrades": 54,
+            "total": 263,
+            "ratio": 0.5370370370370371
+          }
+        },
+        {
+          "label": "Finance",
+          "values": {
+            "upgrades": 42,
+            "downgrades": 59,
+            "total": 208,
+            "ratio": 0.711864406779661
+          }
+        },
+        {
+          "label": "Consumer Discretionary",
+          "values": {
+            "upgrades": 64,
+            "downgrades": 49,
+            "total": 200,
+            "ratio": 1.3061224489795917
+          }
+        },
+        {
+          "label": "Industrials",
+          "values": {
+            "upgrades": 41,
+            "downgrades": 37,
+            "total": 166,
+            "ratio": 1.1081081081081081
+          }
+        },
+        {
+          "label": "Technology",
+          "values": {
+            "upgrades": 38,
+            "downgrades": 53,
+            "total": 150,
+            "ratio": 0.7169811320754716
+          }
+        },
+        {
+          "label": "Utilities",
+          "values": {
+            "upgrades": 7,
+            "downgrades": 6,
+            "total": 60,
+            "ratio": 1.1666666666666667
+          }
+        },
+        {
+          "label": "Energy",
+          "values": {
+            "upgrades": 7,
+            "downgrades": 10,
+            "total": 59,
+            "ratio": 0.7
+          }
+        },
+        {
+          "label": "Real Estate",
+          "values": {
+            "upgrades": 12,
+            "downgrades": 9,
+            "total": 45,
+            "ratio": 1.3333333333333333
+          }
+        },
+        {
+          "label": "Basic Materials",
+          "values": {
+            "upgrades": 8,
+            "downgrades": 5,
+            "total": 24,
+            "ratio": 1.6
+          }
+        },
+        {
+          "label": "Consumer Staples",
+          "values": {
+            "upgrades": 4,
+            "downgrades": 10,
+            "total": 18,
+            "ratio": 0.4
+          }
+        },
+        {
+          "label": "Telecommunications",
+          "values": {
+            "upgrades": 5,
+            "downgrades": 3,
+            "total": 9,
+            "ratio": 1.6666666666666667
+          }
+        },
+        {
+          "label": "Miscellaneous",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 0,
+            "total": 8,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "n/a",
+          "values": {
+            "upgrades": 3,
+            "downgrades": 0,
+            "total": 5,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "Unclassified",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 0,
+            "total": 2,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "Transportation",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 0,
+            "total": 1,
+            "ratio": 0
+          }
+        }
+      ]
+    },
+    {
+      "month": "2026-11",
+      "monthToDate": true,
+      "values": {
+        "upgrades": 66,
+        "downgrades": 98,
+        "initiations": 31,
+        "reiterations": 8,
+        "total": 203,
+        "ratio": 0.673469387755102
+      },
+      "breakdown": [
+        {
+          "label": "Consumer Discretionary",
+          "values": {
+            "upgrades": 13,
+            "downgrades": 32,
+            "total": 50,
+            "ratio": 0.40625
+          }
+        },
+        {
+          "label": "Technology",
+          "values": {
+            "upgrades": 17,
+            "downgrades": 24,
+            "total": 48,
+            "ratio": 0.7083333333333334
+          }
+        },
+        {
+          "label": "Health Care",
+          "values": {
+            "upgrades": 5,
+            "downgrades": 10,
+            "total": 27,
+            "ratio": 0.5
+          }
+        },
+        {
+          "label": "Industrials",
+          "values": {
+            "upgrades": 13,
+            "downgrades": 4,
+            "total": 25,
+            "ratio": 3.25
+          }
+        },
+        {
+          "label": "Finance",
+          "values": {
+            "upgrades": 7,
+            "downgrades": 11,
+            "total": 18,
+            "ratio": 0.6363636363636364
+          }
+        },
+        {
+          "label": "Utilities",
+          "values": {
+            "upgrades": 2,
+            "downgrades": 4,
+            "total": 10,
+            "ratio": 0.5
+          }
+        },
+        {
+          "label": "Real Estate",
+          "values": {
+            "upgrades": 3,
+            "downgrades": 4,
+            "total": 8,
+            "ratio": 0.75
+          }
+        },
+        {
+          "label": "Consumer Staples",
+          "values": {
+            "upgrades": 3,
+            "downgrades": 3,
+            "total": 6,
+            "ratio": 1
+          }
+        },
+        {
+          "label": "Energy",
+          "values": {
+            "upgrades": 1,
+            "downgrades": 3,
+            "total": 5,
+            "ratio": 0.3333333333333333
+          }
+        },
+        {
+          "label": "Basic Materials",
+          "values": {
+            "upgrades": 2,
+            "downgrades": 0,
+            "total": 3,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "Telecommunications",
+          "values": {
+            "upgrades": 0,
+            "downgrades": 2,
+            "total": 2,
+            "ratio": 0
+          }
+        },
+        {
+          "label": "Miscellaneous",
+          "values": {
+            "upgrades": 0,
+            "downgrades": 1,
+            "total": 1,
+            "ratio": 0
+          }
+        }
+      ]
+    }
+  ]
+}

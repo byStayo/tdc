@@ -1,0 +1,59 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "DIA",
+  "createdAt": "2026-11-06T13:09:43.944Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "DIA’s long-end Treasury spread widened to 38 basis points",
+    "summary": "The 30-year minus ten-year Treasury spread widened from 37 to 38 basis points on November 4, even as both yields declined. This matters when comparing different financing maturities for long-lived projects. Company credit spreads and project cash flows determine the final borrowing and investment decision.",
+    "bull": [
+      {
+        "text": "The 30-year benchmark fell from 5.32% to 5.28%, a 4-basis-point decline. The ten-year declined from 4.95% to 4.90%, or 5 basis points. Both Treasury benchmarks eased over the November 3–4 interval.",
+        "sourceIds": [
+          "FRED_DGS30",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The 30-year yield retained a 38-basis-point premium over the ten-year, up from 37. Longer financing terms therefore carried a wider Treasury maturity spread in this observation.",
+        "sourceIds": [
+          "FRED_DGS30",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "October 27 Dow futures positions showed asset managers net long 12,233 contracts and leveraged funds net long 96. The leveraged category was close to balanced in that older weekly report.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "limitations": [
+      "These Treasury benchmarks cover different maturities. Actual Dow-company borrowing costs, new orders, capital spending and DIA returns remain unmeasured.",
+      "The futures figures describe the DJIA x $5 contract. They carry weekly reporting lag and provide no direct DIA fund-flow or options reading."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_DOW",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    }
+  ]
+}

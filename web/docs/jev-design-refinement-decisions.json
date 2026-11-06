@@ -1,0 +1,75 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "first_screen": {
+      "type": "choice",
+      "choice": "briefing",
+      "confidence": 1.0,
+      "probabilities": {
+        "briefing": 1.0,
+        "terminal": 0.0,
+        "editorial": 0.0,
+        "none_fit": 0.0
+      }
+    },
+    "withheld_visual": {
+      "type": "choice",
+      "choice": "family_grid",
+      "confidence": 0.88,
+      "probabilities": {
+        "family_grid": 0.91,
+        "neutral_gauge": 0.01,
+        "stacked_bars": 0.08,
+        "none_fit": 0.0
+      }
+    },
+    "brand": {
+      "type": "choice",
+      "choice": "two_line",
+      "confidence": 0.87,
+      "probabilities": {
+        "two_line": 0.9,
+        "one_line": 0.09,
+        "word_only": 0.0,
+        "none_fit": 0.01
+      }
+    },
+    "detail": {
+      "type": "choice",
+      "choice": "grouped",
+      "confidence": 1.0,
+      "probabilities": {
+        "grouped": 1.0,
+        "all_open": 0.0,
+        "tabs_only": 0.0,
+        "none_fit": 0.0
+      }
+    },
+    "news_cards": {
+      "type": "choice",
+      "choice": "headline_disclosure",
+      "confidence": 1.0,
+      "probabilities": {
+        "headline_disclosure": 1.0,
+        "facts_always": 0.0,
+        "single_feature": 0.0,
+        "none_fit": 0.0
+      }
+    },
+    "controls": {
+      "type": "choice",
+      "choice": "wrap",
+      "confidence": 0.72,
+      "probabilities": {
+        "wrap": 0.79,
+        "select_horizon": 0.18,
+        "scroll": 0.02,
+        "none_fit": 0.01
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1804,
+    "output_tokens": 301
+  }
+}

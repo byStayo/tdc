@@ -1,0 +1,58 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add the actual newly released Qualcomm quarter and management guidance to the existing free morning publication.",
+    "catalog": [
+      "MorningBoard News & company earnings disclosure",
+      "Existing responsive auto-fit earningsCompanies grid with whole-card buttons opening the earnings source drawer",
+      "Existing GuidancePanel with company revenue ranges, original date and assumptions",
+      "Up to three source-linked development cards ordered by saved packet"
+    ],
+    "tokens": {
+      "fonts": "Manrope and Space Grotesk",
+      "colors": "Existing shared panel/text/secondary/muted/up/down tokens, light and dark themes",
+      "type": "12px metadata and 14px body",
+      "responsive": "375/768/1280px; essential controls >=44px; reduced motion"
+    },
+    "facts": {
+      "publicationDate": "2026-11-04; exact publication clock time not stated in PDF",
+      "periodEnd": "2026-09-27",
+      "priorPeriodEnd": "2025-09-28",
+      "revenueBillions": 10.322,
+      "priorRevenueBillions": 11.27,
+      "gaapEPS": 1.17,
+      "priorGaapEPS": -2.89,
+      "guidance": "Company FY2027 Q1 revenue range $10.4bn-$11.2bn",
+      "caveat": "Prior quarter had $6.088bn income tax expense; a loss-to-profit comparison is not ordinary EPS percentage growth."
+    },
+    "constraints": [
+      "Only MARKET/SPY/QQQ get QCOM company context; DIA/IWM/TLT do not.",
+      "Five company cards on applicable views; earnings and outlook remain separate.",
+      "Historical editions use only their stored facts, never a new company release.",
+      "Remove completed QCOM result schedule from the new edition only; webcast is not the release time.",
+      "No analyst estimate, beat, market price reaction, probability, new vote or model result may be inferred.",
+      "Reuse verified layout and accessible controls; no new provider scripts."
+    ]
+  },
+  "questions": {
+    "layout": {
+      "type": "choice",
+      "instructions": "Select the presentation for five reported-company comparisons inside the existing earnings section.",
+      "criteria": {
+        "existing_grid": "Reuse the responsive auto-fit company grid, allowing it to wrap naturally into multiple rows with all five cards visible.",
+        "stacked_rows": "Replace only the company grid with full-width stacked comparison rows on every viewport.",
+        "compact_table": "Use an accessible table at desktop and equivalent stacked rows on phones.",
+        "expand_candidates": "None fits; expand the candidate set."
+      }
+    },
+    "eps_comparison": {
+      "type": "choice",
+      "instructions": "Choose how to display current and comparable prior-year GAAP EPS when the prior figure is negative. No EPS percentage change is allowed.",
+      "criteria": {
+        "paired_values": "Show GAAP EPS current vs prior dollar values on each reported-release card when both are saved, and retain detailed tax context in the cited development/source drawer.",
+        "drawer_pair": "Keep current GAAP EPS on the card; show the signed prior-year value only in the existing source drawer with the detailed tax context.",
+        "expand_candidates": "Neither fits; expand the candidate set."
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "product": "The Daily Consensus verified financial research desk",
+    "existingDecisions": {
+      "layout": "research_desk",
+      "hierarchy": "evidence_first",
+      "density": "comfortable_with_detail",
+      "presentation": "navy_research"
+    },
+    "platform": "Next/React web, keyboard accessible, light/dark,390px mobile to desktop",
+    "newEvidence": "Original authored research cites FRED FEDFUNDS monthly percent, DPRIME daily percent, TNWBSHNO quarterly millionsUSD. All3 current public CSV downloads verified200. Each has separate observation date, units, frequency and attribution. Do not conflate data age with retrieval time. These are macro context, never a forecast or the exact unrecovered proprietary cycle model.",
+    "catalog": [
+      "existing Market & technical view",
+      "daily brief",
+      "right context rail",
+      "sources & methodology",
+      "value cards",
+      "accessible disclosure",
+      "small line chart"
+    ],
+    "constraints": [
+      "No new sidebar item needed",
+      "Core ticker chart stays prominent",
+      "No fabricated data",
+      "Latest value must display observation period and unit",
+      "Mobile stacked layout",
+      "Unconfigured or stale feeds need explicit text"
+    ]
+  },
+  "questions": {
+    "placement": {
+      "type": "choice",
+      "instructions": "Choose where to integrate this verified macro context without overloading the primary flow.",
+      "criteria": {
+        "market_panel": "A dedicated Macro context section below the ticker chart/technical indicators in Market & technical.",
+        "daily_brief_panel": "A dedicated three-series macro panel under the daily brief, above tickerchart.",
+        "right_rail": "Threecompact macro values in the right context rail, moved below content on mobile.",
+        "expand_candidates": "None fits; request broader candidates."
+      }
+    },
+    "detail": {
+      "type": "choice",
+      "instructions": "Choose readable macro presentation preserving frequency and attribution.",
+      "criteria": {
+        "values_with_history": "Three valuecards with explicit units/period and an expandable recent observations table plus source link.",
+        "sparklines": "Three valuecards each with compact sparkline and sourceperiod label.",
+        "single_table": "Onecompact table of series/latestvalue/units/period/source.",
+        "expand_candidates": "None fits."
+      }
+    }
+  }
+}

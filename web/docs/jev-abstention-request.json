@@ -1,0 +1,39 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Explain exactly why a saved morning consensus withholds a trading call. Independent code review confirms engine reasons exist but the interface never renders them.",
+    "existing": "Next16 React19 CSS modules, MorningBoard. Three-column hero: left verdict and coverage, center gauge, right ranked family drivers. Mobile stacks these. Existing tokens --panel --panel-raised --text --text-secondary --text-muted --warning --border. Body 12px with 1.7 line height; 44px buttons; dark and light themes. Native details, semantic lists and source drawer are available.",
+    "data": {
+      "exampleReasons": [
+        "Less than 70% of the requested evidence is current.",
+        "A verified price-based setup is missing.",
+        "Options risk is not measured."
+      ],
+      "reasonCount": "0 to 4 depending on selected instrument and horizon"
+    },
+    "constraints": [
+      "Display exact deterministic reason strings, not model-generated financial claims.",
+      "All active reasons must be visible without opening a drawer.",
+      "Hide the group when consensus does not abstain.",
+      "Use current design tokens and semantic text/list; no icons-only information or color-only meaning.",
+      "Preserve 390px mobile layout and historical source-cutoff behavior.",
+      "Do not imply that missing measurements equal neutral or a probability of profit."
+    ],
+    "candidates": [
+      "Short list under verdict paragraph",
+      "Full-width explanation row beneath the three hero columns",
+      "Compact status chips below coverage with wrapped text"
+    ]
+  },
+  "questions": {
+    "abstention_layout": {
+      "type": "choice",
+      "instructions": "Choose the most readable placement for all active abstention reasons in this dense morning hero, preserving scan speed and the three existing visuals. Select only among valid accessible candidates.",
+      "criteria": {
+        "verdict_list": "A labelled semantic list under the verdict paragraph in the first column; wraps naturally and stays close to the withheld call.",
+        "full_width_row": "A labelled full-width row below all three hero columns, with a semantic list that flows across columns on desktop and stacks on phone.",
+        "coverage_chips": "Wrapped textual status chips below coverage; all reasons fully spelled out and visible."
+      }
+    }
+  }
+}

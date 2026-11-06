@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "method": "bluesky-language-cues-v1",
+  "id": "9578273edb3ced2a0e7bef4f2e00c39bf185edfee752487b29357cf205b09587",
+  "startedAt": "2026-11-06T12:59:43.207Z",
+  "endedAt": "2026-11-06T13:09:09.774Z",
+  "expiresAt": "2026-11-07T13:09:09.774Z",
+  "receivedEvents": 41702,
+  "minimumParticipants": 10,
+  "readings": [
+    {
+      "instrument": "MARKET",
+      "participants": 13,
+      "distribution": {
+        "upward": 0,
+        "downward": 1,
+        "mixed": 0,
+        "unclassified": 12
+      }
+    },
+    {
+      "instrument": "SPY",
+      "participants": 1,
+      "distribution": null
+    },
+    {
+      "instrument": "QQQ",
+      "participants": 0,
+      "distribution": null
+    },
+    {
+      "instrument": "IWM",
+      "participants": 0,
+      "distribution": null
+    },
+    {
+      "instrument": "DIA",
+      "participants": 0,
+      "distribution": null
+    },
+    {
+      "instrument": "TLT",
+      "participants": 0,
+      "distribution": null
+    }
+  ]
+}

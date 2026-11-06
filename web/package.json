@@ -1,0 +1,44 @@
+{
+  "name": "daily-consensus-relaunch",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3107",
+    "build": "next build",
+    "prebuild": "node --experimental-strip-types scripts/verify-consensus.ts",
+    "start": "next start --hostname 127.0.0.1 --port 3107",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "consensus:collect": "node --experimental-strip-types scripts/publish-consensus.ts",
+    "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
+    "consensus:review": "node --experimental-strip-types scripts/publish-consensus.ts --review-only --publish",
+    "consensus:private-credit": "node --experimental-strip-types scripts/publish-consensus.ts --private-credit-only",
+    "consensus:analysts": "node --experimental-strip-types scripts/publish-consensus.ts --analysts-only",
+    "consensus:taiwan": "node --experimental-strip-types scripts/publish-consensus.ts --taiwan-only",
+    "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
+    "consensus:recover": "node --experimental-strip-types scripts/recover-consensus-evaluation.ts",
+    "consensus:rollback": "node --experimental-strip-types scripts/rollback-consensus-model.ts",
+    "consensus:research-fx": "node --experimental-strip-types scripts/research-fx-models.ts",
+    "consensus:finra-private": "node --experimental-strip-types scripts/collect-finra-private.ts",
+    "consensus:finra-setup": "python3 scripts/setup-finra.py",
+    "editorial:collect": "node --experimental-strip-types scripts/collect-editorial-evidence.ts",
+    "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts",
+    "consensus:bluesky-private": "node --experimental-strip-types scripts/collect-bluesky-private.ts",
+    "consensus:finra-stage": "node --experimental-strip-types scripts/prepare-finra-display.ts"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "lucide-react": "1.66.0",
+    "next": "16.4.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0"
+  },
+  "type": "module"
+}

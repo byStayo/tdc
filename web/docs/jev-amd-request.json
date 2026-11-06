@@ -1,0 +1,56 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Integrate a newly published AMD quarter and management outlook into the existing calm visual morning board.",
+    "catalog": [
+      "News & company earnings: existing numbered ResearchSection",
+      "Up to three source-linked development cards per instrument",
+      "Compact reported revenue and GAAP EPS rows",
+      "GuidancePanel with range bounds, source dates and assumptions disclosure",
+      "Saved edition selector that uses only the chosen immutable snapshot"
+    ],
+    "tokens": {
+      "fonts": "Manrope and Space Grotesk",
+      "colors": "Existing panel, text, secondary, muted and border CSS variables in both themes",
+      "responsive": "375, 768 and 1280 px; 44px controls; reduced motion"
+    },
+    "facts": {
+      "releasedAt": "2026-11-03T21:15:00Z",
+      "periodEnd": "2026-09-26",
+      "revenueBillions": 13.377,
+      "priorRevenueBillions": 9.246,
+      "gaapEPS": 1.46,
+      "priorGaapEPS": 0.75,
+      "outlook": "FY2026 Q4 management revenue midpoint $17bn +/-3%, arithmetic bounds $16.49-17.51bn"
+    },
+    "constraints": [
+      "AMD context is scoped to MARKET, SPY and QQQ; not a direct DIA, IWM or TLT company result",
+      "Keep older company rows and source dates; no changes to prior archived editions",
+      "Actuals and management outlook are separate, neither is analyst consensus or a measured price reaction",
+      "New facts are dated nonvoting context; retain all consensus abstentions",
+      "Remove the completed AMD release from the current upcoming calendar; do not invent its next earnings date",
+      "Reuse existing typography and interaction patterns; no new hero, animations, provider widgets or third-party scripts"
+    ]
+  },
+  "questions": {
+    "placement": {
+      "type": "choice",
+      "instructions": "Choose how to present the new reported quarter and outlook within this established hierarchy.",
+      "criteria": {
+        "existing_rows": "Add AMD to existing reported-company rows and existing management-outlook list inside News & company earnings, preserving distinct actual and outlook headings.",
+        "issuer_card": "Within the same disclosure, add one AMD card with internally separated actual and outlook subsections, keeping the existing lists for other issuers.",
+        "section_subtab": "Add an issuer subtab control inside the earnings disclosure and put AMD actuals and outlook under its own tab.",
+        "expand_candidates": "None of these choices fit; expand candidates before implementing."
+      }
+    },
+    "news_order": {
+      "type": "choice",
+      "instructions": "Choose the order of the three visible source-linked development cards for views to which the new release applies.",
+      "criteria": {
+        "latest_first": "Show the newly verified AMD release first, then the latest labor release and previous Apple quarter; retain other saved developments in evidence.",
+        "macro_first": "Keep labor first, then AMD, then Apple.",
+        "company_group": "Show AMD and Apple first, then labor so company cards sit together."
+      }
+    }
+  }
+}
