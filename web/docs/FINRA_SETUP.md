@@ -12,16 +12,19 @@ The [Public credential costs $0/month](https://developer.finra.org/fees). Create
 
 ## What the owner needs to do
 
-1. Open the [FINRA API Console](https://gateway.finra.org/app/dfo-console). Sign in, or use **Create Account Here** for an Individual account. Complete the account email promptly; its initial password link lasts one hour.
-2. In **My Credentials**, choose **ADD API CREDENTIAL**. Name it `Daily Consensus`, choose **Public**, and check **Total Fee Per Month = $0**. Review the terms yourself and create the credential. Do not select Mock or a paid Firm/Organization credential.
-3. FINRA sends two emails. **Important Information** supplies the API Client ID; **Action Required** has **Create API Client Secret**. Open the latter within 24 hours. On the reset form, User ID means the **API Client ID**, not your personal Gateway username. Choose the secret and save it.
-4. On this Mac, run the following command yourself in Terminal. It asks for the API Client ID and secret with input hidden, then confirms the secret. Never put the values in chat, a shell command, source control or browser code.
+Your existing Google-linked Individual account is sufficient for account registration. **Do not create another account.** Google sign-in and API-credential activation are separate steps.
+
+1. Open the [FINRA API Console](https://gateway.finra.org/app/dfo-console). If it asks you to sign in, select **Individual → Sign in with Google** using your existing account. The button also certifies acceptance of FINRA's entitlement terms; complete that yourself. A login in another FINRA product does not prove that the API Console session is active.
+2. In **My Credentials**, choose **ADD API CREDENTIAL**. Name it `Daily Consensus`, choose **Public**, and check **Total Fee Per Month = $0**. Review the terms yourself and create the credential. Do not select Mock or a paid Firm/Organization credential. If you already have an activated Public credential, reuse it instead of creating a duplicate.
+3. FINRA sends two emails. **Important Information** supplies the **API Client ID**; **Action Required** has **Create API Client Secret**. Open the latter within 24 hours. On the reset form, User ID means the **API Client ID**, not your Google email or Gateway username. Choose and save the API secret yourself.
+4. On **this Mac**, open Terminal and run:
 
    ```sh
    python3 "/Users/stelios/Documents/The Daily Consensus/app/web/scripts/setup-finra.py"
    ```
 
-5. After the command reports **Saved privately**, tell Codex **FINRA configured**. That confirms local setup, not successful API access. Codex can then run the existing private collector and verify the response without exposing credentials or publishing data.
+   Enter the **API Client ID**, the **API Client Secret**, then the secret again. Input is hidden. These are the API credential values, not your Google password. Never send the values in chat or include them in a shell command.
+5. Wait for **Saved privately**, then reply **Saved privately on this Mac**. Codex can run the existing bounded private collector once, inspect sanitized dates/counts, and implement the separately governed display after successful access. Account sign-in or saving the file alone is not a successful API test.
 
 The setup tool writes only `~/.config/the-daily-consensus/finra.json`, outside this repository and Vercel, with a private directory (0700) and file (0600). It sends no requests. It rejects piped input, unsafe file permissions, linked files and accidental replacement. Credential rotation uses the same command with `--replace`; the API secret expires after a year. The user also retains a copy in their own password manager if desired.
 

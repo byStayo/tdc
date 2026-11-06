@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-06T13-14-19-532Z",
-  "issuedAt": "2026-11-06T13:14:19.532Z",
-  "cutoff": "2026-11-06T13:00:23.710Z",
+  "id": "2026-11-06T17-01-48-890Z",
+  "issuedAt": "2026-11-06T17:01:48.890Z",
+  "cutoff": "2026-11-06T17:01:48.890Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -29043,6 +29043,388 @@
       }
     },
     {
+      "id": "quantisnow-monthly-ratings",
+      "family": "analysts",
+      "title": "US analyst rating actions · monthly sample",
+      "shortLabel": "Monthly analyst rating actions",
+      "instruments": [
+        "MARKET"
+      ],
+      "directionalInstruments": [],
+      "status": "available",
+      "summary": "2026-10 full month: 263 upgrades and 295 downgrades. 2026-11 month to date: 66 upgrades and 98 downgrades, through provider update 2026-11-06T06:15:37.000Z. Selected US stocks; no directional vote.",
+      "source": {
+        "name": "Quantisnow · monthly analyst ratings",
+        "url": "https://www.quantisnow.com/data/analyst-ratings.json",
+        "retrievedAt": "2026-11-06T17:01:48.884Z",
+        "observedAt": "2026-11-06T06:15:37.000Z",
+        "releasedAt": "2026-11-06T06:15:37.000Z",
+        "frequency": "monthly counts; current month to date",
+        "attribution": "Quantisnow · Quantisnow Analyst Sentiment Index · https://www.quantisnow.com/data/analyst-ratings. CC BY 4.0. Counts selected and ratios recomputed by The Daily Consensus; no endorsement implied.",
+        "usage": "Monthly dataset reuse under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Attribution, source link and changes disclosed.",
+        "sha256": "60c059be054b2572847c7c96932b1f794bbf222a726b87c29bdbea52f8bdd480"
+      },
+      "methodology": "Counts of rating actions received by Quantisnow, grouped by UTC calendar month. Closed-month chart shows upgrades as a percentage of upgrades plus downgrades. Initiations and reiterations are separate counts. Current month-to-date counts are separate; no partial/full-month change or directional vote. Provider update time is not the original time of any rating action.",
+      "limitation": "Selected US-listed stocks captured by one provider, not index holdings or per-company earnings estimates. MARKET context only; no ETF-specific inference, target-price forecast, earnings surprise or validated sentiment/return probability. Historical aggregates can be revised. Month-to-date counts are incomplete and cannot be compared directly with a full month.",
+      "series": [
+        {
+          "date": "2021-07-31",
+          "value": 51.95195195195195
+        },
+        {
+          "date": "2021-08-31",
+          "value": 44.20485175202156
+        },
+        {
+          "date": "2021-09-30",
+          "value": 50.83487940630798
+        },
+        {
+          "date": "2021-10-31",
+          "value": 42.567567567567565
+        },
+        {
+          "date": "2021-11-30",
+          "value": 42.098765432098766
+        },
+        {
+          "date": "2021-12-31",
+          "value": 49.712643678160916
+        },
+        {
+          "date": "2022-01-31",
+          "value": 50.86206896551724
+        },
+        {
+          "date": "2022-02-28",
+          "value": 47.58418740849194
+        },
+        {
+          "date": "2022-03-31",
+          "value": 42.78481012658228
+        },
+        {
+          "date": "2022-04-30",
+          "value": 35.62691131498471
+        },
+        {
+          "date": "2022-05-31",
+          "value": 45.751633986928105
+        },
+        {
+          "date": "2022-06-30",
+          "value": 40.40219378427788
+        },
+        {
+          "date": "2022-07-31",
+          "value": 30.129124820659968
+        },
+        {
+          "date": "2022-08-31",
+          "value": 25.978090766823158
+        },
+        {
+          "date": "2022-09-30",
+          "value": 43.08390022675737
+        },
+        {
+          "date": "2022-10-31",
+          "value": 35.2760736196319
+        },
+        {
+          "date": "2022-11-30",
+          "value": 30.664857530529172
+        },
+        {
+          "date": "2022-12-31",
+          "value": 32.03389830508475
+        },
+        {
+          "date": "2023-01-31",
+          "value": 34.83992467043315
+        },
+        {
+          "date": "2023-02-28",
+          "value": 33.9344262295082
+        },
+        {
+          "date": "2023-03-31",
+          "value": 55.319148936170215
+        },
+        {
+          "date": "2023-04-30",
+          "value": 52.569169960474305
+        },
+        {
+          "date": "2023-05-31",
+          "value": 56.46017699115045
+        },
+        {
+          "date": "2023-06-30",
+          "value": 45.82392776523702
+        },
+        {
+          "date": "2023-07-31",
+          "value": 38.7459807073955
+        },
+        {
+          "date": "2023-08-31",
+          "value": 42.98642533936652
+        },
+        {
+          "date": "2023-09-30",
+          "value": 55.072463768115945
+        },
+        {
+          "date": "2023-10-31",
+          "value": 53.08464849354376
+        },
+        {
+          "date": "2023-11-30",
+          "value": 40.52287581699346
+        },
+        {
+          "date": "2023-12-31",
+          "value": 45.662847790507364
+        },
+        {
+          "date": "2024-01-31",
+          "value": 39.57367933271548
+        },
+        {
+          "date": "2024-02-29",
+          "value": 40.85667215815486
+        },
+        {
+          "date": "2024-03-31",
+          "value": 51.10663983903421
+        },
+        {
+          "date": "2024-04-30",
+          "value": 51.832460732984295
+        },
+        {
+          "date": "2024-05-31",
+          "value": 50.69204152249135
+        },
+        {
+          "date": "2024-06-30",
+          "value": 55.00000000000001
+        },
+        {
+          "date": "2024-07-31",
+          "value": 37.41379310344828
+        },
+        {
+          "date": "2024-08-31",
+          "value": 44.662921348314605
+        },
+        {
+          "date": "2024-09-30",
+          "value": 47.13375796178344
+        },
+        {
+          "date": "2024-10-31",
+          "value": 40.86330935251799
+        },
+        {
+          "date": "2024-11-30",
+          "value": 40
+        },
+        {
+          "date": "2024-12-31",
+          "value": 50.59920106524633
+        },
+        {
+          "date": "2025-01-31",
+          "value": 56.68058455114823
+        },
+        {
+          "date": "2025-02-28",
+          "value": 45.3416149068323
+        },
+        {
+          "date": "2025-03-31",
+          "value": 58.10344827586207
+        },
+        {
+          "date": "2025-04-30",
+          "value": 48.51994851994852
+        },
+        {
+          "date": "2025-05-31",
+          "value": 42.98093587521664
+        },
+        {
+          "date": "2025-06-30",
+          "value": 49.45652173913043
+        },
+        {
+          "date": "2025-07-31",
+          "value": 42.93865905848788
+        },
+        {
+          "date": "2025-08-31",
+          "value": 50.08976660682226
+        },
+        {
+          "date": "2025-09-30",
+          "value": 50.71283095723014
+        },
+        {
+          "date": "2025-10-31",
+          "value": 52.3876404494382
+        },
+        {
+          "date": "2025-11-30",
+          "value": 56.32798573975044
+        },
+        {
+          "date": "2025-12-31",
+          "value": 52.4451939291737
+        },
+        {
+          "date": "2026-01-31",
+          "value": 50.32188841201717
+        },
+        {
+          "date": "2026-02-28",
+          "value": 44.89164086687307
+        },
+        {
+          "date": "2026-03-31",
+          "value": 58.78378378378378
+        },
+        {
+          "date": "2026-04-30",
+          "value": 50.313479623824456
+        },
+        {
+          "date": "2026-05-31",
+          "value": 48.924731182795696
+        },
+        {
+          "date": "2026-06-30",
+          "value": 51.07398568019092
+        },
+        {
+          "date": "2026-07-31",
+          "value": 42.88079470198676
+        },
+        {
+          "date": "2026-08-31",
+          "value": 43.321917808219176
+        },
+        {
+          "date": "2026-09-30",
+          "value": 50.121654501216554
+        },
+        {
+          "date": "2026-10-31",
+          "value": 47.132616487455195
+        }
+      ],
+      "metrics": [
+        {
+          "label": "2026-09 full month · upgrades",
+          "value": 206,
+          "unit": "rating actions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "2026-09 full month · downgrades",
+          "value": 205,
+          "unit": "rating actions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "2026-09 full month · initiations",
+          "value": 601,
+          "unit": "rating actions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "2026-09 full month · reiterations",
+          "value": 266,
+          "unit": "rating actions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "2026-09 full month · total",
+          "value": 1278,
+          "unit": "rating actions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "2026-10 full month · upgrades",
+          "value": 263,
+          "unit": "rating actions",
+          "date": "2026-10-31"
+        },
+        {
+          "label": "2026-10 full month · downgrades",
+          "value": 295,
+          "unit": "rating actions",
+          "date": "2026-10-31"
+        },
+        {
+          "label": "2026-10 full month · initiations",
+          "value": 559,
+          "unit": "rating actions",
+          "date": "2026-10-31"
+        },
+        {
+          "label": "2026-10 full month · reiterations",
+          "value": 101,
+          "unit": "rating actions",
+          "date": "2026-10-31"
+        },
+        {
+          "label": "2026-10 full month · total",
+          "value": 1218,
+          "unit": "rating actions",
+          "date": "2026-10-31"
+        },
+        {
+          "label": "2026-11 month to date · upgrades",
+          "value": 66,
+          "unit": "rating actions",
+          "date": "2026-11-06"
+        },
+        {
+          "label": "2026-11 month to date · downgrades",
+          "value": 98,
+          "unit": "rating actions",
+          "date": "2026-11-06"
+        },
+        {
+          "label": "2026-11 month to date · initiations",
+          "value": 31,
+          "unit": "rating actions",
+          "date": "2026-11-06"
+        },
+        {
+          "label": "2026-11 month to date · reiterations",
+          "value": 8,
+          "unit": "rating actions",
+          "date": "2026-11-06"
+        },
+        {
+          "label": "2026-11 month to date · total",
+          "value": 203,
+          "unit": "rating actions",
+          "date": "2026-11-06"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 7,
+      "unit": "% of upgrade/downgrade actions"
+    },
+    {
       "id": "twse-taiex-price",
       "title": "Taiwan · TAIEX price index",
       "shortLabel": "TAIEX price index",
@@ -31074,7 +31456,7 @@
       }
     }
   ],
-  "sourcesAttempted": 44,
+  "sourcesAttempted": 1,
   "collectionErrors": [
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
@@ -31092,7 +31474,7 @@
       "instrument": "MARKET",
       "horizon": "daily",
       "score": 0.06208333333333271,
-      "coverage": 0.5336700336700336,
+      "coverage": 0.5670033670033671,
       "directionalCoverage": 0.2,
       "agreement": 1,
       "bullish": 1,
@@ -31174,10 +31556,10 @@
           "id": "analysts",
           "label": "Analyst revisions",
           "weight": 1,
-          "expected": 1,
-          "available": 0,
+          "expected": 2,
+          "available": 1,
           "score": null,
-          "status": "unavailable"
+          "status": "available"
         },
         {
           "id": "news",
@@ -31249,7 +31631,7 @@
       "instrument": "MARKET",
       "horizon": "weekly",
       "score": 0.08928434439131092,
-      "coverage": 0.5336700336700336,
+      "coverage": 0.5670033670033671,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.75,
       "bullish": 3,
@@ -31330,10 +31712,10 @@
           "id": "analysts",
           "label": "Analyst revisions",
           "weight": 1,
-          "expected": 1,
-          "available": 0,
+          "expected": 2,
+          "available": 1,
           "score": null,
-          "status": "unavailable"
+          "status": "available"
         },
         {
           "id": "news",
@@ -31405,7 +31787,7 @@
       "instrument": "MARKET",
       "horizon": "monthly",
       "score": 0.14677550850605728,
-      "coverage": 0.5336700336700336,
+      "coverage": 0.5670033670033671,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
       "bullish": 3,
@@ -31486,10 +31868,10 @@
           "id": "analysts",
           "label": "Analyst revisions",
           "weight": 1,
-          "expected": 1,
-          "available": 0,
+          "expected": 2,
+          "available": 1,
           "score": null,
-          "status": "unavailable"
+          "status": "available"
         },
         {
           "id": "news",

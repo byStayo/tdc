@@ -1,5 +1,15 @@
 # Free feed access and alternatives
 
+## November 6 owner-requested fresh audit
+
+A newly verified no-key route supplies **monthly analyst-rating actions**: Quantisnow's [specific dataset](https://www.quantisnow.com/data/analyst-ratings) explicitly grants CC BY4.0 reuse, and its JSON returned65months of actual counts through a separately marked November month-to-date sample. See [ANALYST_RATINGS.md](ANALYST_RATINGS.md). This is narrower than per-company earnings estimates or daily target revisions. The existing earnings-expectations and per-company revision gaps remain visible; no directional vote is inferred from the monthly counts. Read the root release ledger for verified deployment status.
+
+New US-price candidates did not close the free-public requirement: [OHLC's free plan](https://ohlc.io/pricing) is personal-use testing on seven tickers; display/redistribution requires its paid Commercial plan. [Finazon US Equities Basic](https://finazon.io/dataset/us_stocks_essential) advertises “free to license” but the actual data subscription starts at$19/month. No trial or subscription was started. [Metaculus API documentation](https://www.metaculus.com/api/) requires authenticated approved access and prior written permission for AI/model use; it is not a free unrestricted prediction feed. These findings do not prove no free route can exist; none of these candidates clears this product's requirements.
+
+The owner reports Google sign-in completed. That establishes an existing account, not an activated Public API credential on this Mac. The current API Console navigation redirected to its Individual login/terms page; a pending owner handoff covers that exact screen. Do not ask for re-registration. [FINRA_SETUP.md](FINRA_SETUP.md) now gives the exact remaining credential activation and hidden-input steps. No credential values were inspected and no private API request was repeated.
+
+The November6 Bluesky sample did qualify and is live as limited current-only language-cue context, with13matching MARKET accounts. This does not fill broad X/Instagram or representative-retail coverage. Original dated audit entries below are historical findings.
+
 ## November 4 follow-up: new evidence, same full objective
 
 The owner requested FINRA setup and a fresh search for the remaining feeds. Three bounded internal research audits examined actual data, free access, public display, retained history and model use separately. No outside model APIs, accounts, purchases or outreach were used. Private reports preserve exact links, failed access attempts and uncertainty.
