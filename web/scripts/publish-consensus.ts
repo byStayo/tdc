@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
 import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
+import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
 import { publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot } from "../lib/consensus/model.ts";
@@ -25,17 +26,19 @@ try {
 }
 const reviewOnly = process.argv.includes("--review-only"),
   privateCreditOnly = process.argv.includes("--private-credit-only"),
+  analystOnly = process.argv.includes("--analysts-only"),
   taiwanOnly = process.argv.includes("--taiwan-only"),
   now = new Date().toISOString();
-if ([reviewOnly, privateCreditOnly, taiwanOnly].filter(Boolean).length > 1) throw new Error("Select only one scoped publication mode");
-if ((reviewOnly || privateCreditOnly || taiwanOnly) && !previous)
+if ([reviewOnly, privateCreditOnly, taiwanOnly, analystOnly].filter(Boolean).length > 1) throw new Error("Select only one scoped publication mode");
+if ((reviewOnly || privateCreditOnly || taiwanOnly || analystOnly) && !previous)
   throw new Error(
     "A scoped publication requires an existing source snapshot",
   );
 let snapshot: Snapshot = reviewOnly
   ? { ...previous!, id: now.replace(/[:.]/g, "-"), issuedAt: now, cutoff: now }
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
-  : taiwanOnly ? await refreshTaiwan(previous!, publicText) : await collectSnapshot();
+  : taiwanOnly ? await refreshTaiwan(previous!, publicText)
+  : analystOnly ? await refreshAnalystRatings(previous!, publicText) : await collectSnapshot();
 if (!reviewOnly && previous) snapshot = retainLastKnown(snapshot, previous);
 const review = JSON.parse(
   await readFile(

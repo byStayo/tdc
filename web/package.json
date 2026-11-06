@@ -13,6 +13,7 @@
     "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
     "consensus:review": "node --experimental-strip-types scripts/publish-consensus.ts --review-only --publish",
     "consensus:private-credit": "node --experimental-strip-types scripts/publish-consensus.ts --private-credit-only",
+    "consensus:analysts": "node --experimental-strip-types scripts/publish-consensus.ts --analysts-only",
     "consensus:taiwan": "node --experimental-strip-types scripts/publish-consensus.ts --taiwan-only",
     "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
     "consensus:recover": "node --experimental-strip-types scripts/recover-consensus-evaluation.ts",

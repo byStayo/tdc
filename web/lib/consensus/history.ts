@@ -15,6 +15,7 @@ import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
+import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateTaiwan } from "./taiwan.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
@@ -58,6 +59,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     digest(snapshot) === "cbfa41bc9745578cb32c7d6a5f872b29c4b10664d1df729f0114826ae7be973e";
   for (const signal of snapshot.signals) {
     validatePrivateCredit(signal);
+    validateAnalystRatings(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||
