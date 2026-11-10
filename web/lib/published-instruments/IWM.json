@@ -2,56 +2,52 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "IWM",
-  "createdAt": "2026-11-06T13:09:43.944Z",
+  "createdAt": "2026-11-10T13:06:30.971Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "IWM’s overnight benchmark held steady as the two-year fell",
-    "summary": "The effective federal funds rate held at 3.88% on November 4 while the two-year Treasury yield declined to 4.58%. Small-company borrowing costs depend on contractual reference rates, lender spreads and reset dates. A lower two-year benchmark alone cannot establish a lower payment on an existing floating-rate loan.",
+    "headline": "Small-cap futures positioning diverges as SOFR edges down",
+    "summary": "The November 3 E-mini Russell 2000 report showed a larger asset-manager net long and a larger leveraged-fund net short. November 9 SOFR was 3.88%, a basis point below November 6.",
     "bull": [
       {
-        "text": "The two-year Treasury yield declined from 4.61% to 4.58% between November 3 and 4. A lower short-maturity Treasury benchmark can help a new funding quote if its credit spread and other pricing terms hold fixed.",
+        "text": "The asset-manager net long rose from 19,602 to 23,623 contracts. The November 9 decline in SOFR can modestly ease costs for borrowers with floating-rate debt when their reset dates and credit terms allow.",
         "sourceIds": [
-          "FRED_DGS2"
+          "CFTC_RTY",
+          "FRED_SOFR"
         ]
       }
     ],
     "bear": [
       {
-        "text": "The effective federal funds rate was 3.88% on both November 3 and 4. This overnight market benchmark supplies no observed easing over the interval for loans whose pricing follows it.",
+        "text": "Leveraged funds increased their net short from 48,081 to 55,080 contracts between October 27 and November 3.",
         "sourceIds": [
-          "FRED_EFFR"
+          "CFTC_RTY"
         ]
       }
     ],
     "watch": [
       {
-        "text": "October 27 Russell e-mini futures had asset managers net long 19,602 contracts and leveraged funds net short 48,081. Compare this dated positioning context with actual company refinancing terms when available.",
+        "text": "Open interest fell from 458,959 to 449,399 contracts as the two categories diverged. Watch the next weekly report for whether both category moves persist.",
         "sourceIds": [
           "CFTC_RTY"
         ]
       }
     ],
     "limitations": [
-      "Federal funds, Treasury yields and individual loan reference rates have different definitions. Company credit spreads, loan contracts, delinquencies and IWM returns remain unmeasured.",
-      "Russell futures category positions are weekly. They do not identify present IWM buying or selling, and the report contains no measured intraday price or options setup."
+      "SOFR measures overnight secured funding. Company borrowing rates also reflect credit spreads, reset dates and contract terms.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
     ]
   },
   "sources": [
     {
       "id": "CFTC_RTY",
-      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
     },
     {
-      "id": "FRED_DGS2",
-      "title": "2-year Treasury",
-      "url": "https://fred.stlouisfed.org/series/DGS2"
-    },
-    {
-      "id": "FRED_EFFR",
-      "title": "Effective federal funds rate",
-      "url": "https://fred.stlouisfed.org/series/EFFR"
+      "id": "FRED_SOFR",
+      "title": "Federal Reserve / FRED · Secured Overnight Financing Rate",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
     }
   ]
 }

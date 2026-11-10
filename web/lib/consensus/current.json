@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-10T12-47-43-975Z",
-  "issuedAt": "2026-11-10T12:47:43.975Z",
-  "cutoff": "2026-11-10T12:47:43.975Z",
+  "id": "2026-11-10T13-03-17-525Z",
+  "issuedAt": "2026-11-10T13:03:17.525Z",
+  "cutoff": "2026-11-10T13:03:17.525Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -30,7 +30,7 @@
         "sha256": "46cbbd31422dcd0e730ed2ca37b06c2ed58cf9b53441672e34da7c3e17ddb509",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/DGS2",
-        "retrievedAt": "2026-11-10T12:47:26.095Z"
+        "retrievedAt": "2026-11-10T13:03:07.675Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -1129,7 +1129,7 @@
         "sha256": "e2d98448eab30578f28820363f94d65a1582cbfde6dd4d354bad29acb672a25f",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/DGS10",
-        "retrievedAt": "2026-11-10T12:47:26.329Z"
+        "retrievedAt": "2026-11-10T13:03:07.846Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -2229,7 +2229,7 @@
         "sha256": "bd16c6166e943e4080176319d5e996e4ac5cf42f66de63a7463ee82fa9bfb40f",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/DGS30",
-        "retrievedAt": "2026-11-10T12:47:26.083Z"
+        "retrievedAt": "2026-11-10T13:03:07.860Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -3319,25 +3319,21 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "3.89 %; down from the previous daily observation.",
+      "summary": "3.88 %; down from the previous daily observation.",
       "source": {
-        "observedAt": "2026-11-06",
+        "observedAt": "2026-11-09",
         "releasedAt": null,
         "frequency": "daily",
         "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
         "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "871be986916c7d45a529aa8a5716579c2621955f2f3e3cdc7cbf4ad8c4fbcfac",
+        "sha256": "71abe6a0e8d3a6c31e0d85a05a4969d785bce5bcd2ab5c0dae664d8684778d3d",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/SOFR",
-        "retrievedAt": "2026-11-10T12:47:26.094Z"
+        "retrievedAt": "2026-11-10T13:03:08.129Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2025-10-23",
-          "value": 4.24
-        },
         {
           "date": "2025-10-24",
           "value": 4.24
@@ -4373,26 +4369,30 @@
         {
           "date": "2026-11-06",
           "value": 3.89
+        },
+        {
+          "date": "2026-11-09",
+          "value": 3.88
         }
       ],
       "metrics": [
         {
           "label": "Overnight funding · SOFR",
-          "value": 3.89,
+          "value": 3.88,
           "unit": "%",
-          "date": "2026-11-06"
+          "date": "2026-11-09"
         },
         {
           "label": "Change from previous observation",
-          "value": -0.029999999999999805,
+          "value": -0.010000000000000231,
           "unit": "%",
-          "date": "2026-11-06"
+          "date": "2026-11-09"
         }
       ],
       "scores": {
-        "daily": 0.14999999999999902,
-        "weekly": 0.30000000000000027,
-        "monthly": -0.050000000000001155
+        "daily": 0.050000000000001155,
+        "weekly": 0.3500000000000014,
+        "monthly": -0.049999999999998934
       },
       "staleAfterDays": 7,
       "unit": "%",
@@ -4428,7 +4428,7 @@
         "sha256": "1b0626b48a31e6dbe551e2185967585d0bd10789f8b66470b94bb376ef149937",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/EFFR",
-        "retrievedAt": "2026-11-10T12:47:26.099Z"
+        "retrievedAt": "2026-11-10T13:03:07.867Z"
       },
       "methodology": "Published daily changes scaled by 0.25 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -5527,7 +5527,7 @@
         "sha256": "cd069a2510d3166455702cff6f151a87a7cc5a332aeeabda9d62e54e02b7a765",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/WALCL",
-        "retrievedAt": "2026-11-10T12:47:26.396Z"
+        "retrievedAt": "2026-11-10T13:03:07.871Z"
       },
       "methodology": "Published weekly changes scaled by 200000 $m and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -6042,7 +6042,7 @@
         "sha256": "efd14ad1fda727cb5d941872eb39632e55d5f5bf4a419b1aa66d3aac0e61a6d2",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/WTREGEN",
-        "retrievedAt": "2026-11-10T12:47:26.093Z"
+        "retrievedAt": "2026-11-10T13:03:07.872Z"
       },
       "methodology": "Published weekly changes scaled by 100000 $m and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -6557,7 +6557,7 @@
         "sha256": "c60aea31a9b2ac7651291b6d356ed3e5f8536b56613d7f2e5264567f22d5cc1f",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/RRPONTSYD",
-        "retrievedAt": "2026-11-10T12:47:26.097Z"
+        "retrievedAt": "2026-11-10T13:03:07.822Z"
       },
       "methodology": "Published daily changes scaled by 100 $bn and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -7656,7 +7656,7 @@
         "sha256": "09704a52442c7c991b5c80ce8c5bc0073c856b48f6fc07bd3b7c36ed80a46466",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/WRESBAL",
-        "retrievedAt": "2026-11-10T12:47:26.096Z"
+        "retrievedAt": "2026-11-10T13:03:07.954Z"
       },
       "methodology": "Published weekly changes scaled by 200000 $m and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -8171,7 +8171,7 @@
         "sha256": "5576e0eb12951fedcb75d7bcee33afd1e96e003a72b3f3f6f1d9508f126aed43",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/DTWEXBGS",
-        "retrievedAt": "2026-11-10T12:47:26.098Z"
+        "retrievedAt": "2026-11-10T13:03:07.874Z"
       },
       "methodology": "Published daily changes scaled by 2 index and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -9270,7 +9270,7 @@
         "sha256": "bc5988039b0f85c687e8245f9a51e80911b4b469cb57d44d8f6cf149b573c43c",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/BUSLOANS",
-        "retrievedAt": "2026-11-10T12:47:26.097Z"
+        "retrievedAt": "2026-11-10T13:03:07.876Z"
       },
       "methodology": "Published monthly changes scaled by 60 $bn and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -9429,7 +9429,7 @@
         "sha256": "d462d619fb26d1315711d75f534aad6bc46d1d9df63d53d36014761feba5faad",
         "name": "Federal Reserve / FRED",
         "url": "https://fred.stlouisfed.org/series/TOTBKCR",
-        "retrievedAt": "2026-11-10T12:47:26.103Z"
+        "retrievedAt": "2026-11-10T13:03:08.090Z"
       },
       "methodology": "Published weekly changes scaled by 150 $bn and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -9940,7 +9940,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -10248,7 +10248,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -10556,7 +10556,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -10864,7 +10864,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -11172,7 +11172,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -11480,7 +11480,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -11788,7 +11788,7 @@
         "sha256": "4f1cff5bd1fedb1c0fe1768ca1bb503a14cbab3d9c27664b1b56df1cbeb11bc4",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-10T12:47:26.548Z"
+        "retrievedAt": "2026-11-10T13:03:08.111Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -12092,7 +12092,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -12334,7 +12334,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -12576,7 +12576,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -12818,7 +12818,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13060,7 +13060,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13302,7 +13302,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13544,7 +13544,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13786,7 +13786,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14027,7 +14027,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14268,7 +14268,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14509,7 +14509,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14750,7 +14750,7 @@
         "sha256": "f2688ddeb94c2e06640379fad65d581b607318432c7ae5136ed628d072d3edb9",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602",
-        "retrievedAt": "2026-11-10T12:47:32.546Z"
+        "retrievedAt": "2026-11-10T13:03:13.397Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14996,7 +14996,7 @@
         "sha256": "d5573cf95f376d9cf91b0c7ebf375650d330523752e990fd5da38ff2cc50f91d",
         "name": "Federal Reserve",
         "url": "https://www.federalreserve.gov/feeds/press_all.xml",
-        "retrievedAt": "2026-11-10T12:47:26.133Z"
+        "retrievedAt": "2026-11-10T13:03:07.691Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15041,7 +15041,7 @@
         "sha256": "b0bc52e2f29d21085283a815b8f9d856e7d7092cba4c476bd09ee240e118bb92",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/rss/press.html",
-        "retrievedAt": "2026-11-10T12:47:26.385Z"
+        "retrievedAt": "2026-11-10T13:03:07.945Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15086,7 +15086,7 @@
         "sha256": "5b56cb00e2d59b5bc4dc9966b3dc6db6f12c31cdf87eda8db902fd7c6f960158",
         "name": "Bank of Japan",
         "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
-        "retrievedAt": "2026-11-10T12:47:26.470Z"
+        "retrievedAt": "2026-11-10T13:03:08.206Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15131,7 +15131,7 @@
         "sha256": "65b1b650bd45865bbab739c986f20ce5ebbf7bbeb6a995cbe976071c4ac45991",
         "name": "Bank of England",
         "url": "https://www.bankofengland.co.uk/rss/news",
-        "retrievedAt": "2026-11-10T12:47:26.295Z"
+        "retrievedAt": "2026-11-10T13:03:07.955Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15168,7 +15168,7 @@
       "status": "available",
       "summary": "Real Earnings is the next scheduled release.",
       "source": {
-        "observedAt": "2026-11-10T12:47:26.349Z",
+        "observedAt": "2026-11-10T13:03:07.914Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "US Bureau of Labor Statistics",
@@ -15176,7 +15176,7 @@
         "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
         "name": "US Bureau of Labor Statistics",
         "url": "https://www.bls.gov/schedule/news_release/bls.ics",
-        "retrievedAt": "2026-11-10T12:47:26.349Z"
+        "retrievedAt": "2026-11-10T13:03:07.914Z"
       },
       "methodology": "Official BLS iCalendar, filtered to the next 35 days. US Eastern timestamps are converted with America/New_York daylight-saving rules. Event presence does not cast a directional vote.",
       "limitation": "Schedules can change. This calendar does not include every central-bank meeting, earnings release or geopolitical event.",
@@ -15186,7 +15186,7 @@
           "label": "Upcoming releases · 35 days",
           "value": 13,
           "unit": "events",
-          "date": "2026-11-10T12:47:26.349Z"
+          "date": "2026-11-10T13:03:07.914Z"
         }
       ],
       "scores": {
@@ -15359,7 +15359,7 @@
         "sha256": "a110a9c6472ec39a5a7d10c6064e9794f2285a5153ec77215b33736f2ff20a63",
         "name": "SEC XBRL · NVDA",
         "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0001045810/us-gaap/Revenues.json",
-        "retrievedAt": "2026-11-10T12:47:26.568Z"
+        "retrievedAt": "2026-11-10T13:03:07.962Z"
       },
       "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
       "limitation": "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
@@ -15469,13 +15469,13 @@
       "source": {
         "name": "Bank of England",
         "url": "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
-        "retrievedAt": "2026-11-10T12:47:26.503Z",
-        "observedAt": "2026-11-10T12:47:26.503Z",
+        "retrievedAt": "2026-11-10T13:03:08.087Z",
+        "observedAt": "2026-11-10T13:03:08.087Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "Bank of England",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "d07f458df0ff336eb94504e689e2119b28ab6d3cec3374d6279f6027d63697f6"
+        "sha256": "07f92360575815e991ca390b601cb41d610e40dbe79f46163c5b370015dff9cd"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Official local calendar dates, not predicted decisions. Date-only events keep their London, Frankfurt or Tokyo date. Japan's minutes and opinions are labelled separately from policy decisions; exact release times are not inferred from a general convention.",
@@ -15485,7 +15485,7 @@
           "label": "Upcoming events · 70 days",
           "value": 1,
           "unit": "events",
-          "date": "2026-11-10T12:47:26.503Z"
+          "date": "2026-11-10T13:03:08.087Z"
         }
       ],
       "scores": {
@@ -15514,13 +15514,13 @@
       "source": {
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
-        "retrievedAt": "2026-11-10T12:47:26.686Z",
-        "observedAt": "2026-11-10T12:47:26.686Z",
+        "retrievedAt": "2026-11-10T13:03:08.348Z",
+        "observedAt": "2026-11-10T13:03:08.348Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "European Central Bank",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "a634cf3cdb462b7701552076c3a18c29f284814c843c3fe0c38d4b666f7b9f68"
+        "sha256": "ae84b2c9cb4ebe0f542a47db91cde8b31fc2c73b3a6553efee8606027c5aa0d4"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Official local calendar dates, not predicted decisions. Date-only events keep their London, Frankfurt or Tokyo date. Japan's minutes and opinions are labelled separately from policy decisions; exact release times are not inferred from a general convention.",
@@ -15530,7 +15530,7 @@
           "label": "Upcoming events · 70 days",
           "value": 1,
           "unit": "events",
-          "date": "2026-11-10T12:47:26.686Z"
+          "date": "2026-11-10T13:03:08.348Z"
         }
       ],
       "scores": {
@@ -15559,8 +15559,8 @@
       "source": {
         "name": "Bank of Japan",
         "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
-        "retrievedAt": "2026-11-10T12:47:26.578Z",
-        "observedAt": "2026-11-10T12:47:26.578Z",
+        "retrievedAt": "2026-11-10T13:03:08.208Z",
+        "observedAt": "2026-11-10T13:03:08.208Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "Bank of Japan",
@@ -15575,7 +15575,7 @@
           "label": "Upcoming events · 70 days",
           "value": 4,
           "unit": "events",
-          "date": "2026-11-10T12:47:26.578Z"
+          "date": "2026-11-10T13:03:08.208Z"
         }
       ],
       "scores": {
@@ -15604,13 +15604,13 @@
       "source": {
         "name": "Federal Reserve",
         "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-        "retrievedAt": "2026-11-10T12:47:26.390Z",
-        "observedAt": "2026-11-10T12:47:26.390Z",
+        "retrievedAt": "2026-11-10T13:03:07.972Z",
+        "observedAt": "2026-11-10T13:03:07.972Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "Federal Reserve",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "7b6dd93c533e9aeb5c1c1e7e2a967bd1dffba397cd85776c36596199e21a4e7f"
+        "sha256": "668e7977cd60df00f47289389f5df68b7788a7d3b1cefffaa18643ddbfc0b720"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Meeting dates, not a predicted rate decision. A date-only event does not imply a confirmed announcement time.",
@@ -15620,7 +15620,7 @@
           "label": "Upcoming events · 70 days",
           "value": 1,
           "unit": "events",
-          "date": "2026-11-10T12:47:26.390Z"
+          "date": "2026-11-10T13:03:07.972Z"
         }
       ],
       "scores": {
@@ -15649,8 +15649,8 @@
       "source": {
         "name": "US Treasury",
         "url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json",
-        "retrievedAt": "2026-11-10T12:47:27.399Z",
-        "observedAt": "2026-11-10T12:47:27.399Z",
+        "retrievedAt": "2026-11-10T13:03:12.624Z",
+        "observedAt": "2026-11-10T13:03:12.624Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "US Treasury",
@@ -15665,7 +15665,7 @@
           "label": "Upcoming events · 70 days",
           "value": 2,
           "unit": "events",
-          "date": "2026-11-10T12:47:27.399Z"
+          "date": "2026-11-10T13:03:12.624Z"
         }
       ],
       "scores": {
@@ -15694,8 +15694,8 @@
       "source": {
         "name": "OCC / Options Industry Council",
         "url": "https://www.optionseducation.org/referencelibrary/expiration-calendar",
-        "retrievedAt": "2026-11-10T12:47:26.492Z",
-        "observedAt": "2026-11-10T12:47:26.492Z",
+        "retrievedAt": "2026-11-10T13:03:08.192Z",
+        "observedAt": "2026-11-10T13:03:08.192Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "OCC / Options Industry Council",
@@ -15710,7 +15710,7 @@
           "label": "Upcoming events · 70 days",
           "value": 9,
           "unit": "events",
-          "date": "2026-11-10T12:47:26.492Z"
+          "date": "2026-11-10T13:03:08.192Z"
         }
       ],
       "scores": {
@@ -15739,7 +15739,7 @@
       "source": {
         "name": "The GDELT Project",
         "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-10T12:47:23.970Z",
+        "retrievedAt": "2026-11-10T13:03:07.566Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "15-minute batch",
@@ -15974,7 +15974,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-10T12:47:36.077Z",
+        "retrievedAt": "2026-11-10T13:03:17.471Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16204,7 +16204,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-10T12:47:36.077Z",
+        "retrievedAt": "2026-11-10T13:03:17.471Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16434,7 +16434,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-10T12:47:36.077Z",
+        "retrievedAt": "2026-11-10T13:03:17.471Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16664,7 +16664,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-10T12:47:36.077Z",
+        "retrievedAt": "2026-11-10T13:03:17.471Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16894,7 +16894,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-10T12:47:36.077Z",
+        "retrievedAt": "2026-11-10T13:03:17.471Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -17124,7 +17124,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table2.txt",
-        "retrievedAt": "2026-11-10T12:47:37.046Z",
+        "retrievedAt": "2026-11-10T13:03:17.397Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -17392,7 +17392,7 @@
         "url": "https://www.sec.gov/files/investment/private-funds-statistics-2025-q4-supporting-data.xlsx",
         "observedAt": "2025-12-31",
         "releasedAt": null,
-        "retrievedAt": "2026-11-10T12:47:26.818Z",
+        "retrievedAt": "2026-11-10T13:03:08.462Z",
         "frequency": "quarterly aggregate · substantial publication lag",
         "attribution": "US Securities and Exchange Commission, aggregate Form PF statistics",
         "usage": "US government public aggregate statistics; no private fund filings",
@@ -17420,17 +17420,17 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "Federal Reserve · target lower bound: 3.75% observed 2026-11-09. Lower bound of the federal funds target range, not the effective market rate.",
+      "summary": "Federal Reserve · target lower bound: 3.75% observed 2026-11-10. Lower bound of the federal funds target range, not the effective market rate.",
       "source": {
         "name": "Federal Reserve · target lower bound",
         "url": "https://fred.stlouisfed.org/series/DFEDTARL",
-        "retrievedAt": "2026-11-10T12:47:26.378Z",
-        "observedAt": "2026-11-09",
+        "retrievedAt": "2026-11-10T13:03:08.910Z",
+        "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "daily policy level",
         "attribution": "Board of Governors of the Federal Reserve System, via FRED, Federal Reserve Bank of St. Louis",
         "usage": "US government public-domain series; citation requested",
-        "sha256": "5ec9f8cf53caaabd401b6c7cd35ed87311eefadc419dfba2b5287277ce56d47e"
+        "sha256": "7e6677652c686596bafe019869d6ff296262a0aa5c0995043c945aebfc37c81f"
       },
       "methodology": "Lower bound of the federal funds target range, not the effective market rate. Only provider-published daily observations are used; no forward-filled new dates. No directional vote.",
       "limitation": "Different policy instruments and source dates. Nominal rate gaps alone are not an FX signal, an inflation-adjusted stance or a forecast of the next decision.",
@@ -20354,6 +20354,10 @@
         {
           "date": "2026-11-09",
           "value": 3.75
+        },
+        {
+          "date": "2026-11-10",
+          "value": 3.75
         }
       ],
       "metrics": [
@@ -20361,7 +20365,7 @@
           "label": "Policy rate",
           "value": 3.75,
           "unit": "%",
-          "date": "2026-11-09"
+          "date": "2026-11-10"
         },
         {
           "label": "Last observed change",
@@ -20392,17 +20396,17 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "Federal Reserve · target upper bound: 4.00% observed 2026-11-09. Upper bound of the federal funds target range, not the effective market rate.",
+      "summary": "Federal Reserve · target upper bound: 4.00% observed 2026-11-10. Upper bound of the federal funds target range, not the effective market rate.",
       "source": {
         "name": "Federal Reserve · target upper bound",
         "url": "https://fred.stlouisfed.org/series/DFEDTARU",
-        "retrievedAt": "2026-11-10T12:47:26.382Z",
-        "observedAt": "2026-11-09",
+        "retrievedAt": "2026-11-10T13:03:08.859Z",
+        "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "daily policy level",
         "attribution": "Board of Governors of the Federal Reserve System, via FRED, Federal Reserve Bank of St. Louis",
         "usage": "US government public-domain series; citation requested",
-        "sha256": "3367e032f34beffb65fb3ed2ea49bb9d9ac2f316d1a8cc3b430b3e3e7b40c371"
+        "sha256": "1a236c259d338d1654e32c159d2509f879113a3bc86c90360baff1dd66273f3c"
       },
       "methodology": "Upper bound of the federal funds target range, not the effective market rate. Only provider-published daily observations are used; no forward-filled new dates. No directional vote.",
       "limitation": "Different policy instruments and source dates. Nominal rate gaps alone are not an FX signal, an inflation-adjusted stance or a forecast of the next decision.",
@@ -23326,6 +23330,10 @@
         {
           "date": "2026-11-09",
           "value": 4
+        },
+        {
+          "date": "2026-11-10",
+          "value": 4
         }
       ],
       "metrics": [
@@ -23333,7 +23341,7 @@
           "label": "Policy rate",
           "value": 4,
           "unit": "%",
-          "date": "2026-11-09"
+          "date": "2026-11-10"
         },
         {
           "label": "Last observed change",
@@ -23368,7 +23376,7 @@
       "source": {
         "name": "ECB · deposit facility rate",
         "url": "https://data.ecb.europa.eu/data/datasets/FM/FM.D.U2.EUR.4F.KR.DFR.LEV",
-        "retrievedAt": "2026-11-10T05:30:08.285Z",
+        "retrievedAt": "2026-11-10T13:03:09.908Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -26324,8 +26332,7 @@
         "daily": null,
         "weekly": null,
         "monthly": null
-      },
-      "collectionNote": "Refresh unavailable. Showing the last verified observation with its original dates; normal stale-data limits still apply."
+      }
     },
     {
       "id": "policy-boe-bank",
@@ -26345,7 +26352,7 @@
       "source": {
         "name": "Bank of England · Bank Rate",
         "url": "https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp",
-        "retrievedAt": "2026-11-10T12:47:26.790Z",
+        "retrievedAt": "2026-11-10T13:03:08.476Z",
         "observedAt": "2026-11-09",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -28418,7 +28425,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
         "observedAt": "2026-06-30",
         "releasedAt": "2026-08-14",
-        "retrievedAt": "2026-11-10T12:47:27.825Z",
+        "retrievedAt": "2026-11-10T13:03:09.460Z",
         "frequency": "quarterly holdings",
         "sha256": "e31d611592d1fb777384c1a15f5d7fbc903d9c1490773cc313c06da81f34007b",
         "attribution": "Berkshire Hathaway; original filing via SEC EDGAR",
@@ -28483,7 +28490,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
         "observedAt": "2026-06-30",
         "releasedAt": "2026-08-14",
-        "retrievedAt": "2026-11-10T12:47:29.148Z",
+        "retrievedAt": "2026-11-10T13:03:10.786Z",
         "frequency": "quarterly holdings",
         "sha256": "05261c97a9122da8f29af1bd8317b50802924d9bc9da070487b432777730baab",
         "attribution": "Bridgewater Associates; original filing via SEC EDGAR",
@@ -28560,7 +28567,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://developer.finra.org/specific-terms-equity-data",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28600,7 +28607,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28640,7 +28647,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://docs.x.com/",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28680,7 +28687,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://developers.facebook.com/docs/instagram-platform/",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28720,7 +28727,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28760,7 +28767,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28800,7 +28807,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28840,7 +28847,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28880,7 +28887,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://polymarket.com/tos",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28920,7 +28927,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -28960,7 +28967,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.sec.gov/edgar/search/",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -29000,7 +29007,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.sec.gov/data-research/investment-management-data/division-investment-management-private-fund-statistics",
-        "retrievedAt": "2026-11-10T12:47:43.975Z",
+        "retrievedAt": "2026-11-10T13:03:17.525Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -29024,7 +29031,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-10T12:47:27.651Z",
+        "retrievedAt": "2026-11-10T13:03:09.384Z",
         "observedAt": "2026-11-03",
         "releasedAt": null,
         "frequency": "weekly",
@@ -29083,7 +29090,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-10T12:47:27.651Z",
+        "retrievedAt": "2026-11-10T13:03:09.384Z",
         "observedAt": "2026-11-03",
         "releasedAt": null,
         "frequency": "weekly",
@@ -29142,7 +29149,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-10T12:47:27.651Z",
+        "retrievedAt": "2026-11-10T13:03:09.384Z",
         "observedAt": "2026-11-03",
         "releasedAt": null,
         "frequency": "weekly",
@@ -29201,7 +29208,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-10T12:47:27.651Z",
+        "retrievedAt": "2026-11-10T13:03:09.384Z",
         "observedAt": "2026-11-03",
         "releasedAt": null,
         "frequency": "weekly",
@@ -29260,7 +29267,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-10T12:47:27.651Z",
+        "retrievedAt": "2026-11-10T13:03:09.384Z",
         "observedAt": "2026-11-03",
         "releasedAt": null,
         "frequency": "weekly",
@@ -29319,7 +29326,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-10T12:47:27.651Z",
+        "retrievedAt": "2026-11-10T13:03:09.384Z",
         "observedAt": "2026-11-03",
         "releasedAt": null,
         "frequency": "weekly",
@@ -29377,7 +29384,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-10T12:47:27.505Z",
+        "retrievedAt": "2026-11-10T13:03:09.237Z",
         "observedAt": "2026-11-06",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -29447,7 +29454,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-10T12:47:27.505Z",
+        "retrievedAt": "2026-11-10T13:03:09.237Z",
         "observedAt": "2026-11-06",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -29505,7 +29512,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-10T12:47:27.505Z",
+        "retrievedAt": "2026-11-10T13:03:09.237Z",
         "observedAt": "2026-11-06",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -29563,7 +29570,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-10T12:47:27.505Z",
+        "retrievedAt": "2026-11-10T13:03:09.237Z",
         "observedAt": "2026-11-06",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -29621,7 +29628,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-10T12:47:27.505Z",
+        "retrievedAt": "2026-11-10T13:03:09.237Z",
         "observedAt": "2026-11-06",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -29679,7 +29686,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-10T12:47:27.505Z",
+        "retrievedAt": "2026-11-10T13:03:09.237Z",
         "observedAt": "2026-11-06",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -29737,7 +29744,7 @@
       "source": {
         "name": "Quantisnow · monthly analyst ratings",
         "url": "https://www.quantisnow.com/data/analyst-ratings.json",
-        "retrievedAt": "2026-11-10T12:47:27.447Z",
+        "retrievedAt": "2026-11-10T13:03:09.086Z",
         "observedAt": "2026-11-10T06:15:36.000Z",
         "releasedAt": "2026-11-10T06:15:36.000Z",
         "frequency": "monthly counts; current month to date",
@@ -30124,7 +30131,7 @@
       "source": {
         "name": "Taiwan Stock Exchange · TAIEX price index",
         "url": "https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST",
-        "retrievedAt": "2026-11-10T12:47:27.644Z",
+        "retrievedAt": "2026-11-10T13:03:09.232Z",
         "observedAt": "2026-11-09",
         "releasedAt": null,
         "frequency": "daily Taiwan end of day",
@@ -30219,7 +30226,7 @@
       "source": {
         "name": "Taiwan Stock Exchange · TAIEX total-return index",
         "url": "https://openapi.twse.com.tw/v1/indicesReport/MFI94U",
-        "retrievedAt": "2026-11-10T12:47:27.571Z",
+        "retrievedAt": "2026-11-10T13:03:09.228Z",
         "observedAt": "2026-11-09",
         "releasedAt": null,
         "frequency": "daily Taiwan end of day",
@@ -30296,13 +30303,13 @@
       "source": {
         "name": "Federal Reserve · Financial Accounts S124.8.t",
         "url": "https://www.federalreserve.gov/releases/z1/20260911/html/S124_8_t.htm",
-        "retrievedAt": "2026-11-10T12:47:26.508Z",
+        "retrievedAt": "2026-11-10T13:03:08.529Z",
         "observedAt": "2026-06-30",
         "releasedAt": "2026-09-11",
         "frequency": "quarterly",
         "attribution": "Board of Governors of the Federal Reserve System, Financial Accounts of the United States",
         "usage": "Federal Reserve Board-produced public-domain data, with source attribution. No third-party microdata is redistributed.",
-        "sha256": "238387c4d2d0860f1b399c0c24fe5832e5be80cdfec9e4a34fcd534aa67ab371"
+        "sha256": "8ef99d53e6ea4b5b73e79bb326421bbf3f9d6d9a5a4cde4d726a6abfb54b3d04"
       },
       "methodology": "Net acquisition of private-credit loans by private debt funds (FA443067205). Quarterly figures are billions of dollars at a seasonally adjusted annual rate (SAAR), not the cash amount moved during the quarter. Financial-asset acquisition includes these loans; net fund share issues is a distinct funding measure. No directional vote.",
       "limitation": "Lagged private-credit context, not daily private-equity investment flows, capital calls, distributions or known investor intent. Figures may be revised. Each release's units and input availability require review. The 2026-09-11 release has underlying private-debt inputs only through 2026-03-31; later quarters are estimates, not newly reported fund activity.",
@@ -31447,7 +31454,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.xml",
-        "retrievedAt": "2026-11-10T12:47:27.825Z",
+        "retrievedAt": "2026-11-10T13:03:09.460Z",
         "hashes": {
           "submissions": "0b1b210d706b1c29a542c5ba0305d79c155da106acf3a7c39c98bdb298175462",
           "index": "55b791cd90a12c4fe10c0d13471853e3e53ccbede45157b4264092aa0f5674f9",
@@ -31501,7 +31508,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.xml",
-        "retrievedAt": "2026-11-10T12:47:28.394Z",
+        "retrievedAt": "2026-11-10T13:03:09.997Z",
         "hashes": {
           "submissions": "0b1b210d706b1c29a542c5ba0305d79c155da106acf3a7c39c98bdb298175462",
           "index": "77d2fa9f5f3b1320dc3d904ec00cef7d24ad39045cb4b9c392dd2d989c526a79",
@@ -31560,7 +31567,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/infotable.xml",
-        "retrievedAt": "2026-11-10T12:47:29.148Z",
+        "retrievedAt": "2026-11-10T13:03:10.786Z",
         "hashes": {
           "submissions": "561ad21bd94fe46c40c1278a5d98c0ff4c7d160a69d301bd696a70a3b07ffa21",
           "index": "011280fc4b3fbb1565fe5bfa3b8d5cdf61ca3fda4f282f4a8f1b9ef769a1d628",
@@ -31614,7 +31621,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/0001350694-26-000002-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.xml",
-        "retrievedAt": "2026-11-10T12:47:29.769Z",
+        "retrievedAt": "2026-11-10T13:03:11.484Z",
         "hashes": {
           "submissions": "561ad21bd94fe46c40c1278a5d98c0ff4c7d160a69d301bd696a70a3b07ffa21",
           "index": "5d2bd98436839e203169308a54998679de1bef2b4e457dafe6a312af8067d4f9",
@@ -31666,7 +31673,6 @@
   "sourcesAttempted": 47,
   "collectionErrors": [
     "gdelt-finance-news: A current financial-news sample is unavailable.",
-    "policy-ecb-deposit: No usable official policy-rate observation returned.",
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
     "retail-positioning: A representative retail-position or sentiment feed is not connected. Social engagement is not a substitute for holdings.",
@@ -31682,7 +31688,7 @@
     {
       "instrument": "MARKET",
       "horizon": "daily",
-      "score": -0.07937333333333373,
+      "score": -0.08604000000000027,
       "coverage": 0.5497821350762527,
       "directionalCoverage": 0.2,
       "agreement": 1,
@@ -31803,7 +31809,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.050000000000000266,
+          "score": -0.06999999999999984,
           "status": "available"
         },
         {
@@ -31839,7 +31845,7 @@
     {
       "instrument": "MARKET",
       "horizon": "weekly",
-      "score": 0.07403916854058157,
+      "score": 0.07603916854058161,
       "coverage": 0.5497821350762527,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
@@ -31959,7 +31965,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.23999999999999977,
+          "score": 0.25,
           "status": "available"
         },
         {
@@ -31995,7 +32001,7 @@
     {
       "instrument": "MARKET",
       "horizon": "monthly",
-      "score": 0.1875028598242171,
+      "score": 0.1875028598242172,
       "coverage": 0.5497821350762527,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -32115,7 +32121,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.5899999999999997,
+          "score": 0.5900000000000002,
           "status": "available"
         },
         {
@@ -32151,7 +32157,7 @@
     {
       "instrument": "SPY",
       "horizon": "daily",
-      "score": -0.07937333333333373,
+      "score": -0.08604000000000027,
       "coverage": 0.5092592592592593,
       "directionalCoverage": 0.2,
       "agreement": 1,
@@ -32272,7 +32278,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.050000000000000266,
+          "score": -0.06999999999999984,
           "status": "available"
         },
         {
@@ -32308,7 +32314,7 @@
     {
       "instrument": "SPY",
       "horizon": "weekly",
-      "score": 0.0852316758089094,
+      "score": 0.08723167580890945,
       "coverage": 0.5092592592592593,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
@@ -32428,7 +32434,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.23999999999999977,
+          "score": 0.25,
           "status": "available"
         },
         {
@@ -32464,7 +32470,7 @@
     {
       "instrument": "SPY",
       "horizon": "monthly",
-      "score": 0.18293083713990915,
+      "score": 0.18293083713990926,
       "coverage": 0.5092592592592593,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
@@ -32584,7 +32590,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.5899999999999997,
+          "score": 0.5900000000000002,
           "status": "available"
         },
         {
@@ -32620,7 +32626,7 @@
     {
       "instrument": "QQQ",
       "horizon": "daily",
-      "score": -0.07937333333333373,
+      "score": -0.08604000000000027,
       "coverage": 0.5092592592592593,
       "directionalCoverage": 0.2,
       "agreement": 1,
@@ -32741,7 +32747,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.050000000000000266,
+          "score": -0.06999999999999984,
           "status": "available"
         },
         {
@@ -32777,7 +32783,7 @@
     {
       "instrument": "QQQ",
       "horizon": "weekly",
-      "score": 0.10488276596086041,
+      "score": 0.10688276596086047,
       "coverage": 0.5092592592592593,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.75,
@@ -32897,7 +32903,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.23999999999999977,
+          "score": 0.25,
           "status": "available"
         },
         {
@@ -32933,7 +32939,7 @@
     {
       "instrument": "QQQ",
       "horizon": "monthly",
-      "score": 0.22711401604081546,
+      "score": 0.22711401604081555,
       "coverage": 0.5092592592592593,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -33053,7 +33059,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.5899999999999997,
+          "score": 0.5900000000000002,
           "status": "available"
         },
         {
@@ -33089,7 +33095,7 @@
     {
       "instrument": "IWM",
       "horizon": "daily",
-      "score": -0.07937333333333373,
+      "score": -0.08604000000000027,
       "coverage": 0.45,
       "directionalCoverage": 0.2,
       "agreement": 1,
@@ -33210,7 +33216,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.050000000000000266,
+          "score": -0.06999999999999984,
           "status": "available"
         },
         {
@@ -33246,7 +33252,7 @@
     {
       "instrument": "IWM",
       "horizon": "weekly",
-      "score": 0.06460906377270119,
+      "score": 0.06660906377270123,
       "coverage": 0.45,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
@@ -33366,7 +33372,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.23999999999999977,
+          "score": 0.25,
           "status": "available"
         },
         {
@@ -33402,7 +33408,7 @@
     {
       "instrument": "IWM",
       "horizon": "monthly",
-      "score": 0.2129807952859486,
+      "score": 0.21298079528594868,
       "coverage": 0.45,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -33522,7 +33528,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.5899999999999997,
+          "score": 0.5900000000000002,
           "status": "available"
         },
         {
@@ -33558,7 +33564,7 @@
     {
       "instrument": "DIA",
       "horizon": "daily",
-      "score": -0.07937333333333373,
+      "score": -0.08604000000000027,
       "coverage": 0.49523809523809526,
       "directionalCoverage": 0.2,
       "agreement": 1,
@@ -33679,7 +33685,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.050000000000000266,
+          "score": -0.06999999999999984,
           "status": "available"
         },
         {
@@ -33715,7 +33721,7 @@
     {
       "instrument": "DIA",
       "horizon": "weekly",
-      "score": 0.041433168619855236,
+      "score": 0.043433168619855286,
       "coverage": 0.49523809523809526,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
@@ -33835,7 +33841,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.23999999999999977,
+          "score": 0.25,
           "status": "available"
         },
         {
@@ -33871,7 +33877,7 @@
     {
       "instrument": "DIA",
       "horizon": "monthly",
-      "score": 0.12698579083019518,
+      "score": 0.1269857908301953,
       "coverage": 0.49523809523809526,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -33991,7 +33997,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.5899999999999997,
+          "score": 0.5900000000000002,
           "status": "available"
         },
         {

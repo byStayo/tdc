@@ -2,23 +2,23 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-06T13:09:43.944Z",
+  "createdAt": "2026-11-10T13:06:30.971Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "TLT’s long-maturity benchmarks moved lower",
-    "summary": "The November 4 US Treasury observations put the 30-year yield at 5.28% and the ten-year at 4.90%, down 4 and 5 basis points respectively. Falling yields generally support fixed-rate bond prices when other inputs hold fixed. TLT’s actual return still requires its price, duration, distributions and holdings evidence.",
+    "headline": "Long Treasury yields rise as bond futures positions diverge",
+    "summary": "The thirty-year Treasury yield rose to 5.26% on November 6, up from 5.25% on November 5. In the earlier November 3 Treasury bond futures report, both the asset-manager net long and the leveraged-fund net short increased.",
     "bull": [
       {
-        "text": "The 30-year Treasury yield declined from 5.32% to 5.28%. The direction supports a conditional price scenario for long-duration fixed-rate bonds, subject to the actual portfolio’s maturity exposure.",
+        "text": "The asset-manager net long in Treasury bond futures rose from 383,981 to 415,379 contracts between October 27 and November 3.",
         "sourceIds": [
-          "FRED_DGS30"
+          "CFTC_BOND"
         ]
       }
     ],
     "bear": [
       {
-        "text": "The 30-year yield fell by 4 basis points while the ten-year fell by 5. The resulting spread widened to 38 basis points, so a single parallel-shift assumption would miss this change in curve shape.",
+        "text": "The thirty-year yield rose 1 basis point while the ten-year rose 2 basis points to 4.86%. Rising long-term yields generally reduce the value of existing fixed-rate bonds, with greater sensitivity at longer duration.",
         "sourceIds": [
           "FRED_DGS30",
           "FRED_DGS10"
@@ -27,32 +27,34 @@
     ],
     "watch": [
       {
-        "text": "October 27 US Treasury bond futures showed asset managers net long 383,981 contracts and leveraged funds net short 150,393. Hedge and basis-trade activity can contribute to these category totals.",
+        "text": "The Treasury bond futures leveraged-fund net short grew from 150,393 to 166,257 contracts. Over the later Treasury observation dates the thirty-year minus ten-year yield spread narrowed from 41 to 40 basis points.",
         "sourceIds": [
-          "CFTC_BOND"
+          "CFTC_BOND",
+          "FRED_DGS30",
+          "FRED_DGS10"
         ]
       }
     ],
     "limitations": [
-      "The November 4 Treasury observations precede the UK policy announcement and the scheduled November 6 employment release. Any subsequent market reaction remains unmeasured here.",
-      "Long-bond futures, constant-maturity Treasury benchmarks and TLT have different exposures. Verified total-return prices and options inputs are still required for a measured ETF outcome or a qualified forecast."
+      "The Treasury yields are dated November 6. This report has no verified ETF closing-price or return observation.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
     ]
   },
   "sources": [
     {
       "id": "CFTC_BOND",
-      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
-    },
-    {
-      "id": "FRED_DGS10",
-      "title": "10-year Treasury",
-      "url": "https://fred.stlouisfed.org/series/DGS10"
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
     },
     {
       "id": "FRED_DGS30",
-      "title": "30-year Treasury",
+      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
       "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
     }
   ]
 }

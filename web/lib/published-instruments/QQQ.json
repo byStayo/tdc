@@ -2,57 +2,51 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "QQQ",
-  "createdAt": "2026-11-06T13:09:43.944Z",
+  "createdAt": "2026-11-10T13:06:30.971Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "QQQ’s discount-rate backdrop eased by five basis points",
-    "summary": "The US ten-year Treasury yield fell to 4.90% on November 4 from 4.95% on November 3. Holding cash flows and risk premiums fixed, a lower discount rate raises their present value. The change is relevant to growth-company valuation, while the earnings and equity-price inputs remain open.",
+    "headline": "Nasdaq futures net longs rise in both categories",
+    "summary": "Asset managers and leveraged funds increased their net longs in E-mini Nasdaq-100 futures between October 27 and November 3. The ten-year Treasury yield later ticked up to 4.86% on November 6.",
     "bull": [
       {
-        "text": "The ten-year benchmark declined by 5 basis points. Valuation scenarios for distant cash flows become more supportive under the explicit assumption that earnings expectations and equity risk premiums are unchanged.",
+        "text": "The asset-manager net long rose from 65,381 to 73,137 contracts and the leveraged-fund net long rose from 2,301 to 10,073.",
         "sourceIds": [
-          "FRED_DGS10"
+          "CFTC_NQ"
         ]
       }
     ],
     "bear": [
       {
-        "text": "At 4.90%, the ten-year yield still contributes materially to discount rates. The 30-year benchmark was 5.28%, retaining a higher long-maturity hurdle for very distant cash flows.",
+        "text": "The ten-year yield rose from 4.84% to 4.86% from November 5 to 6. Higher discount rates can weigh on valuations that depend heavily on distant cash flows.",
         "sourceIds": [
-          "FRED_DGS10",
-          "FRED_DGS30"
+          "FRED_DGS10"
         ]
       }
     ],
     "watch": [
       {
-        "text": "Nasdaq-mini futures on October 27 showed asset managers net long 65,381 contracts and leveraged funds net long 2,301. The older weekly report cannot establish their positions after the November rate changes.",
+        "text": "E-mini Nasdaq-100 futures open interest rose from 268,508 to 292,587 contracts over the same CFTC reporting week. Compare the next position report with this larger base of open contracts.",
         "sourceIds": [
           "CFTC_NQ"
         ]
       }
     ],
     "limitations": [
-      "The discount-rate channel is conditional. QQQ prices, index cash-flow revisions, analyst expectations and option-implied volatility remain unavailable.",
-      "The November 4 US rates precede the November 5 Bank of England announcement. Nasdaq futures and QQQ share holdings have different instruments and units."
+      "The Treasury yields are dated November 6. This report has no verified ETF closing-price or return observation.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
     ]
   },
   "sources": [
     {
       "id": "CFTC_NQ",
-      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
     },
     {
       "id": "FRED_DGS10",
-      "title": "10-year Treasury",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
       "url": "https://fred.stlouisfed.org/series/DGS10"
-    },
-    {
-      "id": "FRED_DGS30",
-      "title": "30-year Treasury",
-      "url": "https://fred.stlouisfed.org/series/DGS30"
     }
   ]
 }
