@@ -12,6 +12,8 @@ All 103 unique original archive images decode successfully (106 references). A g
 
 Local validation: all 276 existing tests, TypeScript, production build and 23-edition integrity pass (86 signals, zero outcomes/active models). Chromium decoded all 103 original assets without failure. Actual 1440px dark and 375px light screens inspected; mobile QQQ report switching, watchlist add/reload/remove, positioning, theme persistence, server-only initial content and chart rendering passed. No source, edition, model, report or original image bytes changed. Production verification follows deployment.
 
+The first production pass (`09c2160`, `dpl_7CNPjZrctauyoLqMumSMmgKsRacm`) passed original-domain desktop/mobile navigation, report switching, all 103 browser image decodes and eight public HTTP routes. Reloading then exposed a timezone hydration mismatch: the Vercel server used UTC while browser formatting used its local zone. Shared date formatting now uses explicit New York time for publication/retrieval instants and UTC for date-only observations. A regression reproduced the failure before correction; both new tests and the complete 278-test suite, TypeScript and production build pass. Actual production-mode local browsers in UTC, New York and Tokyo pass theme changes and reload with identical timestamps and zero runtime errors. Optimizer-failure fallback, watchlist persistence, refresh and eight live chart canvases were also verified. Final correction deployment/verification follows.
+
 The one-time partial workflow audit is at `/Users/stelios/.local/share/ai-efficiency-audits/DailyConsensus-2026-11-09-efficiency.md`; reuse it instead of rescanning. Browser plugin was not available; regular Playwright supplied rendered evidence.
 
 ## Earlier relaunch record

@@ -26,45 +26,8 @@ export function compactNumber(value: number | null | undefined): string {
     : "—";
 }
 
-export function dateLabel(
-  value: string | null | undefined,
-  short = false,
-): string {
-  if (!value) return "Date unavailable";
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return "Date unavailable";
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    ...(short ? {} : { year: "numeric" }),
-    timeZone: "UTC",
-  }).format(date);
-}
-
-export function timestamp(value: string | null | undefined): string {
-  if (!value) return "Time unavailable";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return dateLabel(value);
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return "Time unavailable";
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(date);
-}
-
-export function localDateLabel(value: string | null | undefined): string {
-  if (!value) return "Date unavailable";
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return "Date unavailable";
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
-}
+export { dateLabel, timestamp, localDateLabel } from "@/lib/date-format";
+import { timestamp } from "@/lib/date-format";
 
 export function safeUrl(value: string | null | undefined): string | undefined {
   if (!value) return undefined;
