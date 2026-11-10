@@ -9,6 +9,8 @@ import {
   type ArchiveBlock, type ArchiveInline,
 } from '@/lib/archive';
 import styles from './article.module.css';
+import ArchiveImage from "@/components/ArchiveImage";
+import mediaSizes from "@/lib/archive-media-sizes.json";
 import PublicationHeader from '@/components/PublicationHeader';
 
 type Props = { params: Promise<{ id: string }> };
@@ -57,7 +59,16 @@ function InlineContent({ nodes }: { nodes: ArchiveInline[] }) {
   });
 }
 
-function ArticleBlocks({ blocks }: { blocks: ArchiveBlock[] }) {
+function firstFigure(blocks: ArchiveBlock[]): string | undefined {
+  for (const block of blocks) {
+    if (block.type === "image") return block.src;
+    const nested = block.type === "quote" ? block.blocks : block.type === "list" ? block.items.flat() : [];
+    const found = firstFigure(nested);
+    if (found) return found;
+  }
+}
+
+function ArticleBlocks({ blocks, eagerImage }: { blocks: ArchiveBlock[]; eagerImage?: string }) {
   return blocks.map((block, index) => {
     switch (block.type) {
       case 'paragraph': return <p key={index}><InlineContent nodes={block.children} /></p>;
@@ -66,20 +77,21 @@ function ArticleBlocks({ blocks }: { blocks: ArchiveBlock[] }) {
         return <Heading key={index}><InlineContent nodes={block.children} /></Heading>;
       }
       case 'rule': return <hr key={index} />;
-      case 'quote': return <blockquote key={index}><ArticleBlocks blocks={block.blocks} /></blockquote>;
+      case 'quote': return <blockquote key={index}><ArticleBlocks blocks={block.blocks} eagerImage={eagerImage} /></blockquote>;
       case 'list': {
         const List = block.ordered ? 'ol' : 'ul';
-        return <List key={index}>{block.items.map((item, itemIndex) => <li key={itemIndex}><ArticleBlocks blocks={item} /></li>)}</List>;
+        return <List key={index}>{block.items.map((item, itemIndex) => <li key={itemIndex}><ArticleBlocks blocks={item} eagerImage={eagerImage} /></li>)}</List>;
       }
       case 'image': {
         const src = safeArchiveMediaUrl(block.src);
         const source = safeArchiveUrl(block.sourceUrl);
         if (!src) return null;
+        const dimensions = (mediaSizes as Record<string, { width: number; height: number }>)[src];
         return <figure key={index}>
           <a href={src} target="_blank" rel="noopener noreferrer" className={styles.figureLink}>
-            {/* Original public figures are copied locally with source provenance. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt={block.alt || 'Original figure accompanying this article'} width={block.width} height={block.height} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+            <ArchiveImage src={src} alt={block.alt || 'Original figure accompanying this article'}
+              width={dimensions?.width ?? block.width ?? 740} height={dimensions?.height ?? block.height ?? 520}
+              eager={block.src === eagerImage} />
             <span className="sr-only">Open original image in a new tab</span>
           </a>
           <figcaption>
@@ -114,7 +126,7 @@ export default async function ArchiveArticlePage({ params }: Props) {
           <strong>Published {archiveDate(article.publishedAt)}</strong>
           <p>This article is preserved from the original Daily Consensus archive. Prices, events, opinions, and forecasts reflect that date. It has not been updated or verified against later outcomes and is not current investment guidance.</p>
         </aside>
-        <div className={styles.body}><ArticleBlocks blocks={article.blocks} /></div>
+        <div className={styles.body}><ArticleBlocks blocks={article.blocks} eagerImage={firstFigure(article.blocks)} /></div>
         <footer className={styles.articleFooter}>
           {archiveDisplayTitle(article) !== article.title && <details className={styles.originalTitle}><summary>Original archive title</summary><p>The displayed headline omits a leading sentence fragment from the recovered title. Original title: {article.title}</p></details>}
           <p>Originally published on {article.publisher}. Article text, attribution, and original figures have been preserved with their source links; subscription widgets have been removed.</p>

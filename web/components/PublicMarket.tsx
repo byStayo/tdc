@@ -33,7 +33,7 @@ export default function PublicMarket({
             <span>{isWatched ? "Saved" : "Watch"}</span>
           </button>
         </PanelHeader>
-        <TradingViewWidget kind="chart" symbol={symbol} theme={theme} />
+        <TradingViewWidget kind="chart" symbol={symbol} theme={theme} lazy />
       </section>
       {!compact && (
         <>
@@ -47,14 +47,14 @@ export default function PublicMarket({
               Ratings describe the provider’s methodology and are not a
               recommendation from The Daily Consensus.
             </p>
-            <TradingViewWidget kind="technical" symbol={symbol} theme={theme} />
+            <TradingViewWidget kind="technical" symbol={symbol} theme={theme} lazy />
           </section>
           <section className="panel">
             <PanelHeader
               eyebrow="INSTRUMENT CONTEXT"
               title={`${symbol} profile`}
             />
-            <TradingViewWidget kind="profile" symbol={symbol} theme={theme} />
+            <TradingViewWidget kind="profile" symbol={symbol} theme={theme} lazy />
           </section>
         </>
       )}

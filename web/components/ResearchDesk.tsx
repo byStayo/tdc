@@ -3,17 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
-  Menu,
-  Moon,
   RefreshCw,
   Search,
   Star,
-  Sun,
-  X,
 } from "lucide-react";
-import Navigation, { NAVIGATION, type View } from "./Navigation";
+import { NAVIGATION, type View } from "./Navigation";
 import ContextRail from "./ContextRail";
-import Brand from "./Brand";
+import PublicationHeader from "./PublicationHeader";
 import WatchlistPanel from "./WatchlistPanel";
 import MacroPanel from "./MacroPanel";
 import PublicMarket from "./PublicMarket";
@@ -45,7 +41,7 @@ import {
 
 const VIEW_COPY: Record<View, { title: string; description: string }> = {
   brief: {
-    title: "Your daily perspective.",
+    title: "The research desk.",
     description: "Independent market research. Open to everyone.",
   },
   reports: {
@@ -82,17 +78,17 @@ const VIEW_COPY: Record<View, { title: string; description: string }> = {
 const DEFAULT_WATCHLIST = ["SPY", "QQQ", "IWM", "TLT", "GLD"];
 const validSymbol = (value: string) => /^[A-Z0-9][A-Z0-9.-]{0,14}$/.test(value);
 
-export default function ResearchDesk() {
+export default function ResearchDesk({ initialWorkspace, initialBrief }: { initialWorkspace: Workspace; initialBrief: ResearchResponse }) {
   const [view, setView] = useState<View>("brief");
   const [symbol, setSymbol] = useState("SPY");
   const [search, setSearch] = useState("");
   const [searchError, setSearchError] = useState("");
   const [period, setPeriod] = useState<Period>("3M");
-  const [workspace, setWorkspace] = useState<Workspace | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [workspace, setWorkspace] = useState<Workspace | null>(initialWorkspace);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [refresh, setRefresh] = useState(0);
-  const [brief, setBrief] = useState<ResearchResponse | null>(null);
+  const [brief, setBrief] = useState<ResearchResponse | null>(initialBrief);
   const [researchBusy, setResearchBusy] = useState(false);
   const [watchlist, setWatchlist] = useState(DEFAULT_WATCHLIST);
   const [storageReady, setStorageReady] = useState(false);
@@ -100,9 +96,7 @@ export default function ResearchDesk() {
   const [watchlistInput, setWatchlistInput] = useState("");
   const [watchlistError, setWatchlistError] = useState("");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [menuOpen, setMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousView = useRef(view);
   const researchRequest = useRef<AbortController | null>(null);
@@ -216,6 +210,12 @@ export default function ResearchDesk() {
   }, [watchlist, storageReady]);
 
   useEffect(() => {
+    if (symbol === initialWorkspace.symbol && period === "3M" && refresh === 0) {
+      setWorkspace(initialWorkspace);
+      setError("");
+      setLoading(false);
+      return;
+    }
     const controller = new AbortController();
     setLoading(true);
     setError("");
@@ -251,13 +251,18 @@ export default function ResearchDesk() {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [symbol, period, refresh]);
+  }, [symbol, period, refresh, initialWorkspace]);
 
   useEffect(() => {
     if (!publicMode) return;
+    if (!instrumentEdition && refresh === 0) {
+      setBrief(initialBrief);
+      setResearchBusy(false);
+      return;
+    }
     void generateBrief();
     return () => researchRequest.current?.abort();
-  }, [publicMode, symbol, refresh, generateBrief]);
+  }, [publicMode, symbol, refresh, generateBrief, instrumentEdition, initialBrief]);
 
   const selectedQuote = workspace?.quotes.data.find(
     (quote) => quote.symbol === symbol,
@@ -267,8 +272,6 @@ export default function ResearchDesk() {
 
   function navigate(next: View) {
     setView(next);
-    dialogRef.current?.close();
-    setMenuOpen(false);
   }
   function selectSymbol(next: string) {
     if (next === symbol) return;
@@ -346,43 +349,18 @@ export default function ResearchDesk() {
       <a className="skip-link" href="#main-content">
         Skip to research
       </a>
-      <aside className="sidebar">
-        <Navigation view={view} onNavigate={navigate} />
-      </aside>
-      <dialog
-        className="mobile-nav-dialog"
-        ref={dialogRef}
-        onClose={() => setMenuOpen(false)}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) dialogRef.current?.close();
-        }}
-        aria-label="Navigation"
-      >
-        <div className="mobile-nav-content">
-          <button
-            className="icon-button close-menu"
-            onClick={() => dialogRef.current?.close()}
-            aria-label="Close navigation"
-          >
-            <X size={20} />
-          </button>
-          <Navigation view={view} onNavigate={navigate} />
-        </div>
-      </dialog>
+      <PublicationHeader active="desk" theme={theme} onToggleTheme={toggleTheme} />
+      <div className="desk-sections-wrap">
+        <nav className="desk-sections" aria-label="Research sections">
+          {NAVIGATION.map(item => <button key={item.id}
+            aria-current={view === item.id ? "page" : undefined}
+            onClick={() => navigate(item.id)}>
+            <item.icon size={16} aria-hidden="true" />{item.label}
+          </button>)}
+        </nav>
+      </div>
       <div className="workspace-shell">
-        <header className="topbar">
-          <div className="desk-mobile-brand"><Brand /></div>
-          <button
-            className="icon-button menu-button"
-            aria-label="Open navigation"
-            aria-expanded={menuOpen}
-            onClick={() => {
-              dialogRef.current?.showModal();
-              setMenuOpen(true);
-            }}
-          >
-            <Menu size={21} />
-          </button>
+        <div className="topbar">
           <span className="topbar-location">
             Workspace<span>/</span>
             <strong>
@@ -428,17 +406,7 @@ export default function ResearchDesk() {
             >
               <RefreshCw size={17} className={loading ? "spin" : ""} />
             </button>
-          <div className="topbar-actions">
-            <button
-              className="icon-button"
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-          </div>
-        </header>
+        </div>
         {searchError && (
           <p className="search-error" id="search-error" role="alert">
             {searchError}

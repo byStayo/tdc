@@ -2,6 +2,18 @@
 
 **November 3, 2026: The user reopened and expanded the goal.** Read `VISUAL_BUILD_STATUS.md` and `web/docs/VISUAL_PRODUCT.md` before acting. The earlier free research-desk relaunch below is historical completion evidence, not completion of the newly requested visual multi-signal product. The new goal and `build-visual-daily-consensus` heartbeat are ACTIVE. Preserve the completed LinkedIn correction. The weekday publisher must coordinate with this build and never deploy an unfinished dirty tree.
 
+## November 9 — publication continuity and image/loading polish
+
+Current working checkout on this Mac: `/Users/stelios/device-fleet-work/daily-consensus-polish`, a supported worktree of the Parcel continuation repository with its Git metadata outside iCloud. The former Documents path and its private recovery/STATUS.md are not present on this Mac; private recovery was not recopied or uploaded. This work started from current remote `e5e5b2e`, not the stale Parcel snapshot. Preserve the older full-product feed/outcome limitations below.
+
+Research Desk now shares PublicationHeader and the publication reading width, with a keyboard/touch-accessible scrolling section navigation instead of switching into a separate sidebar app. The initial saved workspace and published brief are server-rendered: both remain readable without JavaScript, with zero initial workspace/research API requests. Refresh and instrument report requests still work; source/observation timestamps retain their original meaning. Below-fold provider views mount on approach.
+
+All 103 unique original archive images decode successfully (106 references). A generated dimensions map reserves each figure's aspect ratio, including the 11 references previously without dimensions. Responsive Next images reduce mobile transfer sizes; the first figure loads eagerly, later figures lazily, and an optimizer failure falls back to the original. Original files, full-size links, captions and provenance remain intact.
+
+Local validation: all 276 existing tests, TypeScript, production build and 23-edition integrity pass (86 signals, zero outcomes/active models). Chromium decoded all 103 original assets without failure. Actual 1440px dark and 375px light screens inspected; mobile QQQ report switching, watchlist add/reload/remove, positioning, theme persistence, server-only initial content and chart rendering passed. No source, edition, model, report or original image bytes changed. Production verification follows deployment.
+
+The one-time partial workflow audit is at `/Users/stelios/.local/share/ai-efficiency-audits/DailyConsensus-2026-11-09-efficiency.md`; reuse it instead of rescanning. Browser plugin was not available; regular Playwright supplied rendered evidence.
+
 ## Earlier relaunch record
 
 Goal: recover and rebuild the original service as a free public market-research site, deploy and verify it, then update the owner's LinkedIn with actual delivered capabilities. The user asked for a continuing goal/loop. Do not stop at a local demo.
