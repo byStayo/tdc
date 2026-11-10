@@ -1,3 +1,13 @@
+## November 10 — completion audit and Bank of Canada release
+
+The [completion checklist and execution plan](web/docs/superpowers/plans/2026-11-10-daily-consensus-completion.md) records the chat audit, missing directional families, dependencies and acceptance checks. The active weekday publisher now runs the audit after evaluation and uses the plan for follow-through. The strict audit exits 2 while evidence and model gates remain open.
+
+Production edition `2026-11-10T19-54-14-778Z` has canonical SHA-256 `f32aeb01e7df571d19c77582c3d7e883f3ebfa7c5f0d10204551795327b5218e`. Vercel production deployment `dpl_4kUhGm7bWQVddUKgMMvkNtWR22rs` is READY on pinned commit `c450c699e100c842b2e2b1a4eb558d3d2a3f2868`. The Bank of Canada Valet overnight target adds a dated 2.5% reading on November 9 as international context. The edition has 100 tracked signals and 87 available, with 55.05% observation coverage and three of fifteen voting families (20%). The final release added no source with a directional vote. [Bank of Canada series](https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/) · [Reuse terms](https://www.bankofcanada.ca/terms/)
+
+The evaluator reported 435 pending targets, including 155 elapsed exits missing approved evidence and 280 awaiting their horizon at verification time. No public outcomes or models qualified. The earlier archive entries, price contract, outcome files and holdouts were preserved. The latest Bluesky capture fell below its ten-participant threshold and was withheld. The DoltHub maintainer inquiry is still pending. Continue private Kibot checks through completed sessions and keep the DoltHub research ledger private while upstream provenance, session semantics and public rights remain open.
+
+All 297 tests and the production build passed. Integrity verified 29 editions. Public HTTPS health and all five reports passed. The earliest, prior and new archives matched local bytes and canonical hashes. The current policy panel rendered 2.5% and the November 9 observation at 375 and 1440 pixels without overflow or runtime errors. The community API returned unavailable as expected. Separate earlier anonymous route checks covered the morning view, Research Desk, archive, reader and methodology, including touch scrolling at constant scale and server-rendered editorial content without JavaScript.
+
 ## November 10 — all five issuer dividends reconciled, price reuse still pending
 
 The maintainer inquiry is pending. Continue the existing private validation and check for a substantive response before considering public use. Do not interpret the observed numerical matches as proof of upstream identity or permission.
