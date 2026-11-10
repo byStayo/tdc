@@ -32,6 +32,7 @@
     "consensus:finra-stage": "node --experimental-strip-types scripts/prepare-finra-display.ts",
     "consensus:research-finazon": "node --experimental-strip-types scripts/research-finazon-prices.ts",
     "consensus:research-directional-coverage": "node --experimental-strip-types scripts/research-directional-coverage.ts",
+    "consensus:research-families-private": "node --experimental-strip-types scripts/research-families-private.ts",
     "consensus:validate-social-private": "node --experimental-strip-types scripts/validate-social-private.ts"
   },
   "dependencies": {

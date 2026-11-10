@@ -1,3 +1,11 @@
+## November 10 — ten historical family experiments completed
+
+Ran `npm run consensus:research-families-private` using real free guest daily bars for all five ETFs and official CFTC history. Each ETF had 209 historical sessions through November 2, before the first public forecast on November 3. The two predeclared features were yesterday's regular-session body and one-report changes in asset-manager net positioning. The chronological split had 125 training, 42 validation and 42 test labels per experiment. None of the ten experiments improved on every declared baseline by the required 0.01 Brier margin. The CFTC samples represented 44 distinct weekly observation dates and used an assumed seven-day lag. The source histories are latest-vintage. These results do not establish prospective performance or incremental value after existing families.
+
+The private report is mode 0600 under `web/.consensus/private-family-research/`. A second invocation reused the saved experiment without network access or re-evaluation. Public outcome and reservation files remain empty, and the current public edition retains three of fifteen daily voting families. The real-source execution, saved-result reuse and TypeScript check passed. This change adds a private research command and its procedure.
+
+The requested real X and Instagram sample remains unacquired. No platform token was configured in the checked environment or repository files. Windsor account discovery returned `Unknown tool`. The candidate Twitter dataset declares MIT, but its API-origin content did not establish the required upstream grant. The Instagram consumer-sentiment study offers data only on reasonable request. Meta's primary hashtag documentation returned HTTP 429. Read the [source-specific acquisition notes](web/docs/BLUESKY_SAMPLE.md#november-10-real-sample-search) before collecting. The Finazon thread still has only the sent inquiry. The existing weekday publisher continues monitoring rights and all five ETF samples before the owner purchases.
+
 ## November 10 — private directional coverage and social validation
 
 The existing Finazon thread contains only the sent inquiry. Continue monitoring it through the weekday publisher. Require verified redistribution, retention and model-use terms plus all five successful ETF sample comparisons before notifying the owner to buy the $19 plan.
