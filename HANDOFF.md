@@ -1,3 +1,13 @@
+## November 10 — social stance release and licensed price preflight
+
+Production deployment `dpl_5jPvtxrAiydZeubfQYMDWJus4cF9` is READY on pinned commit `663610dde5df4841844a69b825680f45d7733de2`. The local Bluesky method now assigns explicit outlooks to the named ETF or market clause, applies edits and deletions, and retains no text or raw identities. The live capture examined 31,465 events and matched six distinct market accounts, below the threshold of ten. No aggregate was published. The existing weekday publisher now runs a bounded capture during read-only preparation and stages only eligible aggregates, with the original expiry and privacy rules.
+
+The new read-only Finazon verifier checks all five symbols against independent open and close references and issuer corporate actions. Its live no-key request returned 401. The $19/month plan is the leading paid candidate, subject to a real five-symbol sample, regular-session endpoint confirmation and explicit permission for the public archive and model use. The maintainer inquiry still has no reply. The [source review and credentialed verification instructions](web/docs/FREE_FEED_PATH.md#november-10-paid-fallback-and-social-access) record the paid and free access findings. No plan was purchased.
+
+Private Kibot evaluation through November 9 checked all five ETFs and reports 115 resolved daily targets, 25 selected ETF-session labels, 320 pending targets, zero eligible cohorts and zero trained models. Public evaluation still has 155 elapsed targets missing price evidence, 280 awaiting their horizons, zero resolved outcomes and zero active models. Market directional coverage remains three of fifteen families. No new price source was admitted into production.
+
+All 301 tests and the production build passed. The canonical domain, five report health checks, exact edition `2026-11-10T19-54-14-778Z` archive and mobile social suppression verified. Archive integrity passed for all 29 editions. The release changed the social collection and display code without creating a new edition.
+
 ## November 10 — completion audit and Bank of Canada release
 
 The [completion checklist and execution plan](web/docs/superpowers/plans/2026-11-10-daily-consensus-completion.md) records the chat audit, missing directional families, dependencies and acceptance checks. The active weekday publisher now runs the audit after evaluation and uses the plan for follow-through. The strict audit exits 2 while evidence and model gates remain open.
