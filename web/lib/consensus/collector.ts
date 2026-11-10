@@ -40,6 +40,7 @@ const HOSTS = new Set([
   "www.federalreserve.gov",
   "www.boj.or.jp",
   "www.bankofengland.co.uk",
+  "www.bankofcanada.ca",
   "www.bls.gov",
   "data.sec.gov",
   "www.sec.gov",
@@ -977,7 +978,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 35,
+    sourcesAttempted: MACRO_SERIES.length + 36,
     collectionErrors: signals
       .filter(
         (signal) =>

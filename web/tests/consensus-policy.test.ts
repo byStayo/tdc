@@ -83,6 +83,14 @@ test("Bank Rate and Fed parsers reject unrelated data and keep working-day gaps"
   );
 });
 
+const canada = JSON.stringify({
+  seriesDetail: { V39079: { metadata: { unit: "Percent", frequency: "Business daily" } } },
+  observations: [
+    { d: "2026-11-02", V39079: { v: "2.50" } },
+    { d: "2026-11-12", V39079: { v: "2.75" } },
+  ],
+});
+
 const collect = () =>
   collectPolicyRates(
     async (url) => ({
@@ -92,7 +100,7 @@ const collect = () =>
           ? "observation_date,DFEDTARU\n2026-11-02,4\n"
           : url.includes("ecb.europa.eu")
             ? ecb
-            : boe,
+            : url.includes("bankofcanada.ca") ? canada : boe,
       retrievedAt: at,
       sha256: "a".repeat(64),
     }),
@@ -101,7 +109,7 @@ const collect = () =>
 
 test("policy collection emits cited numeric context, never raw documents or fabricated directional votes", async () => {
   const signals = await collect();
-  assert.equal(signals.length, 4);
+  assert.equal(signals.length, 5);
   assert.ok(
     signals.every(
       (s) => s.status === "available" && s.source.sha256 === "a".repeat(64),
@@ -118,6 +126,10 @@ test("policy collection emits cited numeric context, never raw documents or fabr
     signals.find((s) => s.id === "policy-boe-bank")!.source.observedAt,
     "2026-10-30",
   );
+  const cad = signals.find(signal => signal.id === "policy-boc-target")!;
+  assert.deepEqual(cad.series, [{ date: "2026-11-02", value: 2.5 }]);
+  assert.equal(policyReadings(signals, at).find(reading => reading.currency === "CAD")?.lower, 2.5);
+  assert.equal(policyReadings(signals.filter(signal => signal !== cad), at).some(reading => reading.currency === "CAD"), false);
   assert.ok(
     signals.every(
       (s) =>

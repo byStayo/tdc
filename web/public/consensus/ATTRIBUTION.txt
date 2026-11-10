@@ -20,3 +20,11 @@ Open Government Data License 1.0: https://data.gov.tw/license
 Via the documented TWSE OpenAPI: https://openapi.twse.com.tw/v1/swagger.json
 Date conversion, charts and changes by The Daily Consensus.
 No agency endorsement is implied.
+
+Bank of Canada policy target
+
+Source: Bank of Canada, Valet series V39079.
+https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/
+Reuse terms: https://www.bankofcanada.ca/terms/
+Date normalization, chart and rate-change calculations by The Daily Consensus.
+No Bank of Canada endorsement is implied.

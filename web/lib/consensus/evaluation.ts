@@ -34,6 +34,16 @@ export const SESSION_HORIZONS: Record<Horizon, number> = {
   weekly: 5,
   monthly: 21,
 };
+/** Schedule an outcome independently of the presence or absence of price bars. */
+export function outcomeWindowSessions(issuedAt: string, horizon: Horizon, reviewedSessions: string[]): string[] {
+  const issueDay = newYorkDate(issuedAt);
+  if (!hasReviewedCalendar(issueDay)) return [];
+  const issueSession = exchangeSession(issueDay);
+  const beforeOpen = issueSession !== null && issuedAt < issueSession.openAt;
+  const start = reviewedSessions.findIndex(day => day > issueDay || (day === issueDay && beforeOpen));
+  const length = SESSION_HORIZONS[horizon];
+  return start < 0 || start + length > reviewedSessions.length ? [] : reviewedSessions.slice(start, start + length);
+}
 export interface SessionPrice {
   session: string;
   openAt: string;
@@ -104,38 +114,13 @@ export function evaluateOutcome(
     )
       throw new Error("Invalid price session");
   }
-  const local = Object.fromEntries(
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/New_York",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(new Date(snapshot.issuedAt))
-      .map((part) => [part.type, part.value]),
-  );
-  const issueDay = `${local.year}-${local.month}-${local.day}`,
-    beforeOpen = Number(local.hour) * 60 + Number(local.minute) < 570;
-  if (!hasReviewedCalendar(issueDay)) return null;
-  if (prices.expectedSessions[0] > issueDay)
-    return null;
-  const startDate = reviewedSessions.find(
-    (day) => day > issueDay || (day === issueDay && beforeOpen),
-  );
-  const start = sessions.find((row) => row.session === startDate);
-  if (!start) return null;
+  if (prices.expectedSessions[0] > newYorkDate(snapshot.issuedAt)) return null;
   // The independently checked exchange calendar fixes the horizon despite missing price rows.
-  const expectedIndex = reviewedSessions.indexOf(start.session),
-    dates = reviewedSessions.slice(
-      expectedIndex,
-      expectedIndex + SESSION_HORIZONS[horizon],
-    );
-  if (dates.length !== SESSION_HORIZONS[horizon]) return null;
+  const dates = outcomeWindowSessions(snapshot.issuedAt, horizon, reviewedSessions);
+  if (!dates.length) return null;
   const rows = dates.map((day) => sessions.find((row) => row.session === day));
   if (rows.some((row) => !row)) return null;
+  const start = rows[0]!;
   const exit = rows.at(-1)!;
   if (!exit || exit.closeAt > now || start.openAt <= snapshot.issuedAt)
     return null;

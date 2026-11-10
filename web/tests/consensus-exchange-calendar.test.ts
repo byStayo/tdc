@@ -2,12 +2,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, verifyExpectedSessions } from "../lib/consensus/exchange-calendar.ts";
-import { evaluateOutcome, type PriceEvidence } from "../lib/consensus/evaluation.ts";
+import { evaluateOutcome, outcomeWindowSessions, type PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { performance } from "../lib/consensus/evaluation.ts";
 import { freezeConsensus } from "../lib/consensus/as-issued.ts";
 import { FAMILIES } from "../lib/consensus/registry.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
 const snapshot: Snapshot = JSON.parse(await readFile(new URL("../public/consensus/2026-11-03T08-48-02-469Z.json", import.meta.url), "utf8"));
+
+test("outcome readiness distinguishes a future exit from an uncovered horizon", () => {
+  const sessions = exchangeSessions("2026-11-25", "2026-12-31");
+  const issued = "2026-11-27T14:30:00.000Z";
+  assert.deepEqual(outcomeWindowSessions(issued, "daily", sessions), ["2026-11-30"]);
+  assert.deepEqual(outcomeWindowSessions("2026-11-27T14:29:59.999Z", "daily", sessions), ["2026-11-27"]);
+  assert.equal(outcomeWindowSessions(issued, "weekly", sessions).at(-1), "2026-12-04");
+  assert.deepEqual(outcomeWindowSessions("2026-12-31T14:30:00.000Z", "weekly", sessions), []);
+});
 
 test("official 2026 equity closures, early closes and Eastern DST are independent of prices", () => {
   for (const day of ["2026-01-01", "2026-01-19", "2026-02-16", "2026-04-03", "2026-05-25", "2026-06-19", "2026-07-03", "2026-09-07", "2026-11-26", "2026-12-25", "2026-11-07"])

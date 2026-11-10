@@ -947,7 +947,7 @@ function PolicyRates({
       <div className={styles.panelHead}>
         <div>
           <span className={styles.eyebrow}>THE GLOBAL COST OF MONEY</span>
-          <h3>Four policy desks. Different settings.</h3>
+          <h3>{rows.length === 5 ? "Five" : "Four"} policy desks. Different settings.</h3>
         </div>
       </div>
       <p className={styles.panelSubtitle}>

@@ -17,6 +17,7 @@
     "consensus:analysts": "node --experimental-strip-types scripts/publish-consensus.ts --analysts-only",
     "consensus:taiwan": "node --experimental-strip-types scripts/publish-consensus.ts --taiwan-only",
     "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
+    "consensus:audit": "node --experimental-strip-types scripts/verify-consensus.ts --audit",
     "consensus:evaluate-kibot-private": "node --experimental-strip-types scripts/evaluate-kibot-private.ts",
     "consensus:recover": "node --experimental-strip-types scripts/recover-consensus-evaluation.ts",
     "consensus:rollback": "node --experimental-strip-types scripts/rollback-consensus-model.ts",

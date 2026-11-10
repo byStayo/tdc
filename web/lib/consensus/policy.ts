@@ -39,6 +39,16 @@ export function policyReadings(signals: Signal[], reference: string) {
       approximate: true,
     },
   ];
+  // Old archived editions predate this source and retain their original panel.
+  if (signals.some(signal => signal.id === "policy-boc-target"))
+    groups.push({
+      name: "Bank of Canada",
+      currency: "CAD",
+      definition: "Target for the overnight rate",
+      ids: ["policy-boc-target"],
+      family: "international",
+      approximate: false,
+    });
   return groups.map((group) => {
     const members = group.ids.map((id) =>
       signals.find((signal) => signal.id === id),
@@ -227,6 +237,22 @@ export function fedPolicyPoints(
   return ordered(points);
 }
 
+function bocPolicyPoints(text: string, cutoff: string): Point[] {
+  const data = JSON.parse(text) as {
+    seriesDetail?: Record<string, { metadata?: { unit?: string; frequency?: string } }>;
+    observations?: { d?: string; V39079?: { v?: string } }[];
+  };
+  const meta = data.seriesDetail?.V39079?.metadata;
+  if (meta?.unit !== "Percent" || meta.frequency !== "Business daily" || !Array.isArray(data.observations))
+    throw new Error("Unexpected Bank of Canada policy schema");
+  const points = new Map<string, number>();
+  for (const row of data.observations) {
+    const value = row?.V39079?.v;
+    if (typeof row?.d === "string" && typeof value === "string") put(points, row.d, value, cutoff);
+  }
+  return ordered(points);
+}
+
 export async function collectPolicyRates(
   read: (url: string) => Promise<PublicDocument>,
   now = new Date().toISOString(),
@@ -292,6 +318,17 @@ export async function collectPolicyRates(
         "Bank Rate data reused under https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/; no third-party FX data",
       definition:
         "Official Bank Rate. Daily observations can be published with a working-day lag.",
+    },
+    {
+      id: "boc-target",
+      title: "Bank of Canada · overnight target",
+      family: "international" as const,
+      url: `https://www.bankofcanada.ca/valet/observations/V39079/json?start_date=${from}`,
+      citation: "https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/",
+      parse: bocPolicyPoints,
+      attribution: "Bank of Canada, Valet series V39079",
+      usage: "Bank of Canada content reused with attribution under https://www.bankofcanada.ca/terms/; chart and changes calculated by The Daily Consensus",
+      definition: "Official target for overnight money market financing, percent per annum. Observations are published on business days.",
     },
   ];
   return Promise.all(
