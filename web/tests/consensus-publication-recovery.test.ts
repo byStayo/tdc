@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, writeFile, rm, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { publishSnapshot, verifyPublicationTree, digest, type PublicationStep } from "../lib/consensus/history.ts";
+import { publishCollectedSnapshot, publishSnapshot, verifyPublicationTree, digest, type PublicationStep } from "../lib/consensus/history.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
 
@@ -20,6 +20,22 @@ function edition(hour: number): Snapshot {
   };
 }
 const read = async (root: string, path: string) => JSON.parse(await readFile(join(root, path), "utf8"));
+
+test("the reviewed draft binds the exact input and predecessor while keeping actual issue time", async () => {
+  const root = await mkdtemp(join(tmpdir(), "tdc-reviewed-draft-"));
+  try {
+    const first = edition(11), draft = edition(12), issuedAt = edition(13).issuedAt;
+    await publishSnapshot(root, first);
+    await assert.rejects(publishCollectedSnapshot(root, draft, digest(first), first.id, issuedAt), /hash/);
+    await assert.rejects(publishCollectedSnapshot(root, draft, digest(draft), first.id, edition(17).issuedAt), /recent/);
+    const result = await publishCollectedSnapshot(root, draft, digest(draft), first.id, issuedAt);
+    const { current } = await verifyPublicationTree(root);
+    assert.equal(result.id, edition(13).id);
+    assert.equal(current.issuedAt, issuedAt);
+    assert.equal(current.cutoff, draft.cutoff);
+    await assert.rejects(publishCollectedSnapshot(root, draft, digest(draft), first.id, issuedAt), /current edition changed/i);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
 
 for (const stage of ["archive", "index", "current"] as PublicationStep[]) {
   test(`an interruption after ${stage} recovers without overwriting an issued archive`, async () => {

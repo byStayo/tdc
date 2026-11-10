@@ -6,7 +6,7 @@ import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
-import { publishSnapshot } from "../lib/consensus/history.ts";
+import { digest, publishCollectedSnapshot, publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot } from "../lib/consensus/model.ts";
 import { freezeConsensus } from "../lib/consensus/as-issued.ts";
 import { applyScoringPolicy } from "../lib/consensus/scoring-policy.ts";
@@ -17,6 +17,16 @@ import { attachReview } from "../lib/consensus/reviewed.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const draftPath = resolve(root, ".consensus/last-collection.json");
+if (process.argv[2] === "--publish-collected") {
+  const [hash, base] = process.argv.slice(3);
+  if (process.argv.length !== 5 || !/^[a-f0-9]{64}$/.test(hash) || !/^(?:none|[0-9TZ-]{20,30})$/.test(base))
+    throw new Error("Usage: --publish-collected REVIEWED_DRAFT_SHA256 BASE_EDITION");
+  const draft: Snapshot = JSON.parse(await readFile(draftPath, "utf8"));
+  console.log(JSON.stringify(await publishCollectedSnapshot(root, draft, hash, base === "none" ? null : base)));
+  process.exit(0);
+}
+
 let previous: Snapshot | null = null;
 try {
   previous = JSON.parse(
@@ -61,7 +71,7 @@ for (const model of registry.models) await validateActiveModelTree(root, model, 
 snapshot.forecasts = forecastSnapshot(snapshot, registry.models);
 await mkdir(resolve(root, ".consensus"), { recursive: true });
 await writeFile(
-  resolve(root, ".consensus/last-collection.json"),
+  draftPath,
   JSON.stringify(snapshot, null, 2),
 );
 if (process.argv.includes("--publish")) {
@@ -81,6 +91,8 @@ if (process.argv.includes("--publish")) {
   console.log(
     JSON.stringify({
       draft: ".consensus/last-collection.json",
+      sha256: digest(snapshot),
+      baseEdition: previous?.id ?? "none",
       signals: snapshot.signals.length,
       available: snapshot.signals.filter(
         (signal) => signal.status === "available",

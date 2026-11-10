@@ -4,7 +4,9 @@ This extends the prior editorial publication. The full user goal remains open. A
 
 ## Commands
 
-- `npm run consensus:collect`: bounded official-source collection into private `.consensus/last-collection.json`; no public change.
+- `npm run editorial:prepare`: collect the official editorial evidence and consensus draft in one command. Both outputs stay private for review.
+- `npm run consensus:collect`: bounded official-source collection into private `.consensus/last-collection.json`. The command prints the draft hash and base edition. No public change.
+- `npm run consensus:publish-collected -- REVIEWED_DRAFT_SHA256 BASE_EDITION`: publish the exact draft just reviewed, without refetching. The shared publication lock protects the base-edition check. A changed draft, a changed base, or a draft older than four hours requires fresh review. The edition records its actual issue time separately from the collection cutoff.
 - `npm run consensus:publish`: validate, attach any qualified active model, archive a new immutable snapshot, and atomically replace the current edition. Re-fetching identical observations does not create an edition. Shares `.editorial/publish.lock` with editorial publishing and evaluation.
 - `npm run consensus:review`: attach the saved, source-checked editorial review to the existing data without refetching providers. Publish only if the facts or interpretations changed. Source observation/retrieval dates remain intact; this is not a new market-data collection.
 - `npm run consensus:private-credit`: collect only the Fed private-credit source into a private candidate while retaining all other saved observations. Add `-- --publish` for a reviewed immutable publication. The current and dated tables must agree; a new release needs an explicit review of its PDF units and underlying-data cutoff in `private-credit.ts`. Refetching unchanged data creates no edition. The normal full collector includes this source too.

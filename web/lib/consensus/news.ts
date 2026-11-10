@@ -3,7 +3,7 @@ import { unzipSync } from "fflate";
 import { INSTRUMENTS } from "./types.ts";
 import type { Signal } from "./types.ts";
 import { publicDate } from "../public-normalization.ts";
-import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
+import { sourceResponse, sourceChunk, sourceFailureKind, SourceMissingError } from "./source-failure.ts";
 
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -246,6 +246,7 @@ async function bytes(
   url: string,
   limit: number,
   fetcher: Fetcher,
+  range?: string,
 ): Promise<Uint8Array> {
   const u = new URL(url);
   if (
@@ -255,13 +256,18 @@ async function bytes(
     u.search ||
     u.username ||
     u.password ||
-    !/^\/gdeltv2\/(?:lastupdate\.txt|\d{14}\.gkg\.csv\.zip)$/.test(u.pathname)
+    !/^\/gdeltv2\/(?:masterfilelist\.txt|\d{14}\.gkg\.csv\.zip)$/.test(u.pathname)
   )
     throw new Error("Unexpected GDELT source");
   const r = await sourceResponse(fetcher, url, {
     redirect: "error",
     signal: AbortSignal.timeout(20000),
+    ...(range ? { headers: { Range: range } } : {}),
   });
+  if (range && (r.status !== 206 || !/^bytes \d+-\d+\/\d+$/.test(r.headers.get("Content-Range") ?? ""))) {
+    await r.body!.cancel().catch(() => undefined);
+    throw new Error("GDELT did not return a bounded index range");
+  }
   const reader = r.body!.getReader(),
     chunks: Uint8Array[] = [];
   let size = 0;
@@ -279,6 +285,36 @@ async function bytes(
   }
   return Buffer.concat(chunks);
 }
+
+async function latestBatch(fetcher: Fetcher, cutoff: string) {
+  // The index can announce a batch before its ZIP is served. Read only its tail.
+  const index = new TextDecoder().decode(await bytes(
+    "https://data.gdeltproject.org/gdeltv2/masterfilelist.txt",
+    16384,
+    fetcher,
+    "bytes=-16384",
+  ));
+  const candidates = new Map<string, ReturnType<typeof gdeltManifest>>();
+  for (const line of index.split(/\r?\n/).slice(1)) {
+    if (!line.endsWith(".gkg.csv.zip")) continue;
+    try {
+      const manifest = gdeltManifest(line, cutoff);
+      candidates.set(manifest.url, manifest);
+    } catch {
+      // The partial index can also contain future, expired or oversized batches.
+    }
+  }
+  const newest = [...candidates.values()].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 8);
+  for (const manifest of newest) {
+    try {
+      return { manifest, zip: await bytes(manifest.url, manifest.size, fetcher) };
+    } catch (error) {
+      if (!(error instanceof SourceMissingError)) throw error;
+    }
+  }
+  throw new Error("No recent GDELT news archive is available");
+}
+
 export async function collectNews(
   fetcher: Fetcher = fetch,
 ): Promise<{ signal: Signal; pulse: NewsPulse | null }> {
@@ -314,17 +350,7 @@ export async function collectNews(
     unit: "tone",
   };
   try {
-    const manifest = gdeltManifest(
-      new TextDecoder().decode(
-        await bytes(
-          "https://data.gdeltproject.org/gdeltv2/lastupdate.txt",
-          10000,
-          fetcher,
-        ),
-      ),
-      new Date().toISOString(),
-    );
-    const zip = await bytes(manifest.url, 12000000, fetcher);
+    const { manifest, zip } = await latestBatch(fetcher, at);
     if (
       zip.byteLength !== manifest.size ||
       createHash("md5").update(zip).digest("hex") !== manifest.md5

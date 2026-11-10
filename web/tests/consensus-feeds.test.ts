@@ -172,3 +172,35 @@ test("news outage never becomes neutral sentiment", async () => {
   assert.equal(result.signal.status, "unavailable");
   assert.ok(Object.values(result.signal.scores).every((s) => s === null));
 });
+
+test("news collection skips future and not-yet-uploaded batches in the bounded official index", async () => {
+  const { createHash } = await import("node:crypto");
+  const stamp = (offset: number) => new Date(Date.now() + offset * 60_000).toISOString().replace(/\D/g, "").slice(0, 14);
+  const published = stamp(-46), ready = stamp(-45), missing = stamp(-30), future = stamp(15);
+  const zip = zipSync({
+    [ready + ".gkg.csv"]: strToU8(
+      gkg("https://a.example/a", "Stocks rise as earnings grow", undefined, published)
+        .replaceAll("20261103054500", ready),
+    ),
+  });
+  const archive = (value: string) => "https://data.gdeltproject.org/gdeltv2/" + value + ".gkg.csv.zip";
+  const entry = (value: string) => zip.length + " " + createHash("md5").update(zip).digest("hex") + " " + archive(value);
+  const index = ["truncated first row", entry(ready), entry(missing), entry(future), ""].join("\n");
+  const requests: string[] = [];
+  const result = await collectNews(async (url, init) => {
+    requests.push(url);
+    if (url.endsWith("/masterfilelist.txt")) {
+      assert.equal(new Headers(init?.headers).get("range"), "bytes=-16384");
+      return new Response(index, { status: 206, headers: { "Content-Range": "bytes 1-" + index.length + "/" + (index.length + 1) } });
+    }
+    if (url === archive(missing)) return new Response(null, { status: 404 });
+    assert.equal(url, archive(ready));
+    return new Response(new Uint8Array(zip));
+  });
+  assert.deepEqual(requests.map(url => url.split("/").at(-1)), [
+    "masterfilelist.txt", missing + ".gkg.csv.zip", ready + ".gkg.csv.zip",
+  ]);
+  assert.equal(result.signal.status, "available");
+  assert.equal(result.pulse?.sourceUrl, archive(ready));
+  assert.ok(Object.values(result.signal.scores).every(score => score === null));
+});

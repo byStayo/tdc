@@ -59,6 +59,10 @@ const FRED = [
   { id: 'FRED_RATE', series: 'FEDFUNDS', title: 'Federal Reserve / FRED · Effective federal funds rate', unit: 'percent', frequency: 'monthly' },
   { id: 'FRED_PRIME', series: 'DPRIME', title: 'Federal Reserve / FRED · Bank prime loan rate', unit: 'percent', frequency: 'daily' },
   { id: 'FRED_WEALTH', series: 'TNWBSHNO', title: 'Federal Reserve / FRED · Household and nonprofit net worth', unit: 'millions USD', frequency: 'quarterly' },
+  { id: 'FRED_DGS2', series: 'DGS2', title: 'Federal Reserve / FRED · Two-year Treasury constant maturity yield', unit: 'percent', frequency: 'daily', editorialOnly: true },
+  { id: 'FRED_DGS10', series: 'DGS10', title: 'Federal Reserve / FRED · Ten-year Treasury constant maturity yield', unit: 'percent', frequency: 'daily', editorialOnly: true },
+  { id: 'FRED_DGS30', series: 'DGS30', title: 'Federal Reserve / FRED · Thirty-year Treasury constant maturity yield', unit: 'percent', frequency: 'daily', editorialOnly: true },
+  { id: 'FRED_SOFR', series: 'SOFR', title: 'Federal Reserve / FRED · Secured Overnight Financing Rate', unit: 'percent', frequency: 'daily', editorialOnly: true },
 ] as const;
 const CFTC_IDS: Record<string, string> = { '13874A': 'CFTC_ES', '209742': 'CFTC_NQ', '239742': 'CFTC_RTY', '124603': 'CFTC_DOW', '020601': 'CFTC_BOND', '043602': 'CFTC_TENYEAR' };
 const ISSUERS = [{ ticker: 'AAPL', cik: '0000320193' }, { ticker: 'MSFT', cik: '0000789019' }, { ticker: 'NVDA', cik: '0001045810' }];
@@ -68,13 +72,17 @@ function failed(source: Omit<EditorialSource, 'status' | 'data' | 'observationDa
   return { ...source, status: 'unavailable', observationDates: [], data: null, error: 'The official source did not return usable public evidence. Do not cite this item.' };
 }
 async function collectFRED(fetcher: Fetcher): Promise<EditorialSource[]> {
+  const from = new Date(Date.now() - 800 * 86400000).toISOString().slice(0, 10);
   return Promise.all(FRED.map(async descriptor => {
-    const url = `https://fred.stlouisfed.org/series/${descriptor.series}`, retrievalUrl = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${descriptor.series}`;
+    const editorialOnly = 'editorialOnly' in descriptor;
+    const url = `https://fred.stlouisfed.org/series/${descriptor.series}`;
+    const retrievalUrl = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${descriptor.series}${editorialOnly ? `&cosd=${from}` : ''}`;
     const base = { id: descriptor.id, kind: 'fred' as const, title: descriptor.title, url, retrievalUrl };
     try {
-      const response = await fetchText(retrievalUrl, fetcher), observations = parseFREDCSV(response.text, descriptor.series);
+      const response = await fetchText(retrievalUrl, fetcher);
+      const observations = parseFREDCSV(response.text, descriptor.series).filter(item => item.date <= response.retrievedAt.slice(0, 10));
       if (!observations.some(item => item.value !== null)) throw new Error('No usable FRED observations');
-      return { ...base, retrievedAt: response.retrievedAt, status: 'ok', observationDates: observations.map(item => item.date), data: { seriesId: descriptor.series, unit: descriptor.unit, frequency: descriptor.frequency, observations } };
+      return { ...base, retrievedAt: response.retrievedAt, status: 'ok', observationDates: observations.map(item => item.date), data: { seriesId: descriptor.series, unit: descriptor.unit, frequency: descriptor.frequency, observations, ...(editorialOnly ? { sha256: createHash('sha256').update(response.text).digest('hex') } : {}) } };
     } catch { return failed({ ...base, retrievedAt: new Date().toISOString() }); }
   }));
 }

@@ -1,5 +1,6 @@
 /** Only explicit transport failures may revive last-known observations. */
 export class SourceTransportError extends Error {}
+export class SourceMissingError extends Error {}
 export const sourceFailureKind = (error: unknown): "transport" | "validation" =>
   error instanceof SourceTransportError ? "transport" : "validation";
 
@@ -14,6 +15,7 @@ export async function sourceResponse(
   if (!response.ok) {
     if (response.status === 408 || response.status === 429 || response.status >= 500)
       throw new SourceTransportError(`Source HTTP ${response.status}`);
+    if (response.status === 404) throw new SourceMissingError("Source HTTP 404");
     // Forbidden/missing sources may indicate revoked access or a removed dataset.
     throw new Error(`Source HTTP ${response.status}`);
   }

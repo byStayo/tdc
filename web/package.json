@@ -11,6 +11,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "consensus:collect": "node --experimental-strip-types scripts/publish-consensus.ts",
     "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
+    "consensus:publish-collected": "node --experimental-strip-types scripts/publish-consensus.ts --publish-collected",
     "consensus:review": "node --experimental-strip-types scripts/publish-consensus.ts --review-only --publish",
     "consensus:private-credit": "node --experimental-strip-types scripts/publish-consensus.ts --private-credit-only",
     "consensus:analysts": "node --experimental-strip-types scripts/publish-consensus.ts --analysts-only",
@@ -22,6 +23,7 @@
     "consensus:finra-private": "node --experimental-strip-types scripts/collect-finra-private.ts",
     "consensus:finra-setup": "python3 scripts/setup-finra.py",
     "editorial:collect": "node --experimental-strip-types scripts/collect-editorial-evidence.ts",
+    "editorial:prepare": "npm run editorial:collect && npm run consensus:collect",
     "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts",
     "consensus:bluesky-private": "node --experimental-strip-types scripts/collect-bluesky-private.ts",
     "consensus:finra-stage": "node --experimental-strip-types scripts/prepare-finra-display.ts"

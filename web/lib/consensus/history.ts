@@ -439,10 +439,24 @@ async function reconcilePublication(root: string): Promise<{ current: Snapshot |
 }
 
 export type PublicationStep = "archive" | "index" | "current";
+export async function publishCollectedSnapshot(
+  root: string,
+  draft: Snapshot,
+  expectedHash: string,
+  expectedCurrentId: string | null,
+  issuedAt = new Date().toISOString(),
+) {
+  if (digest(draft) !== expectedHash) throw new Error("Reviewed collection hash changed");
+  if (!instant(issuedAt) || !instant(draft.cutoff) || draft.issuedAt > issuedAt ||
+      draft.cutoff > issuedAt || Date.parse(issuedAt) - Date.parse(draft.cutoff) > 4 * 3600000)
+    throw new Error("Publication requires a recent reviewed collection");
+  return publishSnapshot(root, { ...draft, issuedAt, id: issuedAt.replace(/[:.]/g, "-") }, { expectedCurrentId });
+}
+
 export async function publishSnapshot(
   root: string,
   snapshot: Snapshot,
-  options: { afterStep?: (step: PublicationStep) => void | Promise<void> } = {},
+  options: { afterStep?: (step: PublicationStep) => void | Promise<void>; expectedCurrentId?: string | null } = {},
 ): Promise<{ changed: boolean; id: string; sha256: string }> {
   validateSnapshot(snapshot);
   const currentPath = resolve(root, "lib/consensus/current.json"),
@@ -453,6 +467,8 @@ export async function publishSnapshot(
   try {
     await assertNoPendingEvaluation(root);
     const { current: prior, history: index } = await reconcilePublication(root);
+    if (options.expectedCurrentId !== undefined && (prior?.id ?? null) !== options.expectedCurrentId)
+      throw new Error("Current edition changed after collection; review a new draft");
     if (prior && observationDigest(prior) === observationDigest(snapshot))
       return { changed: false, id: prior.id, sha256: digest(prior) };
     if (prior && snapshot.issuedAt <= prior.issuedAt)
