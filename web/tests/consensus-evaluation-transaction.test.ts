@@ -91,10 +91,22 @@ test("the actual evaluator scores a covered date and records uncovered targets a
       sessions:dates.map(day=>({... (day.startsWith("2026")?exchangeSession(day)!:{session:day,openAt:`${day}T14:30:00.000Z`,closeAt:`${day}T21:00:00.000Z`}),open:100,close:101}))}];
     await writeFile(join(root,"prices.json"),JSON.stringify(prices));
     execFileSync("git",["init","--quiet"],{cwd:root});
+    const invalidPrices=join(root,"market-prices.json");
+    await writeFile(invalidPrices,JSON.stringify([{...prices[0],instrument:"MARKET"}]));
+    assert.throws(()=>execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts","--prices",invalidPrices],{cwd:root,encoding:"utf8",stdio:"pipe"}),/One verified price evidence set per instrument required/);
+    const runWithoutPrices=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts"],{cwd:root,encoding:"utf8"}));
+    assert.equal(runWithoutPrices.status,"awaiting_price_evidence");
+    assert.equal(runWithoutPrices.pending,index.length*5*3,"Every edition/instrument/horizon needs evidence, including instruments absent from --prices");
+    assert.equal(runWithoutPrices.resolved,0);assert.equal(runWithoutPrices.trained,0);
     const output=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts","--prices",join(root,"prices.json")],{cwd:root,encoding:"utf8"}));
     assert.ok(output.resolved>=1);assert.ok(output.pending>=1);assert.equal(output.trained,0);
     const report=JSON.parse(await readFile(join(root,"lib/consensus/performance.json"),"utf8"));
     assert.ok(report.pending.some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-12-03")&&row.horizon==="monthly"));
+    assert.equal(report.pending.filter((row:{instrument:string})=>row.instrument!=="SPY").length,index.length*4*3);
+    const firstOutcomes=await readFile(join(root,"public/consensus/outcomes.json"),"utf8");
+    const secondWithoutPrices=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts"],{cwd:root,encoding:"utf8"}));
+    assert.equal(secondWithoutPrices.pending,index.length*5*3-JSON.parse(firstOutcomes).length,"Already resolved targets do not return to pending when price files are omitted");
+    assert.equal(await readFile(join(root,"public/consensus/outcomes.json"),"utf8"),firstOutcomes,"Previously resolved evidence is preserved");
     assert.ok(JSON.parse(await readFile(join(root,"public/consensus/outcomes.json"),"utf8")).some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-11-02")&&row.horizon==="daily"));
     for(const entry of index)assert.equal(digest(JSON.parse(await readFile(join(root,`public/consensus/${entry.id}.json`),"utf8"))),entry.sha256);
   }finally{await rm(root,{recursive:true,force:true});}

@@ -38,7 +38,7 @@ const argument = process.argv.indexOf("--prices"),
 if (
   !Array.isArray(supplied) ||
   new Set(supplied.map((item) => item.instrument)).size !== supplied.length ||
-  supplied.some((item) => !INSTRUMENTS.includes(item.instrument))
+  supplied.some((item) => !INSTRUMENTS.includes(item.instrument) || item.instrument === "MARKET")
 )
   throw new Error("One verified price evidence set per instrument required");
 const release = await acquirePublicationLock(root, "evaluation");
@@ -75,12 +75,16 @@ try {
     const key = (row: Outcome) =>
       `${row.snapshotId}:${row.instrument}:${row.horizon}`;
     for (const snapshot of snapshots)
-      for (const prices of supplied)
+      for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
         for (const horizon of HORIZONS) {
-          const row = evaluateOutcome(snapshot, prices, horizon, now);
-          if (row && !outcomes.some((previous) => key(previous) === key(row))) outcomes.push(row);
-          else if (!row && !outcomes.some(previous => previous.snapshotId === snapshot.id && previous.instrument === prices.instrument && previous.horizon === horizon))
-            pending.push({ snapshotId: snapshot.id, instrument: prices.instrument, horizon, reason: "Awaiting verified prices or independently reviewed calendar coverage." });
+          const target = { snapshotId: snapshot.id, instrument, horizon };
+          const prices = supplied.find(item => item.instrument === instrument);
+          const row = prices ? evaluateOutcome(snapshot, prices, horizon, now) : null;
+          if (outcomes.some(previous => key(previous) === `${snapshot.id}:${instrument}:${horizon}`)) continue;
+          if (row) outcomes.push(row);
+          else pending.push({ ...target, reason: prices
+            ? "Awaiting verified prices or independently reviewed calendar coverage."
+            : "No verified price evidence supplied for this instrument." });
         }
     for (const row of outcomes) {
       if (snapshots.find(s => s.id === row.snapshotId)?.engineVersion !== row.engineVersion)

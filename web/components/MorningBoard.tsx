@@ -1165,6 +1165,10 @@ export default function MorningBoard({
     horizon,
     snapshot.engineVersion,
   );
+  const pendingTargets = (performance.pending ?? []).filter(item =>
+    item.snapshotId === snapshot.id && item.horizon === horizon &&
+    (instrument === "MARKET" || item.instrument === instrument),
+  );
   const learning = performance.learning.filter(
     (item) =>
       (instrument === "MARKET" || item.instrument === instrument) &&
@@ -2144,6 +2148,10 @@ export default function MorningBoard({
                 </label>
               </div>
               {historyError && <p role="alert">{historyError}</p>}
+              {pendingTargets.length > 0 && <p>
+                {pendingTargets.length} {horizon} {pendingTargets.length === 1 ? "target awaits" : "targets await"} verified prices or reviewed calendar coverage for this edition.
+                These are unresolved edition targets, not independent training samples.
+              </p>}
               <div className={styles.historyStats}>
                 <div>
                   <span>As-issued editions</span>
