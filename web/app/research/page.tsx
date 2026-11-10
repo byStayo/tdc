@@ -1,3 +1,4 @@
+import PublicationFooter from "@/components/PublicationFooter";
 import { archiveDisplayTitle } from "@/lib/archive-title";
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -34,6 +35,6 @@ export default function ResearchArchivePage() {
         </article>)}</div>
       </section>)}
     </main>
-    <footer className={styles.footer}><Link href="/research-desk">Return to the research desk <ArrowRight size={14} aria-hidden="true" /></Link><span>Research, open to everyone.</span></footer>
+    <PublicationFooter />
   </div>;
 }

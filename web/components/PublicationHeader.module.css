@@ -1,7 +1,7 @@
 .header {
-  max-width: 1240px;
+  max-width: var(--page-width);
   margin: 0 auto;
-  padding: 22px 28px;
+  padding: 22px var(--page-gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -30,8 +30,10 @@ export default function TradingViewWidget({
   lazy?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
+  const activateChart = useRef<HTMLButtonElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [retry, setRetry] = useState(0);
+  const [chartInteractive, setChartInteractive] = useState(false);
   const [visible, setVisible] = useState(!lazy);
   const mappedSymbol = providerSymbol(symbol);
   const broadNews = kind === "news" && newsScope === "market";
@@ -67,6 +69,7 @@ export default function TradingViewWidget({
     if (!root || !visible) return;
     let disposed = false;
     setState("loading");
+    setChartInteractive(false);
     // An async script in the parent document can finish after its container is
     // removed. An owned child document is cancelled as a unit during navigation.
     const frame = document.createElement("iframe");
@@ -115,10 +118,30 @@ export default function TradingViewWidget({
     };
   }, [kind, symbol, newsScope, theme, horizon, retry, widgetTitle, visible]);
 
+  useEffect(() => {
+    if (!chartInteractive) return;
+    host.current?.querySelector("iframe")?.focus({ preventScroll: true });
+    const release = (event: PointerEvent) => {
+      const widget = host.current?.closest(".provider-widget");
+      if (widget && !widget.contains(event.target as Node)) setChartInteractive(false);
+    };
+    document.addEventListener("pointerdown", release);
+    return () => document.removeEventListener("pointerdown", release);
+  }, [chartInteractive]);
+
   return (
     <div className={`provider-widget provider-widget-${kind}`}>
       <div className="provider-widget-stage">
-        <div ref={host} className="provider-widget-host" />
+        <div ref={host} className="provider-widget-host"
+          inert={kind === "chart" && !chartInteractive}
+          aria-hidden={kind === "chart" && !chartInteractive ? true : undefined} />
+        {kind === "chart" && state === "ready" && !chartInteractive && <button
+          ref={activateChart}
+          className="chart-interaction-shield"
+          aria-label={`Interact with ${symbol} chart`}
+          onClick={() => setChartInteractive(true)}>
+          <span>Interact with chart</span>
+        </button>}
         {state !== "ready" && (
           <div
             className={`provider-widget-status ${state === "error" ? "provider-widget-error" : ""}`}
@@ -164,7 +187,15 @@ export default function TradingViewWidget({
           </div>
         )}
       </div>
+      {kind === "chart" && <p className="chart-interaction-note">
+        {chartInteractive ? "Chart interaction is on. Finish to return to page scrolling." : "Scroll through the page freely. Select the chart to explore its controls."}
+      </p>}
       <div className="tradingview-widget-copyright">
+        {kind === "chart" && chartInteractive && <button className="chart-interaction-done"
+          onClick={() => {
+            setChartInteractive(false);
+            requestAnimationFrame(() => activateChart.current?.focus({ preventScroll: true }));
+          }}>Finish chart interaction</button>}
         <ExternalLink href={providerLink}>
           {widgetTitle} by TradingView
         </ExternalLink>

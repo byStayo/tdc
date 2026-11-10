@@ -1,4 +1,5 @@
 "use client";
+import PublicationFooter from "@/components/PublicationFooter";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -2299,30 +2300,30 @@ export default function MorningBoard({
                   daily-consensus record.
                 </p>
                 <div className={styles.tableScroll}>
-                  <table>
+                  <table role="table">
                     <caption>
                       Chronological holdout results. Brier score measures
                       probability error; lower is better.
                     </caption>
-                    <thead>
-                      <tr>
-                        <th>Currency</th>
-                        <th>Horizon</th>
-                        <th>Test samples</th>
-                        <th>Model error</th>
-                        <th>Base-rate error</th>
-                        <th>Decision</th>
+                    <thead role="rowgroup">
+                      <tr role="row">
+                        <th scope="col" role="columnheader">Currency</th>
+                        <th scope="col" role="columnheader">Horizon</th>
+                        <th scope="col" role="columnheader">Test samples</th>
+                        <th scope="col" role="columnheader">Model error</th>
+                        <th scope="col" role="columnheader">Base-rate error</th>
+                        <th scope="col" role="columnheader">Decision</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {experiments.experiments.map((item) => (
-                        <tr key={item.id}>
-                          <th>{item.instrument}</th>
-                          <td>{item.horizon}</td>
-                          <td>{item.testSamples ?? "—"}</td>
-                          <td>{item.candidateBrier?.toFixed(4) ?? "—"}</td>
-                          <td>{item.baseRateBrier?.toFixed(4) ?? "—"}</td>
-                          <td>
+                        <tr key={item.id} role="row">
+                          <th scope="row" role="rowheader">{item.instrument}</th>
+                          <td role="cell" data-label="Horizon">{item.horizon}</td>
+                          <td role="cell" data-label="Test samples">{item.testSamples ?? "—"}</td>
+                          <td role="cell" data-label="Model error">{item.candidateBrier?.toFixed(4) ?? "—"}</td>
+                          <td role="cell" data-label="Base-rate error">{item.baseRateBrier?.toFixed(4) ?? "—"}</td>
+                          <td role="cell" data-label="Decision">
                             {item.baselineBeaten
                               ? "Shadow evaluation required"
                               : "Not promoted"}
@@ -2345,20 +2346,8 @@ export default function MorningBoard({
             </>
           )}
         </section>
-        <footer className={styles.footer}>
-          <div>
-            <strong>The Daily Consensus</strong>
-            <span>Independent thinking. Open to everyone.</span>
-          </div>
-          <p>
-            Research context, not personalized investment advice. Data can be
-            delayed or revised. Missing signals remain visible.
-          </p>
-          <a href="/methodology">
-            <Info size={15} /> Sources & methodology
-          </a>
-        </footer>
       </main>
+      <PublicationFooter />
       <SourceDrawer
         family={family}
         snapshot={snapshot}

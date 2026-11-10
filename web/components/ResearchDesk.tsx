@@ -1,4 +1,5 @@
 "use client";
+import PublicationFooter from "@/components/PublicationFooter";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -351,6 +352,12 @@ export default function ResearchDesk({ initialWorkspace, initialBrief }: { initi
       </a>
       <PublicationHeader active="desk" theme={theme} onToggleTheme={toggleTheme} />
       <div className="desk-sections-wrap">
+        <div className="desk-mobile-section">
+          <label htmlFor="desk-section">Research section</label>
+          <select id="desk-section" value={view} onChange={event => navigate(event.target.value as View)}>
+            {NAVIGATION.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}
+          </select>
+        </div>
         <nav className="desk-sections" aria-label="Research sections">
           {NAVIGATION.map(item => <button key={item.id}
             aria-current={view === item.id ? "page" : undefined}
@@ -728,15 +735,6 @@ export default function ResearchDesk({ initialWorkspace, initialBrief }: { initi
             <div className="mobile-macro-context">
               <MacroPanel macro={workspace?.macro} loading={loading} />
             </div>
-            <footer className="workspace-footer">
-              <span>The Daily Consensus</span>
-              <p>
-                Research for perspective. Not a recommendation to buy or sell.
-              </p>
-              <button onClick={() => navigate("sources")}>
-                Sources & methodology <ArrowRight size={12} />
-              </button>
-            </footer>
           </main>
           {view !== "watchlist" && <ContextRail
             publicMode={publicMode}
@@ -753,6 +751,7 @@ export default function ResearchDesk({ initialWorkspace, initialBrief }: { initi
           />}
         </div>
       </div>
+      <PublicationFooter />
     </div>
   );
 }

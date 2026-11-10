@@ -1763,3 +1763,23 @@ button.policyRow:hover {
   .taiwanValue strong { font-size: 26px; }
   .taiwanChart { max-width: 100%; }
 }
+
+/* Preserve the model results table while making every value readable on a phone. */
+@media (max-width: 640px) {
+  .experiments .tableScroll { overflow: visible; }
+  .experiments table, .experiments tbody { display: block; width: 100%; min-width: 0; white-space: normal; }
+  .experiments caption { display: block; line-height: 1.7; white-space: normal; }
+  .experiments thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; border: 0; overflow: hidden; clip: rect(0,0,0,0); clip-path: inset(50%); white-space: nowrap; }
+  .experiments tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .experiments tbody th { grid-column: 1 / -1; font-family: var(--font-display),sans-serif; font-size: 18px; font-weight: 500; }
+  .experiments tbody th, .experiments tbody td { border: 0; padding: 0; white-space: normal; overflow-wrap: anywhere; }
+  .experiments tbody td { display: grid; align-content: start; gap: 4px; font-size: 14px; }
+  .experiments tbody td::before { content: attr(data-label); color: var(--text-muted); font-size: 12px; }
+  .experiments tbody td:last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .curveMetrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+  .curveMetrics > div { min-width: 0; }
+  .curveMetrics strong { font-size: clamp(20px,5.8vw,24px); }
+  .curveMetrics small { font-size: 12px; margin-left: 2px; }
+}

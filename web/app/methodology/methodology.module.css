@@ -1,9 +1,9 @@
-.main { max-width: 1040px; margin: 0 auto; padding: 48px 28px 0; }
+.main { max-width: var(--page-width); margin: 0 auto; padding: var(--page-top-space) var(--page-gutter) 0; }
 .intro { max-width: 730px; margin-bottom: 32px; }
 .intro h1 {
-  font: 500 clamp(32px, 4vw, 46px) / 1.15 var(--font-display), sans-serif;
-  letter-spacing: -1.5px;
-  margin: 14px 0 16px;
+  font: 500 var(--page-title-size) / var(--page-title-leading) var(--font-display), sans-serif;
+  letter-spacing: -.035em;
+  margin: 14px 0 12px;
 }
 .intro p { color: var(--text-secondary); font-size: 16px; line-height: 1.7; }
 .contents { padding: 20px 0; margin-bottom: 36px; border-block: 1px solid var(--border); }
@@ -20,9 +20,9 @@
 .sections li + li { margin-top: 20px; }
 .sections a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 700px) {
-  .main { padding: 32px 20px 0; }
+  .main { padding: var(--page-top-space) var(--page-gutter) 0; }
   .intro { margin-bottom: 24px; }
-  .intro h1 { letter-spacing: -1px; }
+  .intro h1 { letter-spacing: -.035em; }
   .contents { margin-bottom: 28px; }
   .contents div { display: grid; gap: 0; }
   .sections h2 { font-size: 23px; }

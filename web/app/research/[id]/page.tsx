@@ -1,3 +1,4 @@
+import PublicationFooter from "@/components/PublicationFooter";
 import { archiveDisplayTitle } from "@/lib/archive-title";
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -142,6 +143,6 @@ export default async function ArchiveArticlePage({ params }: Props) {
         </Link>)}</div>
       </section>
     </main>
-    <footer className={styles.siteFooter}><Link href="/">The Daily Consensus</Link><span>Research, open to everyone.</span></footer>
+    <PublicationFooter />
   </div>;
 }

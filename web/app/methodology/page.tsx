@@ -1,3 +1,4 @@
+import PublicationFooter from "@/components/PublicationFooter";
 import Link from "next/link";
 import { FAMILIES, MACRO_SERIES } from "@/lib/consensus/registry";
 import styles from "@/components/MorningBoard.module.css";
@@ -317,11 +318,8 @@ export default function Methodology() {
             </p>
           </section>
         </div>
-        <footer className={styles.footer}>
-          <Link href="/">Return to the morning view →</Link>
-          <span>Free public research. No account or payment required.</span>
-        </footer>
       </main>
+      <PublicationFooter />
     </div>
   );
 }
