@@ -49,6 +49,7 @@ const HOSTS = new Set([
   "openapi.twse.com.tw",
   "www.quantisnow.com",
   "etfiq.com",
+  "www.dolthub.com",
 ]);
 const noScores = () => ({ daily: null, weekly: null, monthly: null });
 export function safeURL(input: string): string {
