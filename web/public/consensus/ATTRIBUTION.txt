@@ -28,3 +28,11 @@ https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/
 Reuse terms: https://www.bankofcanada.ca/terms/
 Date normalization, chart and rate-change calculations by The Daily Consensus.
 No Bank of Canada endorsement is implied.
+
+Bank of Canada Market Participants Survey
+
+Source: Bank of Canada, Market Participants Survey.
+https://www.bankofcanada.ca/publications/market-participants-survey/
+Reuse terms: https://www.bankofcanada.ca/terms/
+Year-end row selection and formatting by The Daily Consensus.
+No Bank of Canada endorsement is implied.

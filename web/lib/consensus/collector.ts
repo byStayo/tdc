@@ -5,6 +5,7 @@ import { collectMarketCalendars } from "./calendars.ts";
 import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
+import { collectBocSurvey } from "./boc-survey.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { collectAnalystRatings } from "./analyst-ratings.ts";
@@ -915,6 +916,7 @@ export async function collectSnapshot(
     privateFunds,
     privateCredit,
     policyRates,
+    bocSurvey,
     holdings,
     taiwan,
     analystRatings,
@@ -933,6 +935,7 @@ export async function collectSnapshot(
     collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
     collectPrivateCredit((url) => publicText(url, fetcher)),
     collectPolicyRates((url) => publicText(url, fetcher)),
+    collectBocSurvey((url) => publicText(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
     collectTaiwan((url) => publicText(url, fetcher)),
     collectAnalystRatings((url) => publicText(url, fetcher)),
@@ -952,6 +955,7 @@ export async function collectSnapshot(
       ...capital,
       privateFunds,
       ...policyRates,
+      bocSurvey,
       ...holdings.signals,
       ...missingSignals(issuedAt),
       // Match the scoped addition's position so a full refresh cannot create
@@ -978,7 +982,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 36,
+    sourcesAttempted: MACRO_SERIES.length + 37,
     collectionErrors: signals
       .filter(
         (signal) =>

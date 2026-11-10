@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { eventUpcoming } from "@/lib/consensus/time";
+import { BOC_SURVEY_ID } from "@/lib/consensus/boc-survey";
 import { policyReadings } from "@/lib/consensus/policy";
 import type { NewsPulse } from "@/lib/consensus/news";
 import { effectiveStatus } from "@/lib/consensus/engine";
@@ -926,10 +927,12 @@ function PolicyRates({
   signals,
   reference,
   onInspect,
+  survey,
 }: {
   signals: Signal[];
   reference: string;
   onInspect: (family: Family) => void;
+  survey?: Signal;
 }) {
   if (!signals.some((signal) => signal.id.startsWith("policy-"))) return null;
   const rows = policyReadings(signals, reference),
@@ -1041,6 +1044,15 @@ function PolicyRates({
         forecast currencies or the next rate decision. Select a bank to inspect
         its source.
       </p>
+      {survey && survey.source.observedAt && survey.source.releasedAt && (
+        <p className={styles.chartFoot}>
+          <a href={survey.source.url} target="_blank" rel="noopener noreferrer">
+            Bank of Canada Market Participants Survey
+          </a>{" "}
+          · {survey.summary} Fieldwork ended {datedYear(survey.source.observedAt)}.
+          Published {datedYear(survey.source.releasedAt)}.
+        </p>
+      )}
     </section>
   );
 }
@@ -1784,6 +1796,7 @@ export default function MorningBoard({
                   signals={snapshot.signals}
                   reference={reference}
                   onInspect={setFamily}
+                  survey={available.find(signal => signal.id === BOC_SURVEY_ID)}
                 />
                 <div className={styles.twoColumns}>
                   <section className={styles.panel}>

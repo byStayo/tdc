@@ -1,6 +1,6 @@
 {
   "engineVersion": "consensus-rules-2.0.0",
-  "generatedAt": "2026-11-10T19:54:15.357Z",
+  "generatedAt": "2026-11-10T20:47:03.047Z",
   "status": "awaiting_price_evidence",
   "resolved": 0,
   "calls": 0,
@@ -2616,6 +2616,96 @@
     },
     {
       "snapshotId": "2026-11-10T19-54-14-778Z",
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "SPY",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "IWM",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "DIA",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "TLT",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-10T20-47-02-439Z",
       "instrument": "TLT",
       "horizon": "monthly",
       "reason": "No verified price evidence supplied for this instrument."
