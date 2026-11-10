@@ -37,7 +37,7 @@ export function parseEtfFlows(text: string, cutoff: string) {
     tickers.add(row.ticker);
     const available = row.status === 'ok';
     if (available) {
-      if (!integer(row.flowUsd) || !integer(row.roundTripUsd) || row.roundTripUsd < 0) fail();
+      if (!integer(row.flowUsd) || !integer(row.roundTripUsd)) fail();
       if (row.startNetAssetsUsd === null) { if (row.flowPctOfStartNetAssets !== null) fail(); }
       else {
         if (!finite(row.startNetAssetsUsd) || row.startNetAssetsUsd <= 0 || !date(row.startNetAssetsDate) ||
@@ -107,7 +107,7 @@ export function validateEtfFlows(signal: Signal): void {
   if (!date(signal.source.observedAt) || !signal.source.sha256 || signal.series.length !== 1 || signal.series[0].date !== signal.source.observedAt ||
       !integer(signal.series[0].value) || signal.metrics.length < 2 || signal.metrics.length > 5 ||
       signal.metrics[0].label !== 'Net creations / redemptions' || signal.metrics[0].unit !== 'USD' || signal.metrics[0].value !== signal.series[0].value ||
-      signal.metrics[1].label !== 'Round trips included in net flow' || signal.metrics[1].unit !== 'USD' || !integer(signal.metrics[1].value) || signal.metrics[1].value < 0 ||
+      signal.metrics[1].label !== 'Round trips included in net flow' || signal.metrics[1].unit !== 'USD' || !integer(signal.metrics[1].value) ||
       signal.metrics.some(m => m.date !== signal.source.observedAt || !finite(m.value))) throw new Error('Invalid saved ETF flow observations');
   const rest = signal.metrics.slice(2);
   if (symbol === 'MARKET') {

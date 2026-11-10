@@ -9,6 +9,7 @@ import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { collectAnalystRatings } from "./analyst-ratings.ts";
 import { collectEtfFlows } from "./etf-flows.ts";
+import { collectFuturesOptions } from "./futures-options.ts";
 import { collectTaiwan } from "./taiwan.ts";
 import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
 import { createHash } from "node:crypto";
@@ -916,6 +917,7 @@ export async function collectSnapshot(
     taiwan,
     analystRatings,
     etfFlows,
+    futuresOptions,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -933,6 +935,7 @@ export async function collectSnapshot(
     collectTaiwan((url) => publicText(url, fetcher)),
     collectAnalystRatings((url) => publicText(url, fetcher)),
     collectEtfFlows((url) => publicText(url, fetcher)),
+    collectFuturesOptions((url) => publicText(url, fetcher)),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -951,6 +954,7 @@ export async function collectSnapshot(
       ...missingSignals(issuedAt),
       // Match the scoped addition's position so a full refresh cannot create
       // an edition solely by moving otherwise identical source evidence.
+      ...futuresOptions,
       ...etfFlows,
       analystRatings,
       ...taiwan,
@@ -972,7 +976,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 34,
+    sourcesAttempted: MACRO_SERIES.length + 35,
     collectionErrors: signals
       .filter(
         (signal) =>

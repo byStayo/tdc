@@ -17,6 +17,7 @@ import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
+import { validateFuturesOptions } from "./futures-options.ts";
 import { validateTaiwan } from "./taiwan.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
@@ -62,6 +63,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validatePrivateCredit(signal);
     validateAnalystRatings(signal);
     validateEtfFlows(signal);
+    validateFuturesOptions(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||

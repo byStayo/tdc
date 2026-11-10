@@ -113,3 +113,16 @@ test('a multi-session count is withheld individually while eligible daily rows r
   assert.equal(spy.status,'unavailable');assert.match(spy.summary,/spans sessions/);
   assert.equal(signals.find(s=>s.id==='etfiq-flow-MARKET')!.metrics.at(-1)!.value,1);
 });
+
+test('signed round-trip redemption legs survive collection and saved validation', async () => {
+  const raw = fixture();
+  const redemption = raw.funds.find(row => row.ticker === 'IWM')!;
+  redemption.roundTripUsd = -120_000_000;
+  raw.total.roundTripUsd = raw.funds.reduce((sum, row) => sum + (row.roundTripUsd ?? 0), 0);
+  const signals = await collectEtfFlows(async () => document(raw), () => at);
+  const flow = signals.find(signal => signal.id === 'etfiq-flow-IWM')!;
+  assert.equal(flow.status, 'available');
+  assert.equal(flow.metrics[1].value, -120_000_000);
+  assert.doesNotThrow(() => validateEtfFlows(flow));
+  assert.doesNotThrow(() => validateEtfFlows(signals[0]));
+});

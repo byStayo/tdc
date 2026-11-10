@@ -152,6 +152,36 @@ function Sparkline({
     </svg>
   );
 }
+function FuturesOptions({ signals, reference, onInspect }: { signals: Signal[]; reference: string; onInspect: () => void }) {
+  const rows = signals.filter(signal => signal.id.startsWith("tff-options-"));
+  if (!rows.length) return null;
+  return (
+    <section className={styles.panel} aria-label="Futures options positioning">
+      <div className={styles.panelHead}>
+        <div><span className={styles.eyebrow}>WEEKLY CFTC REPORT</span><h3>Futures options positioning</h3></div>
+        <button onClick={onInspect} aria-label="Inspect CFTC futures options sources"><ArrowUpRight size={18} /></button>
+      </div>
+      <p className={styles.panelSubtitle}>Options contribution to open interest, in futures equivalents</p>
+      <dl className={styles.futuresOptionsRows}>
+        {rows.map(signal => {
+          const point = signal.series[0];
+          const status = effectiveStatus(signal, reference);
+          return (
+            <div key={signal.id}>
+              <dt>{signal.shortLabel}</dt>
+              <dd>
+                <strong>{point ? number(point.value, 0) : "Unavailable"}</strong>
+                {point && <span>{datedYear(point.date)}{status === "stale" ? " · Stale" : ""}</span>}
+                {signal.collectionNote && <p className={styles.finePrint}>{signal.collectionNote}</p>}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+      <p className={styles.finePrint}>CFTC converts options to futures equivalents using exchange delta factors. Changes can reflect both positions and deltas. ETF option chains and implied volatility have separate coverage.</p>
+    </section>
+  );
+}
 function TaiwanMarket({ signals, reference, onInspect }: { signals: Signal[]; reference: string; onInspect: () => void }) {
   const rows = signals.filter(signal => signal.id === "twse-taiex-price" || signal.id === "twse-taiex-return");
   if (!rows.length) return null;
@@ -1845,6 +1875,7 @@ export default function MorningBoard({
                     </div>
                   </section>
                 </div>
+                <FuturesOptions signals={current} reference={reference} onInspect={() => setFamily("institutions")} />
                 {instrument !== "TLT" && snapshot.holdings && (
                   <InstitutionalHoldings
                     holdings={snapshot.holdings}
