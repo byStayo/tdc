@@ -386,16 +386,16 @@ async function unindexedFiles(root: string, history: HistoryEntry[]): Promise<st
 }
 
 /** Read-only build guard; recovery belongs to the locked publisher. */
-export async function verifyPublicationTree(root: string): Promise<{ current: Snapshot; history: HistoryEntry[] }> {
+export async function verifyPublicationTree(root: string): Promise<{ current: Snapshot; history: HistoryEntry[]; snapshots: Snapshot[] }> {
   await assertNoPendingEvaluation(root);
-  const { history } = await indexedPublications(root);
+  const { history, snapshots } = await indexedPublications(root);
   const orphans = await unindexedFiles(root, history);
   if (orphans.length) throw new Error(`Unindexed publication files: ${orphans.join(", ")}`);
   const current = await optionalJSON<Snapshot>(resolve(root, "lib/consensus/current.json"));
   if (!current || !history.length || history.at(-1)!.id !== current.id || digest(current) !== history.at(-1)!.sha256)
     throw new Error("Current edition differs from its immutable archive");
   validateSnapshot(current, "archive");
-  return { current, history };
+  return { current, history, snapshots };
 }
 
 /** Called only while holding the shared publication lock. Never rewrite archives. */

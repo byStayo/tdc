@@ -9,9 +9,8 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { commitEvaluationTransaction, recoverEvaluationTransaction, type EvaluationWrite } from "../lib/consensus/evaluation-transaction.ts";
 import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { assertCommittedReservations } from "../lib/consensus/learning-audit.ts";
-import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
-import { evaluateOutcome, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { evaluateOutcome, outcomeKey, outcomeTrainingRow, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
@@ -72,15 +71,13 @@ try {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     }
-    const key = (row: Outcome) =>
-      `${row.snapshotId}:${row.instrument}:${row.horizon}`;
     for (const snapshot of snapshots)
       for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
         for (const horizon of HORIZONS) {
           const target = { snapshotId: snapshot.id, instrument, horizon };
           const prices = supplied.find(item => item.instrument === instrument);
           const row = prices ? evaluateOutcome(snapshot, prices, horizon, now) : null;
-          if (outcomes.some(previous => key(previous) === `${snapshot.id}:${instrument}:${horizon}`)) continue;
+          if (outcomes.some(previous => outcomeKey(previous) === outcomeKey(target))) continue;
           if (row) outcomes.push(row);
           else pending.push({ ...target, reason: prices
             ? "Awaiting verified prices or independently reviewed calendar coverage."
@@ -132,23 +129,7 @@ try {
         )) {
           const snapshot = snapshots.find((item) => item.id === row.snapshotId);
           if (!snapshot) throw new Error("Outcome references missing snapshot");
-          const consensus = asIssuedConsensus(
-            snapshot,
-            instrument,
-            horizon,
-          );
-          const features = consensus.families.flatMap((family) => [
-            family.score ?? 0,
-            family.score === null ? 0 : 1,
-          ]);
-          trainingRows.push({
-            id: key(row),
-            engineVersion: snapshot.engineVersion,
-            issuedAt: snapshot.issuedAt,
-            labelKnownAt: row.exitAt,
-            features,
-            up: row.returnPct > 0 ? 1 : 0,
-          });
+          trainingRows.push(outcomeTrainingRow(row, snapshot));
         }
         const incumbent = registry.models.find(
             (model) =>

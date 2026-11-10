@@ -5,6 +5,24 @@ import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
 import { requireOutcomePriceBasis } from "./price-basis.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, hasReviewedCalendar, verifyExpectedSessions } from "./exchange-calendar.ts";
+import type { TrainingRow } from "./learning.ts";
+
+export const outcomeKey = (row: Pick<Outcome, "snapshotId" | "instrument" | "horizon">) =>
+  `${row.snapshotId}:${row.instrument}:${row.horizon}`;
+
+export function outcomeTrainingRow(row: Outcome, snapshot: Snapshot): TrainingRow {
+  if (snapshot.id !== row.snapshotId || snapshot.engineVersion !== row.engineVersion)
+    throw new Error("Outcome differs from its immutable edition");
+  const consensus = asIssuedConsensus(snapshot, row.instrument, row.horizon);
+  return {
+    id: outcomeKey(row),
+    engineVersion: snapshot.engineVersion,
+    issuedAt: snapshot.issuedAt,
+    labelKnownAt: row.exitAt,
+    features: consensus.families.flatMap(family => [family.score ?? 0, family.score === null ? 0 : 1]),
+    up: row.returnPct > 0 ? 1 : 0,
+  };
+}
 
 const canonicalInstant = (value: string) =>
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
