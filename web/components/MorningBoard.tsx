@@ -2148,7 +2148,7 @@ export default function MorningBoard({
                 </label>
               </div>
               {historyError && <p role="alert">{historyError}</p>}
-              {pendingTargets.length > 0 && <p>
+              {pendingTargets.length > 0 && <p className={styles.pendingTargets}>
                 {pendingTargets.length} {horizon} {pendingTargets.length === 1 ? "target awaits" : "targets await"} verified prices or reviewed calendar coverage for this edition.
                 These are unresolved edition targets, not independent training samples.
               </p>}
