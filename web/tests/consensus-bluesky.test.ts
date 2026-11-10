@@ -117,3 +117,54 @@ test("malformed frames are counted without including payloads in errors or outpu
 test("bounds are checked before opening a network connection", async () => {
   for (const options of [{ seconds: 0 }, { seconds: 901 }, { maxEvents: 100001 }, { maxBytes: 10 }]) await assert.rejects(() => collectBlueskySample(options), /Invalid bounded/);
 });
+
+test("recent-cursor windows retain old in-window posts, apply tombstones and reject older content", () => {
+  const w = new BlueskyWindow(start, undefined, true);
+  const received = now + 12 * 60_000;
+  for (let n = 0; n < 10; n++) w.ingest(frame(n), received);
+  w.ingest(frame(10, "$QQQ bearish", { time: "2026-11-03T20:18:00.000Z" }), received);
+  w.ingest(frame(1, "", { seq: 200, operation: "delete", record: undefined }), received);
+  w.ingest(frame(1), received);
+  const sample = finish(w);
+  assert.equal(sample.readings[0].participants, 9);
+  assert.equal(sample.readings[2].participants, 0);
+  assert.equal(sample.deletionEvents, 1);
+});
+test("recent cursor and wall-clock sampling have distinct bounded modes", async () => {
+  for (const options of [{ recentSeconds: 841 }, { recentSeconds: 59 }, { seconds: 180, recentSeconds: 840 }])
+    await assert.rejects(() => collectBlueskySample(options), /Invalid bounded/);
+});
+
+test("recent cursor verifies both boundaries before returning a sample", async (t) => {
+  let scenario: "complete" | "truncated" | "ignored-cursor" = "complete";
+  class CursorSocket extends EventTarget {
+    constructor(endpoint: string) {
+      super();
+      const cursor = Number(new URL(endpoint).searchParams.get("cursor")) / 1_000;
+      queueMicrotask(() => {
+        this.dispatchEvent(new Event("open"));
+        const emit = (time: number, account: number) => {
+          const stamp = new Date(time).toISOString();
+          this.dispatchEvent(new MessageEvent("message", { data: frame(account, "$SPY bullish", {
+            time: stamp, record: { createdAt: stamp, langs: ["en"], text: "$SPY bullish" },
+          }) }));
+        };
+        emit(cursor + (scenario === "ignored-cursor" ? 59_000 : 10), 0);
+        if (scenario === "complete") emit(cursor + 60_000, 1);
+        else this.dispatchEvent(new Event("close"));
+      });
+    }
+    close() {}
+  }
+  const original = globalThis.WebSocket;
+  globalThis.WebSocket = CursorSocket as unknown as typeof WebSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  const sample = await collectBlueskySample({ recentSeconds: 60 });
+  assert.equal(sample.stopReason, "recent_window_complete");
+  assert.equal(sample.durationSeconds, 60);
+  assert.equal(sample.readings[0].participants, 1);
+  scenario = "truncated";
+  await assert.rejects(() => collectBlueskySample({ recentSeconds: 60 }), /unavailable/);
+  scenario = "ignored-cursor";
+  await assert.rejects(() => collectBlueskySample({ recentSeconds: 60 }), /unavailable/);
+});

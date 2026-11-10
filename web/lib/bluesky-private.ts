@@ -4,7 +4,7 @@ import { publicCommunity } from "./community.ts";
 import { acquirePublicationLock, finishPublicationLock } from "./publication-lock.ts";
 import { collectBlueskySample, privateIdentifier, type Exclusions, type BlueskySample } from "./consensus/bluesky.ts";
 
-export type PrivateBlueskyOperation = { kind: "collect"; seconds?: number } | { kind: "publish" } | { kind: "invalidate" } | { kind: "exclude"; identifier: string };
+export type PrivateBlueskyOperation = { kind: "collect"; seconds?: number; recentSeconds?: number } | { kind: "publish" } | { kind: "invalidate" } | { kind: "exclude"; identifier: string };
 async function privatePath(path: string, folder = false) {
   const stat = await lstat(path);
   if (stat.isSymbolicLink() || (folder ? !stat.isDirectory() : !stat.isFile()) || (!folder && stat.nlink !== 1) || (stat.mode & 0o077) !== 0 || stat.uid !== process.getuid?.() || (!folder && stat.size > 1_000_000)) throw new Error("Unsafe private storage");
@@ -67,7 +67,7 @@ export async function runPrivateBluesky(root: string, operation: PrivateBlueskyO
       await savePrivate(directory, "exclusions.json", exclusions);
       return { status: "private-exclusion-saved-and-withdrawal-staged", deploymentRequired: true, published: false };
     }
-    const sample: BlueskySample = await collect({ seconds: operation.seconds, exclusions });
+    const sample: BlueskySample = await collect({ seconds: operation.seconds, recentSeconds: operation.recentSeconds, exclusions });
     await savePrivate(directory, "candidate.json", sample);
     return { status: sample.status, events: sample.receivedEvents, matchedRecords: sample.matchedRecords, participants: sample.readings.map(({ instrument, participants }) => ({ instrument, participants })), endedAt: sample.endedAt, published: false, rawContentSaved: false };
   } catch (error) { failure = { error }; throw error; }

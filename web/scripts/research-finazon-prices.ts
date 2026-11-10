@@ -5,16 +5,27 @@ import { checkFinazonSeries, type FinazonReference } from "../lib/consensus/fina
 import { sourceChunk } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS } from "../lib/consensus/types.ts";
 
-const key = process.env.FINAZON_API_KEY?.trim();
-if (!key) throw new Error("No Finazon key configured in the local environment");
-const [referencePath] = process.argv.slice(2);
-if (!referencePath || !isAbsolute(referencePath) || process.argv.length !== 3)
-  throw new Error("Provide one absolute path to a private independent reference file");
-const file = await lstat(referencePath);
-if (!file.isFile() || file.nlink !== 1 || file.uid !== process.getuid?.() || (file.mode & 0o077) || file.size > 500_000)
-  throw new Error("Expected an owner-only regular reference file");
+const args = process.argv.slice(2);
+const usingSamples = args[0] === "--samples";
+if (args.length !== (usingSamples ? 3 : 1))
+  throw new Error("Provide [--samples /absolute/private/samples.json] /absolute/private/reference.json");
 
-const references: Record<string, FinazonReference> = JSON.parse(await readFile(referencePath, "utf8"));
+async function readPrivateJson<T>(path: string): Promise<T> {
+  if (!isAbsolute(path)) throw new Error("Provide absolute paths to private input files");
+  const file = await lstat(path);
+  if (!file.isFile() || file.nlink !== 1 || file.uid !== process.getuid?.() || (file.mode & 0o077) || file.size > 500_000)
+    throw new Error("Expected an owner-only regular input file");
+  try { return JSON.parse(await readFile(path, "utf8")); }
+  catch { throw new Error("Invalid private input JSON"); }
+}
+
+const key = process.env.FINAZON_API_KEY?.trim();
+if (!usingSamples && !key) throw new Error("No Finazon key configured in the local environment");
+const references = await readPrivateJson<Record<string, FinazonReference>>(args.at(-1)!);
+const samples = usingSamples
+  ? await readPrivateJson<Record<string, { raw: unknown; adjusted: unknown }>>(args[1])
+  : null;
+if (!references || (usingSamples && !samples)) throw new Error("Missing private input data");
 const symbols = INSTRUMENTS.filter(instrument => instrument !== "MARKET");
 for (const symbol of symbols) {
   const rows = references[symbol]?.sessions;
@@ -56,7 +67,15 @@ async function request(symbol: string, adjustment: "none" | "all") {
 
 const checks = [];
 for (const symbol of symbols) {
-  const raw = await request(symbol, "none"), adjusted = await request(symbol, "all");
+  let raw: unknown, adjusted: unknown;
+  if (samples) {
+    const sample = samples[symbol];
+    if (!sample || !sample.raw || !sample.adjusted) throw new Error("Missing supplied samples for " + symbol);
+    ({ raw, adjusted } = sample);
+  } else {
+    raw = await request(symbol, "none");
+    adjusted = await request(symbol, "all");
+  }
   checks.push({ symbol, ...checkFinazonSeries(raw, adjusted, references[symbol]) });
 }
-console.log(JSON.stringify({ status: "price_sample_reconciled", checks, published: false }));
+console.log(JSON.stringify({ status: "price_sample_reconciled", input: usingSamples ? "supplied-samples" : "authenticated-api", checks, published: false }));

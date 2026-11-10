@@ -12,6 +12,8 @@ try {
     let input = "";
     for await (const chunk of process.stdin) { input += chunk; if (input.length > 2048) throw new Error(); }
     operation = { kind: "exclude", identifier: input.trim() };
+  } else if (args.length === 2 && args[0] === "--recent-seconds") {
+    operation = { kind: "collect", recentSeconds: Number(args[1]) };
   } else if (args.length === 0 || (args.length === 2 && args[0] === "--seconds")) {
     operation = { kind: "collect", seconds: args.length ? Number(args[1]) : 120 };
   } else throw new Error();

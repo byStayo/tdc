@@ -21,7 +21,7 @@ export interface BlueskySample {
   expiresAt: string;
   durationSeconds: number;
   status: "sampled" | "insufficient_sample";
-  stopReason: "time_limit" | "event_limit" | "byte_limit";
+  stopReason: "time_limit" | "event_limit" | "byte_limit" | "recent_window_complete";
   receivedEvents: number;
   malformedEvents: number;
   filters: Record<string, number>;
@@ -113,6 +113,7 @@ export function marketStances(text: string): Partial<Record<Instrument, Language
 export class BlueskyWindow {
   readonly startedAt: string;
   private readonly started: number;
+  private readonly recentCursor: boolean;
   private contributions = new Map<string, Contribution>();
   private lastSequence = new Map<string, number>();
   private excludedActors: Set<string>;
@@ -125,8 +126,9 @@ export class BlueskyWindow {
   private accounts = 0;
   private matched = 0;
   private filters: Record<string, number> = { originalRecords: 0, timestamp: 0, language: 0, replyOrQuote: 0, selfLabel: 0, noMarketMatch: 0, excluded: 0 };
-  constructor(startedAt: string, exclusions: Exclusions = { actors: [], records: [] }) {
+  constructor(startedAt: string, exclusions: Exclusions = { actors: [], records: [] }, recentCursor = false) {
     this.started = Date.parse(startedAt);
+    this.recentCursor = recentCursor;
     if (!Number.isFinite(this.started)) throw new Error("Invalid sample start");
     this.startedAt = new Date(this.started).toISOString();
     this.excludedActors = new Set(exclusions.actors);
@@ -175,7 +177,11 @@ export class BlueskyWindow {
     this.filters.originalRecords++;
     const eventTime = typeof event.time === "string" ? Date.parse(event.time) : NaN;
     const authored = typeof record.createdAt === "string" ? Date.parse(record.createdAt) : NaN;
-    if (!Number.isFinite(eventTime) || !Number.isFinite(authored) || eventTime < this.started - 30_000 || eventTime > receivedAt + 10_000 || receivedAt - eventTime > 30_000 || authored < this.started - 30_000 || authored > receivedAt + 10_000) { this.filters.timestamp++; return; }
+    const earliest = this.started - (this.recentCursor ? 0 : 30_000);
+    const authorUpperBound = (this.recentCursor ? eventTime : receivedAt) + 10_000;
+    if (!Number.isFinite(eventTime) || !Number.isFinite(authored) || eventTime < earliest ||
+        eventTime > receivedAt + 10_000 || (!this.recentCursor && receivedAt - eventTime > 30_000) ||
+        authored < earliest || authored > authorUpperBound) { this.filters.timestamp++; return; }
     if (!Array.isArray(record.langs) || !record.langs.includes("en") || typeof record.text !== "string" || Buffer.byteLength(record.text) > 12_000) { this.filters.language++; return; }
     if (record.reply || (object(record.embed) && typeof record.embed.$type === "string" && record.embed.$type.includes("record"))) { this.filters.replyOrQuote++; return; }
     if (object(record.labels) && Array.isArray(record.labels.values) && record.labels.values.length > 0) { this.filters.selfLabel++; return; }
@@ -207,7 +213,7 @@ export class BlueskyWindow {
       receivedEvents: this.events, malformedEvents: this.malformed, filters: { ...this.filters }, deletionEvents: this.deletes,
       accountRemovals: this.accounts, matchedRecords: this.matched,
       minimumParticipants: 10, readings, sourceDigest: this.digest.digest("hex"),
-      methodology: "Bounded live-tail sample. English-tagged original posts containing an exact supported cashtag/index name or a declared financial-market phrase or selected large-cap cashtag; no replies, quotes or self-labelled posts. One most recent qualifying post per distinct account per view. Local English-language rules attach explicit forward moves or stances to a single named equity subject per clause. Questions, uncertain language, hindsight and unclear subjects are left unclassified. Updates, deletes and account removals received during the window are applied. No post text, handles or raw account identifiers saved; private exclusion hashes are retained only to honor reports.",
+      methodology: "Bounded Jetstream sample. English-tagged original posts containing an exact supported cashtag/index name or a declared financial-market phrase or selected large-cap cashtag; no replies, quotes or self-labelled posts. One most recent qualifying post per distinct account per view. Local English-language rules attach explicit forward moves or stances to a single named equity subject per clause. Questions, uncertain language, hindsight and unclear subjects are left unclassified. Updates, deletes and account removals received during the window are applied. No post text, handles or raw account identifiers saved; private exclusion hashes are retained only to honor reports.",
       limitations: [
         "Selected Bluesky discussion, not X, Instagram, all Bluesky, representative retail positioning or verified unique people. Accounts may be bots or coordinated.",
         "The rules can miss context, irony and indirect expressions. Unclassified does not mean neutral. No classifier accuracy or investment intent is established.",
@@ -221,37 +227,60 @@ export class BlueskyWindow {
   }
 }
 
-export async function collectBlueskySample(options: { seconds?: number; exclusions?: Exclusions; maxEvents?: number; maxBytes?: number } = {}): Promise<BlueskySample> {
+export async function collectBlueskySample(options: { seconds?: number; recentSeconds?: number; exclusions?: Exclusions; maxEvents?: number; maxBytes?: number } = {}): Promise<BlueskySample> {
   const seconds = options.seconds ?? 120;
   const maxEvents = options.maxEvents ?? 100_000;
   const maxBytes = options.maxBytes ?? 50_000_000;
+  const recentSeconds = options.recentSeconds;
+  if (recentSeconds !== undefined && (options.seconds !== undefined || !Number.isInteger(recentSeconds) || recentSeconds < 60 || recentSeconds > 840))
+    throw new Error("Invalid bounded sample options");
   if (!Number.isFinite(seconds) || seconds < 10 || seconds > 900 || !Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 100_000 || !Number.isInteger(maxBytes) || maxBytes < 1024 || maxBytes > 50_000_000) throw new Error("Invalid bounded sample options");
   return await new Promise((resolve, reject) => {
     let window: BlueskyWindow | null = null, bytes = 0, events = 0, settled = false, lastReceivedAt = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const socket = new WebSocket(BLUESKY_STREAM, "xrpc.v1.json");
+    const cutoff = recentSeconds === undefined ? null : Date.now() - 15_000;
+    const cursorStart = cutoff === null || recentSeconds === undefined ? null : cutoff - recentSeconds * 1000;
+    let sawStart = false;
+    const endpoint = new URL(BLUESKY_STREAM);
+    if (cursorStart !== null) endpoint.searchParams.set("cursor", String(cursorStart * 1000));
+    const socket = new WebSocket(endpoint.href, "xrpc.v1.json");
     const finish = (reason?: BlueskySample["stopReason"]) => {
       if (settled) return;
       settled = true; clearTimeout(connectTimer); clearTimeout(timer);
       socket.close();
-      if (!reason || !window || events === 0 || Date.now() - lastReceivedAt > 30_000) reject(new Error("Bluesky live sample unavailable; no content logged or published"));
+      if (!reason || !window || events === 0 || Date.now() - lastReceivedAt > 30_000 || (cutoff !== null && reason !== "recent_window_complete")) reject(new Error("Bluesky live sample unavailable; no content logged or published"));
       else {
-        const sample = window.finish(new Date().toISOString(), reason);
+        const sample = window.finish(new Date(cutoff ?? Date.now()).toISOString(), reason);
         if (sample.filters.originalRecords === 0 || sample.malformedEvents > sample.receivedEvents * 0.01) reject(new Error("Bluesky stream schema could not be verified; no content logged or published"));
         else resolve(sample);
       }
     };
     const connectTimer = setTimeout(() => finish(), 15_000);
     socket.addEventListener("open", () => {
-      clearTimeout(connectTimer); window = new BlueskyWindow(new Date().toISOString(), options.exclusions);
-      timer = setTimeout(() => finish("time_limit"), seconds * 1000);
+      clearTimeout(connectTimer);
+      window = new BlueskyWindow(new Date(cursorStart ?? Date.now()).toISOString(), options.exclusions, cursorStart !== null);
+      timer = setTimeout(() => finish("time_limit"), cursorStart === null ? seconds * 1000 : 90_000);
     });
     socket.addEventListener("message", (event) => {
       if (settled || !window) return;
       if (typeof event.data !== "string") { finish(); return; }
       lastReceivedAt = Date.now();
-      bytes += Buffer.byteLength(event.data); events++;
+      bytes += Buffer.byteLength(event.data);
       if (bytes > maxBytes) { finish("byte_limit"); return; }
+      if (cursorStart !== null && cutoff !== null) {
+        let when = NaN;
+        try {
+          const envelope = JSON.parse(event.data);
+          if (envelope?.$type === "error") { finish(); return; }
+          when = Date.parse(envelope?.payload?.time);
+        } catch { /* The window counts malformed frames without retaining them. */ }
+        if (Number.isFinite(when)) {
+          if (!sawStart && Math.abs(when - cursorStart) > 30_000) { finish(); return; }
+          sawStart = true;
+          if (when >= cutoff) { finish("recent_window_complete"); return; }
+        }
+      }
+      events++;
       window.ingest(event.data, Date.now());
       if (events >= maxEvents) finish("event_limit");
     });
