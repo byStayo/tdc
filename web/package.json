@@ -30,7 +30,9 @@
     "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts",
     "consensus:bluesky-private": "node --experimental-strip-types scripts/collect-bluesky-private.ts",
     "consensus:finra-stage": "node --experimental-strip-types scripts/prepare-finra-display.ts",
-    "consensus:research-finazon": "node --experimental-strip-types scripts/research-finazon-prices.ts"
+    "consensus:research-finazon": "node --experimental-strip-types scripts/research-finazon-prices.ts",
+    "consensus:research-directional-coverage": "node --experimental-strip-types scripts/research-directional-coverage.ts",
+    "consensus:validate-social-private": "node --experimental-strip-types scripts/validate-social-private.ts"
   },
   "dependencies": {
     "fflate": "0.8.3",

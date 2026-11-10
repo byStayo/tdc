@@ -1,3 +1,11 @@
+## November 10 — private directional coverage and social validation
+
+The existing Finazon thread contains only the sent inquiry. Continue monitoring it through the weekday publisher. Require verified redistribution, retention and model-use terms plus all five successful ETF sample comparisons before notifying the owner to buy the $19 plan.
+
+The [private social benchmark](web/docs/BLUESKY_SAMPLE.md#private-interpretation-benchmark) scores independently labelled X, Instagram or Bluesky language by instrument. The synthetic checks exercised scoring, suppression, expiry, file permissions and duplicate rejection. The benchmark has yet to run on a rights-cleared real corpus. X needs approved API scope. Instagram needs approved access and a stable author key for sampling, or an explicitly consented panel. No social feed was added to voting.
+
+Run `npm run consensus:research-directional-coverage` after a private outcome refresh. The first run joined 25 selected private same-session outcomes with their as-issued archive entries. For each ETF, five sessions paired with CFTC asset-manager changes and shared one observation date. ETFIQ had zero pairs because available fund flows were first archived after the last covered session. No return was inspected and no holdout was used. The public integrity audit verified 30 archives and three of fifteen daily voting families. At 21:00 UTC onward, 210 elapsed targets lacked approved public prices and 240 awaited maturity. This research produced no new edition or production deployment.
+
 ## November 10 — Finazon inquiry sent and Canada survey published
 
 The owner authorized sending the prepared Finazon request. It was sent from the personal account, and the existing weekday publisher now monitors the exact thread. Verify dataset-specific public archive, model-use and retained-output rights and all five samples before asking the owner to purchase. The owner will activate the subscription if those checks pass. No eligible reply or paid activation was available during this release. Keep the correspondence, vendor samples and credentials outside Git.
