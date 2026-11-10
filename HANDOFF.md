@@ -1,3 +1,13 @@
+## November 10 — all five issuer dividends reconciled, price reuse still pending
+
+The maintainer inquiry is pending. Continue the existing private validation and check for a substantive response before considering public use. Do not interpret the observed numerical matches as proof of upstream identity or permission.
+
+On the pinned DoltHub revision already recorded below, the most recent ex-date and cash amount for each of SPY, QQQ, IWM, DIA and TLT matched its primary issuer record to within $0.00001 per share. References are the [SPY notice](https://links.sgx.com/1.0.0/corporate-announcements/GL0NRKEBKYTVFWBY), [QQQ issuer distribution table](https://www.invesco.com/us/en/financial-products/etfs/invesco-qqq-trust-series-1.html), [IWM issuer distribution table](https://www.ishares.com/us/products/239710/ishare), [DIA notice](https://links.sgx.com/1.0.0/corporate-actions/2277342) and [TLT issuer distribution table](https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf?cid=synd).
+
+Direct FirstRate Data samples for SPY, QQQ, IWM and DIA reached November 9. Every opening and closing price matched DoltHub over the six overlapping checked sessions for those four funds. FirstRate describes its daily series as following exchange eligibility rules, separately from its intraday aggregates. Its TLT sample ended May 20, 2024, so the samples do not supply ongoing coverage of all five. The samples are split-adjusted only. [FirstRate FAQ](https://firstratedata.com/about/FAQ) · [FirstRate license](https://firstratedata.com/about/license)
+
+StashGamma's free bars are split-adjusted only and its published terms require permission to distribute or create derivative works. HF Market Data advertised adjusted bars but its API and license page were unreachable and its publisher describes a FirstRate ingestion pipeline. Neither qualified. The public evaluator and release files were unchanged. [StashGamma API](https://stashgamma.com/developer-docs) · [StashGamma terms](https://stashgamma.com/terms) · [HF Market Data publisher's repository listing](https://git.spboucher.ai/search?q=data)
+
 ## November 10 — version-pinned public-license candidate tested privately
 
 DoltHub's post-no-preference/stocks database publishes a CC BY-SA 4.0 license. Its documentation describes OHLCV and dividend/split tables, but does not identify the underlying price vendor or how the regular-session opening and closing prints are chosen. Other reuse terms checked in this pass include Theta Data's internal-personal-use agreement and Market History's express grant for non-reconstructible derived works. Market History's free path is UTC-aligned hourly data, which cannot isolate the 09:30 Eastern open from premarket trades.
