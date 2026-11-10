@@ -1,3 +1,7 @@
+## November10 full-scope dependency audit
+
+Read `web/docs/COMPLETION_AUDIT_2026-11-10.md` before resuming. Every acceptance domain is mapped to current evidence and remaining boundaries. Current file and live guard checks confirm25editions/92signals/78available,18abstentions,375pending targets,0outcomes/0models. Community expired naturally and stays unavailable. FINRA activation is complete elsewhere; private refresh state is absent here. No Daily Consensus automation is installed on this Mac; older active-publisher notes are not current run evidence. No process is being awaited. Price/feed rights and genuine-outcome dependencies have recurred across at least three consecutive goal turns, despite useful intermediate releases. Full completion remains unproven and needs external inputs/state; do not claim completion or churn identical refreshes. Blocked audit is satisfied at this impasse; the native goal status records the final decision.
+
 # The Daily Consensus — active visual rebuild
 
 **November 3, 2026: The user reopened and expanded the goal.** Read `VISUAL_BUILD_STATUS.md` and `web/docs/VISUAL_PRODUCT.md` before acting. The earlier free research-desk relaunch below is historical completion evidence, not completion of the newly requested visual multi-signal product. The new goal and `build-visual-daily-consensus` heartbeat are ACTIVE. Preserve the completed LinkedIn correction. The weekday publisher must coordinate with this build and never deploy an unfinished dirty tree.
