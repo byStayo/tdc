@@ -42,6 +42,7 @@ import CommunityPanel from "./CommunityPanel";
 import RetailOutlook from "./RetailOutlook";
 import GuidancePanel from "./GuidancePanel";
 import ReportedEpsComparison from "./ReportedEpsComparison";
+import EtfFlows from "./EtfFlows";
 import PrivateCreditContext from "./PrivateCreditContext";
 import OffExchangeActivity from "./OffExchangeActivity";
 import layout from "./MorningLayout.module.css";
@@ -1731,6 +1732,7 @@ export default function MorningBoard({
               </div>
               <TaiwanMarket signals={current} reference={reference} onInspect={() => setFamily("international")} />
               <OffExchangeActivity review={snapshot.review} instrument={instrument} historical={historical} />
+              <EtfFlows signals={snapshot.signals} instrument={instrument} reference={reference} />
               <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>GO A LEVEL DEEPER</span>

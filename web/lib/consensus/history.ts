@@ -16,6 +16,7 @@ import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
+import { validateEtfFlows } from "./etf-flows.ts";
 import { validateTaiwan } from "./taiwan.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
@@ -60,6 +61,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
   for (const signal of snapshot.signals) {
     validatePrivateCredit(signal);
     validateAnalystRatings(signal);
+    validateEtfFlows(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||

@@ -7,7 +7,7 @@ const HOSTS = new Set([
   "www.apple.com", "www.bankofengland.co.uk", "www.bls.gov", "www.boj.or.jp", "www.ecb.europa.eu",
   "www.federalreserve.gov", "www.gdeltproject.org", "www.microsoft.com", "www.optionseducation.org",
   "www.sec.gov", "www.treasurydirect.gov",
-  "openapi.twse.com.tw", "www.quantisnow.com",
+  "etfiq.com", "openapi.twse.com.tw", "www.quantisnow.com",
 ]);
 
 export function validateSourceCitation(value: string): void {
