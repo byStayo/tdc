@@ -29,7 +29,8 @@
     "editorial:prepare": "npm run editorial:collect && npm run consensus:collect",
     "editorial:publish": "node --experimental-strip-types scripts/publish-editorial-brief.ts",
     "consensus:bluesky-private": "node --experimental-strip-types scripts/collect-bluesky-private.ts",
-    "consensus:finra-stage": "node --experimental-strip-types scripts/prepare-finra-display.ts"
+    "consensus:finra-stage": "node --experimental-strip-types scripts/prepare-finra-display.ts",
+    "consensus:research-finazon": "node --experimental-strip-types scripts/research-finazon-prices.ts"
   },
   "dependencies": {
     "fflate": "0.8.3",

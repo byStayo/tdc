@@ -5,7 +5,7 @@ export const COMMUNITY_CONTACT = "support@thedailyconsensus.com";
 export const COMMUNITY_LABELS = { upward: "Upward language", downward: "Downward language", mixed: "Mixed language", unclassified: "Unclassified" } as const;
 export interface CommunitySample {
   schemaVersion: 1;
-  method: "bluesky-language-cues-v1";
+  method: "bluesky-language-cues-v1" | BlueskySample["method"];
   id: string;
   startedAt: string;
   endedAt: string;
@@ -20,7 +20,7 @@ const integer = (value: unknown): value is number => typeof value === "number" &
 /** Strict allowlist prevents accidentally shipping stream content or account identifiers. */
 export function validateCommunity(value: unknown): asserts value is CommunitySample {
   if (!isObject(value) || !keys(value, ["schemaVersion", "method", "id", "startedAt", "endedAt", "expiresAt", "receivedEvents", "minimumParticipants", "readings"])) throw new Error("Invalid community aggregate");
-  if (value.schemaVersion !== 1 || value.method !== "bluesky-language-cues-v1" || value.minimumParticipants !== 10 || typeof value.id !== "string" || !/^[a-f0-9]{64}$/.test(value.id) || !integer(value.receivedEvents) || value.receivedEvents === 0) throw new Error("Invalid community aggregate metadata");
+  if (value.schemaVersion !== 1 || (value.method !== "bluesky-language-cues-v1" && value.method !== "bluesky-market-stance-v2") || value.minimumParticipants !== 10 || typeof value.id !== "string" || !/^[a-f0-9]{64}$/.test(value.id) || !integer(value.receivedEvents) || value.receivedEvents === 0) throw new Error("Invalid community aggregate metadata");
   for (const date of [value.startedAt, value.endedAt, value.expiresAt]) if (typeof date !== "string" || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(date) || !Number.isFinite(Date.parse(date))) throw new Error("Invalid community dates");
   const start = Date.parse(value.startedAt as string), end = Date.parse(value.endedAt as string), expires = Date.parse(value.expiresAt as string);
   if (end - start < 10_000 || end - start > 901_000 || expires - end !== 86_400_000) throw new Error("Invalid community window");

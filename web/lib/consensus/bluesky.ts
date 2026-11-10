@@ -3,7 +3,7 @@ import { INSTRUMENTS, type Instrument } from "./types.ts";
 
 /** Never persist network frames, post text, account identifiers or record URIs. */
 export const BLUESKY_STREAM = "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post";
-export const BLUESKY_METHOD = "bluesky-language-cues-v1" as const;
+export const BLUESKY_METHOD = "bluesky-market-stance-v2" as const;
 export const MINIMUM_PARTICIPANTS = 10;
 export type LanguageCue = "upward" | "downward" | "mixed" | "unclassified";
 export type CueCounts = Record<LanguageCue, number>;
@@ -39,7 +39,7 @@ interface Contribution {
   record: string;
   sequence: number;
   instruments: Instrument[];
-  cue: LanguageCue;
+  cues: Partial<Record<Instrument, LanguageCue>>;
 }
 export type Exclusions = { actors: string[]; records: string[] };
 export function privateIdentifier(value: string): string {
@@ -48,24 +48,65 @@ export function privateIdentifier(value: string): string {
 const emptyCounts = (): CueCounts => ({ upward: 0, downward: 0, mixed: 0, unclassified: 0 });
 const object = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === "object" && !Array.isArray(v);
 const validDID = (v: unknown): v is string => typeof v === "string" && /^did:(?:plc:[a-z2-7]{24}|web:[a-zA-Z0-9.:%_-]+)$/.test(v);
+const etfNames = {
+  SPY: /\$(?:SPY|SPX)\b|\bS\s*&\s*P\s*500\b/i,
+  QQQ: /\$(?:QQQ|NDX)\b|\bNASDAQ\s*100\b/i,
+  IWM: /\$(?:IWM|RUT)\b|\bRUSSELL\s*2000\b/i,
+  DIA: /\$(?:DIA|DJI)\b|\bDOW\s+JONES\b/i,
+  TLT: /\$TLT\b/i,
+};
+const etfAliases = Object.entries(etfNames) as [Exclude<Instrument, "MARKET">, RegExp][];
+const equityMarket = /#stockmarket\b|\b(?:stock market|U\.?S\.? (?:stocks|equities)|Wall Street(?! Journal))\b/i;
+const relatedMarket = /\$(?:AAPL|MSFT|NVDA|AMZN|GOOGL|META|TSLA)\b|\b(?:Federal Reserve|Treasury yields)\b/i;
+const stanceSubjects = [...etfAliases, ["MARKET", equityMarket] as const];
+const withoutLinks = (text: string) => text.replace(/https?:\/\/\S+/gi, " ");
 export function marketInstruments(text: string): Instrument[] {
-  const cleaned = text.replace(/https?:\/\/\S+/gi, " ");
-  const instruments: Instrument[] = [];
-  if (/\$(?:SPY|SPX)\b|\bS\s*&\s*P\s*500\b/i.test(cleaned)) instruments.push("SPY");
-  if (/\$(?:QQQ|NDX)\b|\bNASDAQ\s*100\b/i.test(cleaned)) instruments.push("QQQ");
-  if (/\$(?:IWM|RUT)\b|\bRUSSELL\s*2000\b/i.test(cleaned)) instruments.push("IWM");
-  if (/\$(?:DIA|DJI)\b|\bDOW\s+JONES\b/i.test(cleaned)) instruments.push("DIA");
-  if (/\$TLT\b/i.test(cleaned)) instruments.push("TLT");
-  const broad = /\$(?:AAPL|MSFT|NVDA|AMZN|GOOGL|META|TSLA)\b|#stockmarket\b|\b(?:stock market|U\.?S\.? (?:stocks|equities)|Wall Street(?! Journal)|Federal Reserve|Treasury yields)\b/i.test(cleaned);
-  return instruments.length || broad ? ["MARKET", ...instruments] : [];
+  const cleaned = withoutLinks(text);
+  const instruments = etfAliases.filter(([, pattern]) => pattern.test(cleaned)).map(([instrument]) => instrument);
+  return instruments.length || equityMarket.test(cleaned) || relatedMarket.test(cleaned) ? ["MARKET", ...instruments] : [];
 }
-export function languageCue(text: string): LanguageCue {
-  const cleaned = text.replace(/https?:\/\/\S+/gi, " ");
-  // Questions, negation, quotations and conditional phrasing are deliberately unclassified.
-  if (/[?"“”]|\b(?:not|no|never|isn['’]t|aren['’]t|wasn['’]t|don['’]t|doesn['’]t|won['’]t|can['’]t|could|might|if|unless)\b/i.test(cleaned)) return "unclassified";
-  const upward = /\b(?:bullish|rally|rallies|rallying|uptrend|breakout)\b/i.test(cleaned);
-  const downward = /\b(?:bearish|sell[ -]?off|downtrend|breakdown|crashing)\b/i.test(cleaned);
-  return upward && downward ? "mixed" : upward ? "upward" : downward ? "downward" : "unclassified";
+
+const uncertain = /\b(?:not|no|never|isn['’]t|aren['’]t|wasn['’]t|don['’]t|doesn['’]t|won['’]t|can['’]t|could|might|if|unless)\b/i;
+const retrospectiveOrReported = /\b(?:yesterday|last (?:week|month|year)|(?:days?|weeks?|months?) ago|said|says|according to|sarcasm)\b/i;
+const upward = /\bbullish\b/i;
+const downward = /\bbearish\b/i;
+const forwardMove = /^\s*(?:will|should|to)\s+(?:(rise|climb|gain|rally|break out|move up|go up)|(fall|drop|decline|sell off|break down|move down|go down))\b/i;
+
+function combineCue(prior: LanguageCue | undefined, next: LanguageCue): LanguageCue {
+  if (!prior || prior === "unclassified") return next;
+  if (next === "unclassified" || prior === next) return prior;
+  return "mixed";
+}
+
+export function marketStances(text: string): Partial<Record<Instrument, LanguageCue>> {
+  const cleaned = withoutLinks(text);
+  const cues: Partial<Record<Instrument, LanguageCue>> = {};
+  // A quoted or interrogative post is too ambiguous to classify across clauses.
+  if (/[?"“”]/.test(cleaned) || /(?:^|\s)\/s\b|\b(?:if|unless)\b/i.test(cleaned)) return cues;
+  const clauses = cleaned.replace(/\bU\.?S\.? (?=stocks|equities)/gi, "US ")
+    .split(/[,;!\n]|\.(?=\s|$)|\b(?:but|while|whereas)\b/i);
+  for (const clause of clauses) {
+    if (uncertain.test(clause) || retrospectiveOrReported.test(clause) || relatedMarket.test(clause)) continue;
+    const subjects = stanceSubjects.flatMap(([instrument, pattern]) => {
+      const match = pattern.exec(clause);
+      return match ? [{ instrument, start: match.index, end: match.index + match[0].length }] : [];
+    });
+    if (subjects.length !== 1) continue;
+    const [{ instrument, start, end }] = subjects;
+    const before = clause.slice(0, start);
+    const after = clause.slice(end);
+    const stance = after.match(/^\s*(?:(?:looks?|remains?|is|am|stays?)\s+)?(bullish|bearish)\b/i)?.[1] ??
+      before.match(/\b(bullish|bearish)\s+on\s*$/i)?.[1];
+    const move = /^\s*to\b/i.test(after) && !/\b(?:expect|expects|expecting)\s*$/i.test(before) ? null : after.match(forwardMove);
+    let cue: LanguageCue = "unclassified";
+    if (stance) {
+      cue = upward.test(stance) ? "upward" : "downward";
+      if (upward.test(after) && downward.test(after)) cue = "mixed";
+    } else if (move) cue = move[1] ? "upward" : "downward";
+    cues[instrument] = combineCue(cues[instrument], cue);
+    if (instrument !== "MARKET") cues.MARKET = combineCue(cues.MARKET, cue);
+  }
+  return cues;
 }
 
 /** A bounded window, with one most recent qualifying record per account for each view. */
@@ -141,7 +182,7 @@ export class BlueskyWindow {
     const instruments = marketInstruments(record.text);
     if (!instruments.length) { this.filters.noMarketMatch++; return; }
     this.matched++;
-    this.contributions.set(recordKey, { actor, record: recordKey, sequence, instruments, cue: languageCue(record.text) });
+    this.contributions.set(recordKey, { actor, record: recordKey, sequence, instruments, cues: marketStances(record.text) });
   }
   finish(endedAt: string, stopReason: BlueskySample["stopReason"]): BlueskySample {
     const ended = Date.parse(endedAt);
@@ -153,7 +194,7 @@ export class BlueskyWindow {
         if (c.sequence > (actors.get(c.actor)?.sequence ?? -1)) actors.set(c.actor, c);
       }
       const counts = emptyCounts();
-      for (const c of actors.values()) counts[c.cue]++;
+      for (const c of actors.values()) counts[c.cues[instrument] ?? "unclassified"]++;
       return { instrument, participants: actors.size, distribution: actors.size >= MINIMUM_PARTICIPANTS ? counts : null };
     });
     const sample: BlueskySample = {
@@ -166,10 +207,10 @@ export class BlueskyWindow {
       receivedEvents: this.events, malformedEvents: this.malformed, filters: { ...this.filters }, deletionEvents: this.deletes,
       accountRemovals: this.accounts, matchedRecords: this.matched,
       minimumParticipants: 10, readings, sourceDigest: this.digest.digest("hex"),
-      methodology: "Bounded live-tail sample. English-tagged original posts containing an exact supported cashtag/index name or a declared financial-market phrase or selected large-cap cashtag; no replies, quotes or self-labelled posts. One most recent qualifying post per distinct account per view. Counts are simple English language cues, with questions, negation and conditional statements left unclassified. Updates, deletes and account removals received during the window are applied. No post text, handles or raw account identifiers saved; private exclusion hashes are retained only to honor reports.",
+      methodology: "Bounded live-tail sample. English-tagged original posts containing an exact supported cashtag/index name or a declared financial-market phrase or selected large-cap cashtag; no replies, quotes or self-labelled posts. One most recent qualifying post per distinct account per view. Local English-language rules attach explicit forward moves or stances to a single named equity subject per clause. Questions, uncertain language, hindsight and unclear subjects are left unclassified. Updates, deletes and account removals received during the window are applied. No post text, handles or raw account identifiers saved; private exclusion hashes are retained only to honor reports.",
       limitations: [
         "Selected Bluesky discussion, not X, Instagram, all Bluesky, representative retail positioning or verified unique people. Accounts may be bots or coordinated.",
-        "Word cues miss context, sarcasm and the subject of a view. Unclassified does not mean neutral. No classifier accuracy or investment intent is established.",
+        "The rules can miss context, irony and indirect expressions. Unclassified does not mean neutral. No classifier accuracy or investment intent is established.",
         "A short capture is not a full day. Posts with absent/other language tags, replies, quotes, other tickers, old timestamps and missing stream events are excluded.",
         "Post-window changes cannot be reconciled to individual counts after identifiers are discarded; a removal report invalidates the entire sample. Samples expire after24hours and are excluded from consensus, immutable archives and model training.",
         "Each instrument uses its own matching sample. Multi-instrument posts can appear in more than one view; do not add those counts together.",

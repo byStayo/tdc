@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BlueskyWindow, marketInstruments, languageCue, privateIdentifier, collectBlueskySample } from "../lib/consensus/bluesky.ts";
+import { BlueskyWindow, marketInstruments, marketStances, privateIdentifier, collectBlueskySample } from "../lib/consensus/bluesky.ts";
+const languageCue = (text: string, instrument: keyof ReturnType<typeof marketStances> = "MARKET") => marketStances(text)[instrument] ?? "unclassified";
 const start = "2026-11-03T20:20:00.000Z";
 const now = Date.parse(start) + 1000;
 const did = (n = 0) => `did:plc:${String.fromCharCode(97 + n).repeat(24)}`;
@@ -22,8 +23,34 @@ test("requires explicit market names/cashtags, not ordinary spy, URL or currency
 test("cue categories preserve ambiguity instead of calling unknown neutral", () => {
   assert.equal(languageCue("$SPY bullish breakout"), "upward");
   assert.equal(languageCue("$SPY bearish sell-off"), "downward");
-  assert.equal(languageCue("$SPY rally and bearish breakdown"), "mixed");
+  assert.equal(languageCue("$SPY bullish and bearish"), "mixed");
   for (const text of ["not bullish", "isn’t bullish", "could rally", "if bullish", "bullish?", '“bullish”', "earnings released", "https://example.com/bullish"]) assert.equal(languageCue(text), "unclassified", text);
+});
+test("scopes forward-looking language to its named market and abstains on ambiguous context", () => {
+  const post = "I expect $SPY to rise, but $TLT will fall tomorrow.";
+  assert.equal(languageCue(post, "SPY"), "upward");
+  assert.equal(languageCue(post, "TLT"), "downward");
+  assert.equal(languageCue(post, "QQQ"), "unclassified");
+  assert.equal(languageCue(post, "MARKET"), "mixed");
+  for (const text of [
+    "$SPY rallied yesterday", "$SPY bullish yesterday", "$SPY and $TLT bullish and bearish",
+    "$SPY bearish? $TLT bullish?", "$SPY no longer bullish", "$SPY will rise /s",
+    "$SPY falls after weak earnings", "$SPY volume rises", "Treasury yields will rise",
+    "$SPY bears say $TLT will fall", "$SPY ticker mentioned; $TLT bearish",
+    "If CPI falls, $SPY will rise", "Used $SPY to gain exposure", "$SPY breakout yesterday",
+  ]) assert.equal(languageCue(text, "SPY"), "unclassified", text);
+  assert.equal(languageCue("Treasury yields will rise", "MARKET"), "unclassified");
+  assert.equal(languageCue("Bullish on $QQQ.", "QQQ"), "upward");
+  assert.equal(languageCue("U.S. equities will fall.", "MARKET"), "downward");
+});
+test("aggregates separate ETF stances without copying a post-wide cue into either ETF", () => {
+  const w = new BlueskyWindow(start);
+  for (let n = 0; n < 10; n++) w.ingest(frame(n, "$SPY bullish but $TLT bearish"), now);
+  const s = finish(w);
+  assert.equal(s.method, "bluesky-market-stance-v2");
+  assert.equal(s.readings[0].distribution?.mixed, 10);
+  assert.equal(s.readings[1].distribution?.upward, 10);
+  assert.equal(s.readings[5].distribution?.downward, 10);
 });
 test("suppresses small samples and never pools counts between instrument views", () => {
   const w = new BlueskyWindow(start);
