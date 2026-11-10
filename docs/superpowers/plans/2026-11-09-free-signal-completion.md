@@ -20,7 +20,7 @@
 - [x] Implement `collectEtfFlows(read, now): Promise<Signal[]>`, `validateEtfFlows(signal)` and `refreshEtfFlows(previous, read, now)` in `web/lib/consensus/etf-flows.ts`. Keep all horizons nonvoting. Source: https://etfiq.com/data/flows/daily/latest.json; licence: https://etfiq.com/license/ (computed fields only).
 - [x] Add the reviewed host to source transport/citation allowlists; integrate full and scoped collection/publishing with stable signal order. Existing unavailable price/options/social requirements stay accurate.
 - [x] Render saved per-instrument/market flow cards with dates, missing/held states, attribution and limitations. Historical editions use only their saved flow signals.
-- [ ] Run focused negative tests, full tests/typecheck, a bounded actual source collection and 375/1440px interaction checks. Publish an immutable scoped edition, build, commit, deploy, and verify public JSON and rendered values.
+- [x] Run focused negative tests, full tests/typecheck, a bounded actual source collection and 375/1440px interaction checks. Publish an immutable scoped edition, build, commit, deploy, and verify public JSON and rendered values.
 
 ## Deliverable 2: prices, corporate actions and outcomes
 
@@ -34,4 +34,4 @@
 - [ ] Exercise collection → publication → forecast/outcome evaluation → deploy → reader/history as one reproducible flow. Verify outages/recovery and refresh operations; coordinate the existing publisher instead of duplicating it.
 - [ ] Obtain a fresh-context whole-change review, resolve findings, and keep this goal active until the objective is achieved or a repeated external blocker is established. Maintain the handoff as the execution ledger.
 
-Execution ruling: preserve the established analyst/TWSE/private-credit tail; insert ETF flow identities before it in both paths. The existing order regression remains unchanged. Independent review identified an all-excluded aggregate falsely presented as zero; a failing test reproduced it, and both live aggregation and saved validation now require positive observed-fund coverage. Final production receipt remains pending.
+Execution ruling: preserve the established analyst/TWSE/private-credit tail; insert ETF flow identities before it in both paths. The existing order regression remains unchanged. Independent review identified an all-excluded aggregate falsely presented as zero; a failing test reproduced it, and both live aggregation and saved validation now require positive observed-fund coverage. Live release `6e154a7`, deployment `dpl_DzdS5rfa4mYx8218pRwN81GDWFJm`, passed actual public APIs/archive equality and 375/1440px instrument/history checks. Continue deliverables 2 and 3; overall goal remains active.
