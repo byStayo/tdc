@@ -1,3 +1,7 @@
+## November 11 — account feeds in daily preparation
+
+`editorial:prepare` now runs the private following digest. TKer returned recent dated items and Apricitas returned a valid feed with no items in the four-day window. The X adapter reads the authenticated Following timeline with a one-page daily cap. The Instagram adapter reads an explicit list of public professional accounts through Business Discovery. Protected X posts, duplicate authors, out-of-window posts, incomplete accounts and small samples were exercised in fixtures. Type checking and the full preparation command passed. The setup uses the ignored mode-0600 config described in [editorial operations](web/docs/EDITORIAL.md#account-and-newsletter-digest). No existing authorized connector account or local app credentials were found for X or Instagram. Both authenticated paths still need a real account run. The weekday publisher inherits the collector through its existing preparation command.
+
 ## November 11 — social access costs and new family evidence
 
 Found GitHub clients for X and Instagram and an Xpoz connector that searches both indexed platforms. The [access and costs](web/docs/BLUESKY_SAMPLE.md#november-11-access-and-costs) record distinguishes platform approval, metered costs, the one-time Xpoz trial and unresolved rights for retained public aggregates and model use. No vendor or platform credentials were activated. The Finazon thread still contains only the sent inquiry.

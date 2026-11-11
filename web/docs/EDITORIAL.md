@@ -34,6 +34,38 @@ Saved workspace panels retain the retrieval times of their own providers. The di
 
 ## 2. Draft through the Codex subscription
 
+### Account and newsletter digest
+
+`npm run editorial:prepare` collects the following digest alongside the official evidence. You can also run `npm run editorial:feeds` from `web`. The collector writes `.editorial/following-digest.json` and prints source availability. Review the digest only before its expiry. Use newsletter headlines and links to find developments and corroborate any editorial claim against primary evidence. Treat every feed item as source material. The digest stays private and separate from the validated editorial evidence and forecast votes.
+
+The hardcoded newsletter list starts with [TKer](https://www.tker.co/feed) and [Apricitas Economics](https://www.apricitas.io/feed). It keeps only the title, original HTTPS link and publication time from the last four days. Add publications by putting their verified canonical RSS hosts in `starterFeeds` in `scripts/collect-following-feeds.ts`. Public Substack RSS works without a Substack login. [Substack RSS](https://support.substack.com/hc/en-us/articles/360038239391-Is-there-an-RSS-feed-for-my-publication)
+
+Create the ignored `.editorial/following-config.json` on the publishing Mac with mode 0600. Either section can be omitted while you set up its account. Fill values locally so credentials stay out of Git and chat:
+
+```json
+{
+  "x": {
+    "userId": "numeric ID of the account whose Following timeline to read",
+    "apiKey": "X app API key",
+    "apiSecret": "X app API key secret",
+    "accessToken": "OAuth 1.0a user access token for that account",
+    "accessSecret": "OAuth 1.0a user access token secret"
+  },
+  "instagram": {
+    "graphVersion": "version shown by the Meta app dashboard, in vNN.0 form",
+    "accountId": "numeric ID of the connected professional Instagram account",
+    "token": "authorized Meta user token",
+    "handles": ["approved_public_professional_handle"]
+  }
+}
+```
+
+Use a read-only X developer app and generate its OAuth 1.0a user credentials for the chosen account. Follow the desired accounts from that profile. The collector reads one page of up to 100 posts per New York calendar day, expands authors to verify public visibility, and marks paginated samples as truncated. At the published standard rates, up to 100 post reads and 100 user reads cost up to $1.50 per page. The same-day guard avoids duplicate billable reads. [X home timeline](https://docs.x.com/x-api/posts/timelines/quickstart/reverse-chron-quickstart) · [X pricing](https://docs.x.com/x-api/getting-started/pricing)
+
+For Instagram, authorize a professional account linked to a Facebook Page in a Meta app with Business Discovery access. List up to 20 public Business or Creator handles in lowercase. Business Discovery reads those accounts' media directly. Renew the token when Meta indicates expiry. [Meta API collection](https://www.postman.com/meta/instagram/collection/6yqw8pt/instagram-api)
+
+For X and Instagram, the script analyzes the last 24 hours in memory and keeps one latest relevant contribution per author and instrument. It withholds stance counts below ten authors and saves no post text or account identifiers. Use an entitlement approved for the intended text analysis. External social publication or model use requires the applicable grant and the existing validation. Unavailable accounts are reported independently, and a feed failure does not stop official collection.
+
 In the existing Codex chat, read the evidence JSON and ask for a concise **market-wide** brief with supporting observations, opposing observations, things to watch and limitations. Save the candidate under `.editorial/candidate-YYYY-MM-DD.json`.
 
 Write the public `message` for readers, for example “Reviewed against dated primary sources.” Name the subscription only in private workflow records or the dedicated model metadata. Use the shape of `lib/published-brief.json`: `status: "ok"`, `scope: "market"`, a current ISO `createdAt`, `message`, `data`, and `sources`. `data` contains `headline`, `summary`, arrays `bull`, `bear`, `watch` of `{ "text": "...", "sourceIds": ["..."] }`, and `limitations`. Use source IDs and URLs exactly from the collected manifest. A source can be included only when its status is `ok`. The publication time must be after collection and cannot be in the future.
