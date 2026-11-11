@@ -26,7 +26,7 @@ function readBars(value: unknown, stamps: number[]) {
 }
 
 /** A sample check against independent price prints and issuer corporate actions. */
-export function checkFinazonSeries(raw: unknown, adjusted: unknown, reference: FinazonReference) {
+export function prepareFinazonSeries(raw: unknown, adjusted: unknown, reference: FinazonReference) {
   const { sessions, timestampBasis, distributions, splits } = reference;
   if (!Array.isArray(sessions) || sessions.length < 2 || !Array.isArray(distributions) || !Array.isArray(splits))
     throw new Error("Missing independent price and corporate-action reference");
@@ -44,5 +44,10 @@ export function checkFinazonSeries(raw: unknown, adjusted: unknown, reference: F
     }
   });
   const unadjusted = readBars(raw, stamps), reported = readBars(adjusted, stamps);
-  return reconcileAdjustedPrices("Finazon", unadjusted, reported, reference);
+  const check = reconcileAdjustedPrices("Finazon", unadjusted, reported, reference);
+  return { check, sessions: sessions.map(({ session, openAt, closeAt }, i) => ({ session, openAt, closeAt, ...reported[i] })) };
+}
+
+export function checkFinazonSeries(raw: unknown, adjusted: unknown, reference: FinazonReference) {
+  return prepareFinazonSeries(raw, adjusted, reference).check;
 }

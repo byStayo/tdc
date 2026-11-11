@@ -4,7 +4,7 @@ import { exchangeSession, verifyExpectedSessions } from "./exchange-calendar.ts"
 const price = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value > 0;
 
 /** Reconcile a supplied daily response against independent regular-session prints and issuer actions. */
-export function checkTiingoSeries(value: unknown, reference: PriceReference) {
+export function prepareTiingoSeries(value: unknown, reference: PriceReference) {
   const { sessions, distributions, splits } = reference;
   if (!Array.isArray(sessions) || sessions.length < 2 || !Array.isArray(distributions) || !Array.isArray(splits))
     throw new Error("Missing independent price and corporate-action reference");
@@ -37,5 +37,11 @@ export function checkTiingoSeries(value: unknown, reference: PriceReference) {
       throw new Error("Tiingo split factor differs from the issuer reference");
     return { raw: { open, close }, adjusted: { open: adjOpen, close: adjClose } };
   });
-  return reconcileAdjustedPrices("Tiingo", reconciled.map(row => row.raw), reconciled.map(row => row.adjusted), reference);
+  const adjusted = reconciled.map(row => row.adjusted);
+  const check = reconcileAdjustedPrices("Tiingo", reconciled.map(row => row.raw), adjusted, reference);
+  return { check, sessions: sessions.map(({ session, openAt, closeAt }, i) => ({ session, openAt, closeAt, ...adjusted[i] })) };
+}
+
+export function checkTiingoSeries(value: unknown, reference: PriceReference) {
+  return prepareTiingoSeries(value, reference).check;
 }

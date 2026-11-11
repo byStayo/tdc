@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
-import { chmod, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { chmod, lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { checkFinazonSeries } from "../lib/consensus/finazon.ts";
@@ -55,7 +55,7 @@ test("verifies vendor samples before purchase without an API key and rejects mis
     const references = Object.fromEntries(symbols.map(symbol => [symbol, reference]));
     const samples = Object.fromEntries(symbols.map(symbol => [symbol, { raw: { data: raw }, adjusted: { data: adjusted } }]));
     const script = new URL("../scripts/research-finazon-prices.ts", import.meta.url).pathname;
-    const run = (mode = "--samples") => spawnSync(process.execPath, ["--experimental-strip-types", script, mode, samplesPath, referencesPath], {
+    const run = (mode = "--samples", extra: string[] = []) => spawnSync(process.execPath, ["--experimental-strip-types", script, ...extra, mode, samplesPath, referencesPath], {
       env: { ...process.env, FINAZON_API_KEY: "" }, encoding: "utf8",
     });
     await writeFile(referencesPath, JSON.stringify(references), { mode: 0o600 });
@@ -79,6 +79,22 @@ test("verifies vendor samples before purchase without an API key and rejects mis
     assert.equal(tiingoResult.provider, "tiingo");
     assert.deepEqual(tiingoResult.checks.map((check: { symbol: string }) => check.symbol), symbols);
     assert.equal(tiingoResult.published, false);
+    const output = join(directory, "prices.json");
+    const staged = run("--tiingo-samples", ["--stage", output]);
+    assert.equal(staged.status, 0, staged.stderr);
+    assert.equal(JSON.parse(staged.stdout).status, "price_evidence_staged");
+    const evidence = JSON.parse(await readFile(output, "utf8"));
+    assert.deepEqual(evidence.map((row: { instrument: string }) => row.instrument), symbols);
+    assert.equal(evidence[0].adjustment, "total-return-adjusted");
+    assert.deepEqual(evidence[0].expectedSessions, sessions.map(row => row.session));
+    assert.deepEqual(evidence[0].sessions[0], { ...sessions[0], open: tiingo[0].adjOpen, close: tiingo[0].adjClose });
+    assert.equal((await lstat(output)).mode & 0o777, 0o600);
+    assert.match(run("--tiingo-samples", ["--stage", output]).stderr, /EEXIST/);
+    const missingOutput = join(directory, "missing.json");
+    const badSamples = Object.fromEntries(symbols.slice(0, -1).map(symbol => [symbol, tiingo]));
+    await writeFile(samplesPath, JSON.stringify(badSamples));
+    assert.match(run("--tiingo-samples", ["--stage", missingOutput]).stderr, /Missing supplied samples for TLT/);
+    await assert.rejects(lstat(missingOutput), { code: "ENOENT" });
     await chmod(samplesPath, 0o644);
     assert.match(run().stderr, /owner-only regular/);
   } finally { await rm(directory, { recursive: true, force: true }); }

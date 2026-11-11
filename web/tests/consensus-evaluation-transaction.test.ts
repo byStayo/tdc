@@ -76,7 +76,7 @@ test("the actual evaluator scores a covered date and records uncovered targets a
     await mkdir(join(root,"scripts"));await mkdir(join(root,"public/consensus/models"),{recursive:true});
     await cp(new URL("../scripts/evaluate-consensus.ts",import.meta.url),join(root,"scripts/evaluate-consensus.ts"));
     await writeFile(join(root,"package.json"),'{"type":"module"}');
-    const index=[];
+    const index: { id: string; issuedAt: string; engineVersion: string; sha256: string }[]=[];
     for(const day of ["2026-11-02","2026-12-03"]){
       const at=`${day}T12:00:00.000Z`,base=missingSignals(at)[0];
       const snapshot={schemaVersion:1,origin:"prospective",engineVersion:"consensus-rules-2.0.0",id:at.replace(/[:.]/g,"-"),issuedAt:at,cutoff:at,
@@ -108,6 +108,25 @@ test("the actual evaluator scores a covered date and records uncovered targets a
     assert.equal(secondWithoutPrices.pending,index.length*5*3-JSON.parse(firstOutcomes).length,"Already resolved targets do not return to pending when price files are omitted");
     assert.equal(await readFile(join(root,"public/consensus/outcomes.json"),"utf8"),firstOutcomes,"Previously resolved evidence is preserved");
     assert.ok(JSON.parse(await readFile(join(root,"public/consensus/outcomes.json"),"utf8")).some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-11-02")&&row.horizon==="daily"));
+    const stageDates=exchangeSessions("2026-11-02","2026-11-06");
+    const stageBars=stageDates.map(day=>({...exchangeSession(day)!,open:100,close:101}));
+    const stageSymbols=["SPY","QQQ","IWM","DIA","TLT"];
+    const samplePath=join(root,"vendor-samples.json"), referencePath=join(root,"reference.json"), evidencePath=join(root,"verified-prices.json");
+    const reference={sessions:stageBars,distributions:[{session:"2026-11-03",amount:1}],splits:[]};
+    const sample=stageBars.map((bar,i)=>({date:bar.session,open:bar.open,close:bar.close,
+      adjOpen:i===0?bar.open*100/101:bar.open,adjClose:i===0?100:bar.close,divCash:i===1?1:0,splitFactor:1}));
+    await writeFile(referencePath,JSON.stringify(Object.fromEntries(stageSymbols.map(symbol=>[symbol,reference]))),{mode:0o600});
+    await writeFile(samplePath,JSON.stringify(Object.fromEntries(stageSymbols.map(symbol=>[symbol,sample]))),{mode:0o600});
+    const prepare=new URL("../scripts/research-finazon-prices.ts",import.meta.url).pathname;
+    const staged=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types",prepare,"--stage",evidencePath,
+      "--tiingo-samples",samplePath,referencePath],{encoding:"utf8"}));
+    assert.equal(staged.status,"price_evidence_staged");
+    const evaluated=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts","--prices",evidencePath],{cwd:root,encoding:"utf8"}));
+    assert.equal(evaluated.trained,0);
+    const stagedOutcomes=JSON.parse(await readFile(join(root,"public/consensus/outcomes.json"),"utf8"));
+    for(const symbol of stageSymbols)for(const horizon of ["daily","weekly"])
+      assert.ok(stagedOutcomes.some((row:{snapshotId:string;instrument:string;horizon:string})=>
+        row.snapshotId===index[0].id&&row.instrument===symbol&&row.horizon===horizon));
     for(const entry of index)assert.equal(digest(JSON.parse(await readFile(join(root,`public/consensus/${entry.id}.json`),"utf8"))),entry.sha256);
   }finally{await rm(root,{recursive:true,force:true});}
 });
