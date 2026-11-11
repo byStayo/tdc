@@ -2,12 +2,12 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "SPY",
-  "createdAt": "2026-11-10T13:06:30.971Z",
+  "createdAt": "2026-11-11T13:07:04.481Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
     "headline": "S&P futures shorts narrow as the Treasury curve flattens",
-    "summary": "Between October 27 and November 3, leveraged funds reduced their E-mini S&P 500 net short while asset managers increased their net long. The ten-year minus two-year Treasury spread subsequently narrowed to 35 basis points on November 6.",
+    "summary": "In the November 3 report, leveraged funds reduced their E-mini S&P 500 net short while asset managers increased their net long. The ten-year minus two-year Treasury spread narrowed further to 32 basis points on November 9.",
     "bull": [
       {
         "text": "The E-mini S&P 500 asset-manager net long rose from 923,449 to 928,584 contracts. The leveraged-fund net short fell from 400,604 to 372,318 contracts.",
@@ -18,7 +18,7 @@
     ],
     "bear": [
       {
-        "text": "The two-year yield rose 5 basis points to 4.51% from November 5 to 6. Higher benchmarks can raise short-term refinancing costs for index constituents whose borrowing resets with market rates.",
+        "text": "The two-year yield rose from 4.51% on November 6 to 4.56% on November 9. Higher benchmarks can raise refinancing costs for borrowers whose debt reprices with market rates.",
         "sourceIds": [
           "FRED_DGS2"
         ]
@@ -26,7 +26,7 @@
     ],
     "watch": [
       {
-        "text": "The ten-year minus two-year spread narrowed from 38 to 35 basis points. The impact on lenders depends on funding costs, how quickly assets reprice and credit losses.",
+        "text": "The ten-year minus two-year spread narrowed from 35 to 32 basis points. Funding costs, asset repricing and credit losses also affect lenders.",
         "sourceIds": [
           "FRED_DGS2",
           "FRED_DGS10"
@@ -34,7 +34,7 @@
       }
     ],
     "limitations": [
-      "The Treasury yields are dated November 6. This report has no verified ETF closing-price or return observation.",
+      "The Treasury observations in this report are dated November 9. No verified ETF closing price or return is available.",
       "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
     ]
   },

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-10T13:06:30.971Z",
-  "macroRetrievedAt": "2026-11-10T13:03:06.667Z",
-  "positioningRetrievedAt": "2026-11-10T13:03:07.119Z",
+  "collectedAt": "2026-11-11T13:04:36.888Z",
+  "macroRetrievedAt": "2026-11-11T13:04:36.293Z",
+  "positioningRetrievedAt": "2026-11-11T13:04:36.748Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -261,10 +261,6 @@
       "url": "https://fred.stlouisfed.org/series/DPRIME",
       "observations": [
         {
-          "date": "2026-08-17",
-          "value": 6.75
-        },
-        {
           "date": "2026-08-18",
           "value": 6.75
         },
@@ -498,6 +494,10 @@
         },
         {
           "date": "2026-11-06",
+          "value": 7
+        },
+        {
+          "date": "2026-11-09",
           "value": 7
         }
       ]
@@ -841,7 +841,7 @@
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-10T13:03:06.832Z",
+      "retrievedAt": "2026-11-11T13:04:36.355Z",
       "data": [
         {
           "id": "sec:0000320193:0001354457-26-001062",
@@ -927,8 +927,18 @@
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-10T13:03:07.055Z",
+      "retrievedAt": "2026-11-11T13:04:36.666Z",
       "data": [
+        {
+          "id": "sec:0000789019:0000789019-26-000232",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "4",
+          "filedAt": "2026-11-10",
+          "reportDate": "2026-11-09",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000232/xslF345X06/form4.xml",
+          "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+        },
         {
           "id": "sec:0000789019:0000789019-26-000230",
           "company": "MICROSOFT CORP",
@@ -998,22 +1008,12 @@
           "reportDate": null,
           "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526439794/d799291dfwp.htm",
           "description": "FWP"
-        },
-        {
-          "id": "sec:0000789019:0001193125-26-437008",
-          "company": "MICROSOFT CORP",
-          "cik": "0000789019",
-          "form": "424B2",
-          "filedAt": "2026-10-29",
-          "reportDate": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526437008/d150456d424b2.htm",
-          "description": "424B2"
         }
       ]
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-10T13:03:07.347Z",
+      "retrievedAt": "2026-11-11T13:04:36.882Z",
       "data": [
         {
           "id": "sec:0001045810:0001197647-26-000013",

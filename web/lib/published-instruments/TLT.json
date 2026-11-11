@@ -2,12 +2,12 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-10T13:06:30.971Z",
+  "createdAt": "2026-11-11T13:07:04.481Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Long Treasury yields rise as bond futures positions diverge",
-    "summary": "The thirty-year Treasury yield rose to 5.26% on November 6, up from 5.25% on November 5. In the earlier November 3 Treasury bond futures report, both the asset-manager net long and the leveraged-fund net short increased.",
+    "headline": "Thirty-year yield holds as the long-end spread narrows",
+    "summary": "The thirty-year Treasury yield held at 5.26% from November 6 to 9. The ten-year yield rose to 4.88%, narrowing the thirty-year minus ten-year spread to 38 basis points.",
     "bull": [
       {
         "text": "The asset-manager net long in Treasury bond futures rose from 383,981 to 415,379 contracts between October 27 and November 3.",
@@ -18,25 +18,23 @@
     ],
     "bear": [
       {
-        "text": "The thirty-year yield rose 1 basis point while the ten-year rose 2 basis points to 4.86%. Rising long-term yields generally reduce the value of existing fixed-rate bonds, with greater sensitivity at longer duration.",
+        "text": "The leveraged-fund net short in Treasury bond futures increased from 150,393 to 166,257 contracts between October 27 and November 3.",
         "sourceIds": [
-          "FRED_DGS30",
-          "FRED_DGS10"
+          "CFTC_BOND"
         ]
       }
     ],
     "watch": [
       {
-        "text": "The Treasury bond futures leveraged-fund net short grew from 150,393 to 166,257 contracts. Over the later Treasury observation dates the thirty-year minus ten-year yield spread narrowed from 41 to 40 basis points.",
+        "text": "The thirty-year yield held at 5.26% while the ten-year yield rose from 4.86% to 4.88%. Their spread narrowed from 40 to 38 basis points. These are benchmark yields. TLT’s portfolio exposures and returns require separate evidence.",
         "sourceIds": [
-          "CFTC_BOND",
           "FRED_DGS30",
           "FRED_DGS10"
         ]
       }
     ],
     "limitations": [
-      "The Treasury yields are dated November 6. This report has no verified ETF closing-price or return observation.",
+      "The Treasury observations in this report are dated November 9. No verified ETF closing price or return is available.",
       "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
     ]
   },

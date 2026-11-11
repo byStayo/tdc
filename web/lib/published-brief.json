@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-10T13:06:30.971Z",
+  "createdAt": "2026-11-11T13:07:04.481Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Overnight funding eases as Treasury yields rise",
-    "summary": "SOFR was 3.88% on November 9, down from 3.89% on November 6. In the latest Treasury observations, dated November 6, the two-year yield rose 5 basis points to 4.51% and the ten-year rose 2 to 4.86%. The spread narrowed to 35 basis points.",
+    "headline": "Treasury curve flattens as the two-year yield rises",
+    "summary": "From November 6 to 9, the two-year Treasury yield rose 5 basis points to 4.56% and the ten-year yield rose 2 to 4.88%. Their spread narrowed to 32 basis points. November 9 SOFR was 3.88%.",
     "bull": [
       {
         "text": "November 9 SOFR was 1 basis point lower than November 6. Borrowers whose rates reset against SOFR can see some relief when credit spreads and contract terms are unchanged.",
@@ -17,7 +17,7 @@
     ],
     "bear": [
       {
-        "text": "From November 5 to 6, the two-year yield rose from 4.46% to 4.51% and the ten-year from 4.84% to 4.86%. The ten-year minus two-year spread narrowed from 38 to 35 basis points.",
+        "text": "The two-year yield rose from 4.51% to 4.56% and the ten-year rose from 4.86% to 4.88%. The ten-year minus two-year spread narrowed from 35 to 32 basis points.",
         "sourceIds": [
           "FRED_DGS2",
           "FRED_DGS10"
@@ -34,7 +34,7 @@
       }
     ],
     "limitations": [
-      "Overnight funding and Treasury yields have different observation dates. This brief contains no November 10 price or economic release observations.",
+      "The funding and Treasury series in this brief are dated November 9. The brief contains no verified ETF closing prices or returns.",
       "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
     ]
   },
