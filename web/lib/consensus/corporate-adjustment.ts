@@ -2,6 +2,31 @@ import type { SessionPrice } from "./evaluation.ts";
 
 export interface CashDistribution { session: string; amount: number }
 export interface ShareSplit { session: string; ratio: number }
+export interface PriceReference {
+  sessions: SessionPrice[];
+  distributions: CashDistribution[];
+  splits: ShareSplit[];
+}
+
+export function reconcileAdjustedPrices(
+  provider: string,
+  raw: Pick<SessionPrice, "open" | "close">[],
+  reported: Pick<SessionPrice, "open" | "close">[],
+  { sessions, distributions, splits }: PriceReference,
+) {
+  const expected = adjustETFPrices(sessions, distributions, splits);
+  // Later corporate actions can rescale a whole window. Compare both fields on one basis.
+  const scale = reported.at(-1)!.close / expected.at(-1)!.close;
+  for (const [i, row] of sessions.entries()) {
+    for (const field of ["open", "close"] as const) {
+      if (Math.abs(raw[i][field] - row[field]) > 0.0001)
+        throw new Error(`${provider} raw ${field} price differs from the independent reference`);
+      if (Math.abs(reported[i][field] / scale / expected[i][field] - 1) > 0.000001)
+        throw new Error(`${provider} ${field} adjustment differs from the issuer-based reference`);
+    }
+  }
+  return { sessions: sessions.length, cashDistributions: distributions.length, splits: splits.length };
+}
 
 /** Back-adjust both prices onto the final session's share and distribution basis. */
 export function adjustETFPrices(

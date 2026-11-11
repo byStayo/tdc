@@ -2,13 +2,15 @@ import { readFile, lstat } from "node:fs/promises";
 import { isAbsolute } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { checkFinazonSeries, type FinazonReference } from "../lib/consensus/finazon.ts";
+import { checkTiingoSeries } from "../lib/consensus/tiingo.ts";
 import { sourceChunk } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS } from "../lib/consensus/types.ts";
 
 const args = process.argv.slice(2);
-const usingSamples = args[0] === "--samples";
+const tiingo = args[0] === "--tiingo-samples";
+const usingSamples = args[0] === "--samples" || tiingo;
 if (args.length !== (usingSamples ? 3 : 1))
-  throw new Error("Provide [--samples /absolute/private/samples.json] /absolute/private/reference.json");
+  throw new Error("Provide [--samples or --tiingo-samples, then /absolute/private/samples.json] /absolute/private/reference.json");
 
 async function readPrivateJson<T>(path: string): Promise<T> {
   if (!isAbsolute(path)) throw new Error("Provide absolute paths to private input files");
@@ -23,7 +25,7 @@ const key = process.env.FINAZON_API_KEY?.trim();
 if (!usingSamples && !key) throw new Error("No Finazon key configured in the local environment");
 const references = await readPrivateJson<Record<string, FinazonReference>>(args.at(-1)!);
 const samples = usingSamples
-  ? await readPrivateJson<Record<string, { raw: unknown; adjusted: unknown }>>(args[1])
+  ? await readPrivateJson<Record<string, unknown>>(args[1])
   : null;
 if (!references || (usingSamples && !samples)) throw new Error("Missing private input data");
 const symbols = INSTRUMENTS.filter(instrument => instrument !== "MARKET");
@@ -67,10 +69,16 @@ async function request(symbol: string, adjustment: "none" | "all") {
 
 const checks = [];
 for (const symbol of symbols) {
+  if (tiingo) {
+    if (!samples?.[symbol]) throw new Error("Missing supplied samples for " + symbol);
+    checks.push({ symbol, ...checkTiingoSeries(samples[symbol], references[symbol]) });
+    continue;
+  }
   let raw: unknown, adjusted: unknown;
   if (samples) {
     const sample = samples[symbol];
-    if (!sample || !sample.raw || !sample.adjusted) throw new Error("Missing supplied samples for " + symbol);
+    if (!sample || typeof sample !== "object" || !("raw" in sample) || !("adjusted" in sample) || !sample.raw || !sample.adjusted)
+      throw new Error("Missing supplied samples for " + symbol);
     ({ raw, adjusted } = sample);
   } else {
     raw = await request(symbol, "none");
@@ -78,4 +86,5 @@ for (const symbol of symbols) {
   }
   checks.push({ symbol, ...checkFinazonSeries(raw, adjusted, references[symbol]) });
 }
-console.log(JSON.stringify({ status: "price_sample_reconciled", input: usingSamples ? "supplied-samples" : "authenticated-api", checks, published: false }));
+console.log(JSON.stringify({ status: "price_sample_reconciled", provider: tiingo ? "tiingo" : "finazon",
+  input: usingSamples ? "supplied-samples" : "authenticated-api", checks, published: false }));

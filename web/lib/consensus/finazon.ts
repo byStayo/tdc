@@ -1,13 +1,9 @@
-import { adjustETFPrices, type CashDistribution, type ShareSplit } from "./corporate-adjustment.ts";
-import type { SessionPrice } from "./evaluation.ts";
+import { reconcileAdjustedPrices, type PriceReference } from "./corporate-adjustment.ts";
 import { exchangeSession, verifyExpectedSessions } from "./exchange-calendar.ts";
 import { newYorkTimestamp } from "./time.ts";
 
-export interface FinazonReference {
+export interface FinazonReference extends PriceReference {
   timestampBasis: "session-open" | "utc-midnight" | "new-york-midnight";
-  sessions: SessionPrice[];
-  distributions: CashDistribution[];
-  splits: ShareSplit[];
 }
 
 function readBars(value: unknown, stamps: number[]) {
@@ -48,17 +44,5 @@ export function checkFinazonSeries(raw: unknown, adjusted: unknown, reference: F
     }
   });
   const unadjusted = readBars(raw, stamps), reported = readBars(adjusted, stamps);
-  const expected = adjustETFPrices(sessions, distributions, splits);
-  // A later action can change the level of every reported price in this window.
-  // Normalize the final close and compare both fields on that common basis.
-  const scale = reported.at(-1)!.close / expected.at(-1)!.close;
-  for (const [i, row] of sessions.entries()) {
-    for (const field of ["open", "close"] as const) {
-      if (Math.abs(unadjusted[i][field] - row[field]) > 0.0001)
-        throw new Error("Finazon raw " + field + " price differs from the independent reference");
-      if (Math.abs(reported[i][field] / scale / expected[i][field] - 1) > 0.000001)
-        throw new Error("Finazon " + field + " adjustment differs from the issuer-based reference");
-    }
-  }
-  return { sessions: sessions.length, cashDistributions: distributions.length, splits: splits.length };
+  return reconcileAdjustedPrices("Finazon", unadjusted, reported, reference);
 }
