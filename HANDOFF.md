@@ -1,3 +1,9 @@
+## November 11 — account authorization handoff and Taiwan test
+
+The X Developer Console was signed in and showed free API credits. The dedicated Daily Consensus app form was prepared for the owner to create. Meta's Facebook sign-in was opened in the owner's Chrome session. The publisher has a private interactive setup command in [editorial operations](web/docs/EDITORIAL.md#account-and-newsletter-digest). Its synthetic checks verified permission enforcement and preserving both account configurations. A live X or Instagram read requires the respective authorized local credential.
+
+Tested a fixed international feature using eleven verified monthly TAIEX price reports and private ETF same-session outcomes. The feature is the Taiwan close-to-close move from the latest earlier calendar date, with a seven-day maximum age. Each ETF had 205 historical sessions and 41 test sessions, all ending before the first published forecast. None cleared the historical baseline-improvement threshold. The latest-vintage source checksums and detailed results are in the ignored mode-0600 `web/.consensus/private-family-research/prelaunch-taiex-prior-date-v1.json`. Directional coverage remains three of fifteen. [TWSE historical reports](https://www.twse.com.tw/en/indices/taiex/mi-5min-hist.html)
+
 ## November 11 — reviewed newsletter reading published
 
 The live Research Desk has a broad-market reading list in News & filings. Two TKer items have original descriptions, verified publisher dates and access labels. The weekday collector supplies private RSS leads. The [editorial procedure](web/docs/EDITORIAL.md#account-and-newsletter-digest) describes reviewing and staging new links in the public reading list. The list carries no directional vote.
