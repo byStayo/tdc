@@ -1,0 +1,9 @@
+# The Daily Consensus on the main site
+
+Link **The Daily Consensus** to [thedailyconsensus.com](https://thedailyconsensus.com/). A link card can use “Daily market brief, ETF reports and source-backed research.” The [Research Desk](https://thedailyconsensus.com/research-desk) and [methodology](https://thedailyconsensus.com/methodology) are verified public destinations for secondary links.
+
+The canonical site, health endpoint and exact archive returned HTTP 200 on November 11, 2026. Health reported `ready`, edition `2026-11-10T20-47-02-439Z`, 55.11% observation coverage and 20% directional coverage. The market daily verdict abstains, with three of fifteen voting families. The edition identifier is UTC. [Health](https://thedailyconsensus.com/api/health) · [Exact archive](https://thedailyconsensus.com/consensus/2026-11-10T20-47-02-439Z.json)
+
+A normal link works with the deployed site's `X-Frame-Options: DENY` and `frame-ancestors 'none'` headers. A main-site iframe would require a separately scoped Daily Consensus route and an explicit allowed origin. For a dynamic card, the existing health endpoint supplies the issue identifier and coverage. Use a server-side fetch if the card needs that data and retain a direct link to the live site.
+
+Approved public ETF open and close evidence is pending Finazon's terms and samples for SPY, QQQ, IWM, DIA and TLT. The latest audit verified 30 archived editions, zero public resolved outcomes, zero active models and 210 matured price targets awaiting approved evidence. X and Instagram still need usable data access with rights for the planned aggregates and model research. Family votes require prospective validation. Keep the main-site copy descriptive until those checks clear. [Daily Consensus handoff](HANDOFF.md)
