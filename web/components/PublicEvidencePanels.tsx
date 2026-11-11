@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, FileText, Search } from "lucide-react";
 import type { Envelope, Filing, Positioning } from "@/lib/contracts";
+import newsletterReading from "@/lib/published-newsletter-reading.json";
 import TradingViewWidget, { usesBroadMarketNews } from "./TradingViewWidget";
 import {
   dateLabel,
@@ -309,6 +310,26 @@ export function PublicNews({
   const broadNews = usesBroadMarketNews(symbol);
   return (
     <div className="view-stack">
+      {newsletterReading.length > 0 && (
+        <section className="panel news-panel" aria-label="Newsletter reading">
+          <PanelHeader eyebrow="BROAD MARKET" title="Newsletter reading" />
+          <div className="news-list">
+            {newsletterReading.map(item => (
+              <article className="news-item" key={item.url}>
+                <div className="news-item-body">
+                  <div className="article-meta">
+                    <span>{item.publisher}</span>
+                    <time dateTime={item.publishedAt}>{dateLabel(item.publishedAt)}</time>
+                    <span>{item.access}</span>
+                  </div>
+                  <h3><ExternalLink href={item.url}>{item.title}</ExternalLink></h3>
+                  <p className="article-excerpt">{item.summary}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       <FilingsPanel filings={filings} loading={loading} />
       <section className="panel">
         <PanelHeader

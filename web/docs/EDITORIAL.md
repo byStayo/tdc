@@ -40,6 +40,8 @@ Saved workspace panels retain the retrieval times of their own providers. The di
 
 The hardcoded newsletter list starts with [TKer](https://www.tker.co/feed) and [Apricitas Economics](https://www.apricitas.io/feed). It keeps only the title, original HTTPS link and publication time from the last four days. Add publications by putting their verified canonical RSS hosts in `starterFeeds` in `scripts/collect-following-feeds.ts`. Public Substack RSS works without a Substack login. [Substack RSS](https://support.substack.com/hc/en-us/articles/360038239391-Is-there-an-RSS-feed-for-my-publication)
 
+To update the Research Desk reading list, open each candidate's original publisher page. Verify the author, publication date and access requirement. Add the link, those verified fields, an original heading and a short original description to `lib/published-newsletter-reading.json`. Summarize only material you can verify from the page. The list is broad-market reading. It changes through the reviewed release workflow and carries no forecast vote.
+
 Create the ignored `.editorial/following-config.json` on the publishing Mac with mode 0600. Either section can be omitted while you set up its account. Fill values locally so credentials stay out of Git and chat:
 
 ```json
