@@ -1,3 +1,11 @@
+## November 11 — X app created and futures-options screen completed
+
+The owner created the X app. Its Keys & Tokens panel still offered generation of the read-only user token. App credentials shared in chat need rotation. Store the replacement OAuth 1.0a app credentials and read-only user token pair through `web/scripts/setup-following-feeds.py x`. The Meta developer tab still requested a Facebook login. The private account configuration was absent, so no authenticated X or Instagram posts were collected. Finazon and Xpoz searches still found only the sent inquiries.
+
+The bounded live Bluesky run read 28,428 events and matched seven posts from four distinct market contributors, with zero matches for the five ETFs. The sample stayed suppressed and no raw content was saved.
+
+Screened one fixed feature using the weekly change in the share of combined CFTC open interest attributable to options in futures equivalents. The latest-vintage source used an assumed seven-calendar-day release lag. Each ETF had 210 prelaunch sessions, 44 distinct weekly reports and 42 chronological test sessions. All five candidate Brier scores exceeded the 0.25 coin baseline, so no candidate was promoted. Private inputs and detailed results remain outside Git in `web/.consensus/private-family-research/prelaunch-cftc-options-share-v1.json`. Voting coverage remains three of fifteen families. [CFTC Traders in Financial Futures](https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm)
+
 ## November 11 — account authorization handoff and Taiwan test
 
 The X Developer Console was signed in and showed free API credits. The dedicated Daily Consensus app form was prepared for the owner to create. Meta's Facebook sign-in was opened in the owner's Chrome session. The publisher has a private interactive setup command in [editorial operations](web/docs/EDITORIAL.md#account-and-newsletter-digest). Its synthetic checks verified permission enforcement and preserving both account configurations. A live X or Instagram read requires the respective authorized local credential.
