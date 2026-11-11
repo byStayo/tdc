@@ -42,7 +42,7 @@ The hardcoded newsletter list starts with [TKer](https://www.tker.co/feed) and [
 
 To update the Research Desk reading list, open each candidate's original publisher page. Verify the author, publication date and access requirement. Add the link, those verified fields, an original heading and a short original description to `lib/published-newsletter-reading.json`. Summarize only material you can verify from the page. The list is broad-market reading. It changes through the reviewed release workflow and carries no forecast vote.
 
-Create the ignored `.editorial/following-config.json` on the publishing Mac with mode 0600. Either section can be omitted while you set up its account. Fill values locally so credentials stay out of Git and chat:
+From `web` on the publishing Mac, run `python3 scripts/setup-following-feeds.py x` or `python3 scripts/setup-following-feeds.py instagram` in an interactive Terminal. Secret prompts hide typed and pasted values. The helper preserves the other platform's settings and writes the ignored `.editorial/following-config.json` with mode 0600. Its shape is:
 
 ```json
 {
