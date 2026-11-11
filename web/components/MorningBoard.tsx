@@ -1320,24 +1320,26 @@ export default function MorningBoard({
         <span className={styles.eyebrow}>
           {names[instrument]} · {horizon} context
         </span>
-        <h2>{consensus.label}</h2>
+        <h2>{consensus.abstain ? "Trading call withheld" : consensus.label}</h2>
         <p>
           {consensus.abstain
-            ? "The evidence is incomplete. A trading call is withheld until more independent signals are available."
+            ? "This edition needs more eligible directional evidence to issue a call."
             : "The balance of independent market signals. Explore the evidence before forming your plan."}
         </p>
         <div className={layout.coverage}>
           <strong>
             {pct(consensus.directionalCoverage ?? consensus.coverage)}
-          </strong>
+          </strong>{" "}
           <span>
-            {consensus.directionalCoverage !== undefined
-              ? "Directional coverage"
-              : "Observation coverage"}
+            <span>
+              {consensus.directionalCoverage !== undefined
+                ? "Directional coverage"
+                : "Observation coverage"}
+            </span>{" "}
             <small>
               {consensus.directionalCoverage !== undefined
-                ? `at publication · ${votingFamilies}/${FAMILIES.length} voting families`
-                : "at publication · this edition has no directional gate"}
+                ? `${votingFamilies} of ${FAMILIES.length} families voting`
+                : "as published"}
             </small>
           </span>
         </div>
@@ -1350,9 +1352,8 @@ export default function MorningBoard({
         </div>
         <p className={layout.coverageNote}>
           {consensus.directionalCoverage !== undefined
-            ? `${pct(consensus.coverage)} observation coverage.`
-            : `${votingFamilies} of ${FAMILIES.length} families provided directional input.`}{" "}
-          Completeness, not accuracy.
+            ? `${pct(consensus.coverage)} observation coverage, including contextual evidence.`
+            : `${votingFamilies} of ${FAMILIES.length} families provided directional input.`}
         </p>
         {agedSincePublication > 0 && (
           <p className={layout.coverageNote}>
