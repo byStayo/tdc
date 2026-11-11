@@ -53,6 +53,7 @@ From `web` on the publishing Mac, run `python3 scripts/setup-following-feeds.py 
     "accessToken": "OAuth 1.0a user access token for that account",
     "accessSecret": "OAuth 1.0a user access token secret"
   },
+  "xPublic": { "bearerToken": "X app bearer token for public recent search" },
   "instagram": {
     "graphVersion": "version shown by the Meta app dashboard, in vNN.0 form",
     "accountId": "numeric ID of the connected professional Instagram account",
@@ -63,6 +64,8 @@ From `web` on the publishing Mac, run `python3 scripts/setup-following-feeds.py 
 ```
 
 Use a read-only X developer app and generate its OAuth 1.0a user credentials for the chosen account. Follow the desired accounts from that profile. The collector reads one page of up to 100 posts per New York calendar day, expands authors to verify public visibility, and marks paginated samples as truncated. At the published standard rates, up to 100 post reads and 100 user reads cost up to $1.50 per page. The same-day guard avoids duplicate billable reads. [X home timeline](https://docs.x.com/x-api/posts/timelines/quickstart/reverse-chron-quickstart) · [X pricing](https://docs.x.com/x-api/getting-started/pricing)
+
+Set up public search with `python3 scripts/setup-following-feeds.py x-public`. When configured, it takes precedence over the personal timeline. It searches the same 24-hour window separately for SPY, QQQ, IWM, DIA and TLT. Each query reads up to two pages of 20 results and stops once the instrument reaches ten eligible authors or the results end. The shared daily guard limits the job to one run per New York date. The maximum is 200 posts and 200 expanded user reads, or up to $3 at standard rates before X's deduplication. Search uses existing API credits. It records which queries hit the page limit or failed and suppresses undersized instrument readings. [X recent search](https://docs.x.com/x-api/posts/search/quickstart/recent-search) · [X pricing](https://docs.x.com/x-api/getting-started/pricing)
 
 For Instagram, authorize a professional account linked to a Facebook Page in a Meta app with Business Discovery access. List up to 20 public Business or Creator handles in lowercase. Business Discovery reads those accounts' media directly. Renew the token when Meta indicates expiry. [Meta API collection](https://www.postman.com/meta/instagram/collection/6yqw8pt/instagram-api)
 

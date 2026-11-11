@@ -71,7 +71,7 @@ def enter(label, pattern, secret=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("platform", choices=("x", "instagram"))
+    parser.add_argument("platform", choices=("x", "x-public", "instagram"))
     args = parser.parse_args()
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         print("Open an interactive Terminal to enter credentials privately.", file=sys.stderr)
@@ -91,6 +91,8 @@ def main():
                     "accessToken": enter("Read-only user access token: ", key, secret=True),
                     "accessSecret": enter("Read-only user access token secret: ", key, secret=True),
                 }
+            elif args.platform == "x-public":
+                credentials = {"bearerToken": enter("X app bearer token: ", key, secret=True)}
             else:
                 credentials = {
                     "graphVersion": enter("Meta Graph API version (vNN.0): ", r"v[0-9]{1,2}\.0"),
@@ -105,7 +107,8 @@ def main():
                 ):
                     raise ValueError("Enter 1–20 distinct public professional account handles.")
                 credentials["handles"] = handles
-        save_config(Path(__file__).resolve().parents[1] / ".editorial", args.platform, credentials)
+        section = "xPublic" if args.platform == "x-public" else args.platform
+        save_config(Path(__file__).resolve().parents[1] / ".editorial", section, credentials)
     except ValueError as error:
         print(str(error), file=sys.stderr)
         return 2

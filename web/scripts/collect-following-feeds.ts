@@ -16,6 +16,15 @@ const starterFeeds = [
   ["Apricitas Economics", "www.apricitas.io"],
 ] as const;
 const dayMs = 86_400_000;
+const xSearchQueries = {
+  SPY: '($SPY OR $SPX OR "S&P 500")',
+  QQQ: '($QQQ OR $NDX OR "Nasdaq 100")',
+  IWM: '($IWM OR $RUT OR "Russell 2000")',
+  DIA: '($DIA OR $DJI OR "Dow Jones")',
+  TLT: "$TLT",
+} as const;
+const xSearchPageSize = 20;
+const xSearchPagesPerInstrument = 2;
 
 type Post = { author: string; at: number; text: string };
 type XAccount = { userId: string; apiKey: string; apiSecret: string; accessToken: string; accessSecret: string };
@@ -101,11 +110,16 @@ export async function collectX(input: unknown, cutoff: string) {
     exclude: "retweets,replies", expansions: "author_id", "user.fields": "protected",
     "tweet.fields": "author_id,created_at,lang,referenced_tweets,withheld",
   }).toString();
-  const body = object(JSON.parse(await fetchText(url, { Authorization: xAuthorization(url, account) })));
+  const page = await readXPage(url, xAuthorization(url, account), 100);
+  return { status: "ok", read: page.read, truncated: page.next !== null, readings: summarize(page.posts, cutoff) };
+}
+
+async function readXPage(url: URL, authorization: string, limit: number) {
+  const body = object(JSON.parse(await fetchText(url, { Authorization: authorization })));
   const meta = object(body.meta);
   const rows = body.data ?? [];
-  if (!Array.isArray(rows) || rows.length > 100 || meta.result_count !== rows.length)
-    throw new Error("Invalid X timeline page");
+  if (!Array.isArray(rows) || rows.length > limit || meta.result_count !== rows.length)
+    throw new Error("Invalid X page");
   const users = body.includes === undefined ? [] : object(body.includes).users;
   if (!Array.isArray(users)) throw new Error("Invalid X author metadata");
   const publicUsers = new Set(users.map(object).filter(user => isId(user.id) && user.protected === false).map(user => user.id));
@@ -114,7 +128,50 @@ export async function collectX(input: unknown, cutoff: string) {
       row.referenced_tweets === undefined && row.withheld === undefined &&
       typeof row.text === "string" && typeof row.created_at === "string"
       ? [{ author: row.author_id, at: Date.parse(row.created_at), text: row.text }] : []);
-  return { status: "ok", read: rows.length, truncated: typeof meta.next_token === "string", readings: summarize(posts, cutoff) };
+  const next = typeof meta.next_token === "string" && meta.next_token.length <= 2048 ? meta.next_token : null;
+  return { posts, read: rows.length, next };
+}
+
+export async function collectXPublic(input: unknown, cutoff: string) {
+  const { bearerToken } = object(input);
+  if (!isCredential(bearerToken)) throw new Error("Invalid X public-search configuration");
+  const authorization = "Bearer " + bearerToken;
+  const start = new Date(Date.parse(cutoff) - dayMs).toISOString();
+  const posts: Post[] = [];
+  const queries = [];
+  for (const [instrument, terms] of Object.entries(xSearchQueries)) {
+    const url = new URL("https://api.x.com/2/tweets/search/recent");
+    url.search = new URLSearchParams({
+      query: terms + " lang:en -is:retweet -is:reply -is:quote",
+      max_results: String(xSearchPageSize), start_time: start, end_time: cutoff,
+      expansions: "author_id", "user.fields": "protected",
+      "tweet.fields": "author_id,created_at,lang,referenced_tweets,withheld",
+    }).toString();
+    let next: string | null = null;
+    let read = 0;
+    let pages = 0;
+    let failed = false;
+    for (let index = 0; index < xSearchPagesPerInstrument; index++) {
+      if (next) url.searchParams.set("next_token", next);
+      try {
+        const page = await readXPage(url, authorization, xSearchPageSize);
+        posts.push(...page.posts);
+        read += page.read;
+        pages++;
+        next = page.next;
+      } catch (error) {
+        if (error instanceof Error && /^Source HTTP (401|402|403|429)$/.test(error.message)) throw error;
+        failed = true;
+        break;
+      }
+      const reading = summarize(posts, cutoff).find(item => item.instrument === instrument);
+      if (!next || (reading && reading.participants >= MINIMUM_PARTICIPANTS)) break;
+    }
+    queries.push({ instrument, read, pages, failed, truncated: next !== null });
+  }
+  const failedQueries = queries.filter(query => query.failed).length;
+  return { mode: "public_search", status: failedQueries === queries.length ? "unavailable" : failedQueries ? "partial" : "ok",
+    read: queries.reduce((total, query) => total + query.read, 0), queries, readings: summarize(posts, cutoff) };
 }
 
 export async function collectInstagram(input: unknown, cutoff: string) {
@@ -182,8 +239,10 @@ async function main() {
   const config = await localConfig();
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const output = resolve(directory, "following-digest.json");
-  if (config.x !== undefined) {
-    // Reserve one billable page per local calendar day, even across process restarts.
+  const publicSearch = config.xPublic !== undefined;
+  const xInput = publicSearch ? config.xPublic : config.x;
+  if (xInput !== undefined) {
+    // Reserve one bounded run per local calendar day, even across process restarts.
     const day = newYorkDate(cutoff);
     try {
       await writeFile(resolve(directory, "following-x-attempt-" + day), cutoff + "\n", { flag: "wx", mode: 0o600 });
@@ -194,7 +253,8 @@ async function main() {
     }
   }
   const [x, instagram, newsletters] = await Promise.all([
-    platform(config.x, collectX, cutoff), platform(config.instagram, collectInstagram, cutoff),
+    publicSearch ? platform(xInput, collectXPublic, cutoff) : platform(xInput, collectX, cutoff),
+    platform(config.instagram, collectInstagram, cutoff),
     Promise.all(starterFeeds.map(async ([name, host]) => {
       const url = new URL("https://" + host + "/feed");
       try {
