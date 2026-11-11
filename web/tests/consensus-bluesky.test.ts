@@ -52,6 +52,23 @@ test("aggregates separate ETF stances without copying a post-wide cue into eithe
   assert.equal(s.readings[1].distribution?.upward, 10);
   assert.equal(s.readings[5].distribution?.downward, 10);
 });
+test("X ticker headings and first-person calls classify while questions and conditional setups abstain", () => {
+  const examples = [
+    ["SPY", "$SPY — bullish. Thoughts?", "upward"],
+    ["QQQ", "Bearish bias for $QQQ", "downward"],
+    ["IWM", "Going long $IWM", "upward"],
+    ["DIA", "$DIA bias: bearish", "downward"],
+    ["TLT", "I expect $TLT higher", "upward"],
+    ["TLT", "$TLT 🔴 bearish", "downward"],
+  ] as const;
+  for (const [instrument, text, expected] of examples)
+    assert.equal(marketStances(text, "x")[instrument], expected, text);
+  for (const text of ["$SPY — bullish?", "$SPY bullish above 600", "If rates rise, $SPY bearish",
+    "She said $SPY bearish", "Tired of bullish $SPY takes", "$SPY rallied yesterday", "$SPY and $TLT bearish"])
+    assert.equal(marketStances(text, "x").SPY ?? "unclassified", "unclassified", text);
+  assert.equal(marketStances("$SPY — bullish").SPY ?? "unclassified", "unclassified");
+  assert.equal(marketStances("$SPY — bullish but $TLT — bearish", "x").MARKET, "mixed");
+});
 test("suppresses small samples and never pools counts between instrument views", () => {
   const w = new BlueskyWindow(start);
   for (let n = 0; n < 10; n++) w.ingest(frame(n, n < 9 ? "$SPY bullish" : "$TLT bearish"), now);

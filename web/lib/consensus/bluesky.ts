@@ -4,6 +4,7 @@ import { INSTRUMENTS, type Instrument } from "./types.ts";
 /** Never persist network frames, post text, account identifiers or record URIs. */
 export const BLUESKY_STREAM = "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post";
 export const BLUESKY_METHOD = "bluesky-market-stance-v2" as const;
+export const X_STANCE_METHOD = "x-explicit-stances-v2" as const;
 export const MINIMUM_PARTICIPANTS = 10;
 export type LanguageCue = "upward" | "downward" | "mixed" | "unclassified";
 export type CueCounts = Record<LanguageCue, number>;
@@ -78,14 +79,16 @@ function combineCue(prior: LanguageCue | undefined, next: LanguageCue): Language
   return "mixed";
 }
 
-export function marketStances(text: string): Partial<Record<Instrument, LanguageCue>> {
+export function marketStances(text: string, source?: "x"): Partial<Record<Instrument, LanguageCue>> {
   const cleaned = withoutLinks(text);
   const cues: Partial<Record<Instrument, LanguageCue>> = {};
   // A quoted or interrogative post is too ambiguous to classify across clauses.
-  if (/[?"“”]/.test(cleaned) || /(?:^|\s)\/s\b|\b(?:if|unless)\b/i.test(cleaned)) return cues;
+  if ((source === "x" ? /["“”]/ : /[?"“”]/).test(cleaned) ||
+      /(?:^|\s)\/s\b|\b(?:if|unless)\b/i.test(cleaned)) return cues;
   const clauses = cleaned.replace(/\bU\.?S\.? (?=stocks|equities)/gi, "US ")
-    .split(/[,;!\n]|\.(?=\s|$)|\b(?:but|while|whereas)\b/i);
+    .split(/[,;!\n]|\.(?=\s|$)|(?<=\?)\s+|\b(?:but|while|whereas)\b/i);
   for (const clause of clauses) {
+    if (clause.includes("?")) continue;
     if (uncertain.test(clause) || retrospectiveOrReported.test(clause) || relatedMarket.test(clause)) continue;
     const subjects = stanceSubjects.flatMap(([instrument, pattern]) => {
       const match = pattern.exec(clause);
@@ -95,9 +98,25 @@ export function marketStances(text: string): Partial<Record<Instrument, Language
     const [{ instrument, start, end }] = subjects;
     const before = clause.slice(0, start);
     const after = clause.slice(end);
-    const stance = after.match(/^\s*(?:(?:looks?|remains?|is|am|stays?)\s+)?(bullish|bearish)\b/i)?.[1] ??
+    let stance = after.match(/^\s*(?:(?:looks?|remains?|is|am|stays?)\s+)?(bullish|bearish)\b/i)?.[1] ??
       before.match(/\b(bullish|bearish)\s+on\s*$/i)?.[1];
-    const move = /^\s*to\b/i.test(after) && !/\b(?:expect|expects|expecting)\s*$/i.test(before) ? null : after.match(forwardMove);
+    let move = /^\s*to\b/i.test(after) && !/\b(?:expect|expects|expecting)\s*$/i.test(before) ? null : after.match(forwardMove);
+    if (source === "x") {
+      // Ticker-first headings and concise first-person calls are common on X.
+      if (/\b(?:above|below|provided|assuming|only when|as long as)\b/i.test(clause)) continue;
+      const tail = after.replace(/^\s*(?:(?:[:=→–—-]|🟢|🔴)\s*)+/u, "");
+      const lead = before.replace(/(?:[:=→–—-]|🟢|🔴|\s)+$/u, "");
+      stance ??= tail.match(/^\s*(?:(?:still|now|very|leaning|looks?|remains?|is|stays?)\s+){0,2}(bullish|bearish)\b/i)?.[1] ??
+        tail.match(/^\s*(?:bias|outlook|stance)\s*(?:is\s+|[:=]\s*)(bullish|bearish)\b/i)?.[1] ??
+        lead.match(/^(?:\s*|\s*i(?:['’]m| am)\s+)(bullish|bearish)(?:\s+(?:bias|outlook|stance))?(?:\s+(?:on|for)(?:\s+the)?)?$/i)?.[1];
+      if (!stance && /\b(?:i(?:['’]m|\s+am)\s+|we(?:['’]re|\s+are)\s+)?(?:going|leaning)\s+(?:long|short)\s+(?:on\s+)?$/i.test(before))
+        stance = /\bshort\s+(?:on\s+)?$/i.test(before) ? "bearish" : "bullish";
+      move ??= tail.match(/^\s*(?:will|should)\s+(?:(bounce|recover|push higher|break higher)|(roll over|push lower|break lower|selloff))\b/i);
+      if (!stance && /\b(?:expect|expects|expecting)\s*$/i.test(before)) {
+        const direction = tail.match(/^\s*(higher|lower)\b/i)?.[1]?.toLowerCase();
+        if (direction) stance = direction === "higher" ? "bullish" : "bearish";
+      }
+    }
     let cue: LanguageCue = "unclassified";
     if (stance) {
       cue = upward.test(stance) ? "upward" : "downward";

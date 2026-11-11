@@ -3,7 +3,7 @@ import { open, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BLUESKY_METHOD, marketStances, type LanguageCue } from "../lib/consensus/bluesky.ts";
+import { BLUESKY_METHOD, X_STANCE_METHOD, marketStances, type LanguageCue } from "../lib/consensus/bluesky.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
 
 const cues = ["upward", "downward", "mixed", "unclassified"] as const;
@@ -70,7 +70,7 @@ async function main() {
     if (seen.has(key)) throw new Error("Duplicate text for the same platform and instrument");
     seen.add(key);
     const matrix = groups.get(group) ?? cues.map(() => cues.map(() => 0));
-    const predicted = marketStances(text)[instrument as Instrument] ?? "unclassified";
+    const predicted = marketStances(text, platform === "x" ? "x" : undefined)[instrument as Instrument] ?? "unclassified";
     matrix[cues.indexOf(expected as LanguageCue)][cues.indexOf(predicted)]++;
     groups.set(group, matrix);
   }
@@ -87,7 +87,7 @@ async function main() {
   });
   console.log(JSON.stringify({
     scope: "private-language-interpretation-only",
-    classifier: BLUESKY_METHOD,
+    classifiers: { x: X_STANCE_METHOD, bluesky: BLUESKY_METHOD, instagram: BLUESKY_METHOD },
     labels: cues,
     minimumRowsPerGroup: minimumRows,
     suppressedGroups: groups.size - results.length,

@@ -3,7 +3,7 @@ import { constants } from "node:fs";
 import { mkdir, open, rename, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, type LanguageCue } from "../lib/consensus/bluesky.ts";
+import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, type LanguageCue } from "../lib/consensus/bluesky.ts";
 import { rssItems } from "../lib/consensus/collector.ts";
 import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
@@ -16,7 +16,7 @@ const starterFeeds = [
   ["Apricitas Economics", "www.apricitas.io"],
 ] as const;
 const dayMs = 86_400_000;
-const xSearchQueries = {
+export const xSearchQueries = {
   SPY: '($SPY OR $SPX OR "S&P 500")',
   QQQ: '($QQQ OR $NDX OR "Nasdaq 100")',
   IWM: '($IWM OR $RUT OR "Russell 2000")',
@@ -35,7 +35,7 @@ function object(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-async function localConfig() {
+export async function localConfig() {
   let file;
   try {
     file = await open(resolve(directory, "following-config.json"), constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
@@ -61,7 +61,7 @@ async function localConfig() {
   }
 }
 
-async function fetchText(url: URL, headers: Record<string, string> = {}) {
+export async function fetchText(url: URL, headers: Record<string, string> = {}) {
   const response = await sourceResponse(fetch, url.href, {
     redirect: "error", signal: AbortSignal.timeout(12000), headers,
   });
@@ -111,7 +111,8 @@ export async function collectX(input: unknown, cutoff: string) {
     "tweet.fields": "author_id,created_at,lang,referenced_tweets,withheld",
   }).toString();
   const page = await readXPage(url, xAuthorization(url, account), 100);
-  return { status: "ok", read: page.read, truncated: page.next !== null, readings: summarize(page.posts, cutoff) };
+  return { status: "ok", classifier: X_STANCE_METHOD, read: page.read, truncated: page.next !== null,
+    readings: summarize(page.posts, cutoff, "x") };
 }
 
 async function readXPage(url: URL, authorization: string, limit: number) {
@@ -164,14 +165,15 @@ export async function collectXPublic(input: unknown, cutoff: string) {
         failed = true;
         break;
       }
-      const reading = summarize(posts, cutoff).find(item => item.instrument === instrument);
+      const reading = summarize(posts, cutoff, "x").find(item => item.instrument === instrument);
       if (!next || (reading && reading.participants >= MINIMUM_PARTICIPANTS)) break;
     }
     queries.push({ instrument, read, pages, failed, truncated: next !== null });
   }
   const failedQueries = queries.filter(query => query.failed).length;
-  return { mode: "public_search", status: failedQueries === queries.length ? "unavailable" : failedQueries ? "partial" : "ok",
-    read: queries.reduce((total, query) => total + query.read, 0), queries, readings: summarize(posts, cutoff) };
+  return { mode: "public_search", classifier: X_STANCE_METHOD,
+    status: failedQueries === queries.length ? "unavailable" : failedQueries ? "partial" : "ok",
+    read: queries.reduce((total, query) => total + query.read, 0), queries, readings: summarize(posts, cutoff, "x") };
 }
 
 export async function collectInstagram(input: unknown, cutoff: string) {
@@ -207,12 +209,12 @@ export async function collectInstagram(input: unknown, cutoff: string) {
     accounts: account.handles.length, unavailableAccounts, truncated, readings: summarize(posts, cutoff) };
 }
 
-function summarize(posts: Post[], cutoff: string) {
+function summarize(posts: Post[], cutoff: string, source?: "x") {
   const end = Date.parse(cutoff);
   const latest = new Map<Instrument, Map<string, LanguageCue>>(INSTRUMENTS.map(symbol => [symbol, new Map()]));
   for (const post of posts.filter(post => post.at <= end && post.at > end - dayMs && post.text.length <= 12_000)
     .sort((a, b) => b.at - a.at)) {
-    const cues = marketStances(post.text);
+    const cues = marketStances(post.text, source);
     for (const symbol of marketInstruments(post.text)) {
       const authors = latest.get(symbol)!;
       if (!authors.has(post.author)) authors.set(post.author, cues[symbol] ?? "unclassified");
