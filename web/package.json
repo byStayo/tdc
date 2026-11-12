@@ -34,8 +34,10 @@
     "consensus:research-finazon": "node --experimental-strip-types scripts/research-finazon-prices.ts",
     "consensus:research-directional-coverage": "node --experimental-strip-types scripts/research-directional-coverage.ts",
     "consensus:research-families-private": "node --experimental-strip-types scripts/research-families-private.ts",
+    "consensus:research-events-private": "node --experimental-strip-types scripts/research-events-private.ts",
     "consensus:validate-social-private": "node --experimental-strip-types scripts/validate-social-private.ts",
-    "consensus:evaluate-marketparquet": "node --experimental-strip-types scripts/evaluate-marketparquet.ts"
+    "consensus:evaluate-marketparquet": "node --experimental-strip-types scripts/evaluate-marketparquet.ts",
+    "consensus:reconcile-marketparquet": "node --experimental-strip-types scripts/reconcile-marketparquet.ts"
   },
   "dependencies": {
     "fflate": "0.8.3",

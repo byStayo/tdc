@@ -34,7 +34,7 @@ export function parseKibotDaily(csv: string, expectedSessions: string[]): Sessio
   return sessions;
 }
 
-export async function collectKibotPrices(from: string, cutoff: string, fetcher: Fetcher = fetch) {
+export async function collectKibotPrices(from: string, cutoff: string, fetcher: Fetcher = fetch, unadjusted = false) {
   const today = newYorkDate(cutoff);
   const yesterday = new Date(Date.parse(today) - 86400000).toISOString().slice(0, 10);
   if (!hasReviewedCalendar(yesterday) || Date.parse(yesterday) - Date.parse(from) > 370 * 86400000)
@@ -50,7 +50,7 @@ export async function collectKibotPrices(from: string, cutoff: string, fetcher: 
     // Both literal guest values are the provider's documented anonymous access.
     url.search = new URLSearchParams({
       action: "history", interval: "daily", symbol: instrument, user: "guest", password: "guest",
-      unadjusted: "0", startdate: american(from), enddate: american(through),
+      unadjusted: unadjusted ? "1" : "0", startdate: american(from), enddate: american(through),
     }).toString();
     const response = await sourceResponse(fetcher, url.href, {
       redirect: "error", signal: AbortSignal.timeout(15000),
@@ -72,7 +72,9 @@ export async function collectKibotPrices(from: string, cutoff: string, fetcher: 
     }
     const bytes = Buffer.concat(chunks);
     const sessions = parseKibotDaily(bytes.toString("utf8"), expectedSessions);
-    evidence.push({ instrument, source: SOURCE, adjustment: OUTCOME_PRICE_BASIS, expectedSessions, sessions });
+    // As-traded bars are a reconciliation reference. The evaluator rejects this basis.
+    evidence.push({ instrument, source: SOURCE, adjustment: unadjusted ? "unadjusted" : OUTCOME_PRICE_BASIS,
+      expectedSessions, sessions });
     hashes[instrument] = createHash("sha256").update(bytes).digest("hex");
   }
   return { evidence, hashes, through };
