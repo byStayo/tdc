@@ -1,0 +1,19 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "abstention_layout": {
+      "type": "choice",
+      "choice": "full_width_row",
+      "confidence": 0.22,
+      "probabilities": {
+        "verdict_list": 0.48,
+        "full_width_row": 0.48,
+        "coverage_chips": 0.04
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 762,
+    "output_tokens": 50
+  }
+}

@@ -1,0 +1,55 @@
+# FINRA public-data connection
+
+Readers can open the five weekly ETF reports from [Off-exchange trading](https://thedailyconsensus.com/#off-exchange). Tapeboard hosts the per-symbol weekly tables. [FINRA’s own reader](https://otctransparency.finra.org/otctransparency/Agreement) presents its data agreement. These are outbound links. The market-wide quarterly figures on the board come from the operators’ public SEC filings.
+
+For an existing FINRA individual account registered with Google, open the [API console](https://gateway.finra.org/app/dfo-console), select **Individual**, then **Sign In With Google** using the matching Google account. FINRA may also ask for its account password when linking an existing sign-in. The [FINRA Google sign-in guide](https://www.finra.org/sites/default/files/2024-04/Social-Login-Sign-In-With-Google-User-Guide.pdf) covers both cases. After sign-in, create or activate a Public API credential in My Credentials.
+
+The private weekly Query API collector is ready for verification with an activated Public credential. Its on-site weekly feed requires verified observations and a separate display that meets FINRA's distribution conditions.
+
+November4 verification: the owner replied "FINRA configured", but the private verifier returned exit2 before any network request. The local private directory/file and both FINRA environment variables were absent. No credential values were inspected or logged. The private Terminal handoff records a successful local check for the weekday publisher. Wait for that receipt or a corrected setup confirmation before running another query.
+
+The [Public credential costs $0/month](https://developer.finra.org/fees). Create an **Individual** account through the [FINRA developer console instructions](https://developer.finra.org/docs), then create a credential of type **Public**, not Firm/Organization. Check the displayed fee is $0. A test/mock credential returns synthetic data and does not satisfy this requirement. The owner completes the Google or FINRA sign-in, reviews the terms and activates the API client secret in FINRA’s own forms.
+
+## What the owner needs to do
+
+Your existing Google-linked Individual account is sufficient for account registration. **Do not create another account.** Google sign-in and API-credential activation are separate steps.
+
+1. Open the [FINRA API Console](https://gateway.finra.org/app/dfo-console). If it asks you to sign in, select **Individual → Sign in with Google** using your existing account. The button also certifies acceptance of FINRA's entitlement terms; complete that yourself. A login in another FINRA product does not prove that the API Console session is active.
+2. In **My Credentials**, choose **ADD API CREDENTIAL**. Name it `Daily Consensus`, choose **Public**, and check **Total Fee Per Month = $0**. Review the terms yourself and create the credential. Do not select Mock or a paid Firm/Organization credential. If you already have an activated Public credential, reuse it instead of creating a duplicate.
+3. FINRA sends two emails. **Important Information** supplies the **API Client ID**; **Action Required** has **Create API Client Secret**. Open the latter within 24 hours. On the reset form, User ID means the **API Client ID**, not your Google email or Gateway username. Choose and save the API secret yourself.
+4. On **this Mac**, open Terminal and run:
+
+   ```sh
+   python3 "/Users/stelios/Documents/The Daily Consensus/app/web/scripts/setup-finra.py"
+   ```
+
+   Enter the **API Client ID**, the **API Client Secret**, then the secret again. Input is hidden. These are the API credential values, not your Google password. Never send the values in chat or include them in a shell command.
+5. Wait for **Saved privately**, then reply **Saved privately on this Mac**. Codex can run the existing bounded private collector once, inspect sanitized dates/counts, and implement the separately governed display after successful access. Account sign-in or saving the file alone is not a successful API test.
+
+The setup tool writes only `~/.config/the-daily-consensus/finra.json`, outside this repository and Vercel, with a private directory (0700) and file (0600). It sends no requests. It rejects piped input, unsafe file permissions, linked files and accidental replacement. Credential rotation uses the same command with `--replace`; the API secret expires after a year. The user also retains a copy in their own password manager if desired.
+
+## Publisher verification
+
+Run `npm run consensus:finra-private` from `web` after the owner completes setup. The collector reads the private local file or a complete explicit `FINRA_CLIENT_ID` / `FINRA_CLIENT_SECRET` environment pair. It never mixes a partial environment pair with the file. Missing or unsafe credentials stop before any request. Only the private result `.consensus/finra-private/latest.json` is written; it is excluded from Git and deployment. A successful summary contains counts, symbols and the latest week, never a key or token. Authentication failure does not print a provider response body.
+
+**Correction to the earlier setup instructions:** Vercel now calls sensitive values **Secret**. A Secret can be used by deployments, but cannot be retrieved by a member or pulled back into the local publisher after saving. The earlier suggestion that the subscription publisher could retrieve these values was incorrect. The local setup above is the working path for this Mac. A future hosted collector would need its own Vercel Secret configuration; it is not necessary for this private local verification. [Vercel's August 24, 2026 change](https://vercel.com/changelog/environment-variables-now-use-config-and-secret-types).
+
+The collector uses the documented FINRA OAuth token endpoint and one bounded weeklySummary Query API request for SPY, QQQ, IWM, DIA and TLT. It selects only ATS_W_SMBL and OTC_W_SMBL totals, preserves their distinction, matches the week, rejects future/revised-after-cutoff observations and incomplete pairs, checks truncation, and never logs tokens or server error bodies. The query covers 90 days and at most500 rows. It does not enroll in a paid plan or perform retries after rate limits.
+
+Before public release, comply with [FINRA's specific Equity Data terms](https://developer.finra.org/specific-terms-equity-data): FINRA attribution, no end-user data fee, non-commercial personal/professional use, no further redistribution, and reasonable end-user compliance measures. The raw or derivative FINRA data must not be committed to this public Git repository or the unrestricted downloadable snapshot archive. An appropriately separated, terms-governed display must be implemented and checked before publication. A credential alone is insufficient.
+
+Weekly off-exchange volume is delayed, not live dark-pool buying pressure. ATS/non-ATS totals do not identify buyer/seller direction, named institutions, short interest or dealer inventory. These observations will be context with no directional vote unless a separately validated interpretation is developed.
+
+Verified documentation on November 3, 2026: [metadata](https://api.finra.org/metadata/group/otcMarket/name/weeklySummary), [account/credential/OAuth instructions](https://developer.finra.org/docs), [fees](https://developer.finra.org/fees), [equity terms](https://developer.finra.org/specific-terms-equity-data). Unit tests use explicitly synthetic fixtures; they are not live-source evidence.
+
+## Current-only governed display
+
+After successful private collection, run `node --experimental-strip-types scripts/prepare-finra-display.ts`. It validates the dated private result and compresses only the display snapshot into `.consensus/finra-private/display-snapshot.txt` (0600). The release operator installs that payload as the server-only production Secret `FINRA_DISPLAY_SNAPSHOT`. API credentials stay on the Mac. Never copy the payload into Git, public files, NEXT_PUBLIC variables, JSON APIs, downloadable history or model inputs.
+
+The board's FINRA disclosure starts unloaded. An unchecked reader agreement requires free noncommercial personal/professional use and prohibits further redistribution. Only an explicit agreement submission sends a bounded same-origin POST to `/finra-view`; ordinary GET returns405. The server validates the agreement version, ETF, date provenance, quantities, compressed-size limit and seven-day retrieval expiry. It returns an uncached, non-indexable HTML display, never a JSON export. The frame is opaque and script-free; closing, collapsing, instrument switching or selecting an archived edition unloads it. The display retains fractional share quantities; trade counts remain whole numbers. FINRA attribution and original week/publication/update/retrieval dates stay visible. Readers cannot download an export from the product. These controls are reasonable compliance measures, not a claim that screenshots or misuse are technically impossible.
+
+Each future refresh requires actual new verified observations, the same private staging and Secret update, a clean tested release, and public verification. A failed/expired snapshot fails closed. No consensus edition is created solely for the separate FINRA view. No FINRA directional votes, outcomes or model features are added. The official reader links remain available.
+
+November6 activation and local verification succeeded; the governed current-only feed is connected. No further owner credential setup is pending. The release ledger records the exact deployed source and verification. The initial integer-only share assumption was corrected after authenticated FINRA responses carried fractional quantities, consistent with FINRA's [January14,2026 trade-reporting notice](https://www.finra.org/sites/default/files/2026-01/Trade-Reporting-Notice-20260114.pdf). Earlier setup failures above are historical diagnostics.
+
+The loaded frame is tied to the ETF requested, with selection locked while loading and Cancel available. Withdrawing the agreement aborts the request. A theme change closes and resets the view rather than keeping an incompatible palette. On narrow embedded frames, quantity cells remain unbroken and stack into one column below300px. New tests cover request identity, the content-type/HTTPS/expiry-header and snapshot-size/date/window/escaping guards, with expiry tested unconditionally.

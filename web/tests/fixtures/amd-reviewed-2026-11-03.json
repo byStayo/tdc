@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-03T21:54:26.891Z",
+  "reviewer": "Codex subscription editorial review",
+  "sources": [
+    {
+      "id": "amd-fy26-q3-release",
+      "name": "AMD · fiscal 2026 third-quarter results and Q4 outlook",
+      "url": "https://ir.amd.com/news-events/press-releases/detail/1303/amd-reports-third-quarter-2026-financial-results",
+      "publishedAt": "2026-11-03T21:15:00.000Z",
+      "retrievedAt": "2026-11-03T21:48:33.754Z",
+      "sha256": "261f8ef66a083ee5364fe80f83331566967456f341c3903ad10f4d8a01be8ad6",
+      "format": "document"
+    }
+  ],
+  "developments": [
+    {
+      "id": "amd-quarter",
+      "title": "AMD reports Q3 results and a $17bn Q4 outlook",
+      "facts": "AMD reported $13.377bn revenue for the September 26 quarter, compared with $9.246bn a year earlier. GAAP diluted EPS was $1.46 versus $0.75. Data Center revenue reached $8.5bn. Management expects fourth-quarter revenue of $17bn, plus or minus 3%; that is guidance, not a reported result.",
+      "sourceIds": [
+        "amd-fy26-q3-release"
+      ],
+      "impacts": [
+        {
+          "instrument": "MARKET",
+          "channel": "Data-center demand and capital spending",
+          "interpretation": "AMD adds evidence of spending on data-center hardware at one supplier. It cannot establish the return on that investment across the economy or the direction of the overall market."
+        },
+        {
+          "instrument": "SPY",
+          "channel": "Semiconductor earnings and broad-market expectations",
+          "interpretation": "The new quarter adds to the large-company earnings picture. A broad-market conclusion still requires other sectors, verified expectations and prices; revenue growth alone is not an earnings beat."
+        },
+        {
+          "instrument": "QQQ",
+          "channel": "Technology demand and next-quarter execution",
+          "interpretation": "The $17bn next-quarter revenue midpoint makes delivery against management expectations a relevant technology-sector question. The outlook remains forward-looking and is separate from analyst estimates or a measured QQQ response."
+        }
+      ],
+      "limitation": "One company release, with GAAP EPS kept separate from adjusted EPS. Analyst consensus, a verified earnings surprise and any after-hours price reaction are unavailable. Management guidance can differ from eventual results."
+    }
+  ],
+  "earnings": [
+    {
+      "ticker": "AMD",
+      "sourceId": "amd-fy26-q3-release",
+      "periodEnd": "2026-09-26",
+      "priorPeriodEnd": "2025-09-27",
+      "revenueBillions": 13.377,
+      "priorRevenueBillions": 9.246,
+      "dilutedEPS": 1.46,
+      "priorDilutedEPS": 0.75
+    }
+  ],
+  "guidance": [
+    {
+      "ticker": "AMD",
+      "sourceId": "amd-fy26-q3-release",
+      "fiscalPeriod": "FY2026 Q4",
+      "revenue": {
+        "kind": "midpoint_tolerance",
+        "midpoint": 17,
+        "tolerancePercent": 3
+      },
+      "assumptions": "AMD based its outlook on current expectations and warned that market conditions and other risks can cause actual results to differ. The plus-or-minus 3% is management’s revenue range, not a probability or confidence interval."
+    }
+  ],
+  "earningsSchedule": []
+}

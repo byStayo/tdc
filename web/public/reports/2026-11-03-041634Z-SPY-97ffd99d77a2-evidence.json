@@ -1,0 +1,1538 @@
+{
+  "schemaVersion": 1,
+  "scope": "market",
+  "collectedAt": "2026-11-03T04:14:53.528Z",
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "kind": "cftc",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-03T04:14:53.451Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:13874A:2026-10-27",
+        "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
+        "contractCode": "13874A",
+        "reportDate": "2026-10-27",
+        "units": "($50 X S&P 500 INDEX)",
+        "openInterest": 1955711,
+        "assetManagerLong": 1111055,
+        "assetManagerShort": 187606,
+        "leveragedLong": 102079,
+        "leveragedShort": 502683,
+        "dealerLong": 193848,
+        "dealerShort": 833441,
+        "previous": {
+          "id": "cftc-tff-futures:13874A:2026-10-20",
+          "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
+          "contractCode": "13874A",
+          "reportDate": "2026-10-20",
+          "units": "($50 X S&P 500 INDEX)",
+          "openInterest": 1935470,
+          "assetManagerLong": 1101642,
+          "assetManagerShort": 200265,
+          "leveragedLong": 135034,
+          "leveragedShort": 506279,
+          "dealerLong": 184740,
+          "dealerShort": 821671
+        }
+      }
+    },
+    {
+      "id": "CFTC_NQ",
+      "kind": "cftc",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-03T04:14:53.451Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:209742:2026-10-27",
+        "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
+        "contractCode": "209742",
+        "reportDate": "2026-10-27",
+        "units": "(NASDAQ 100 STOCK INDEX X $20)",
+        "openInterest": 268508,
+        "assetManagerLong": 106192,
+        "assetManagerShort": 40811,
+        "leveragedLong": 51171,
+        "leveragedShort": 48870,
+        "dealerLong": 41368,
+        "dealerShort": 126882,
+        "previous": {
+          "id": "cftc-tff-futures:209742:2026-10-20",
+          "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
+          "contractCode": "209742",
+          "reportDate": "2026-10-20",
+          "units": "(NASDAQ 100 STOCK INDEX X $20)",
+          "openInterest": 272462,
+          "assetManagerLong": 109985,
+          "assetManagerShort": 32195,
+          "leveragedLong": 51749,
+          "leveragedShort": 50799,
+          "dealerLong": 38475,
+          "dealerShort": 132597
+        }
+      }
+    },
+    {
+      "id": "CFTC_RTY",
+      "kind": "cftc",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-03T04:14:53.451Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:239742:2026-10-27",
+        "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
+        "contractCode": "239742",
+        "reportDate": "2026-10-27",
+        "units": "(RUSSEL 2000 INDEX X $50)",
+        "openInterest": 458959,
+        "assetManagerLong": 142993,
+        "assetManagerShort": 123391,
+        "leveragedLong": 118603,
+        "leveragedShort": 166684,
+        "dealerLong": 110471,
+        "dealerShort": 82759,
+        "previous": {
+          "id": "cftc-tff-futures:239742:2026-10-20",
+          "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
+          "contractCode": "239742",
+          "reportDate": "2026-10-20",
+          "units": "(RUSSEL 2000 INDEX X $50)",
+          "openInterest": 466789,
+          "assetManagerLong": 148470,
+          "assetManagerShort": 117510,
+          "leveragedLong": 125748,
+          "leveragedShort": 178783,
+          "dealerLong": 102208,
+          "dealerShort": 79205
+        }
+      }
+    },
+    {
+      "id": "CFTC_DOW",
+      "kind": "cftc",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-03T04:14:53.451Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:124603:2026-10-27",
+        "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
+        "contractCode": "124603",
+        "reportDate": "2026-10-27",
+        "units": "($5 X DJIA INDEX)",
+        "openInterest": 91636,
+        "assetManagerLong": 18976,
+        "assetManagerShort": 6743,
+        "leveragedLong": 13822,
+        "leveragedShort": 13726,
+        "dealerLong": 42398,
+        "dealerShort": 57434,
+        "previous": {
+          "id": "cftc-tff-futures:124603:2026-10-20",
+          "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
+          "contractCode": "124603",
+          "reportDate": "2026-10-20",
+          "units": "($5 X DJIA INDEX)",
+          "openInterest": 90022,
+          "assetManagerLong": 18435,
+          "assetManagerShort": 5369,
+          "leveragedLong": 13511,
+          "leveragedShort": 15478,
+          "dealerLong": 41827,
+          "dealerShort": 54980
+        }
+      }
+    },
+    {
+      "id": "CFTC_BOND",
+      "kind": "cftc",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-03T04:14:53.451Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:020601:2026-10-27",
+        "market": "UST BOND - CHICAGO BOARD OF TRADE",
+        "contractCode": "020601",
+        "reportDate": "2026-10-27",
+        "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+        "openInterest": 1890568,
+        "assetManagerLong": 1141449,
+        "assetManagerShort": 757468,
+        "leveragedLong": 197843,
+        "leveragedShort": 348236,
+        "dealerLong": 44935,
+        "dealerShort": 263251,
+        "previous": {
+          "id": "cftc-tff-futures:020601:2026-10-20",
+          "market": "UST BOND - CHICAGO BOARD OF TRADE",
+          "contractCode": "020601",
+          "reportDate": "2026-10-20",
+          "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+          "openInterest": 1785457,
+          "assetManagerLong": 1087469,
+          "assetManagerShort": 699462,
+          "leveragedLong": 169144,
+          "leveragedShort": 331901,
+          "dealerLong": 36715,
+          "dealerShort": 219421
+        }
+      }
+    },
+    {
+      "id": "CFTC_TENYEAR",
+      "kind": "cftc",
+      "title": "CFTC · UST 10Y NOTE - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-03T04:14:53.451Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:043602:2026-10-27",
+        "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
+        "contractCode": "043602",
+        "reportDate": "2026-10-27",
+        "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+        "openInterest": 5881588,
+        "assetManagerLong": 3709233,
+        "assetManagerShort": 709069,
+        "leveragedLong": 506310,
+        "leveragedShort": 2733585,
+        "dealerLong": 153034,
+        "dealerShort": 783060,
+        "previous": {
+          "id": "cftc-tff-futures:043602:2026-10-20",
+          "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
+          "contractCode": "043602",
+          "reportDate": "2026-10-20",
+          "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+          "openInterest": 5868295,
+          "assetManagerLong": 3675600,
+          "assetManagerShort": 750184,
+          "leveragedLong": 567553,
+          "leveragedShort": 2674777,
+          "dealerLong": 119383,
+          "dealerShort": 801611
+        }
+      }
+    },
+    {
+      "id": "FRED_RATE",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Effective federal funds rate",
+      "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS",
+      "retrievedAt": "2026-11-03T04:14:52.901Z",
+      "status": "ok",
+      "observationDates": [
+        "2021-11-01",
+        "2021-12-01",
+        "2022-01-01",
+        "2022-02-01",
+        "2022-03-01",
+        "2022-04-01",
+        "2022-05-01",
+        "2022-06-01",
+        "2022-07-01",
+        "2022-08-01",
+        "2022-09-01",
+        "2022-10-01",
+        "2022-11-01",
+        "2022-12-01",
+        "2023-01-01",
+        "2023-02-01",
+        "2023-03-01",
+        "2023-04-01",
+        "2023-05-01",
+        "2023-06-01",
+        "2023-07-01",
+        "2023-08-01",
+        "2023-09-01",
+        "2023-10-01",
+        "2023-11-01",
+        "2023-12-01",
+        "2024-01-01",
+        "2024-02-01",
+        "2024-03-01",
+        "2024-04-01",
+        "2024-05-01",
+        "2024-06-01",
+        "2024-07-01",
+        "2024-08-01",
+        "2024-09-01",
+        "2024-10-01",
+        "2024-11-01",
+        "2024-12-01",
+        "2025-01-01",
+        "2025-02-01",
+        "2025-03-01",
+        "2025-04-01",
+        "2025-05-01",
+        "2025-06-01",
+        "2025-07-01",
+        "2025-08-01",
+        "2025-09-01",
+        "2025-10-01",
+        "2025-11-01",
+        "2025-12-01",
+        "2026-01-01",
+        "2026-02-01",
+        "2026-03-01",
+        "2026-04-01",
+        "2026-05-01",
+        "2026-06-01",
+        "2026-07-01",
+        "2026-08-01",
+        "2026-09-01",
+        "2026-10-01"
+      ],
+      "data": {
+        "seriesId": "FEDFUNDS",
+        "unit": "percent",
+        "frequency": "monthly",
+        "observations": [
+          {
+            "date": "2021-11-01",
+            "value": 0.08
+          },
+          {
+            "date": "2021-12-01",
+            "value": 0.08
+          },
+          {
+            "date": "2022-01-01",
+            "value": 0.08
+          },
+          {
+            "date": "2022-02-01",
+            "value": 0.08
+          },
+          {
+            "date": "2022-03-01",
+            "value": 0.2
+          },
+          {
+            "date": "2022-04-01",
+            "value": 0.33
+          },
+          {
+            "date": "2022-05-01",
+            "value": 0.77
+          },
+          {
+            "date": "2022-06-01",
+            "value": 1.21
+          },
+          {
+            "date": "2022-07-01",
+            "value": 1.68
+          },
+          {
+            "date": "2022-08-01",
+            "value": 2.33
+          },
+          {
+            "date": "2022-09-01",
+            "value": 2.56
+          },
+          {
+            "date": "2022-10-01",
+            "value": 3.08
+          },
+          {
+            "date": "2022-11-01",
+            "value": 3.78
+          },
+          {
+            "date": "2022-12-01",
+            "value": 4.1
+          },
+          {
+            "date": "2023-01-01",
+            "value": 4.33
+          },
+          {
+            "date": "2023-02-01",
+            "value": 4.57
+          },
+          {
+            "date": "2023-03-01",
+            "value": 4.65
+          },
+          {
+            "date": "2023-04-01",
+            "value": 4.83
+          },
+          {
+            "date": "2023-05-01",
+            "value": 5.06
+          },
+          {
+            "date": "2023-06-01",
+            "value": 5.08
+          },
+          {
+            "date": "2023-07-01",
+            "value": 5.12
+          },
+          {
+            "date": "2023-08-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-09-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-10-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-11-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-12-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-01-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-02-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-03-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-04-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-05-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-06-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-07-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-08-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-09-01",
+            "value": 5.13
+          },
+          {
+            "date": "2024-10-01",
+            "value": 4.83
+          },
+          {
+            "date": "2024-11-01",
+            "value": 4.64
+          },
+          {
+            "date": "2024-12-01",
+            "value": 4.48
+          },
+          {
+            "date": "2025-01-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-02-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-03-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-04-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-05-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-06-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-07-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-08-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-09-01",
+            "value": 4.22
+          },
+          {
+            "date": "2025-10-01",
+            "value": 4.09
+          },
+          {
+            "date": "2025-11-01",
+            "value": 3.88
+          },
+          {
+            "date": "2025-12-01",
+            "value": 3.72
+          },
+          {
+            "date": "2026-01-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-02-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-03-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-04-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-05-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-06-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-07-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-08-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-09-01",
+            "value": 3.75
+          },
+          {
+            "date": "2026-10-01",
+            "value": 3.88
+          }
+        ]
+      }
+    },
+    {
+      "id": "FRED_PRIME",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Bank prime loan rate",
+      "url": "https://fred.stlouisfed.org/series/DPRIME",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPRIME",
+      "retrievedAt": "2026-11-03T04:14:53.379Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17",
+        "2026-09-18",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-26",
+        "2026-10-27"
+      ],
+      "data": {
+        "seriesId": "DPRIME",
+        "unit": "percent",
+        "frequency": "daily",
+        "observations": [
+          {
+            "date": "2026-08-05",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-06",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-07",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-10",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-11",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-12",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-13",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-14",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-17",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-18",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-19",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-20",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-21",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-24",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-25",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-26",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-27",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-28",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-31",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-01",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-02",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-03",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-04",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-07",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-08",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-09",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-10",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-11",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-14",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-15",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-16",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-17",
+            "value": 7
+          },
+          {
+            "date": "2026-09-18",
+            "value": 7
+          },
+          {
+            "date": "2026-09-21",
+            "value": 7
+          },
+          {
+            "date": "2026-09-22",
+            "value": 7
+          },
+          {
+            "date": "2026-09-23",
+            "value": 7
+          },
+          {
+            "date": "2026-09-24",
+            "value": 7
+          },
+          {
+            "date": "2026-09-25",
+            "value": 7
+          },
+          {
+            "date": "2026-09-28",
+            "value": 7
+          },
+          {
+            "date": "2026-09-29",
+            "value": 7
+          },
+          {
+            "date": "2026-09-30",
+            "value": 7
+          },
+          {
+            "date": "2026-10-01",
+            "value": 7
+          },
+          {
+            "date": "2026-10-02",
+            "value": 7
+          },
+          {
+            "date": "2026-10-05",
+            "value": 7
+          },
+          {
+            "date": "2026-10-06",
+            "value": 7
+          },
+          {
+            "date": "2026-10-07",
+            "value": 7
+          },
+          {
+            "date": "2026-10-08",
+            "value": 7
+          },
+          {
+            "date": "2026-10-09",
+            "value": 7
+          },
+          {
+            "date": "2026-10-12",
+            "value": 7
+          },
+          {
+            "date": "2026-10-13",
+            "value": 7
+          },
+          {
+            "date": "2026-10-14",
+            "value": 7
+          },
+          {
+            "date": "2026-10-15",
+            "value": 7
+          },
+          {
+            "date": "2026-10-16",
+            "value": 7
+          },
+          {
+            "date": "2026-10-19",
+            "value": 7
+          },
+          {
+            "date": "2026-10-20",
+            "value": 7
+          },
+          {
+            "date": "2026-10-21",
+            "value": 7
+          },
+          {
+            "date": "2026-10-22",
+            "value": 7
+          },
+          {
+            "date": "2026-10-23",
+            "value": 7
+          },
+          {
+            "date": "2026-10-26",
+            "value": 7
+          },
+          {
+            "date": "2026-10-27",
+            "value": 7
+          }
+        ]
+      }
+    },
+    {
+      "id": "FRED_WEALTH",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Household and nonprofit net worth",
+      "url": "https://fred.stlouisfed.org/series/TNWBSHNO",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TNWBSHNO",
+      "retrievedAt": "2026-11-03T04:14:53.528Z",
+      "status": "ok",
+      "observationDates": [
+        "2011-07-01",
+        "2011-10-01",
+        "2012-01-01",
+        "2012-04-01",
+        "2012-07-01",
+        "2012-10-01",
+        "2013-01-01",
+        "2013-04-01",
+        "2013-07-01",
+        "2013-10-01",
+        "2014-01-01",
+        "2014-04-01",
+        "2014-07-01",
+        "2014-10-01",
+        "2015-01-01",
+        "2015-04-01",
+        "2015-07-01",
+        "2015-10-01",
+        "2016-01-01",
+        "2016-04-01",
+        "2016-07-01",
+        "2016-10-01",
+        "2017-01-01",
+        "2017-04-01",
+        "2017-07-01",
+        "2017-10-01",
+        "2018-01-01",
+        "2018-04-01",
+        "2018-07-01",
+        "2018-10-01",
+        "2019-01-01",
+        "2019-04-01",
+        "2019-07-01",
+        "2019-10-01",
+        "2020-01-01",
+        "2020-04-01",
+        "2020-07-01",
+        "2020-10-01",
+        "2021-01-01",
+        "2021-04-01",
+        "2021-07-01",
+        "2021-10-01",
+        "2022-01-01",
+        "2022-04-01",
+        "2022-07-01",
+        "2022-10-01",
+        "2023-01-01",
+        "2023-04-01",
+        "2023-07-01",
+        "2023-10-01",
+        "2024-01-01",
+        "2024-04-01",
+        "2024-07-01",
+        "2024-10-01",
+        "2025-01-01",
+        "2025-04-01",
+        "2025-07-01",
+        "2025-10-01",
+        "2026-01-01",
+        "2026-04-01"
+      ],
+      "data": {
+        "seriesId": "TNWBSHNO",
+        "unit": "millions USD",
+        "frequency": "quarterly",
+        "observations": [
+          {
+            "date": "2011-07-01",
+            "value": 65620320
+          },
+          {
+            "date": "2011-10-01",
+            "value": 67087780
+          },
+          {
+            "date": "2012-01-01",
+            "value": 69057884
+          },
+          {
+            "date": "2012-04-01",
+            "value": 69143450
+          },
+          {
+            "date": "2012-07-01",
+            "value": 71022476
+          },
+          {
+            "date": "2012-10-01",
+            "value": 71627513
+          },
+          {
+            "date": "2013-01-01",
+            "value": 74542848
+          },
+          {
+            "date": "2013-04-01",
+            "value": 75749396
+          },
+          {
+            "date": "2013-07-01",
+            "value": 78235777
+          },
+          {
+            "date": "2013-10-01",
+            "value": 80316298
+          },
+          {
+            "date": "2014-01-01",
+            "value": 81946546
+          },
+          {
+            "date": "2014-04-01",
+            "value": 84144272
+          },
+          {
+            "date": "2014-07-01",
+            "value": 84814961
+          },
+          {
+            "date": "2014-10-01",
+            "value": 86377535
+          },
+          {
+            "date": "2015-01-01",
+            "value": 88014421
+          },
+          {
+            "date": "2015-04-01",
+            "value": 88899443
+          },
+          {
+            "date": "2015-07-01",
+            "value": 87920359
+          },
+          {
+            "date": "2015-10-01",
+            "value": 89394228
+          },
+          {
+            "date": "2016-01-01",
+            "value": 90518522
+          },
+          {
+            "date": "2016-04-01",
+            "value": 92274285
+          },
+          {
+            "date": "2016-07-01",
+            "value": 94095555
+          },
+          {
+            "date": "2016-10-01",
+            "value": 94819015
+          },
+          {
+            "date": "2017-01-01",
+            "value": 97199660
+          },
+          {
+            "date": "2017-04-01",
+            "value": 99381956
+          },
+          {
+            "date": "2017-07-01",
+            "value": 101059673
+          },
+          {
+            "date": "2017-10-01",
+            "value": 103709036
+          },
+          {
+            "date": "2018-01-01",
+            "value": 104806980
+          },
+          {
+            "date": "2018-04-01",
+            "value": 106040910
+          },
+          {
+            "date": "2018-07-01",
+            "value": 108118103
+          },
+          {
+            "date": "2018-10-01",
+            "value": 103703692
+          },
+          {
+            "date": "2019-01-01",
+            "value": 108812649
+          },
+          {
+            "date": "2019-04-01",
+            "value": 111620179
+          },
+          {
+            "date": "2019-07-01",
+            "value": 112089679
+          },
+          {
+            "date": "2019-10-01",
+            "value": 114985456
+          },
+          {
+            "date": "2020-01-01",
+            "value": 109170327
+          },
+          {
+            "date": "2020-04-01",
+            "value": 116683105
+          },
+          {
+            "date": "2020-07-01",
+            "value": 121700798
+          },
+          {
+            "date": "2020-10-01",
+            "value": 130050386
+          },
+          {
+            "date": "2021-01-01",
+            "value": 135686499
+          },
+          {
+            "date": "2021-04-01",
+            "value": 143136162
+          },
+          {
+            "date": "2021-07-01",
+            "value": 146704595
+          },
+          {
+            "date": "2021-10-01",
+            "value": 151002013
+          },
+          {
+            "date": "2022-01-01",
+            "value": 151567444
+          },
+          {
+            "date": "2022-04-01",
+            "value": 145761899
+          },
+          {
+            "date": "2022-07-01",
+            "value": 142190439
+          },
+          {
+            "date": "2022-10-01",
+            "value": 143079491
+          },
+          {
+            "date": "2023-01-01",
+            "value": 146710836
+          },
+          {
+            "date": "2023-04-01",
+            "value": 152542815
+          },
+          {
+            "date": "2023-07-01",
+            "value": 151446471
+          },
+          {
+            "date": "2023-10-01",
+            "value": 155674256
+          },
+          {
+            "date": "2024-01-01",
+            "value": 161085962
+          },
+          {
+            "date": "2024-04-01",
+            "value": 163996688
+          },
+          {
+            "date": "2024-07-01",
+            "value": 167885158
+          },
+          {
+            "date": "2024-10-01",
+            "value": 168721510
+          },
+          {
+            "date": "2025-01-01",
+            "value": 168697860
+          },
+          {
+            "date": "2025-04-01",
+            "value": 175246515
+          },
+          {
+            "date": "2025-07-01",
+            "value": 180509163
+          },
+          {
+            "date": "2025-10-01",
+            "value": 182274207
+          },
+          {
+            "date": "2026-01-01",
+            "value": 183067096
+          },
+          {
+            "date": "2026-04-01",
+            "value": 195870496
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC_AAPL",
+      "kind": "sec",
+      "title": "SEC · AAPL recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "retrievedAt": "2026-11-03T04:14:52.977Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-02",
+        "2026-10-29",
+        "2026-10-22",
+        "2026-10-19",
+        "2026-10-16",
+        "2026-10-15",
+        "2026-10-08"
+      ],
+      "data": {
+        "cik": "0000320193",
+        "ticker": "AAPL",
+        "filings": [
+          {
+            "id": "sec:0000320193:0000320193-26-000024",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "8-K",
+            "filedAt": "2026-11-02",
+            "reportDate": "2026-11-02",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000024/aapl-20261102.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-041201",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-10-29",
+            "reportDate": "2026-10-27",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126041201/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-040540",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-10-22",
+            "reportDate": "2026-10-20",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126040540/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-040127",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-10-19",
+            "reportDate": "2026-10-15",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126040127/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-040126",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-10-19",
+            "reportDate": "2026-10-15",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126040126/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001950047-26-010286",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "144",
+            "filedAt": "2026-10-16",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000195004726010286/xsl144X01/primary_doc.xml",
+            "description": "144 filing"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-039785",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-10-15",
+            "reportDate": "2026-10-13",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126039785/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-039158",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-10-08",
+            "reportDate": "2026-10-06",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126039158/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC_MSFT",
+      "kind": "sec",
+      "title": "SEC · MSFT recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "retrievedAt": "2026-11-03T04:14:53.254Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-02",
+        "2026-10-30",
+        "2026-10-29",
+        "2026-10-28",
+        "2026-10-27"
+      ],
+      "data": {
+        "cik": "0000789019",
+        "ticker": "MSFT",
+        "filings": [
+          {
+            "id": "sec:0000789019:0001193125-26-442618",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "424B2",
+            "filedAt": "2026-11-02",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526442618/d150456d424b2.htm",
+            "description": "424B2"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-439794",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "FWP",
+            "filedAt": "2026-10-30",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526439794/d799291dfwp.htm",
+            "description": "FWP"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-437008",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "424B2",
+            "filedAt": "2026-10-29",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526437008/d150456d424b2.htm",
+            "description": "424B2"
+          },
+          {
+            "id": "sec:0000789019:0000921895-26-002869",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "PX14A6G",
+            "filedAt": "2026-10-28",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000092189526002869/px14a6g14098012_10282026.htm",
+            "description": "PX14A6G filing"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-436149",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "8-K",
+            "filedAt": "2026-10-28",
+            "reportDate": "2026-10-28",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436149/msft-20261028.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-436133",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "10-Q",
+            "filedAt": "2026-10-28",
+            "reportDate": "2026-09-30",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm",
+            "description": "10-Q"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-436122",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "8-K",
+            "filedAt": "2026-10-28",
+            "reportDate": "2026-10-28",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436122/msft-20261028.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0000789019:0001214659-26-013276",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "PX14A6G",
+            "filedAt": "2026-10-27",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000121465926013276/y1027263px14a6g.htm",
+            "description": "PX14A6G filing"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC_NVDA",
+      "kind": "sec",
+      "title": "SEC · NVDA recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0001045810.json",
+      "retrievedAt": "2026-11-03T04:14:53.490Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-10-13",
+        "2026-10-09",
+        "2026-09-23",
+        "2026-09-22",
+        "2026-09-21",
+        "2026-09-18"
+      ],
+      "data": {
+        "cik": "0001045810",
+        "ticker": "NVDA",
+        "filings": [
+          {
+            "id": "sec:0001045810:0002152188-26-000007",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4/A",
+            "filedAt": "2026-10-13",
+            "reportDate": "2026-09-09",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000215218826000007/xslF345X06/wk-form4a_1791925767.xml",
+            "description": "FORM 4/A"
+          },
+          {
+            "id": "sec:0001045810:0001197647-26-000011",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-10-09",
+            "reportDate": "2026-10-07",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119764726000011/xslF345X06/wk-form4_1791579847.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0001696841-26-000014",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-09-23",
+            "reportDate": "2026-09-21",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000169684126000014/xslF345X06/wk-form4_1790196985.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0001199039-26-000016",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-09-22",
+            "reportDate": "2026-09-18",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119903926000016/xslF345X06/wk-form4_1790110579.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0001921094-26-001040",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "144",
+            "filedAt": "2026-09-21",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001040/xsl144X01/primary_doc.xml",
+            "description": "144 filing"
+          },
+          {
+            "id": "sec:0001045810:0001243821-26-000007",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-09-18",
+            "reportDate": "2026-09-16",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000124382126000007/xslF345X06/wk-form4_1789766132.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0001283854-26-000010",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-09-18",
+            "reportDate": "2026-09-16",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000128385426000010/xslF345X06/wk-form4_1789766082.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0001696841-26-000012",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-09-18",
+            "reportDate": "2026-09-16",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000169684126000012/xslF345X06/wk-form4_1789766007.xml",
+            "description": "FORM 4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CFTC_METHOD",
+      "kind": "methodology",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "retrievalUrl": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "retrievedAt": "2026-11-03T04:14:52.987Z",
+      "status": "ok",
+      "observationDates": [],
+      "data": {
+        "format": "official-document-excerpt",
+        "sha256": "b22d719f3da6a3ea5350560fae9dc28ce615c17ba3226678b2ab6463881c221a",
+        "excerpt": "Commitments of Traders | CFTC /MarketReports/CommitmentsofTraders/index.htm Skip to main content icon-hamburger Created with Sketch. Menu Transparency Contact Us Search Search Main navigation About the CFTC The Commission Chairman & Commissioners CFTC Organization Advisory Committees Innovation at the CFTC Agriculture at the CFTC Budget & Performance Privacy at the CFTC Careers Industry Oversight Industry Filings Trading Organizations Clearing Organizations Data Repositories Intermediaries Market Surveillance Contracts & Products Rules & Rule Amendments Anti-Money Laundering Law & Regulation Commodity Exchange Act & Regulations How Rules Are Made Holding Wrongdoers Accountable Federal Register Public Comments CFTC Staff Letters Market Data & Economic Analysis Data at CFTC Commitments of Traders Bank Participation Reports Cotton On-Call Financial Data for FCMS Staff Reports Weekly Swaps Report Cleared Margin Reports Office of the Chief Economist Forms & Submissions Learn & Protect Understanding Prediction Markets and Event Contracts Check Registration & Disciplinary History Submit a Tip or Complaint RED List Office of Proceedings Learning Resources News & Events Press Releases Public Statements & Remarks Events Carousel Rotation On On Market Data & Economic Analysis Data at CFTC Commitments of Traders Bank Participation Reports Cotton On-Call Financial Data for FCMS Staff Reports Weekly Swaps Report Cleared Margin Reports Office of the Chief Economist Commitments of Traders COT Public Reporting Environment Historical Viewable Historical Compressed About the COT Reports Release Schedule Explanatory Notes Disaggregated Explanatory Notes Historical Special Announcements Commitments of Traders Commitments of Traders (COT) Reports Descriptions Introduction and Classification Methodology The Commodity Futures Trading Commission (Commission or CFTC) publishes the Commitments of Traders (COT) reports to help the public understand market dynamics. Specifically, the COT reports provide a breakdown of each Tuesday’s open interest for futures and options on futures markets in which 20 or more traders hold positions equal to or above the reporting levels established by the CFTC. The CFTC releases the weekly COT reports in static format to support the historical usage patterns of industry professionals viewing and accessing each week’s data. Each historical report is viewable with the data for the respective reporting week, along with all historical data compressed within an annual file. In October 2022, CFTC began publishing weekly and historical report data within a public reporting environment to support industry professionals needing to customize, search, filter, and download report data for analysis and trends. The COT reports are based on position data supplied by reporting firms (FCMs, clearing members, foreign brokers and exchanges). While the position data is supplied by reporting firms, the actual trader category or classification is based on the predominant business purpose self-reported by traders on the CFTC Form 40 and is subject to review by CFTC staff for reasonableness. CFTC staff does not know specific reasons for traders’ positions and hence this information does not factor in determining trader classifications. In practice this means, for example, that the position data for a trader classified in the “producer/merchant/processor/user” category for a particular commodity will include all of its positions in that commodity, regardless of whether the position is for hedging or speculation. Note that traders are able to report business purpose by commodity and, therefore, can have different classifications in the COT reports for different commodities. For one of the reports, Traders in Financial Futures, traders are classified in the same category for all commodities. Due to legal restraints (CEA Section 8 data and confidential business practices), the CFTC does not publish information on how individual traders are classified in the COT reports. Generally, the data in the COT reports is from Tuesday and released Friday. The CFTC receives the data from the reporting firms on Wednesday morning and then corrects and verifies the data for release by Friday afternoon. Frequently Asked Questions (FAQs) The Division of Market Oversight has prepared the following responses to questions regarding Commitments of Traders reports (COT Reports) published by the Commission. The responses to these FAQs reflect only the views of DMO staff, and not necessarily those of the Commission or any other branch or division. The Commission has neither approved nor disapproved of these FAQs, and they have no legal force or effect, do not alter or amend applicable law, and do not create any new or additional obligations for any person. 1. Missing Contract Market I can’t find commodity or contract market I was looking for. It was on last week’s COT Report, but has been dropped from this week’s report. What might be the explanation for this? It is possible that there’s a lack of a sufficient number of Large Traders with respect to the contract market in question. Specifically, when the number of reportable Large Traders drops below 20 for a commodity or contract market, it no longer appears in the COT report. In such event, once a contract market has again reached 20 or more reportable Large Traders, the contract market will be added again to the COT Reports. 2. Contract Reportable Levels Where can I find a list of contract reportable levels? The CFTC publishes a list of contract reportable levels on the CFTC Strike Price Report, which you can find here: https://www.cftc.gov/strikeprice . 3. Clarity of COT Classifications How are traders classified in the COT Reports? If the number of reported long positions fall significantly from a previous week’s COT Report, what is the likely explanation? Trader classifications are based on the information provided by the trader on their CFTC Form 40. 4. Week-to-week changes in the COT report Why might the number of reported long positions fall significantly from the previous week’s COT Report? Generally speaking, there are three ways that a change in reported positions in the COT Report can happen: A trader submits a new Form 40 and indicates they have changed their primary business function (e.g., from Financial Asset Manager (FAM) to Financial Leverage Speculator (FLS)); A new trader has submitted a Form 40, and those new positions alter the previous week’s numbers vis-a-vis the current week; and An existing trader has left the market, altering the previous week vs. current week numbers. 5. COT Release Schedule When do you publish the COT data? The COT Report is generally published each Friday at 3:30 pm Eastern Time (US), using the data from the immediately preceding Tuesday of that week. How do government holidays or days off affect the release schedule? The COT Reports are typically based upon data calculated as of the close of business of Tuesday of a given week. It takes three days to process the data, and therefore the COT Reports are generally released Friday at 3:30 p.m. Eastern Time (US) of the same week. Note that holidays can change the COT release schedule. Accordingly, for instances where a holiday takes place in a reporting week, please consult the COT release schedule, located here: https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm Is there a list of historical release dates? There is not a list of historical release dates; the only available release dates are for the 13 months of reports that are published on the Commission’s website. 6. Corrected Data Do you perform backdated COT updates to the (historical) data? No, historical data is not updated once published. 7. Options Calculations Can I calculate options data from the COT Report, or is there options only data available? Options data can generally be calculated by subtracting from the Futures and Options Combined data information set forth in the Futures report, but some information will be lost due to “spreading,” as discussed further below. 8. Use of COT Data What does this COT data mean, and how do I use it? Can you analyze it for me? The CFTC publishes the COT Reports based upon data we get from the reporting entities. The CFTC does not analyze the data nor make recommendations on it. 9. Notification Can you notify me by email when the COT is released? You can receive such notifications by signing up for the weekly COT announcement emails, at the following location: https://service.govdelivery.com/accounts/USCFTC/subscriber/new Note: You can also use this same link to manage/update your subscriber preferences. 10. Report Frequency Can you release the COT Reports more than once a week? Because of resource constraints, we are currently only able to release this report once a week. 11. Spreading How is open interest calculated? Why, when I add up all long positions (or short), does the sum does not equal open interest? The spread number needs to be added to be both long and short sides, respectively. If you are doing these calculations on the Combined file, the sum of the long and or short positions may be +1 or -1 Open Interest, due to option delta calculations. For the “producer/merchant/processor/user” category, open interest is reported only by long or short positions. The computed amount of spreading is calculated as the number of offsetting futures in different calendar months or offsetting futures and options in the same or different calendar months. Any residual long or short position is reported in the long or short column. Inter-market spreads are not considered. Example: A non-commercial trader has 350 long and 200 short positions. In commitment positions, 150 long, 0 short, and 200 spread. Here is the calculation to balance open interest to published long and short positions: Open Interest = NonC Long + NonC Spread + Com Long + NonRep Long Open Interest = NonC Short + NonC Spread + Com Short + NonRep Short Spreading is the difference, or a computed amount, equal to offsetting long and short positions held by a trader. The Disaggregated COT report sets out open interest by long, short, and spreading for the three categories of traders: “swap dealers,” “managed money,” and “other reportable”. In the COT Report published weekly, I want to understand what the spreading position means. For example, the Managed Money length for ethane on the CME is 5,762 lots long and 3,355 lots short. However, the number of traders reported on the long side is 0 while the short side has 9. How are there 5,762 lots on the long side but zero traders? Is there some type of netting that is occurring in the number of traders category? The sum of the numbers of traders in each separate category typically exceeds the total number of reportable traders. This results from the fact that, in the “swap dealers,” “managed money,” and “other reportable” categories, “spreading” can be a partial activity, so the same trader can fall into either the outright “long” or “short” trader count, as well as into the “spreading” count. Additionally, a reportable producer/merchant/processor/user may be in both the long and the short position columns. In order to preserve the confidentiality of traders, for any given commodity where a specific category has fewer than four active traders, the size of the relevant positions will be provided but the trader count will be suppressed (specifically, a “·” will appear for trader counts of fewer than four traders). Furthermore, the COT long format reports show the percent of open interest held by (i) the largest four and (ii) the largest eight reportable traders, without regard to whether they are classified as commercial or non-commercial. The concentration ratios are shown with trader positions computed on a gross long and gross short basis and on a net long or net short basis. The \"Net Position\" ratios are computed after offsetting each trader’s "
+      }
+    }
+  ],
+  "limitations": [
+    "This is bounded public evidence, not an exhaustive market feed. Missing sources remain unavailable.",
+    "CFTC data is futures-only and weekly, generally observed Tuesday and released Friday. Contract counts have different units and must not be summed across markets.",
+    "FRED observations have different frequencies, publication lags and revision schedules. Null observations are missing, not zero.",
+    "SEC coverage is recent filing metadata for AAPL, MSFT and NVDA, not an index holdings file or an exhaustive issuer search.",
+    "Hosted widget content, private subscription data and paid AI APIs are not collected."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "placement": {
+      "type": "choice",
+      "choice": "community_section",
+      "confidence": 1,
+      "probabilities": {
+        "community_section": 1,
+        "institution_section": 0,
+        "price_section": 0,
+        "expand_candidates": 0
+      }
+    },
+    "load_layout": {
+      "type": "choice",
+      "choice": "compact_prompt",
+      "confidence": 0.72,
+      "probabilities": {
+        "compact_prompt": 0.81,
+        "fixed_empty_stage": 0.01,
+        "details_again": 0.18
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1076,
+    "output_tokens": 91
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "DIA",
+  "createdAt": "2026-11-10T13:06:30.971Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Dow futures asset-manager net longs fall",
+    "summary": "From October 27 to November 3, the asset-manager net long in Dow futures fell by 4,013 contracts. Leveraged funds increased their smaller net long while total open interest declined.",
+    "bull": [
+      {
+        "text": "The leveraged-fund net long rose from 96 to 820 contracts in the November 3 report.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The asset-manager net long fell from 12,233 to 8,220 contracts and total open interest fell from 91,636 to 87,410.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Between November 5 and 6 the thirty-year Treasury yield rose to 5.26% from 5.25% and the ten-year rose to 4.86% from 4.84%. Long-term project financing also depends on each issuer’s credit spread.",
+        "sourceIds": [
+          "FRED_DGS30",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "limitations": [
+      "The Treasury yields are dated November 6. This report has no verified ETF closing-price or return observation.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_DOW",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    }
+  ]
+}

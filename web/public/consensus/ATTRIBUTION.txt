@@ -1,0 +1,38 @@
+Taiwan index attribution
+
+This notice applies to the twse-taiex-price and twse-taiex-return data in the
+2026 Daily Consensus editions, including the immutable first Taiwan edition
+2026-11-04T22-24-25-360Z. It also applies to the corresponding test fixtures.
+
+Securities and Futures Bureau, Financial Supervisory Commission, Executive Yuan,
+R.O.C. 2026 Weighted Stock Price Index Historical Data (dataset version not stated).
+Dataset: https://data.gov.tw/en/datasets/11755
+
+Securities and Futures Bureau, Financial Supervisory Commission, Executive Yuan,
+R.O.C. 2026 Weighted Stock Price Return Index (dataset version not stated).
+Dataset: https://data.gov.tw/en/datasets/11871
+
+The Open Data is made available to the public under the Open Government Data
+License, User can make use of it when complying to the condition and obligation
+of its terms.
+Open Government Data License 1.0: https://data.gov.tw/license
+
+Via the documented TWSE OpenAPI: https://openapi.twse.com.tw/v1/swagger.json
+Date conversion, charts and changes by The Daily Consensus.
+No agency endorsement is implied.
+
+Bank of Canada policy target
+
+Source: Bank of Canada, Valet series V39079.
+https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/
+Reuse terms: https://www.bankofcanada.ca/terms/
+Date normalization, chart and rate-change calculations by The Daily Consensus.
+No Bank of Canada endorsement is implied.
+
+Bank of Canada Market Participants Survey
+
+Source: Bank of Canada, Market Participants Survey.
+https://www.bankofcanada.ca/publications/market-participants-survey/
+Reuse terms: https://www.bankofcanada.ca/terms/
+Year-end row selection and formatting by The Daily Consensus.
+No Bank of Canada endorsement is implied.

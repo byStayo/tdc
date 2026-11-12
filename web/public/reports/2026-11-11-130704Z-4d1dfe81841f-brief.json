@@ -1,0 +1,68 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-11T13:07:04.481Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Treasury curve flattens as the two-year yield rises",
+    "summary": "From November 6 to 9, the two-year Treasury yield rose 5 basis points to 4.56% and the ten-year yield rose 2 to 4.88%. Their spread narrowed to 32 basis points. November 9 SOFR was 3.88%.",
+    "bull": [
+      {
+        "text": "November 9 SOFR was 1 basis point lower than November 6. Borrowers whose rates reset against SOFR can see some relief when credit spreads and contract terms are unchanged.",
+        "sourceIds": [
+          "FRED_SOFR"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The two-year yield rose from 4.51% to 4.56% and the ten-year rose from 4.86% to 4.88%. The ten-year minus two-year spread narrowed from 35 to 32 basis points.",
+        "sourceIds": [
+          "FRED_DGS2",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "From October 27 to November 3, the net short held by leveraged funds in E-mini S&P 500 futures narrowed by 28,286 contracts to 372,318. Their net short in E-mini Russell 2000 futures widened by 6,999 contracts to 55,080.",
+        "sourceIds": [
+          "CFTC_ES",
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "The funding and Treasury series in this brief are dated November 9. The brief contains no verified ETF closing prices or returns.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
+    ]
+  },
+  "sources": [
+    {
+      "id": "FRED_SOFR",
+      "title": "Federal Reserve / FRED · Secured Overnight Financing Rate",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "Federal Reserve / FRED · Two-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    },
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    }
+  ]
+}

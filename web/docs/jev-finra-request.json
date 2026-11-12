@@ -1,0 +1,36 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add a current-only, terms-governed FINRA weekly off-exchange display for five ETFs",
+    "catalog": [
+      "Existing OffExchangeActivity panel with outbound ETF links and separate MARKET quarterly venue tiles",
+      "MorningBoard light/dark panel/text/line/accent tokens, Manrope and Space Grotesk, 44px controls",
+      "Client-selected MARKET/SPY/QQQ/IWM/DIA/TLT and historical edition states"
+    ],
+    "constraints": [
+      "No FINRA raw/derived values in public Git, JSON APIs, downloads, saved editions or models",
+      "Server-only private snapshot; same-origin HTML POST view only after reader checkbox agrees to free noncommercial personal/professional use and no onward redistribution",
+      "Historical editions must omit the entire current FINRA component",
+      "ATS and non-ATS volume are delayed activity, never buying/selling intent or consensus votes",
+      "No private rows or credentials supplied to Jev; 10 observed weeks per instrument; fractional share quantities must be preserved",
+      "375px phone, desktop, keyboard, labelled responsive table, no animation needed"
+    ],
+    "candidates": [
+      "Latest week paired horizontal bars with ten-week table in a disclosure",
+      "Ten-week paired bars with latest totals above",
+      "Latest week paired cards with ten-week table"
+    ]
+  },
+  "questions": {
+    "presentation": {
+      "type": "choice",
+      "instructions": "Choose a clear compact comparison inside the existing OffExchangeActivity panel; maintain source/date/units and a readable ten-week history.",
+      "criteria": {
+        "latest_bars_table": "Latest week paired horizontal volume bars, dated totals; ten-week accessible table below in a disclosure",
+        "ten_week_bars": "Ten-week paired bar chart with latest totals above",
+        "latest_cards_table": "Latest week two total cards plus ten-week accessible table",
+        "expand": "No option fits"
+      }
+    }
+  }
+}

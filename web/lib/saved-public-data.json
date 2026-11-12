@@ -1,0 +1,1101 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-11-11T13:04:36.888Z",
+  "macroRetrievedAt": "2026-11-11T13:04:36.293Z",
+  "positioningRetrievedAt": "2026-11-11T13:04:36.748Z",
+  "macro": [
+    {
+      "id": "FEDFUNDS",
+      "name": "Federal Reserve / FRED · Effective federal funds rate",
+      "unit": "percent",
+      "frequency": "monthly",
+      "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+      "observations": [
+        {
+          "date": "2021-11-01",
+          "value": 0.08
+        },
+        {
+          "date": "2021-12-01",
+          "value": 0.08
+        },
+        {
+          "date": "2022-01-01",
+          "value": 0.08
+        },
+        {
+          "date": "2022-02-01",
+          "value": 0.08
+        },
+        {
+          "date": "2022-03-01",
+          "value": 0.2
+        },
+        {
+          "date": "2022-04-01",
+          "value": 0.33
+        },
+        {
+          "date": "2022-05-01",
+          "value": 0.77
+        },
+        {
+          "date": "2022-06-01",
+          "value": 1.21
+        },
+        {
+          "date": "2022-07-01",
+          "value": 1.68
+        },
+        {
+          "date": "2022-08-01",
+          "value": 2.33
+        },
+        {
+          "date": "2022-09-01",
+          "value": 2.56
+        },
+        {
+          "date": "2022-10-01",
+          "value": 3.08
+        },
+        {
+          "date": "2022-11-01",
+          "value": 3.78
+        },
+        {
+          "date": "2022-12-01",
+          "value": 4.1
+        },
+        {
+          "date": "2023-01-01",
+          "value": 4.33
+        },
+        {
+          "date": "2023-02-01",
+          "value": 4.57
+        },
+        {
+          "date": "2023-03-01",
+          "value": 4.65
+        },
+        {
+          "date": "2023-04-01",
+          "value": 4.83
+        },
+        {
+          "date": "2023-05-01",
+          "value": 5.06
+        },
+        {
+          "date": "2023-06-01",
+          "value": 5.08
+        },
+        {
+          "date": "2023-07-01",
+          "value": 5.12
+        },
+        {
+          "date": "2023-08-01",
+          "value": 5.33
+        },
+        {
+          "date": "2023-09-01",
+          "value": 5.33
+        },
+        {
+          "date": "2023-10-01",
+          "value": 5.33
+        },
+        {
+          "date": "2023-11-01",
+          "value": 5.33
+        },
+        {
+          "date": "2023-12-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-01-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-02-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-03-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-04-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-05-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-06-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-07-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-08-01",
+          "value": 5.33
+        },
+        {
+          "date": "2024-09-01",
+          "value": 5.13
+        },
+        {
+          "date": "2024-10-01",
+          "value": 4.83
+        },
+        {
+          "date": "2024-11-01",
+          "value": 4.64
+        },
+        {
+          "date": "2024-12-01",
+          "value": 4.48
+        },
+        {
+          "date": "2025-01-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-02-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-03-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-04-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-05-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-06-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-07-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-08-01",
+          "value": 4.33
+        },
+        {
+          "date": "2025-09-01",
+          "value": 4.22
+        },
+        {
+          "date": "2025-10-01",
+          "value": 4.09
+        },
+        {
+          "date": "2025-11-01",
+          "value": 3.88
+        },
+        {
+          "date": "2025-12-01",
+          "value": 3.72
+        },
+        {
+          "date": "2026-01-01",
+          "value": 3.64
+        },
+        {
+          "date": "2026-02-01",
+          "value": 3.64
+        },
+        {
+          "date": "2026-03-01",
+          "value": 3.64
+        },
+        {
+          "date": "2026-04-01",
+          "value": 3.64
+        },
+        {
+          "date": "2026-05-01",
+          "value": 3.63
+        },
+        {
+          "date": "2026-06-01",
+          "value": 3.63
+        },
+        {
+          "date": "2026-07-01",
+          "value": 3.63
+        },
+        {
+          "date": "2026-08-01",
+          "value": 3.63
+        },
+        {
+          "date": "2026-09-01",
+          "value": 3.75
+        },
+        {
+          "date": "2026-10-01",
+          "value": 3.88
+        }
+      ]
+    },
+    {
+      "id": "DPRIME",
+      "name": "Federal Reserve / FRED · Bank prime loan rate",
+      "unit": "percent",
+      "frequency": "daily",
+      "url": "https://fred.stlouisfed.org/series/DPRIME",
+      "observations": [
+        {
+          "date": "2026-08-18",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-19",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-20",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-21",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-24",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-25",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-26",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-27",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-28",
+          "value": 6.75
+        },
+        {
+          "date": "2026-08-31",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-01",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-02",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-03",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-04",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-07",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-08",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-09",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-10",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-11",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-14",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-15",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-16",
+          "value": 6.75
+        },
+        {
+          "date": "2026-09-17",
+          "value": 7
+        },
+        {
+          "date": "2026-09-18",
+          "value": 7
+        },
+        {
+          "date": "2026-09-21",
+          "value": 7
+        },
+        {
+          "date": "2026-09-22",
+          "value": 7
+        },
+        {
+          "date": "2026-09-23",
+          "value": 7
+        },
+        {
+          "date": "2026-09-24",
+          "value": 7
+        },
+        {
+          "date": "2026-09-25",
+          "value": 7
+        },
+        {
+          "date": "2026-09-28",
+          "value": 7
+        },
+        {
+          "date": "2026-09-29",
+          "value": 7
+        },
+        {
+          "date": "2026-09-30",
+          "value": 7
+        },
+        {
+          "date": "2026-10-01",
+          "value": 7
+        },
+        {
+          "date": "2026-10-02",
+          "value": 7
+        },
+        {
+          "date": "2026-10-05",
+          "value": 7
+        },
+        {
+          "date": "2026-10-06",
+          "value": 7
+        },
+        {
+          "date": "2026-10-07",
+          "value": 7
+        },
+        {
+          "date": "2026-10-08",
+          "value": 7
+        },
+        {
+          "date": "2026-10-09",
+          "value": 7
+        },
+        {
+          "date": "2026-10-12",
+          "value": 7
+        },
+        {
+          "date": "2026-10-13",
+          "value": 7
+        },
+        {
+          "date": "2026-10-14",
+          "value": 7
+        },
+        {
+          "date": "2026-10-15",
+          "value": 7
+        },
+        {
+          "date": "2026-10-16",
+          "value": 7
+        },
+        {
+          "date": "2026-10-19",
+          "value": 7
+        },
+        {
+          "date": "2026-10-20",
+          "value": 7
+        },
+        {
+          "date": "2026-10-21",
+          "value": 7
+        },
+        {
+          "date": "2026-10-22",
+          "value": 7
+        },
+        {
+          "date": "2026-10-23",
+          "value": 7
+        },
+        {
+          "date": "2026-10-26",
+          "value": 7
+        },
+        {
+          "date": "2026-10-27",
+          "value": 7
+        },
+        {
+          "date": "2026-10-28",
+          "value": 7
+        },
+        {
+          "date": "2026-10-29",
+          "value": 7
+        },
+        {
+          "date": "2026-10-30",
+          "value": 7
+        },
+        {
+          "date": "2026-11-02",
+          "value": 7
+        },
+        {
+          "date": "2026-11-03",
+          "value": 7
+        },
+        {
+          "date": "2026-11-04",
+          "value": 7
+        },
+        {
+          "date": "2026-11-05",
+          "value": 7
+        },
+        {
+          "date": "2026-11-06",
+          "value": 7
+        },
+        {
+          "date": "2026-11-09",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "id": "TNWBSHNO",
+      "name": "Federal Reserve / FRED · Household and nonprofit net worth",
+      "unit": "millions USD",
+      "frequency": "quarterly",
+      "url": "https://fred.stlouisfed.org/series/TNWBSHNO",
+      "observations": [
+        {
+          "date": "2011-07-01",
+          "value": 65620320
+        },
+        {
+          "date": "2011-10-01",
+          "value": 67087780
+        },
+        {
+          "date": "2012-01-01",
+          "value": 69057884
+        },
+        {
+          "date": "2012-04-01",
+          "value": 69143450
+        },
+        {
+          "date": "2012-07-01",
+          "value": 71022476
+        },
+        {
+          "date": "2012-10-01",
+          "value": 71627513
+        },
+        {
+          "date": "2013-01-01",
+          "value": 74542848
+        },
+        {
+          "date": "2013-04-01",
+          "value": 75749396
+        },
+        {
+          "date": "2013-07-01",
+          "value": 78235777
+        },
+        {
+          "date": "2013-10-01",
+          "value": 80316298
+        },
+        {
+          "date": "2014-01-01",
+          "value": 81946546
+        },
+        {
+          "date": "2014-04-01",
+          "value": 84144272
+        },
+        {
+          "date": "2014-07-01",
+          "value": 84814961
+        },
+        {
+          "date": "2014-10-01",
+          "value": 86377535
+        },
+        {
+          "date": "2015-01-01",
+          "value": 88014421
+        },
+        {
+          "date": "2015-04-01",
+          "value": 88899443
+        },
+        {
+          "date": "2015-07-01",
+          "value": 87920359
+        },
+        {
+          "date": "2015-10-01",
+          "value": 89394228
+        },
+        {
+          "date": "2016-01-01",
+          "value": 90518522
+        },
+        {
+          "date": "2016-04-01",
+          "value": 92274285
+        },
+        {
+          "date": "2016-07-01",
+          "value": 94095555
+        },
+        {
+          "date": "2016-10-01",
+          "value": 94819015
+        },
+        {
+          "date": "2017-01-01",
+          "value": 97199660
+        },
+        {
+          "date": "2017-04-01",
+          "value": 99381956
+        },
+        {
+          "date": "2017-07-01",
+          "value": 101059673
+        },
+        {
+          "date": "2017-10-01",
+          "value": 103709036
+        },
+        {
+          "date": "2018-01-01",
+          "value": 104806980
+        },
+        {
+          "date": "2018-04-01",
+          "value": 106040910
+        },
+        {
+          "date": "2018-07-01",
+          "value": 108118103
+        },
+        {
+          "date": "2018-10-01",
+          "value": 103703692
+        },
+        {
+          "date": "2019-01-01",
+          "value": 108812649
+        },
+        {
+          "date": "2019-04-01",
+          "value": 111620179
+        },
+        {
+          "date": "2019-07-01",
+          "value": 112089679
+        },
+        {
+          "date": "2019-10-01",
+          "value": 114985456
+        },
+        {
+          "date": "2020-01-01",
+          "value": 109170327
+        },
+        {
+          "date": "2020-04-01",
+          "value": 116683105
+        },
+        {
+          "date": "2020-07-01",
+          "value": 121700798
+        },
+        {
+          "date": "2020-10-01",
+          "value": 130050386
+        },
+        {
+          "date": "2021-01-01",
+          "value": 135686499
+        },
+        {
+          "date": "2021-04-01",
+          "value": 143136162
+        },
+        {
+          "date": "2021-07-01",
+          "value": 146704595
+        },
+        {
+          "date": "2021-10-01",
+          "value": 151002013
+        },
+        {
+          "date": "2022-01-01",
+          "value": 151567444
+        },
+        {
+          "date": "2022-04-01",
+          "value": 145761899
+        },
+        {
+          "date": "2022-07-01",
+          "value": 142190439
+        },
+        {
+          "date": "2022-10-01",
+          "value": 143079491
+        },
+        {
+          "date": "2023-01-01",
+          "value": 146710836
+        },
+        {
+          "date": "2023-04-01",
+          "value": 152542815
+        },
+        {
+          "date": "2023-07-01",
+          "value": 151446471
+        },
+        {
+          "date": "2023-10-01",
+          "value": 155674256
+        },
+        {
+          "date": "2024-01-01",
+          "value": 161085962
+        },
+        {
+          "date": "2024-04-01",
+          "value": 163996688
+        },
+        {
+          "date": "2024-07-01",
+          "value": 167885158
+        },
+        {
+          "date": "2024-10-01",
+          "value": 168721510
+        },
+        {
+          "date": "2025-01-01",
+          "value": 168697860
+        },
+        {
+          "date": "2025-04-01",
+          "value": 175246515
+        },
+        {
+          "date": "2025-07-01",
+          "value": 180509163
+        },
+        {
+          "date": "2025-10-01",
+          "value": 182274207
+        },
+        {
+          "date": "2026-01-01",
+          "value": 183067096
+        },
+        {
+          "date": "2026-04-01",
+          "value": 195870496
+        }
+      ]
+    }
+  ],
+  "positioning": [
+    {
+      "id": "cftc-tff-futures:13874A:2026-11-03",
+      "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
+      "contractCode": "13874A",
+      "reportDate": "2026-11-03",
+      "units": "($50 X S&P 500 INDEX)",
+      "openInterest": 1986532,
+      "assetManagerLong": 1111721,
+      "assetManagerShort": 183137,
+      "leveragedLong": 125269,
+      "leveragedShort": 497587,
+      "dealerLong": 182419,
+      "dealerShort": 870993
+    },
+    {
+      "id": "cftc-tff-futures:209742:2026-11-03",
+      "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
+      "contractCode": "209742",
+      "reportDate": "2026-11-03",
+      "units": "(NASDAQ 100 STOCK INDEX X $20)",
+      "openInterest": 292587,
+      "assetManagerLong": 109642,
+      "assetManagerShort": 36505,
+      "leveragedLong": 62698,
+      "leveragedShort": 52625,
+      "dealerLong": 39546,
+      "dealerShort": 152075
+    },
+    {
+      "id": "cftc-tff-futures:239742:2026-11-03",
+      "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
+      "contractCode": "239742",
+      "reportDate": "2026-11-03",
+      "units": "(RUSSEL 2000 INDEX X $50)",
+      "openInterest": 449399,
+      "assetManagerLong": 143965,
+      "assetManagerShort": 120342,
+      "leveragedLong": 100585,
+      "leveragedShort": 155665,
+      "dealerLong": 112819,
+      "dealerShort": 83442
+    },
+    {
+      "id": "cftc-tff-futures:124603:2026-11-03",
+      "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
+      "contractCode": "124603",
+      "reportDate": "2026-11-03",
+      "units": "($5 X DJIA INDEX)",
+      "openInterest": 87410,
+      "assetManagerLong": 16728,
+      "assetManagerShort": 8508,
+      "leveragedLong": 11980,
+      "leveragedShort": 11160,
+      "dealerLong": 42047,
+      "dealerShort": 56069
+    },
+    {
+      "id": "cftc-tff-futures:020601:2026-11-03",
+      "market": "UST BOND - CHICAGO BOARD OF TRADE",
+      "contractCode": "020601",
+      "reportDate": "2026-11-03",
+      "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+      "openInterest": 1930138,
+      "assetManagerLong": 1164793,
+      "assetManagerShort": 749414,
+      "leveragedLong": 209524,
+      "leveragedShort": 375781,
+      "dealerLong": 45950,
+      "dealerShort": 285264
+    },
+    {
+      "id": "cftc-tff-futures:043602:2026-11-03",
+      "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
+      "contractCode": "043602",
+      "reportDate": "2026-11-03",
+      "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+      "openInterest": 5947433,
+      "assetManagerLong": 3730323,
+      "assetManagerShort": 700087,
+      "leveragedLong": 585873,
+      "leveragedShort": 2848183,
+      "dealerLong": 129667,
+      "dealerShort": 741551
+    }
+  ],
+  "filings": [
+    {
+      "symbol": "AAPL",
+      "retrievedAt": "2026-11-11T13:04:36.355Z",
+      "data": [
+        {
+          "id": "sec:0000320193:0001354457-26-001062",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "25-NSE",
+          "filedAt": "2026-11-09",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000135445726001062/xslF25X02/primary_doc.xml",
+          "description": "25-NSE filing"
+        },
+        {
+          "id": "sec:0000320193:0001140361-26-042798",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "8-K",
+          "filedAt": "2026-11-09",
+          "reportDate": "2026-11-05",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042798/ef20085077_8k.htm",
+          "description": "8-K filing"
+        },
+        {
+          "id": "sec:0000320193:0001140361-26-042505",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "424B2",
+          "filedAt": "2026-11-06",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042505/ny20084621x2_424b2.htm",
+          "description": "424B2"
+        },
+        {
+          "id": "sec:0000320193:0001140361-26-042173",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "FWP",
+          "filedAt": "2026-11-06",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042173/ny20084621x3_fwp.htm",
+          "description": "FWP"
+        },
+        {
+          "id": "sec:0000320193:0001140361-26-042149",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "4",
+          "filedAt": "2026-11-05",
+          "reportDate": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042149/xslF345X06/form4.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0000320193:0001140361-26-042046",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "424B2",
+          "filedAt": "2026-11-05",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042046/ny20084621x1_424b2.htm",
+          "description": "424B2"
+        },
+        {
+          "id": "sec:0000320193:0000320193-26-000026",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "10-K",
+          "filedAt": "2026-11-03",
+          "reportDate": "2026-09-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "description": "10-K"
+        },
+        {
+          "id": "sec:0000320193:0000320193-26-000024",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "8-K",
+          "filedAt": "2026-11-02",
+          "reportDate": "2026-11-02",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000024/aapl-20261102.htm",
+          "description": "8-K"
+        }
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "retrievedAt": "2026-11-11T13:04:36.666Z",
+      "data": [
+        {
+          "id": "sec:0000789019:0000789019-26-000232",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "4",
+          "filedAt": "2026-11-10",
+          "reportDate": "2026-11-09",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000232/xslF345X06/form4.xml",
+          "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+        },
+        {
+          "id": "sec:0000789019:0000789019-26-000230",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "4",
+          "filedAt": "2026-11-09",
+          "reportDate": "2026-11-06",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000230/xslF345X06/form4.xml",
+          "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+        },
+        {
+          "id": "sec:0000789019:0001193125-26-453698",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "DEFA14A",
+          "filedAt": "2026-11-09",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526453698/d136896ddefa14a.htm",
+          "description": "DEFA14A"
+        },
+        {
+          "id": "sec:0000789019:0001959173-26-007778",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "144",
+          "filedAt": "2026-11-05",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000195917326007778/xsl144X01/primary_doc.xml",
+          "description": "144 filing"
+        },
+        {
+          "id": "sec:0000789019:0001193125-26-448357",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "8-K",
+          "filedAt": "2026-11-05",
+          "reportDate": "2026-11-04",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526448357/d177209d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "id": "sec:0000789019:0001193125-26-447173",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "8-K",
+          "filedAt": "2026-11-04",
+          "reportDate": "2026-10-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526447173/d178557d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "id": "sec:0000789019:0001193125-26-442618",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "424B2",
+          "filedAt": "2026-11-02",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526442618/d150456d424b2.htm",
+          "description": "424B2"
+        },
+        {
+          "id": "sec:0000789019:0001193125-26-439794",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "FWP",
+          "filedAt": "2026-10-30",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526439794/d799291dfwp.htm",
+          "description": "FWP"
+        }
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "retrievedAt": "2026-11-11T13:04:36.882Z",
+      "data": [
+        {
+          "id": "sec:0001045810:0001197647-26-000013",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-11-06",
+          "reportDate": "2026-11-04",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119764726000013/xslF345X06/wk-form4_1793999520.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0001045810:0002152188-26-000007",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4/A",
+          "filedAt": "2026-10-13",
+          "reportDate": "2026-09-09",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000215218826000007/xslF345X06/wk-form4a_1791925767.xml",
+          "description": "FORM 4/A"
+        },
+        {
+          "id": "sec:0001045810:0001197647-26-000011",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-10-09",
+          "reportDate": "2026-10-07",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119764726000011/xslF345X06/wk-form4_1791579847.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0001045810:0001696841-26-000014",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-09-23",
+          "reportDate": "2026-09-21",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000169684126000014/xslF345X06/wk-form4_1790196985.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0001045810:0001199039-26-000016",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-09-22",
+          "reportDate": "2026-09-18",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119903926000016/xslF345X06/wk-form4_1790110579.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0001045810:0001921094-26-001040",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "144",
+          "filedAt": "2026-09-21",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001040/xsl144X01/primary_doc.xml",
+          "description": "144 filing"
+        },
+        {
+          "id": "sec:0001045810:0001243821-26-000007",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-09-18",
+          "reportDate": "2026-09-16",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000124382126000007/xslF345X06/wk-form4_1789766132.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0001045810:0001283854-26-000010",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-09-18",
+          "reportDate": "2026-09-16",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000128385426000010/xslF345X06/wk-form4_1789766082.xml",
+          "description": "FORM 4"
+        }
+      ]
+    }
+  ]
+}

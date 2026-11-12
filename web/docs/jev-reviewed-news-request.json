@@ -1,0 +1,35 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add source-checked company and monetary-policy developments with distinct facts and instrument-specific interpretations to the morning board.",
+    "existing": "Next16 React19; consensus-first dark/light visual board, six instrument selector, three horizons, panels, source dialogs, responsive390px,44px controls. Current news section is a separate GDELT language distribution. Existing earnings strip shows selected SEC quarterly revenue.",
+    "data": "Three actual reviewed developments: Apple November2 Q4 release (114.477bn revenue,2.10 GAAP dilutedEPS,0.05 EPS tariff-refund benefit); Microsoft October28 quarterly results (92.279bn revenue,4.92GAAP/4.89adjustedEPS); Fed October28 ratehold3.75-4.00 with2dissenting voters favoring a hike. Reviews map Apple/MSFT to market/SPY/QQQ/DIA and policy to all six; IWM/TLT get their own transmission explanation. No price response, index weights, analyst consensus or calibrated return forecast is available.",
+    "constraints": [
+      "Facts and interpretation must be visually separated",
+      "Show actual source dates, selected instrument and original links",
+      "Do not turn positive earnings into an automatic bullish trade or claim analyst surprise",
+      "No paid model calls on page read",
+      "Do not show private source documents or full copyright article bodies",
+      "Preserve consensus-first hierarchy and mobile readability"
+    ],
+    "catalog": [
+      "existing panel",
+      "source-linked heading",
+      "small context pill",
+      "two-column facts/read-through rows",
+      "three/one card grid",
+      "native details"
+    ]
+  },
+  "questions": {
+    "review_layout": {
+      "type": "choice",
+      "instructions": "Choose where and how to present the bounded reviewed sample.",
+      "criteria": {
+        "three_cards_before_charts": "A row of up to3cards after the catalyst rail and before charts, each with published date, one short verified-facts paragraph, a separately labelled Possible market effect for the selected instrument, and source links. Stack on phones.",
+        "inside_tone_panel": "Append interpreted cards below the news tone bins, while labelling them as a separate manually reviewed primary-source sample.",
+        "drawer_only": "Keep the homepage unchanged and make all reviewed developments available only in news source details."
+      }
+    }
+  }
+}

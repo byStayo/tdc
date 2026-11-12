@@ -1,0 +1,31 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Distinguish observations collected from evidence that can cast a directional vote, without suggesting either percentage is trading accuracy.",
+    "existing": "Next16/React19 MorningBoard, CSS modules. Three-column hero: verdict and evidence bar; abstaining gauge; family drivers. Full-width reasons list below. Tokens --text --text-secondary --text-muted --accent --border --panel. Existing coverageLabel, coverageTrack, finePrint classes. Mobile390px stacked layout. Source drawer exposes methodology.",
+    "metrics": {
+      "observationCoverage": "Weighted current-input fraction by family; includes context-only calendars/news.",
+      "directionalCoverage": "Weight share of families with an eligible numeric vote for this instrument and horizon. New rules require70%; at present only20-33% depending on horizon.",
+      "example": "55% observations current;20% directional coverage. Earnings growth and daily standing CFTC positions are context only."
+    },
+    "constraints": [
+      "Keep exact deterministic values and reasons, no generated financial claims.",
+      "Both percentages and their meanings visible without disclosure.",
+      "Directional coverage is primary because it gates a call. Context coverage is secondary.",
+      "Retain v1 historical display when that edition has only its original coverage field. No backfilled historical decisions.",
+      "Reuse current tokens and preserve390px responsive, light/dark, reduced motion."
+    ]
+  },
+  "questions": {
+    "coverage_layout": {
+      "type": "choice",
+      "instructions": "Select a compact visual presentation for these two distinct coverage measurements in the verdict column. Respect the primary/secondary meaning and required visible definitions.",
+      "criteria": {
+        "paired_bars": "Two vertically stacked labelled bars: primary directional family coverage with count, then a muted smaller observation-coverage bar and explanatory line.",
+        "primary_bar_secondary_text": "One primary directional-coverage bar with family count; secondary observation percentage in a short plain-text line defining context-only inclusion.",
+        "two_columns": "Two side-by-side labelled numeric blocks with small bars, directional first; stack on narrow viewports.",
+        "none_fit": "None of these gives sufficient distinction; expand the candidates before implementation."
+      }
+    }
+  }
+}

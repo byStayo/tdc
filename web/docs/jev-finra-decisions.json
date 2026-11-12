@@ -1,0 +1,20 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "presentation": {
+      "type": "choice",
+      "choice": "latest_bars_table",
+      "confidence": 0.92,
+      "probabilities": {
+        "latest_bars_table": 0.94,
+        "ten_week_bars": 0.01,
+        "latest_cards_table": 0.05,
+        "expand": 0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 691,
+    "output_tokens": 56
+  }
+}

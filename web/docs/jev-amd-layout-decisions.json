@@ -1,0 +1,20 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "result_grid": {
+      "type": "choice",
+      "choice": "header_then_autofit",
+      "confidence": 0.99,
+      "probabilities": {
+        "header_then_autofit": 0.99,
+        "two_by_two": 0,
+        "vertical_rows": 0.01,
+        "expand_candidates": 0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 712,
+    "output_tokens": 60
+  }
+}

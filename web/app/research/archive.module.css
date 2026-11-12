@@ -1,0 +1,39 @@
+.page { min-height: 100vh; background: var(--bg); }
+.main { width: 100%; max-width: var(--page-width); margin: 0 auto; padding: var(--page-top-space) var(--page-gutter) 0; }
+.intro { margin-bottom: 55px; max-width: 760px; }
+.eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); font-weight: 600; }
+.intro h1 { margin: 14px 0 12px; font: 500 var(--page-title-size) / var(--page-title-leading) var(--font-display), sans-serif; letter-spacing: -.035em; line-height: var(--page-title-leading); }
+.description { font-size: 16px; color: var(--text-secondary); line-height: 1.75; max-width: 680px; }
+.context { font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-top: 22px; max-width: 680px; }
+.yearNav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.yearNav a { min-height: 44px; display: inline-flex; gap: 14px; align-items: center; border: 1px solid var(--border); border-radius: 7px; background: var(--panel); padding: 10px 15px; font-size: 13px; color: var(--text); }
+.yearNav span { color: var(--text-muted); font-size: 12px; }
+.yearNav a:hover { border-color: var(--accent); }
+.yearSection { margin-top: 50px; scroll-margin-top: 24px; }
+.yearHeading { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 18px; }
+.yearHeading h2 { font-size: 25px; font-weight: 550; letter-spacing: -.5px; }
+.yearHeading span { font-size: 12px; color: var(--text-muted); }
+.article { display: grid; grid-template-columns: 165px minmax(0, 1fr); gap: 30px; padding: 27px 0; border-bottom: 1px solid var(--border-subtle); }
+.meta { font-size: 12px; color: var(--text-secondary); line-height: 1.7; padding-top: 3px; }
+.meta > span { display: block; color: var(--text-muted); font-size: 12px; margin-top: 5px; }
+.articleLink { min-height: 44px; display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+.articleLink h3 { font-size: 21px; font-weight: 550; line-height: 1.4; letter-spacing: -.35px; color: var(--text); }
+.articleLink svg { flex-shrink: 0; margin-top: 5px; color: var(--text-muted); }
+.articleLink:hover h3, .articleLink:hover svg { color: var(--accent); }
+.articleInfo > p { max-width: 75ch; font-size: 14px; line-height: 1.8; color: var(--text-secondary); margin-top: 11px; }
+.author { display: block; font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(1120px, calc(100% - 64px)); margin: 0 auto; border-top: 1px solid var(--border); padding: 26px 0 35px; font-size: 12px; color: var(--text-muted); }
+.footer a { min-height: 44px; display: inline-flex; align-items: center; gap: 5px; }
+@media (max-width: 700px) {
+  .main { padding-bottom: 0; }
+  .intro { margin-bottom: 36px; }
+  .intro h1 { font-size: var(--page-title-size); }
+  .description { font-size: 16px; }
+  .yearSection { margin-top: 38px; }
+  .article { grid-template-columns: minmax(0, 1fr); gap: 11px; padding: 23px 0; }
+  .meta { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; }
+  .meta > span { margin-top: 0; }
+  .articleLink h3 { font-size: 20px; }
+  .articleInfo > p { max-width: 75ch; font-size: 14px; }
+  .footer { width: calc(100% - 40px); flex-wrap: wrap; gap: 10px; }
+}

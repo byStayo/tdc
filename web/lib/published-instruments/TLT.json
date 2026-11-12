@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-11T13:07:04.481Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Thirty-year yield holds as the long-end spread narrows",
+    "summary": "The thirty-year Treasury yield held at 5.26% from November 6 to 9. The ten-year yield rose to 4.88%, narrowing the thirty-year minus ten-year spread to 38 basis points.",
+    "bull": [
+      {
+        "text": "The asset-manager net long in Treasury bond futures rose from 383,981 to 415,379 contracts between October 27 and November 3.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The leveraged-fund net short in Treasury bond futures increased from 150,393 to 166,257 contracts between October 27 and November 3.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The thirty-year yield held at 5.26% while the ten-year yield rose from 4.86% to 4.88%. Their spread narrowed from 40 to 38 basis points. These are benchmark yields. TLT’s portfolio exposures and returns require separate evidence.",
+        "sourceIds": [
+          "FRED_DGS30",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "limitations": [
+      "The Treasury observations in this report are dated November 9. No verified ETF closing price or return is available.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    }
+  ]
+}

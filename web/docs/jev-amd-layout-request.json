@@ -1,0 +1,30 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Correct a rendered layout defect exposed by adding the fourth verified company result.",
+    "existing": "The existing earningsStrip has four columns: heading occupies first, then AAPL/MSFT/NVDA. AMD wraps to a second row alone, leaving three empty cells. Actual 1280px screenshot verified this. There are four company results for MARKET/SPY/QQQ and three for DIA; none for IWM/TLT. Earlier historical editions have three. Management guidance is separately rendered below and is already readable.",
+    "constraints": [
+      "Keep the existing section, typography, colors, source details, sparklines and 44px controls",
+      "Do not modify any data or older snapshots",
+      "Test 375/768/1280px in both themes; no horizontal overflow; preserve reduced motion",
+      "Earlier approved existing_rows choice is still the hierarchy constraint; fix only the grid inside it"
+    ],
+    "tokens": {
+      "fonts": "Manrope and Space Grotesk",
+      "colors": "Existing CSS variables",
+      "density": "Calm company comparisons, not a new data wall"
+    }
+  },
+  "questions": {
+    "result_grid": {
+      "type": "choice",
+      "instructions": "Select the responsive arrangement that avoids the orphan card and handles three or four results without an artificial empty column.",
+      "criteria": {
+        "header_then_autofit": "Full-width title/description followed by a separate auto-fit company grid: four at roomy desktop, three when only three exist, two at tablet and one at narrow phone widths. Preserve separators.",
+        "two_by_two": "Full-width title/description and a fixed two-column card grid on desktop/tablet, one column on phones; three-company historical views have an empty fourth slot.",
+        "vertical_rows": "Full-width title/description followed by four compact full-width rows with ticker, revenue, change and sparkline columns on desktop; stack fields on phones.",
+        "expand_candidates": "None fits; expand choices."
+      }
+    }
+  }
+}

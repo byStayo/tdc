@@ -1,0 +1,7 @@
+# Visual board accessibility review · November3,2026
+
+Jev `jev-1.14.0` supplied two presentation choices from the inspected component catalog: family-heading buttons inside semantic articles, and vertically stacked source links. Request and complete answer/probability/usage artifacts are saved alongside this document. Confidence was0.26 and0.43 respectively; several valid layouts were close, so these are preferences, not quality scores. Code enforces44px targets and accessible semantics independently.
+
+All three section tabs retain their associated panels; inactive panel content is unmounted and hidden. The consensus overview belongs to the selected panel. Arrow/Home/End navigation, visible focus, labelled instrument/context groups, real signal-card headings and separate chart descriptions support keyboard and assistive navigation. Source dialogs preserve Escape and return focus to their trigger. Vote/gauge text is larger and source/attribution controls have44px minimum targets. No observations or publication dates changed.
+
+Local production-browser evidence includes desktop and390px rendering, all tab associations, keyboard section navigation, source-dialog open/Escape/focus restoration, readable chart descriptions and control-size measurements. Native accessibility-tree inspection exposes the heading, button and image separately. This is not a full VoiceOver announcement or WCAG-conformance certification. Production verification is recorded in the build status and private review evidence after deployment.

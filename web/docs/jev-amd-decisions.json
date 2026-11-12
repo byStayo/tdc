@@ -1,0 +1,30 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "placement": {
+      "type": "choice",
+      "choice": "existing_rows",
+      "confidence": 0.8,
+      "probabilities": {
+        "existing_rows": 0.85,
+        "issuer_card": 0.14,
+        "section_subtab": 0,
+        "expand_candidates": 0.01
+      }
+    },
+    "news_order": {
+      "type": "choice",
+      "choice": "latest_first",
+      "confidence": 0.79,
+      "probabilities": {
+        "latest_first": 0.86,
+        "macro_first": 0.12,
+        "company_group": 0.02
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1002,
+    "output_tokens": 91
+  }
+}

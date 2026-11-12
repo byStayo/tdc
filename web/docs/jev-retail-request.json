@@ -1,0 +1,52 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add an actual free Myfxbook hosted FX-community positioning view without extracting provider data or reintroducing clutter.",
+    "catalog": [
+      "Collapsed numbered ResearchSection",
+      "Existing research panels and 44px buttons",
+      "Current-only TradingView displays already load on demand",
+      "Gated Bluesky CommunityPanel prepared but not public because only5accounts matched and minimum10is required"
+    ],
+    "tokens": {
+      "fonts": "Manrope and SpaceGrotesk",
+      "palette": "existing --panel --text --text-secondary --text-muted --border in dark/light",
+      "responsive": "375/390,768,1280px;44px controls;reduced motion"
+    },
+    "facts": {
+      "provider": "Official Myfxbook generated Simple Outlook widget,6pairs EURUSD GBPUSD USDJPY USDCAD AUDUSD USDCHF. Script URL https://widgets.mfbcdn.net/scripts/fxOutlook.js?type=0&symbols=,1,2,3,5,11,29 ; preserve Powered by Myfxbook link and all provider data.",
+      "scope": "Positions of the Myfxbook FX community, not US ETF holdings or all retail investors. Hosted current display only, no saved raw data, votes or model input. Provider controls dates/delays; no current timestamp is invented.",
+      "other": "PredictionMarketsPicks live publication needs Enterprise key, so no predictionwidget. Bluesky raw data remains private; its panel stays hidden until a legitimate qualified aggregate is available."
+    },
+    "constraints": [
+      "No provider scripts in parent document; sandboxed child, no frame-data extraction",
+      "Explicit Load Myfxbook view action before third-party requests",
+      "No hosted frames/scripts at initial page load",
+      "Current-only display withheld entirely when historic edition selected",
+      "Do not relabelFXpositions underselectedSPY/QQQ/IWM/DIA/TLT",
+      "Keep copyright/source links and always offer direct provider fallback",
+      "No newhero/top-levelalwaysvisibledatawall;existingcollapsedhierarchy"
+    ]
+  },
+  "questions": {
+    "placement": {
+      "type": "choice",
+      "instructions": "Choose the section arrangement for a single real hosted FX view and a possible later qualified Bluesky panel.",
+      "criteria": {
+        "community_section": "A fourth collapsed section titled Community & retail, with explicit FX-community descriptor. Host the Myfxbook panel here; include Bluesky only when qualified. Keep both distinct.",
+        "institution_section": "Add Myfxbook as a separately labelled full-width panel within Policy, positioning & capital after institutional holdings.",
+        "price_section": "Add Myfxbook below current TradingView charts within Price chart & technicals.",
+        "expand_candidates": "No candidate fits; expand choices."
+      }
+    },
+    "load_layout": {
+      "type": "choice",
+      "instructions": "Choose a restrained initial presentation before a reader explicitly loads the third-party view.",
+      "criteria": {
+        "compact_prompt": "Small provider/scope heading, one-sentence limitation, Load Myfxbook button and direct provider link; create the frame only afterclick and allowUnload.",
+        "fixed_empty_stage": "Reserve a420px stage with centered loadbutton to maintainfullfinalheight beforeinteraction.",
+        "details_again": "Nest anothercollapseddisclosureinsideResearchSection,withLoadbuttoninside."
+      }
+    }
+  }
+}

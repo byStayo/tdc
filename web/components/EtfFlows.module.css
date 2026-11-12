@@ -1,0 +1,24 @@
+.section { margin: 20px 0 28px; padding: 26px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+.heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.heading p { color: var(--accent); font-size: 11px; font-weight: 600; letter-spacing: .12em; margin-bottom: 8px; }
+.heading h2 { font-family: var(--font-display),sans-serif; font-weight: 500; font-size: 24px; line-height: 1.3; letter-spacing: -.6px; }
+.heading > span, .intro, .note { color: var(--text-muted); font-size: 12px; line-height: 1.8; }
+.intro { margin: 14px 0 20px; max-width: 800px; }
+.grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.card { min-width: 0; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--bg); padding: 18px; display: flex; align-items: flex-start; flex-direction: column; }
+.label { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; width: 100%; }
+.label h3 { font-size: 13px; font-weight: 600; }
+.label span { font-size: 11px; color: var(--text-muted); text-align: right; }
+.value { font-family: var(--font-display),sans-serif; font-size: 28px; font-weight: 500; letter-spacing: -.7px; margin-top: 18px; font-variant-numeric: tabular-nums; }
+.date, .metric { font-size: 12px; color: var(--text-muted); margin-top: 7px; line-height: 1.7; }
+.metric strong { font-weight: 500; color: var(--text-secondary); }
+.track { height: 5px; width: 100%; background: var(--panel-raised); border-radius: 5px; margin: 18px 0 8px; overflow: hidden; }
+.track i { display: block; height: 100%; }
+.positive { background: var(--positive); }
+.negative { background: var(--negative); }
+.missing { margin-top: 18px; font-size: 12px; line-height: 1.8; color: var(--text-muted); }
+.card a { min-height: 44px; display: inline-flex; align-items: center; color: var(--accent); font-size: 12px; padding-top: 8px; margin-top: auto; }
+.note { padding-top: 18px; margin-top: 20px; border-top: 1px solid var(--border-subtle); }
+.note a { color: var(--accent); }
+@media(max-width:800px) { .heading { flex-direction: column; gap: 10px; } .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:520px) { .section { padding: 20px; } .heading h2 { font-size: 23px; } .grid { grid-template-columns: minmax(0,1fr); } }
