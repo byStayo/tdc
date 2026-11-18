@@ -1,84 +1,51 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-18T02:22:35.142Z",
+  "createdAt": "2026-11-18T13:09:12.022Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed against dated primary sources.",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
   "data": {
-    "headline": "Treasury yields ease after a week of increases",
-    "summary": "On November 16, two-, ten- and thirty-year Treasury benchmark yields slipped to 4.83%, 5.12% and 5.46%, respectively. Each remained at least 20 basis points above November 9, while overnight secured funding rose to 3.93%.",
+    "headline": "NVIDIA revenue doubles as long Treasury yields stay elevated",
+    "summary": "NVIDIA reported $115.8 billion in revenue for the quarter ended October 25, up 103% from a year earlier. The latest captured ten- and thirty-year Treasury yields were 5.12% and 5.46% on November 16.",
     "bull": [
       {
-        "text": "From November 13 to 16, two-, ten- and thirty-year benchmark yields fell 5, 3 and 1 basis points, respectively, easing part of the prior increase.",
+        "text": "The company reported quarterly GAAP diluted earnings of $2.70 per share, up from $1.30 a year earlier.",
         "sourceIds": [
-          "FRED_DGS2",
-          "FRED_DGS10",
-          "FRED_DGS30"
+          "SEC_NVDA"
         ]
       }
     ],
     "bear": [
       {
-        "text": "From November 9 to 16, the two-, ten- and thirty-year yields rose 27, 24 and 20 basis points, respectively. SOFR rose from 3.88% to 3.93% over the same interval.",
+        "text": "The thirty-year benchmark yielded 5.46% on November 16, 20 basis points above November 9.",
         "sourceIds": [
-          "FRED_DGS2",
-          "FRED_DGS10",
-          "FRED_DGS30",
-          "FRED_SOFR"
+          "FRED_DGS30"
         ]
       }
     ],
     "watch": [
       {
-        "text": "The ten-year minus two-year spread widened from 27 to 29 basis points between November 13 and 16. It was still narrower than November 9, when it was 32 basis points.",
+        "text": "Management’s $130 billion fourth-quarter revenue outlook has a range of plus or minus 3%. The quarter has an additional week.",
         "sourceIds": [
-          "FRED_DGS2",
-          "FRED_DGS10"
-        ]
-      },
-      {
-        "text": "In the November 10 CFTC report, leveraged-fund net shorts narrowed in both E-mini S&P 500 and E-mini Russell 2000 futures compared with November 3.",
-        "sourceIds": [
-          "CFTC_ES",
-          "CFTC_RTY"
+          "SEC_NVDA"
         ]
       }
     ],
     "limitations": [
-      "The latest matched Treasury and SOFR observations are dated November 16. Benchmark Treasury yields and overnight secured funding measure different markets.",
-      "CFTC positions are a weekly futures snapshot as of November 10. The evidence does not establish current ETF returns, flows, options exposure or investor intent."
+      "The NVIDIA figures cover one issuer. The packet lacks matched analyst expectations and a measured post-release price response.",
+      "The Treasury figures are the November 16 benchmark observations."
     ]
   },
   "sources": [
     {
-      "id": "FRED_DGS2",
-      "title": "Federal Reserve / FRED · Two-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS2"
-    },
-    {
-      "id": "FRED_DGS10",
-      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS10"
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
     },
     {
       "id": "FRED_DGS30",
       "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
       "url": "https://fred.stlouisfed.org/series/DGS30"
-    },
-    {
-      "id": "FRED_SOFR",
-      "title": "Federal Reserve / FRED · Secured Overnight Financing Rate",
-      "url": "https://fred.stlouisfed.org/series/SOFR"
-    },
-    {
-      "id": "CFTC_ES",
-      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
-    },
-    {
-      "id": "CFTC_RTY",
-      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
     }
   ]
 }

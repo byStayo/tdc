@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "DIA",
-  "createdAt": "2026-11-18T02:22:35.142Z",
+  "createdAt": "2026-11-18T13:09:12.022Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed against dated primary sources.",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
   "data": {
-    "headline": "Dow futures asset-manager net long falls to 2,080 contracts",
-    "summary": "From November 3 to 10, the asset-manager net long in Dow futures fell by 6,140 contracts while leveraged funds added 495 contracts to their net long. Total open interest declined.",
+    "headline": "NVIDIA’s filing adds a fresh Dow earnings observation",
+    "summary": "NVIDIA’s November 17 filing arrived after the regular session. The company reported GAAP diluted earnings of $2.70 per share. In the November 10 Dow futures report, the asset-manager net long was 2,080 contracts.",
     "bull": [
       {
-        "text": "The leveraged-fund net long rose from 820 to 1,315 contracts despite a decline in both gross longs and gross shorts. Most of the decline was on the short side.",
+        "text": "Leveraged funds held a November 10 Dow futures net long of 1,315 contracts, up from 820 a week earlier.",
         "sourceIds": [
           "CFTC_DOW"
         ]
@@ -18,7 +18,7 @@
     ],
     "bear": [
       {
-        "text": "Asset-manager longs fell and shorts increased, cutting the net long from 8,220 to 2,080 contracts. Open interest declined from 87,410 to 83,148 contracts.",
+        "text": "The asset-manager net long fell from 8,220 to 2,080 contracts. Contract open interest fell to 83,148.",
         "sourceIds": [
           "CFTC_DOW"
         ]
@@ -26,15 +26,15 @@
     ],
     "watch": [
       {
-        "text": "The thirty-year Treasury yield was 5.46% on November 16, up from 5.26% on November 9. Long-dated borrowing costs also depend on each issuer’s credit spread and financing terms.",
+        "text": "NVIDIA’s GAAP diluted earnings rose from $1.30 to $2.70 per share year over year. Watch whether the market response extends to other Dow components.",
         "sourceIds": [
-          "FRED_DGS30"
+          "SEC_NVDA"
         ]
       }
     ],
     "limitations": [
-      "The CFTC report is a November 10 snapshot of Dow futures. These positions are distinct from DIA holdings and flows and do not reveal investor intent.",
-      "The Treasury observation is dated November 16. This report has no verified DIA closing price, return, options exposure or dealer gamma."
+      "The Dow futures snapshot precedes the filing. The issuer disclosure does not measure aggregate Dow earnings.",
+      "The evidence packet lacks a post-release DIA return, matched expectations and a full option chain."
     ]
   },
   "sources": [
@@ -44,9 +44,9 @@
       "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
     },
     {
-      "id": "FRED_DGS30",
-      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS30"
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
     }
   ]
 }

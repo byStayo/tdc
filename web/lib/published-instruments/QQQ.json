@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "QQQ",
-  "createdAt": "2026-11-18T02:22:35.142Z",
+  "createdAt": "2026-11-18T13:09:12.022Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed against dated primary sources.",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
   "data": {
-    "headline": "Nasdaq futures net longs diverge as benchmark yields stay higher",
-    "summary": "Leveraged funds increased their E-mini Nasdaq-100 net long in the November 10 report while the asset-manager net long edged lower. The ten-year yield eased on November 16 but stayed above the previous week’s reading.",
+    "headline": "NVIDIA’s data-center sales reach $107.6 billion",
+    "summary": "NVIDIA reported data-center revenue of $107.6 billion for the quarter ended October 25, up 110% from a year earlier. Leveraged funds widened their E-mini Nasdaq-100 futures net long in the earlier November 10 report.",
     "bull": [
       {
-        "text": "The leveraged-fund net long rose from 10,073 to 13,967 contracts between November 3 and 10. Both sides of the position declined, with short holdings falling more than longs.",
+        "text": "Leveraged funds’ November 10 net long increased to 13,967 contracts from 10,073 on November 3.",
         "sourceIds": [
           "CFTC_NQ"
         ]
@@ -18,23 +18,24 @@
     ],
     "bear": [
       {
-        "text": "The ten-year Treasury yield was 5.12% on November 16, 24 basis points above November 9. Higher benchmark discount rates can put pressure on valuations that depend on distant earnings.",
+        "text": "The asset-manager net long slipped to 72,785 contracts. The ten-year Treasury benchmark was 5.12% on November 16.",
         "sourceIds": [
+          "CFTC_NQ",
           "FRED_DGS10"
         ]
       }
     ],
     "watch": [
       {
-        "text": "The asset-manager net long slipped from 73,137 to 72,785 contracts and open interest declined from 292,587 to 288,717. The next report can show whether leveraged funds continue to move differently from asset managers.",
+        "text": "NVIDIA projected $130 billion in fourth-quarter revenue, plus or minus 3%, with an extra week in the quarter and zero China data-center compute revenue assumed.",
         "sourceIds": [
-          "CFTC_NQ"
+          "SEC_NVDA"
         ]
       }
     ],
     "limitations": [
-      "The CFTC observations are for E-mini Nasdaq-100 futures as of November 10. They are separate from QQQ holdings, flows and realized returns.",
-      "Treasury yields alone cannot establish a valuation change or cause an ETF move. This report has no verified QQQ closing price, return, options exposure or dealer gamma."
+      "The positioning figures describe Nasdaq-100 futures. The issuer outlook is forward-looking.",
+      "The evidence packet lacks matched analyst expectations, a post-release QQQ return and a full option chain."
     ]
   },
   "sources": [
@@ -47,6 +48,11 @@
       "id": "FRED_DGS10",
       "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
       "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
     }
   ]
 }

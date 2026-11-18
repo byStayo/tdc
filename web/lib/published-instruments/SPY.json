@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "SPY",
-  "createdAt": "2026-11-18T02:22:35.142Z",
+  "createdAt": "2026-11-18T13:09:12.022Z",
   "model": "Codex editorial workflow",
-  "message": "Reviewed against dated primary sources.",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
   "data": {
-    "headline": "S&P futures shorts shrink as asset-manager net longs fall",
-    "summary": "In the week to November 10, leveraged funds cut their E-mini S&P 500 net short by 69,258 contracts while the asset-manager net long fell by 14,454. Total open interest rose.",
+    "headline": "NVIDIA results add to November’s S&P 500 positioning backdrop",
+    "summary": "NVIDIA’s November 17 filing reported revenue growth of 103% year over year. In the November 10 E-mini S&P 500 futures report, leveraged funds reduced their net short and asset managers reduced their net long.",
     "bull": [
       {
-        "text": "The leveraged-fund net short fell from 372,318 to 303,060 contracts between November 3 and 10, reflecting both higher long holdings and lower short holdings.",
+        "text": "Leveraged funds’ November 10 net short was 303,060 contracts, down 69,258 from November 3.",
         "sourceIds": [
           "CFTC_ES"
         ]
@@ -18,7 +18,7 @@
     ],
     "bear": [
       {
-        "text": "The asset-manager net long fell from 928,584 to 914,130 contracts. Short holdings rose by more than long holdings in the same report.",
+        "text": "The asset-manager net long fell to 914,130 contracts even as contract open interest rose to 2,017,687.",
         "sourceIds": [
           "CFTC_ES"
         ]
@@ -26,21 +26,15 @@
     ],
     "watch": [
       {
-        "text": "Open interest rose from 1,986,532 to 2,017,687 contracts. Check the next weekly report for whether both positioning changes persist as the number of open contracts changes.",
+        "text": "NVIDIA reported $115.8 billion in quarterly revenue. Watch how widely the earnings reaction spreads across large-cap stocks.",
         "sourceIds": [
-          "CFTC_ES"
-        ]
-      },
-      {
-        "text": "The two-year Treasury yield eased to 4.83% on November 16 from 4.88% on November 13. It remained 27 basis points above November 9, a useful benchmark for tracking refinancing conditions.",
-        "sourceIds": [
-          "FRED_DGS2"
+          "SEC_NVDA"
         ]
       }
     ],
     "limitations": [
-      "The E-mini S&P 500 futures are related to SPY, but their CFTC positions measure futures activity. They do not establish SPY fund flows or investor intent.",
-      "The November 10 position report and November 16 yield have different observation dates. This report has no verified SPY closing price, return, options exposure or dealer gamma."
+      "The CFTC figures describe a related futures contract on November 10. The filing covers NVIDIA only.",
+      "Matched earnings expectations, post-release SPY prices and a full option-chain reading remain unavailable."
     ]
   },
   "sources": [
@@ -50,9 +44,9 @@
       "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
     },
     {
-      "id": "FRED_DGS2",
-      "title": "Federal Reserve / FRED · Two-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS2"
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
     }
   ]
 }
