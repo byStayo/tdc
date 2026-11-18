@@ -37,6 +37,7 @@
     "consensus:research-occ-volume": "node --experimental-strip-types scripts/research-occ-volume.ts",
     "consensus:collect-sentisense-options-private": "node --experimental-strip-types scripts/collect-sentisense-options-private.ts",
     "consensus:research-cta-reference": "node --experimental-strip-types scripts/research-cta-reference.ts",
+    "consensus:research-sentisense-skew": "node --experimental-strip-types scripts/research-sentisense-skew.ts",
     "consensus:research-treasury-auction-demand": "node --experimental-strip-types scripts/research-treasury-auction-demand.ts",
     "consensus:research-families-private": "node --experimental-strip-types scripts/research-families-private.ts",
     "consensus:research-events-private": "node --experimental-strip-types scripts/research-events-private.ts",
