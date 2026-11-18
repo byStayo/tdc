@@ -6,6 +6,8 @@ import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
 import { collectBocSurvey } from "./boc-survey.ts";
+import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
+import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { collectAnalystRatings } from "./analyst-ratings.ts";
@@ -40,6 +42,8 @@ const HOSTS = new Set([
   "www.ecb.europa.eu",
   "data-api.ecb.europa.eu",
   "www.federalreserve.gov",
+  "www.newyorkfed.org",
+  "www.mof.go.jp",
   "www.boj.or.jp",
   "www.bankofengland.co.uk",
   "www.bankofcanada.ca",
@@ -68,10 +72,10 @@ export function safeURL(input: string): string {
     throw new Error("Source URL outside public allowlist");
   return url.href;
 }
-export async function publicText(
+export async function publicBytes(
   url: string,
   fetcher: Fetcher = fetch,
-): Promise<{ text: string; sha256: string; retrievedAt: string }> {
+): Promise<{ bytes: Buffer; sha256: string; retrievedAt: string }> {
   safeURL(url);
   const response = await sourceResponse(fetcher, url, {
     redirect: "error",
@@ -97,12 +101,19 @@ export async function publicText(
     await reader.cancel().catch(() => undefined);
     throw error;
   }
-  const buffer = Buffer.concat(chunks);
+  const bytes = Buffer.concat(chunks);
   return {
-    text: buffer.toString("utf8"),
-    sha256: createHash("sha256").update(buffer).digest("hex"),
+    bytes,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
     retrievedAt: new Date().toISOString(),
   };
+}
+export async function publicText(
+  url: string,
+  fetcher: Fetcher = fetch,
+): Promise<{ text: string; sha256: string; retrievedAt: string }> {
+  const { bytes, sha256, retrievedAt } = await publicBytes(url, fetcher);
+  return { text: bytes.toString("utf8"), sha256, retrievedAt };
 }
 export function fredPoints(text: string, id: string, cutoff: string): Point[] {
   const [header, ...lines] = text.trim().split(/\r?\n/);
@@ -919,6 +930,8 @@ export async function collectSnapshot(
     privateCredit,
     policyRates,
     bocSurvey,
+    householdOutlook,
+    japanPortfolioFlows,
     holdings,
     taiwan,
     analystRatings,
@@ -940,6 +953,8 @@ export async function collectSnapshot(
     collectPrivateCredit((url) => publicText(url, fetcher)),
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectBocSurvey((url) => publicText(url, fetcher)),
+    collectNyFedStockOutlook((url) => publicText(url, fetcher)),
+    collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
     collectTaiwan((url) => publicText(url, fetcher)),
     collectAnalystRatings((url) => publicText(url, fetcher)),
@@ -962,6 +977,8 @@ export async function collectSnapshot(
       privateFunds,
       ...policyRates,
       bocSurvey,
+      householdOutlook,
+      japanPortfolioFlows,
       ...holdings.signals,
       ...missingSignals(issuedAt),
       // Match the scoped addition's position so a full refresh cannot create
@@ -990,7 +1007,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 44,
+    sourcesAttempted: MACRO_SERIES.length + 47,
     collectionErrors: signals
       .filter(
         (signal) =>

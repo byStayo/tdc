@@ -269,7 +269,7 @@ const REQUIRED_FEEDS: {
     family: "retail",
     title: "Retail positioning",
     reason:
-      "A representative retail-position or sentiment feed is not connected. Social engagement is not a substitute for holdings.",
+      "Representative net retail positions are unavailable. Survey responses and order activity measure different parts of retail behavior.",
     url: "https://thedailyconsensus.com/methodology",
   },
   {

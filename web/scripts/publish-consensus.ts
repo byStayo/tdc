@@ -1,6 +1,7 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir, writeFile, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
+import { durableJSON } from "../lib/publication-storage.ts";
 import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
 import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
@@ -69,11 +70,7 @@ const reservations = await readReservations(root);
 snapshot.evaluationAnchors = reservationAnchors(reservations);
 for (const model of registry.models) await validateActiveModelTree(root, model, reservations);
 snapshot.forecasts = forecastSnapshot(snapshot, registry.models);
-await mkdir(resolve(root, ".consensus"), { recursive: true });
-await writeFile(
-  draftPath,
-  JSON.stringify(snapshot, null, 2),
-);
+await durableJSON(draftPath, snapshot);
 if (process.argv.includes("--publish")) {
   const result = await publishSnapshot(root, snapshot);
   console.log(

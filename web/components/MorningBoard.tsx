@@ -57,6 +57,7 @@ const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
 const number = (value: number, decimals = 2) =>
   value.toLocaleString("en-US", { maximumFractionDigits: decimals });
+const visibleAttribution = new Set(["nyfed-sce-stock-outlook", "japan-mof-equity-flows"]);
 const date = (value: string) =>
   new Date(
     value.length === 10 ? `${value}T12:00:00Z` : value,
@@ -379,6 +380,9 @@ function SourceDrawer({
               </span>
             </div>
             <p>{signal.summary}</p>
+            {signal.status === "available" && visibleAttribution.has(signal.id) && (
+              <p className={styles.finePrint}>{signal.source.attribution}</p>
+            )}
             {signal.collectionNote && (
               <p className={styles.finePrint}>{signal.collectionNote}</p>
             )}
@@ -444,7 +448,7 @@ function SourceDrawer({
               <summary>Calculation & limitations</summary>
               <p>{signal.methodology}</p>
               <p>{signal.limitation}</p>
-              <p>{signal.source.attribution}</p>
+              {(signal.status !== "available" || !visibleAttribution.has(signal.id)) && <p>{signal.source.attribution}</p>}
               <p>{signal.source.usage}</p>
               {signal.id === "policy-boe-bank" && (
                 <a

@@ -6,6 +6,7 @@ const HOSTS = new Set([
   "polymarket.com", "publicreporting.cftc.gov", "thedailyconsensus.com", "ticdata.treasury.gov",
   "www.apple.com", "www.bankofcanada.ca", "www.bankofengland.co.uk", "www.bls.gov", "www.boj.or.jp", "www.ecb.europa.eu",
   "www.federalreserve.gov", "www.gdeltproject.org", "www.microsoft.com", "www.optionseducation.org",
+  "www.mof.go.jp", "www.newyorkfed.org",
   "www.sec.gov", "www.treasurydirect.gov",
   "etfiq.com", "openapi.twse.com.tw", "www.quantisnow.com",
 ]);

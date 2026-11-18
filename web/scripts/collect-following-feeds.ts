@@ -288,6 +288,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     await main();
   } catch {
     console.error("Following feed collection failed. Check .editorial/following-config.json and the private output directory.");
-    if (!process.argv.includes("--scheduled")) process.exitCode = 1;
+    if (process.argv.includes("--scheduled")) console.log(JSON.stringify({ status: "unavailable" }));
+    else process.exitCode = 1;
   }
 }
