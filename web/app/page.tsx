@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import community from "@/lib/community-current.json";
 import { currentCommunity } from "@/lib/community";
 import MorningBoard from "@/components/MorningBoard";
@@ -7,21 +5,13 @@ import snapshot from "@/lib/consensus/current.json";
 import experiments from "@/lib/consensus/experiments.json";
 import performance from "@/lib/consensus/performance.json";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
-import { KIBOT_RESEARCH_FILE, validateKibotResearch, type KibotResearch } from "@/lib/consensus/kibot-research";
+import { validateKibotResearch } from "@/lib/consensus/kibot-research";
 import history from "@/public/consensus/index.json";
+import kibotResearch from "@/public/consensus/kibot-research.json";
 import type { Snapshot, HistoryEntry } from "@/lib/consensus/types";
 export const metadata = { alternates: { canonical: "/" } };
-export default async function Page() {
-  let kibotResearch: KibotResearch | null = null;
-  try {
-    const report: unknown = JSON.parse(
-      await readFile(join(process.cwd(), "public/consensus", KIBOT_RESEARCH_FILE), "utf8"),
-    );
-    validateKibotResearch(report, history[0]);
-    kibotResearch = report;
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-  }
+export default function Page() {
+  validateKibotResearch(kibotResearch, history[0]);
   return (
     <MorningBoard
       communityEnabled={currentCommunity(community) !== null}
