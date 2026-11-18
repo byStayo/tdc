@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. The reproducible New York Fed survey archive processed 281 official releases and found 118 distinct stock-probability observations, two short of the research floor. The separate Staff Nowcast study paired 154 retrospective revisions per ETF and scored 31 test dates per ETF. All five missed the research margin. The IEX free download and linked samples failed access checks. The private historical Kibot path works across all five ETFs. The recurring public-outcome price contract and the remaining voting families are open. [Source evidence and benchmarks](../../FREE_FEED_PATH.md#november-18--original-household-releases-and-nowcast)
+
 - November 18 follow-up. Finished the reproducible Korean archive across 470 entries. The IWM spread paired 434 sessions and underperformed FX alone on the common 87-date historical test. Embedded save times require separate prospective provenance. The international family stays open. [Full benchmark](../../FREE_FEED_PATH.md#november-18--full-korean-market-benchmark)
 
 - November 18 follow-up. Verified the original same-day and next-session CTA reports for the November 28, 2025 Arca-listed ETFs. All eight post-close reported marks matched the independent SEC values. An actual five-ETF Market History study tested 28 to 29 chronological dates per instrument after its documented delay, with no cohort clearing the declared margin. Exact opening provenance, the production price grant and the current premarket family remain open. [Correction and premarket evidence](../../FREE_FEED_PATH.md#november-18--corrections-and-delayed-premarket-coverage)
