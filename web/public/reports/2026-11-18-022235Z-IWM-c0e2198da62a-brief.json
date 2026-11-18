@@ -1,0 +1,53 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-18T02:22:35.142Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Small-cap futures shorts ease as overnight funding rises",
+    "summary": "Both groups moved closer to flat in the November 10 E-mini Russell 2000 report. By November 16, SOFR had climbed to 3.93%, above its November 9 reading.",
+    "bull": [
+      {
+        "text": "Leveraged funds’ net short narrowed from 55,080 to 44,429 contracts between November 3 and 10.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The asset-manager net long fell from 23,623 to 19,663 contracts. November 16 SOFR was 5 basis points above November 9, relevant to borrowers whose debt resets against overnight secured funding.",
+        "sourceIds": [
+          "CFTC_RTY",
+          "FRED_SOFR"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Open interest declined from 449,399 to 440,576 contracts. Watch whether the smaller net balances persist when participation changes in the next report.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "Company borrowing costs depend on loan terms, credit spreads and reset dates. The SOFR move does not show how much any company paid.",
+      "The CFTC observations cover related Russell 2000 futures as of November 10. This report has no verified IWM fund flows, closing price, return, options exposure or dealer gamma."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Federal Reserve / FRED · Secured Overnight Financing Rate",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-11T13:04:36.888Z",
-  "macroRetrievedAt": "2026-11-11T13:04:36.293Z",
-  "positioningRetrievedAt": "2026-11-11T13:04:36.748Z",
+  "collectedAt": "2026-11-18T02:10:39.263Z",
+  "macroRetrievedAt": "2026-11-18T02:10:35.429Z",
+  "positioningRetrievedAt": "2026-11-18T02:10:39.260Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -754,95 +754,115 @@
   ],
   "positioning": [
     {
-      "id": "cftc-tff-futures:13874A:2026-11-03",
+      "id": "cftc-tff-futures:13874A:2026-11-10",
       "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
       "contractCode": "13874A",
-      "reportDate": "2026-11-03",
+      "reportDate": "2026-11-10",
       "units": "($50 X S&P 500 INDEX)",
-      "openInterest": 1986532,
-      "assetManagerLong": 1111721,
-      "assetManagerShort": 183137,
-      "leveragedLong": 125269,
-      "leveragedShort": 497587,
-      "dealerLong": 182419,
-      "dealerShort": 870993
+      "openInterest": 2017687,
+      "assetManagerLong": 1115756,
+      "assetManagerShort": 201626,
+      "leveragedLong": 145755,
+      "leveragedShort": 448815,
+      "dealerLong": 175005,
+      "dealerShort": 910294
     },
     {
-      "id": "cftc-tff-futures:209742:2026-11-03",
+      "id": "cftc-tff-futures:209742:2026-11-10",
       "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
       "contractCode": "209742",
-      "reportDate": "2026-11-03",
+      "reportDate": "2026-11-10",
       "units": "(NASDAQ 100 STOCK INDEX X $20)",
-      "openInterest": 292587,
-      "assetManagerLong": 109642,
-      "assetManagerShort": 36505,
-      "leveragedLong": 62698,
-      "leveragedShort": 52625,
-      "dealerLong": 39546,
-      "dealerShort": 152075
+      "openInterest": 288717,
+      "assetManagerLong": 107927,
+      "assetManagerShort": 35142,
+      "leveragedLong": 58721,
+      "leveragedShort": 44754,
+      "dealerLong": 44896,
+      "dealerShort": 144995
     },
     {
-      "id": "cftc-tff-futures:239742:2026-11-03",
+      "id": "cftc-tff-futures:239742:2026-11-10",
       "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
       "contractCode": "239742",
-      "reportDate": "2026-11-03",
+      "reportDate": "2026-11-10",
       "units": "(RUSSEL 2000 INDEX X $50)",
-      "openInterest": 449399,
-      "assetManagerLong": 143965,
-      "assetManagerShort": 120342,
-      "leveragedLong": 100585,
-      "leveragedShort": 155665,
-      "dealerLong": 112819,
-      "dealerShort": 83442
+      "openInterest": 440576,
+      "assetManagerLong": 141671,
+      "assetManagerShort": 122008,
+      "leveragedLong": 90791,
+      "leveragedShort": 135220,
+      "dealerLong": 113891,
+      "dealerShort": 91628
     },
     {
-      "id": "cftc-tff-futures:124603:2026-11-03",
+      "id": "cftc-tff-futures:124603:2026-11-10",
       "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
       "contractCode": "124603",
-      "reportDate": "2026-11-03",
+      "reportDate": "2026-11-10",
       "units": "($5 X DJIA INDEX)",
-      "openInterest": 87410,
-      "assetManagerLong": 16728,
-      "assetManagerShort": 8508,
-      "leveragedLong": 11980,
-      "leveragedShort": 11160,
-      "dealerLong": 42047,
-      "dealerShort": 56069
+      "openInterest": 83148,
+      "assetManagerLong": 14272,
+      "assetManagerShort": 12192,
+      "leveragedLong": 10470,
+      "leveragedShort": 9155,
+      "dealerLong": 41417,
+      "dealerShort": 48553
     },
     {
-      "id": "cftc-tff-futures:020601:2026-11-03",
+      "id": "cftc-tff-futures:020601:2026-11-10",
       "market": "UST BOND - CHICAGO BOARD OF TRADE",
       "contractCode": "020601",
-      "reportDate": "2026-11-03",
+      "reportDate": "2026-11-10",
       "units": "(CONTRACTS OF $100,000 FACE VALUE)",
-      "openInterest": 1930138,
-      "assetManagerLong": 1164793,
-      "assetManagerShort": 749414,
-      "leveragedLong": 209524,
-      "leveragedShort": 375781,
-      "dealerLong": 45950,
-      "dealerShort": 285264
+      "openInterest": 1985709,
+      "assetManagerLong": 1157873,
+      "assetManagerShort": 762883,
+      "leveragedLong": 263868,
+      "leveragedShort": 413726,
+      "dealerLong": 43711,
+      "dealerShort": 290102
     },
     {
-      "id": "cftc-tff-futures:043602:2026-11-03",
+      "id": "cftc-tff-futures:043602:2026-11-10",
       "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
       "contractCode": "043602",
-      "reportDate": "2026-11-03",
+      "reportDate": "2026-11-10",
       "units": "(CONTRACTS OF $100,000 FACE VALUE)",
-      "openInterest": 5947433,
-      "assetManagerLong": 3730323,
-      "assetManagerShort": 700087,
-      "leveragedLong": 585873,
-      "leveragedShort": 2848183,
-      "dealerLong": 129667,
-      "dealerShort": 741551
+      "openInterest": 6095194,
+      "assetManagerLong": 3838858,
+      "assetManagerShort": 685097,
+      "leveragedLong": 586834,
+      "leveragedShort": 2888161,
+      "dealerLong": 114916,
+      "dealerShort": 774940
     }
   ],
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-11T13:04:36.355Z",
+      "retrievedAt": "2026-11-18T02:10:35.537Z",
       "data": [
+        {
+          "id": "sec:0000320193:0001921094-26-001188",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "144",
+          "filedAt": "2026-11-16",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000192109426001188/xsl144X01/primary_doc.xml",
+          "description": "144 filing"
+        },
+        {
+          "id": "sec:0000320193:0001140361-26-043484",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "4",
+          "filedAt": "2026-11-12",
+          "reportDate": "2026-11-10",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126043484/xslF345X06/form4.xml",
+          "description": "FORM 4"
+        },
         {
           "id": "sec:0000320193:0001354457-26-001062",
           "company": "Apple Inc.",
@@ -902,33 +922,33 @@
           "reportDate": null,
           "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042046/ny20084621x1_424b2.htm",
           "description": "424B2"
-        },
-        {
-          "id": "sec:0000320193:0000320193-26-000026",
-          "company": "Apple Inc.",
-          "cik": "0000320193",
-          "form": "10-K",
-          "filedAt": "2026-11-03",
-          "reportDate": "2026-09-26",
-          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
-          "description": "10-K"
-        },
-        {
-          "id": "sec:0000320193:0000320193-26-000024",
-          "company": "Apple Inc.",
-          "cik": "0000320193",
-          "form": "8-K",
-          "filedAt": "2026-11-02",
-          "reportDate": "2026-11-02",
-          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000024/aapl-20261102.htm",
-          "description": "8-K"
         }
       ]
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-11T13:04:36.666Z",
+      "retrievedAt": "2026-11-18T02:10:35.764Z",
       "data": [
+        {
+          "id": "sec:0000789019:0000789019-26-000236",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "4",
+          "filedAt": "2026-11-16",
+          "reportDate": "2026-11-16",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000236/xslF345X06/form4.xml",
+          "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+        },
+        {
+          "id": "sec:0000789019:0000789019-26-000234",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "4",
+          "filedAt": "2026-11-12",
+          "reportDate": "2026-11-10",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000234/xslF345X06/form4.xml",
+          "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+        },
         {
           "id": "sec:0000789019:0000789019-26-000232",
           "company": "MICROSOFT CORP",
@@ -988,33 +1008,43 @@
           "reportDate": "2026-10-29",
           "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526447173/d178557d8k.htm",
           "description": "8-K"
-        },
-        {
-          "id": "sec:0000789019:0001193125-26-442618",
-          "company": "MICROSOFT CORP",
-          "cik": "0000789019",
-          "form": "424B2",
-          "filedAt": "2026-11-02",
-          "reportDate": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526442618/d150456d424b2.htm",
-          "description": "424B2"
-        },
-        {
-          "id": "sec:0000789019:0001193125-26-439794",
-          "company": "MICROSOFT CORP",
-          "cik": "0000789019",
-          "form": "FWP",
-          "filedAt": "2026-10-30",
-          "reportDate": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526439794/d799291dfwp.htm",
-          "description": "FWP"
         }
       ]
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-11T13:04:36.882Z",
+      "retrievedAt": "2026-11-18T02:10:35.978Z",
       "data": [
+        {
+          "id": "sec:0001045810:0001045810-26-000088",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "8-K",
+          "filedAt": "2026-11-17",
+          "reportDate": "2026-11-17",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000088/nvda-20261117.htm",
+          "description": "8-K"
+        },
+        {
+          "id": "sec:0001045810:0001045810-26-000084",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "13F-HR",
+          "filedAt": "2026-11-16",
+          "reportDate": "2026-09-30",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000084/xslForm13F_X02/primary_doc.xml",
+          "description": "13F-HR filing"
+        },
+        {
+          "id": "sec:0001045810:0001045810-26-000082",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "8-K",
+          "filedAt": "2026-11-12",
+          "reportDate": "2026-11-11",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000082/nvda-20261111.htm",
+          "description": "8-K"
+        },
         {
           "id": "sec:0001045810:0001197647-26-000013",
           "company": "NVIDIA CORP",
@@ -1063,36 +1093,6 @@
           "filedAt": "2026-09-22",
           "reportDate": "2026-09-18",
           "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119903926000016/xslF345X06/wk-form4_1790110579.xml",
-          "description": "FORM 4"
-        },
-        {
-          "id": "sec:0001045810:0001921094-26-001040",
-          "company": "NVIDIA CORP",
-          "cik": "0001045810",
-          "form": "144",
-          "filedAt": "2026-09-21",
-          "reportDate": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001040/xsl144X01/primary_doc.xml",
-          "description": "144 filing"
-        },
-        {
-          "id": "sec:0001045810:0001243821-26-000007",
-          "company": "NVIDIA CORP",
-          "cik": "0001045810",
-          "form": "4",
-          "filedAt": "2026-09-18",
-          "reportDate": "2026-09-16",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000124382126000007/xslF345X06/wk-form4_1789766132.xml",
-          "description": "FORM 4"
-        },
-        {
-          "id": "sec:0001045810:0001283854-26-000010",
-          "company": "NVIDIA CORP",
-          "cik": "0001045810",
-          "form": "4",
-          "filedAt": "2026-09-18",
-          "reportDate": "2026-09-16",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000128385426000010/xslF345X06/wk-form4_1789766082.xml",
           "description": "FORM 4"
         }
       ]

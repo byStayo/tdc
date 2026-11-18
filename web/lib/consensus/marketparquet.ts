@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
 import { exchangeSession, verifyExpectedSessions } from "./exchange-calendar.ts";
@@ -107,7 +108,7 @@ export function reconcileMarketParquet(
     }
     // A cash-adjusted vendor close would sit one distribution below the
     // as-traded close. Require the two closes to agree within half of it.
-    const boundaries = cash[symbol].filter(action => byDate.has(action.session)).map(action => {
+    const boundaries = cash[symbol].filter(action => calendar.includes(action.session)).map(action => {
       const prior = calendar[calendar.indexOf(action.session) - 1];
       const vendor = byDate.get(prior)?.bars[symbol].close, expected = independent.get(prior)?.close;
       const status = vendor === undefined || expected === undefined ? "prior-session-missing" as const :
@@ -122,12 +123,43 @@ export function reconcileMarketParquet(
   const complete = (session: string) => symbols.every(row => row.matched.includes(session));
   // The share basis is verified only across an unbroken run of matched sessions.
   let verifiedThrough: string | null = null;
-  for (const file of files) {
-    if (!complete(file.session)) break;
-    verifiedThrough = file.session;
+  for (const session of calendar) {
+    if (!complete(session) || symbols.some(row => row.boundaries.some(
+      boundary => boundary.exDate === session && boundary.status !== "verified",
+    ))) break;
+    verifiedThrough = session;
   }
   return { sessions: files.map(file => file.session), symbols, verifiedThrough,
-    passed: verifiedThrough === files.at(-1)!.session,
+    passed: verifiedThrough === calendar.at(-1),
     earlyClosesVerified: early.filter(complete),
     boundarySymbolsVerified: symbols.filter(row => row.boundaries.some(item => item.status === "verified")).map(row => row.symbol) };
+}
+
+export function marketParquetIssuerFingerprints(
+  issuers: { symbol: string; cash: CashDistribution[] }[], first: string, through: string,
+) {
+  return issuers.map(({ symbol, cash }) => ({
+    symbol,
+    sha256: createHash("sha256").update(JSON.stringify(cash
+      .filter(action => action.session >= first && action.session <= through)
+      .map(({ session, amount }) => [session, amount] as const)
+      .sort(([a], [b]) => a.localeCompare(b)))).digest("hex"),
+  }));
+}
+
+export function matchesMarketParquetReview(
+  evidence: { mode: string; passed: boolean; capturedAfterClose: boolean; verifiedThrough: string;
+    files: { session: string; sha256: string }[]; issuerActions: { symbol: string; sha256: string }[] },
+  mode: "sample" | "licensed", through: string,
+  files: MarketParquetDay[], issuers: { symbol: string; sha256: string }[],
+): boolean {
+  if (evidence.mode !== mode || evidence.passed !== true || evidence.capturedAfterClose !== true ||
+      evidence.verifiedThrough !== through || !Array.isArray(evidence.files) || !Array.isArray(evidence.issuerActions))
+    return false;
+  const prefix = files.filter(file => file.session <= through);
+  return evidence.files.length > 0 && evidence.files.length === prefix.length &&
+    prefix.every((file, index) => evidence.files[index].session === file.session &&
+      evidence.files[index].sha256 === file.sha256) &&
+    issuers.length === ETF_SYMBOLS.length && evidence.issuerActions.length === issuers.length &&
+    issuers.every(issuer => evidence.issuerActions.some(row => row.symbol === issuer.symbol && row.sha256 === issuer.sha256));
 }

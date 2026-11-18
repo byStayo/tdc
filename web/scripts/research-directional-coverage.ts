@@ -1,13 +1,15 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { effectiveStatus } from "../lib/consensus/engines/v2.ts";
 import { ETF_FLOW_PREFIX } from "../lib/consensus/etf-flows.ts";
 import { selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { PROSPECTIVE_MINIMUM } from "../lib/consensus/learning-audit.ts";
+import { FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
-import type { Outcome } from "../lib/consensus/types.ts";
+import type { Instrument, Outcome } from "../lib/consensus/types.ts";
 
 const futuresByETF = {
   SPY: "13874A",
@@ -52,6 +54,29 @@ const groups = Object.entries(futuresByETF).flatMap(([instrument, contract]) => 
   });
 });
 
+const familyGroups = (Object.keys(futuresByETF) as Instrument[]).flatMap(instrument => {
+  const sessions = selected.filter(row => row.instrument === instrument);
+  const issued = sessions.map(session => {
+    const snapshot = byId.get(session.snapshotId)!;
+    const cutoff = Date.parse(snapshot.cutoff);
+    const observations = snapshot.signals.filter(signal =>
+      signal.instruments.includes(instrument) &&
+      effectiveStatus(signal, snapshot.cutoff) === "available" &&
+      Date.parse(signal.source.retrievedAt) <= cutoff &&
+      (!signal.source.releasedAt || Date.parse(signal.source.releasedAt) <= cutoff));
+    return { observations, readings: asIssuedConsensus(snapshot, instrument, "daily").families };
+  });
+  return FAMILIES.map(({ id: family }) => {
+    const observations = issued.map(row => row.observations.filter(signal => signal.family === family));
+    return { instrument, family, selectedSessions: sessions.length,
+      pairedObservationSessions: observations.filter(signals => signals.length > 0).length,
+      pairedVoteSessions: issued.filter(row => row.readings.some(reading =>
+        reading.id === family && reading.score !== null)).length,
+      distinctObservationDates: new Set(observations.flatMap(signals =>
+        signals.map(signal => signal.source.observedAt!.slice(0, 10)))).size };
+  });
+});
+
 // Count coverage only. Do not inspect returns or consume a holdout reservation.
 console.log(JSON.stringify({ scope: "private-pairing-only", policy, horizon: "daily",
-  minimumEligibleModelRows: PROSPECTIVE_MINIMUM, groups }, null, 2));
+  minimumEligibleModelRows: PROSPECTIVE_MINIMUM, groups, familyGroups }, null, 2));

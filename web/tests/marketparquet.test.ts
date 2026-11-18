@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, reviewedMarketParquetDays, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
+import { ETF_SYMBOLS, marketParquetEvidence, marketParquetIssuerFingerprints, matchesMarketParquetReview, reconcileMarketParquet, reviewedMarketParquetDays, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 import { exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 
 const calendar = exchangeSessions("2026-10-30", "2026-11-04");
@@ -73,6 +73,8 @@ test("leaves a boundary unresolved when the vendor close already reflects the di
     { ...noCash, DIA: [{ session: "2026-11-20", amount: 0.11 }] }, reference, { openBps: 3, closeBps: 15 });
   assert.equal(result.symbols.find(row => row.symbol === "DIA")!.boundaries[0].status, "unresolved");
   assert.deepEqual(result.boundarySymbolsVerified, []);
+  assert.equal(result.passed, false);
+  assert.equal(result.verifiedThrough, "2026-11-19");
 });
 
 test("stops the verified share basis at the first differing or unmatched session", () => {
@@ -93,4 +95,28 @@ test("reports a boundary whose prior session was not captured", () => {
   const result = reconcileMarketParquet(dividendCalendar, files,
     { ...noCash, DIA: [{ session: "2026-11-20", amount: 0.11 }] }, referenceFor(files), strict);
   assert.equal(result.symbols.find(row => row.symbol === "DIA")!.boundaries[0].status, "prior-session-missing");
+});
+
+test("a fully matching reference cannot approve an omitted completed session", () => {
+  const files = dividendCalendar.filter(day => day !== "2026-11-20").map(session => bar(session));
+  const result = reconcileMarketParquet(dividendCalendar, files, noCash, referenceFor(files), strict);
+  assert.equal(result.passed, false);
+  assert.equal(result.verifiedThrough, "2026-11-19");
+});
+
+test("binds a licensed review to its bars and the applicable issuer distributions", () => {
+  const files = dividendCalendar.map(session => bar(session));
+  const through = dividendCalendar.at(-1)!;
+  const first = dividendCalendar[0];
+  const issuers = ETF_SYMBOLS.map(symbol => ({ symbol, cash: [] as { session: string; amount: number }[] }));
+  const fingerprints = marketParquetIssuerFingerprints(issuers, first, through);
+  const evidence = { mode: "licensed", passed: true, capturedAfterClose: true, verifiedThrough: through,
+    files, issuerActions: fingerprints };
+  assert.equal(matchesMarketParquetReview(evidence, "licensed", through, files, fingerprints), true);
+  assert.equal(matchesMarketParquetReview(evidence, "sample", through, files, fingerprints), false);
+  const revisedBars = [{ ...files[0], sha256: "b".repeat(64) }, ...files.slice(1)];
+  assert.equal(matchesMarketParquetReview(evidence, "licensed", through, revisedBars, fingerprints), false);
+  issuers[0].cash.push({ session: through, amount: 0.5 });
+  const revisedIssuer = marketParquetIssuerFingerprints(issuers, first, through);
+  assert.equal(matchesMarketParquetReview(evidence, "licensed", through, files, revisedIssuer), false);
 });

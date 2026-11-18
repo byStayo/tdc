@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "SPY",
-  "createdAt": "2026-11-11T13:07:04.481Z",
+  "createdAt": "2026-11-18T02:22:35.142Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "S&P futures shorts narrow as the Treasury curve flattens",
-    "summary": "In the November 3 report, leveraged funds reduced their E-mini S&P 500 net short while asset managers increased their net long. The ten-year minus two-year Treasury spread narrowed further to 32 basis points on November 9.",
+    "headline": "S&P futures shorts shrink as asset-manager net longs fall",
+    "summary": "In the week to November 10, leveraged funds cut their E-mini S&P 500 net short by 69,258 contracts while the asset-manager net long fell by 14,454. Total open interest rose.",
     "bull": [
       {
-        "text": "The E-mini S&P 500 asset-manager net long rose from 923,449 to 928,584 contracts. The leveraged-fund net short fell from 400,604 to 372,318 contracts.",
+        "text": "The leveraged-fund net short fell from 372,318 to 303,060 contracts between November 3 and 10, reflecting both higher long holdings and lower short holdings.",
         "sourceIds": [
           "CFTC_ES"
         ]
@@ -18,41 +18,41 @@
     ],
     "bear": [
       {
-        "text": "The two-year yield rose from 4.51% on November 6 to 4.56% on November 9. Higher benchmarks can raise refinancing costs for borrowers whose debt reprices with market rates.",
+        "text": "The asset-manager net long fell from 928,584 to 914,130 contracts. Short holdings rose by more than long holdings in the same report.",
         "sourceIds": [
-          "FRED_DGS2"
+          "CFTC_ES"
         ]
       }
     ],
     "watch": [
       {
-        "text": "The ten-year minus two-year spread narrowed from 35 to 32 basis points. Funding costs, asset repricing and credit losses also affect lenders.",
+        "text": "Open interest rose from 1,986,532 to 2,017,687 contracts. Check the next weekly report for whether both positioning changes persist as the number of open contracts changes.",
         "sourceIds": [
-          "FRED_DGS2",
-          "FRED_DGS10"
+          "CFTC_ES"
+        ]
+      },
+      {
+        "text": "The two-year Treasury yield eased to 4.83% on November 16 from 4.88% on November 13. It remained 27 basis points above November 9, a useful benchmark for tracking refinancing conditions.",
+        "sourceIds": [
+          "FRED_DGS2"
         ]
       }
     ],
     "limitations": [
-      "The Treasury observations in this report are dated November 9. No verified ETF closing price or return is available.",
-      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
+      "The E-mini S&P 500 futures are related to SPY, but their CFTC positions measure futures activity. They do not establish SPY fund flows or investor intent.",
+      "The November 10 position report and November 16 yield have different observation dates. This report has no verified SPY closing price, return, options exposure or dealer gamma."
     ]
   },
   "sources": [
     {
       "id": "CFTC_ES",
-      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-03",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
     },
     {
       "id": "FRED_DGS2",
       "title": "Federal Reserve / FRED · Two-year Treasury constant maturity yield",
       "url": "https://fred.stlouisfed.org/series/DGS2"
-    },
-    {
-      "id": "FRED_DGS10",
-      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS10"
     }
   ]
 }

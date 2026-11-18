@@ -13,7 +13,7 @@ import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { evaluateCandidate, planCandidate } from "../lib/consensus/learning.ts";
 import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, promotionEvidence, readReservations, reserveEvaluation, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
-import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetEvidence, reviewedMarketParquetDays, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
+import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetEvidence, marketParquetIssuerFingerprints, matchesMarketParquetReview, reviewedMarketParquetDays, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
 import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "../lib/consensus/marketparquet-aggregate.ts";
 import { ENGINE_VERSION, FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
@@ -22,7 +22,7 @@ import { HORIZONS } from "../lib/consensus/types.ts";
 type Issuer = { symbol: typeof ETF_SYMBOLS[number]; source: string; sha256: string; cash: CashDistribution[] };
 type UnavailableDay = { session: string; httpStatus: number };
 type Capture = { sessions: (MarketParquetDay | UnavailableDay)[]; distributions: Issuer[] };
-type Ledger = { schemaVersion: 1; capturedAt?: string; bars: MarketParquetDay[]; distributions: Issuer[] };
+type Ledger = { schemaVersion: 1; capturedAt?: string; expectedSessions?: string[]; bars: MarketParquetDay[]; distributions: Issuer[] };
 type HoldoutSummary = { testLabels: number; candidateBrier: number; baseRateBrier: number; coinBrier: number; passed: boolean };
 
 function readHoldoutSummary(value: HoldoutSummary): HoldoutSummary {
@@ -88,6 +88,7 @@ try {
     timeout: 120000, maxBuffer: 2_000_000,
     env: { ...process.env, MARKETPARQUET_API_KEY: credential },
   });
+  const capturedAt = new Date().toISOString();
   const incoming = JSON.parse(stdout) as Capture;
   const issuerBySymbol = new Map(incoming.distributions.map(issuer => [issuer.symbol, issuer]));
   if (issuerBySymbol.size !== ETF_SYMBOLS.length || ETF_SYMBOLS.some(symbol => !issuerBySymbol.has(symbol)))
@@ -115,8 +116,9 @@ try {
   // The same review lists each early close whose prices were reconciled.
   let multiSessionReviewedThrough = "2026-11-10";
   let reviewedEarlyCloses: string[] = [];
+  let licensedReviewThrough: string | null = null;
   try {
-    const review = JSON.parse(await readFile(resolve(directory, "actions-review.json"), "utf8"));
+    const review = JSON.parse(await readFile(resolve(directory, licensed ? "licensed-actions-review.json" : "actions-review.json"), "utf8"));
     const early = review.earlyClosesVerified ?? [];
     if (typeof review.through !== "string" || !exchangeSession(review.through) ||
         review.through < multiSessionReviewedThrough || review.through > through ||
@@ -124,8 +126,16 @@ try {
         !Array.isArray(early) || early.some((day: unknown) => typeof day !== "string" || !exchangeSession(day) ||
           day > review.through || Date.parse(exchangeSession(day)!.closeAt) - Date.parse(exchangeSession(day)!.openAt) >= 6.5 * 3600000))
       throw new Error("Invalid MarketParquet corporate-action review");
-    multiSessionReviewedThrough = review.through;
-    reviewedEarlyCloses = early;
+    if (typeof review.evidence !== "string" || !/^reconciliation-[0-9TZ-]+\.json$/.test(review.evidence))
+      throw new Error("MarketParquet review needs its reconciliation evidence");
+    const evidence = JSON.parse(await readFile(resolve(directory, review.evidence), "utf8"));
+    if (matchesMarketParquetReview(evidence, licensed ? "licensed" : "sample", review.through,
+      captured, marketParquetIssuerFingerprints(incoming.distributions, licensed ? from : captured[0]?.session ?? from, review.through)) &&
+      JSON.stringify(evidence.earlyClosesVerified) === JSON.stringify(early)) {
+      multiSessionReviewedThrough = review.through;
+      reviewedEarlyCloses = early;
+      if (licensed) licensedReviewThrough = review.through;
+    }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
@@ -141,7 +151,7 @@ try {
   const outcomes = snapshots.flatMap(snapshot => evidence.flatMap(prices => HORIZONS.flatMap(horizon => {
     if (horizon !== "daily") {
       const window = outcomeWindowSessions(snapshot.issuedAt, horizon, calendar);
-      if (!window.length || window.at(-1)! > multiSessionReviewedThrough || window.some(day => !fetchedDays.has(day)))
+      if ((licensed && !licensedReviewThrough) || !window.length || window.at(-1)! > multiSessionReviewedThrough || window.some(day => !fetchedDays.has(day)))
         return [];
     }
     const row = evaluateOutcome(snapshot, prices, horizon, now);
@@ -153,8 +163,8 @@ try {
   const { models } = JSON.parse(await readFile(resolve(root, "lib/consensus/models.json"), "utf8")) as { models: ActiveModel[] };
   const cohorts = [];
   let trainingPerformed = false;
-  const publish = !!arguments_[0] && fetchedDays.has(through) && selected.length > 0 &&
-    (old?.bars ?? []).every(file => refetched.has(file.session));
+  const publish = !!arguments_[0] && licensedReviewThrough === through && selected.length > 0 &&
+    completed.every(day => refetched.has(day));
   if (publish) await assertCommittedReservations(root);
   await durableDirectory(directory, 0o700);
   for (const instrument of ETF_SYMBOLS) for (const horizon of HORIZONS) {
@@ -214,7 +224,7 @@ try {
     edition: current.id, through: bars.at(-1)!.session, scoringPolicy: policy,
     minimumTestLabels: MINIMUM_TEST_LABELS,
     missingCompletedSessions: missingSessions.length, multiSessionReviewedThrough, cohorts, families };
-  await durableJSON(ledgerPath, { schemaVersion: 1, capturedAt: now, bars: captured,
+  await durableJSON(ledgerPath, { schemaVersion: 1, capturedAt, expectedSessions: licensed ? completed : undefined, bars: captured,
     distributions: incoming.distributions } satisfies Ledger);
   const evaluation = { ...report, evaluatedAt: now, missingSessions, unreviewedEarlyCloses, outcomes, trainingPerformed,
     // Inputs that reproduce this run from the private ledger.
@@ -245,8 +255,12 @@ try {
     missingSessions, trainingPerformed, issuerDistributions: incoming.distributions.map(({ symbol, cash }) =>
       ({ symbol, verified: cash.filter(event => event.session <= through).length })), cohorts, families }, null, 2));
   if (arguments_[0] && !publish) {
-    console.error("Public aggregate preserved. MarketParquet did not refresh the required completed sessions.");
-    process.exitCode = 2;
+    if (licensedReviewThrough !== through) {
+      console.log("Licensed capture saved. Reconcile the latest completed session before evaluating holdouts or staging the public aggregate.");
+    } else {
+      console.error("Public aggregate preserved. MarketParquet did not refresh the required completed sessions.");
+      process.exitCode = 2;
+    }
   }
 } catch (error) {
   failure = { error };

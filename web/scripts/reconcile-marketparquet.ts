@@ -6,7 +6,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { collectKibotPrices } from "../lib/consensus/kibot.ts";
-import { ETF_SYMBOLS, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
+import { ETF_SYMBOLS, reconcileMarketParquet, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 
 // Independent check of the private vendor ledger. Prints differences, never prices.
 const args = process.argv.slice(2);
@@ -24,14 +24,16 @@ let failure: { error: unknown } | undefined;
 try {
   const now = new Date().toISOString();
   const ledgerText = await readFile(resolve(directory, licensed ? "licensed.json" : "sample.json"), "utf8");
-  const ledger = JSON.parse(ledgerText) as { schemaVersion: number; capturedAt?: string; bars: MarketParquetDay[];
+  const ledger = JSON.parse(ledgerText) as { schemaVersion: number; capturedAt?: string; expectedSessions?: string[]; bars: MarketParquetDay[];
     distributions: { symbol: typeof ETF_SYMBOLS[number]; sha256: string; cash: { session: string; amount: number }[] }[] };
   if (ledger.schemaVersion !== 1 || !Array.isArray(ledger.bars) || !ledger.bars.length ||
       ledger.distributions?.length !== ETF_SYMBOLS.length)
     throw new Error("Run the MarketParquet evaluator before reconciling its ledger");
   const files = ledger.bars.slice().sort((a, b) => a.session.localeCompare(b.session));
-  const first = files[0].session, through = files.at(-1)!.session;
-  const calendar = exchangeSessions(first, through);
+  if (licensed && (!Array.isArray(ledger.expectedSessions) || !ledger.expectedSessions.length))
+    throw new Error("Recapture the licensed ledger with its expected session calendar");
+  const calendar = licensed ? ledger.expectedSessions! : exchangeSessions(files[0].session, files.at(-1)!.session);
+  const first = calendar[0], through = calendar.at(-1)!;
   const cash = Object.fromEntries(ETF_SYMBOLS.map(symbol => {
     const issuer = ledger.distributions.find(row => row.symbol === symbol);
     if (!issuer) throw new Error(`Missing issuer history for ${symbol}`);
@@ -71,17 +73,16 @@ try {
     ledgerSha256: createHash("sha256").update(ledgerText).digest("hex"), ledgerCapturedAt: ledger.capturedAt ?? null,
     files: files.map(({ session, sha256 }) => ({ session, sha256 })),
     issuers: ledger.distributions.map(({ symbol, sha256 }) => ({ symbol, sha256 })),
+    issuerActions: marketParquetIssuerFingerprints(ledger.distributions, first, through),
     reference: { source, hashes, tolerance }, capturedAfterClose, ...result };
   const evidenceName = `reconciliation-${through}-${now.replace(/[:.]/g, "-")}.json`;
   await durableJSON(resolve(directory, evidenceName), summary, true);
 
   let reviewed = false;
-  if (record) {
+  if (record && result.passed && capturedAfterClose) {
     // Extending the review asserts one unbroken share basis from the first
     // captured session and issuer histories read after the final close.
-    if (!result.passed || !capturedAfterClose)
-      throw new Error("Review not recorded. Every session must reconcile and the issuer capture must follow the final close.");
-    await durableJSON(resolve(directory, "actions-review.json"), { through, issuerActionsVerified: true,
+    await durableJSON(resolve(directory, licensed ? "licensed-actions-review.json" : "actions-review.json"), { through, issuerActionsVerified: true,
       splitBasisVerified: true, earlyClosesVerified: result.earlyClosesVerified, evidence: evidenceName, reviewedAt: now });
     reviewed = true;
   }
@@ -91,7 +92,8 @@ try {
     symbols: result.symbols.map(({ symbol, compared, unmatched, differing, maxOpenBps, maxCloseBps, boundaries }) =>
       ({ symbol, compared, unmatched, differing, maxOpenBps: +maxOpenBps.toFixed(3), maxCloseBps: +maxCloseBps.toFixed(3), boundaries })),
     evidence: evidenceName, reviewRecorded: reviewed }, null, 2));
-  if (!result.passed) process.exitCode = 2;
+  if (record && !reviewed) console.error("Review not recorded. Every session and distribution boundary must reconcile and the issuer capture must follow the final close.");
+  if (!result.passed || (record && !reviewed)) process.exitCode = 2;
 } catch (error) {
   failure = { error };
   throw error;

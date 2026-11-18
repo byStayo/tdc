@@ -33,6 +33,7 @@ const aggregate = (id: string) => ({
 
 test("accepts cohort and family totals and a gated holdout summary", () => {
   const report = aggregate("e1");
+  Object.assign(report.cohorts[0], { resolved: 500, abstentions: 500 });
   report.cohorts[0].holdout = { testLabels: 100, candidateBrier: .24, baseRateBrier: .25, coinBrier: .25, passed: false };
   validateMarketParquetAggregate(report, ["e1"]);
 });
@@ -47,6 +48,19 @@ test("rejects price rows, single-outcome returns, features and weights in the pu
     report => { report.cohorts[0].holdout = { testLabels: 99, candidateBrier: .24, baseRateBrier: .25, coinBrier: .25, passed: true }; return report; },
     report => { Object.assign(report.families[0], { scores: [.5] }); return report; },
     report => ({ ...report, edition: "unissued" }),
+    report => { report.cohorts[0].holdout = { testLabels: 100, candidateBrier: .23, baseRateBrier: .25, coinBrier: .25, passed: true }; return report; },
+    report => {
+      Object.assign(report.cohorts[0], { resolved: 500, abstentions: 500,
+        holdout: { testLabels: 100, candidateBrier: .245, baseRateBrier: .25, coinBrier: .25, passed: true } });
+      return report;
+    },
+    report => ({ ...report, minimumTestLabels: 0 }),
+    report => ({ ...report, engineVersion: "consensus-rules-9.0.0" }),
+    report => ({ ...report, scoringPolicy: "arbitrary" }),
+    report => ({ ...report, missingCompletedSessions: 1 }),
+    report => { report.cohorts[0].eligibility = "ready"; return report; },
+    report => { report.families[0].pairedVotes = 6; return report; },
+    report => { report.families[0].pairedObservations = 26; return report; },
     report => ({ ...report, source: "https://example.com/prices" }),
   ];
   for (const change of cases)
