@@ -49,7 +49,7 @@ def write_private(path, data):
             temporary.unlink(missing_ok=True)
 
 
-def capture(folder, name, url, maximum, cached_only, session=None):
+def capture(folder, name, url, maximum, cached_only, session=None, expected_close=None):
     source, receipt = folder / f"{name}.bin", folder / f"{name}.json"
     existing = cached_only or receipt.exists()
     if existing:
@@ -77,6 +77,8 @@ def capture(folder, name, url, maximum, cached_only, session=None):
     rows = read_daily(name.removeprefix("sample-"), raw) if session else None
     if rows and rows[-1]["session"] != session:
         raise ValueError(f"{name} ends {rows[-1]['session']} and expected {session}")
+    if expected_close and not expected_close <= parsedate_to_datetime(meta["lastModified"]) <= observed:
+        raise ValueError(f"{name} was not finalized after the reviewed core close")
     if not existing:
         if source.exists() and owner_read(source, maximum) != raw:
             raise ValueError(f"{name} changed after an interrupted capture")
@@ -123,6 +125,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("through", type=dt.date.fromisoformat)
     parser.add_argument("--cached-only", action="store_true")
+    parser.add_argument("--independent-samples", action="store_true",
+                        help="Report unverified sample files separately from verified captures")
+    parser.add_argument("--expected-close", type=dt.datetime.fromisoformat)
     parser.add_argument("--cached-issuer-history-from", type=dt.date.fromisoformat,
                         help="Read only issuer histories from an existing capture")
     args = parser.parse_args()
@@ -131,6 +136,8 @@ def main():
     cached_only = args.cached_only or issuer_history is not None
     if issuer_history and issuer_history > args.through:
         parser.error("Issuer history starts after the capture session")
+    if args.expected_close and args.expected_close.tzinfo is None:
+        parser.error("The expected core close requires a timezone")
     start = issuer_history.isoformat() if issuer_history else "2026-01-01"
     os.umask(0o077)
     try:
@@ -139,16 +146,26 @@ def main():
         if folder.is_symlink() or S_IMODE(folder.stat().st_mode) != 0o700:
             raise ValueError("FirstRate capture must use an owner-only directory")
         samples = []
+        failures = []
         for symbol in (() if issuer_history else EQUITY_SAMPLES):
             url = STORAGE + f"frd_sample_etf_{symbol}.zip"
-            _, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only, args.through.isoformat())
-            samples.append({**meta, "symbol": symbol, "basis": "split-adjusted",
-                            "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows})
+            try:
+                _, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only,
+                                        args.through.isoformat(), args.expected_close)
+                samples.append({**meta, "symbol": symbol, "basis": "split-adjusted",
+                                "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows})
+            except (OSError, ValueError, KeyError, TypeError, BadZipFile) as error:
+                if not args.independent_samples:
+                    raise
+                failures.append({"symbol": symbol, "reason": str(error)[:240]})
         issuers = []
         for symbol in SYMBOLS:
             raw, meta, _ = capture(folder, f"issuer-{symbol}", ISSUERS[symbol], ISSUER_SIZE, cached_only)
             issuers.append({**issuer_cash(symbol, raw, start), "capturedAt": meta["capturedAt"]})
-        print(json.dumps({"samples": samples, "issuers": issuers}, allow_nan=False, separators=(",", ":")))
+        result = {"samples": samples, "issuers": issuers}
+        if args.independent_samples:
+            result["sampleFailures"] = failures
+        print(json.dumps(result, allow_nan=False, separators=(",", ":")))
     except (OSError, ValueError, KeyError, TypeError, BadZipFile) as error:
         print(str(error), file=sys.stderr)
         return 1

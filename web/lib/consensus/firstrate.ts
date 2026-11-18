@@ -25,13 +25,16 @@ type PriceSource = { symbol: Symbol; url: string; sha256: string; basis: "split-
   capturedAt: string; modifiedAt: string; rows: Bar[] };
 type Issuer = { symbol: typeof ETF_SYMBOLS[number]; source: string; sha256: string;
   capturedAt: string; cash: CashDistribution[] };
+type SampleFailure = { symbol: Symbol; reason: string };
 type ApprovedSymbol = {
   symbol: Symbol;
+  reviewedThrough?: string;
   rows: SessionPrice[];
   withheld: { session: string; reason: "short-session" | "price" | "direction" }[];
   proof: { source: Omit<PriceSource, "rows">; comparison: string[]; splitComparison: string[];
     listingReferences: { session: string; source: string; sha256: string }[] };
 };
+type ReviewedSymbol = ApprovedSymbol & { reviewedThrough: string };
 type Approval = {
   schemaVersion: 1;
   source: typeof FIRST_RATE_SOURCE;
@@ -120,14 +123,16 @@ function verifyIssuers(issuers: Issuer[], through: string, now: string) {
 
 export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
   const dates = exchangeSessions(approval.from, approval.through);
+  const ordered = FIRST_RATE_SYMBOLS.filter(symbol => approval.symbols.some(row => row.symbol === symbol));
   if (approval.from < FIRST_EDITION_DAY || approval.source !== FIRST_RATE_SOURCE ||
-      approval.symbols.length !== FIRST_RATE_SYMBOLS.length ||
-      FIRST_RATE_SYMBOLS.some((symbol, index) => symbol !== approval.symbols[index].symbol))
+      !approval.symbols.length || ordered.length !== approval.symbols.length ||
+      ordered.some((symbol, index) => symbol !== approval.symbols[index].symbol))
     throw new Error("FirstRate approval has an invalid source or instrument list");
   verifyIssuers(approval.issuers, approval.through, approval.approvedAt);
-  return approval.symbols.map(({ symbol, rows }) => {
+  return approval.symbols.map(({ symbol, rows, reviewedThrough = approval.through }) => {
     const byDate = new Map(rows.map(row => [row.session, row]));
-    if (byDate.size !== rows.length || rows.some(row => row.session < approval.from || row.session > approval.through ||
+    if (!dates.includes(reviewedThrough) || byDate.size !== rows.length ||
+        rows.some(row => row.session < approval.from || row.session > reviewedThrough ||
         !fullSession(row.session) || row.openAt !== exchangeSession(row.session)!.openAt ||
         row.closeAt !== exchangeSession(row.session)!.closeAt))
       throw new Error(`FirstRate approval has invalid sessions for ${symbol}`);
@@ -160,89 +165,115 @@ export async function loadFirstRatePrices(root: string) {
   return approval ? firstRatePriceEvidence(approval) : [];
 }
 
+async function reviewSample(directory: string, sample: PriceSource, through: string, from: string,
+  cachedOnly: boolean, observed: string, old?: ApprovedSymbol): Promise<ReviewedSymbol> {
+  const { rows, ...source } = sample;
+  const { symbol } = source;
+  const dates = exchangeSessions(rows[0].session, through);
+  const closingAt = exchangeSession(through)!.closeAt;
+  if (dates.join() !== rows.map(row => row.session).join() || source.url !== sourceURL(symbol) ||
+      source.basis !== "split-adjusted" || !SHA256.test(source.sha256) ||
+      !(closingAt <= source.modifiedAt && source.modifiedAt <= source.capturedAt && source.capturedAt <= observed))
+    throw new Error(`FirstRate ${symbol} sample is stale or differs from the reviewed calendar or source`);
+
+  const comparison = { reviewedExchangeCalendar: true, cachedOnly };
+  const raw = await collectResearchPrices(directory, symbol, dates, comparison);
+  const splits = await collectResearchPrices(directory, symbol, dates, { ...comparison, splitAdjusted: true });
+  const asTraded = raw.flatMap(row => row.sessions), splitOnly = splits.flatMap(row => row.sessions);
+  const check = reconcileFirstRateRows(symbol, rows, asTraded, splitOnly);
+  const listing = await listingReferences(directory, symbol,
+    check.withheld.filter(row => row.reason === "direction").map(row => row.session));
+  const normalized = listing.length
+    ? reconcileFirstRateRows(symbol, rows, asTraded, splitOnly, listing.map(row => row.mark))
+    : check;
+  const merged = new Map(old?.rows.map(row => [row.session, row]));
+  const priorLast = old?.rows.at(-1)?.session;
+  const incomingFirst = normalized.rows[0]?.session;
+  if (priorLast && incomingFirst && incomingFirst > priorLast &&
+      exchangeSessions(priorLast, incomingFirst).length === 2)
+    throw new Error(`${symbol} needs an overlapping raw share-basis check before joining these adjacent sessions`);
+  for (const issue of normalized.withheld) {
+    if (merged.has(issue.session))
+      throw new Error(`Previously approved ${symbol} session no longer reconciles on ${issue.session}`);
+  }
+  for (const row of normalized.rows.filter(row => row.session >= from)) {
+    const prior = merged.get(row.session);
+    if (prior && (row.open !== prior.open || row.close !== prior.close))
+      throw new Error(`Previously approved ${symbol} prices changed for ${row.session}`);
+    merged.set(row.session, row);
+  }
+  if (!merged.size) throw new Error(`${symbol} has no independently verified price sessions`);
+  return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
+    withheld: normalized.withheld,
+    proof: { source, comparison: raw.map(row => row.sha256), splitComparison: splits.map(row => row.sha256),
+      listingReferences: listing.map(({ session, source, sha256 }) => ({ session, source, sha256 })) } };
+}
+
+function approvedCounts(approval: Approval) {
+  return firstRatePriceEvidence(approval).map(({ instrument, sessions }) => ({ instrument, sessions: sessions.length }));
+}
+
 /** Caller holds the existing publication lock. The only committed output is an owner-local receipt. */
 export async function prepareFirstRate(root: string, cachedOnly = false, now = new Date().toISOString()) {
   const through = priorSession(now);
   if (through < FIRST_EDITION_DAY) return { status: "no_issued_targets", through };
   const directory = resolve(root, directoryName);
   const previous = await readApproval(root);
-  if (previous && previous.through >= through)
-    return { status: "reused", through: previous.through, approved: firstRatePriceEvidence(previous).map(({ instrument, sessions }) =>
-      ({ instrument, sessions: sessions.length })) };
+  const approved = new Map(previous?.symbols.map(row =>
+    [row.symbol, { ...row, reviewedThrough: row.reviewedThrough ?? previous.through }]));
+  const pending = FIRST_RATE_SYMBOLS.filter(symbol => (approved.get(symbol)?.reviewedThrough ?? "") < through);
+  if (previous && (previous.through > through || !pending.length))
+    return { status: "reused", through: previous.through, approved: approvedCounts(previous) };
   await durableDirectory(directory, 0o700);
   const { stdout } = await promisify(execFile)("python3",
-    ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"), through, ...(cachedOnly ? ["--cached-only"] : [])],
+    ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"), through, "--independent-samples",
+      "--expected-close", exchangeSession(through)!.closeAt.replace(/Z$/, "+00:00"),
+      ...(cachedOnly ? ["--cached-only"] : [])],
     { timeout: 105_000, maxBuffer: 256_000 });
-  const { samples, issuers } = JSON.parse(stdout) as { samples: PriceSource[]; issuers: Issuer[] };
+  const { samples, sampleFailures, issuers } = JSON.parse(stdout) as {
+    samples: PriceSource[]; sampleFailures: SampleFailure[]; issuers: Issuer[] };
+  const inventory = [...samples, ...sampleFailures].map(row => row.symbol);
+  if (inventory.length !== FIRST_RATE_SYMBOLS.length || FIRST_RATE_SYMBOLS.some(symbol => !inventory.includes(symbol)))
+    throw new Error("FirstRate did not account for each documented sample");
   const observed = new Date().toISOString();
-  const closingAt = exchangeSession(through)!.closeAt;
   verifyIssuers(issuers, through, observed);
-  if (samples.length !== FIRST_RATE_SYMBOLS.length ||
-      FIRST_RATE_SYMBOLS.some((symbol, index) => samples[index].symbol !== symbol))
-    throw new Error("FirstRate did not supply the four documented equity samples");
-
-  const from = previous?.from ?? [FIRST_EDITION_DAY, ...samples.map(sample => sample.rows[0].session)].sort().at(-1)!;
-  const approved: ApprovedSymbol[] = [];
-  for (const { rows, ...source } of samples) {
-    const { symbol } = source;
-    const dates = exchangeSessions(rows[0].session, through);
-    if (dates.join() !== rows.map(row => row.session).join() || source.url !== sourceURL(symbol) ||
-        source.basis !== "split-adjusted" || !SHA256.test(source.sha256) ||
-        !(closingAt <= source.modifiedAt && source.modifiedAt <= source.capturedAt && source.capturedAt <= observed))
-      throw new Error(`FirstRate ${symbol} sample is stale or differs from the reviewed calendar or source`);
-
-    const old = previous?.symbols.find(row => row.symbol === symbol);
-    const issuer = issuers.find(row => row.symbol === symbol)!;
-    const pastCash = previous?.issuers.find(row => row.symbol === symbol)?.cash.filter(row =>
-      row.session >= from && row.session <= previous.through);
-    if (previous && digest(pastCash) !== digest(issuer.cash.filter(row => row.session >= from && row.session <= previous.through)))
-      throw new Error(`Issuer history changed for previously checked ${symbol} sessions`);
-
-    const raw = await collectResearchPrices(directory, symbol, dates, { reviewedExchangeCalendar: true, cachedOnly });
-    const splits = await collectResearchPrices(directory, symbol, dates, {
-      reviewedExchangeCalendar: true, splitAdjusted: true, cachedOnly,
-    });
-    const asTraded = raw.flatMap(row => row.sessions), splitOnly = splits.flatMap(row => row.sessions);
-    const check = reconcileFirstRateRows(symbol, rows, asTraded, splitOnly);
-    const listing = await listingReferences(directory, symbol,
-      check.withheld.filter(row => row.reason === "direction").map(row => row.session));
-    const normalized = listing.length
-      ? reconcileFirstRateRows(symbol, rows, asTraded, splitOnly, listing.map(row => row.mark))
-      : check;
-    const merged = new Map(old?.rows.map(row => [row.session, row]));
-    const priorLast = old?.rows.at(-1)?.session;
-    const incomingFirst = normalized.rows[0]?.session;
-    if (priorLast && incomingFirst && incomingFirst > priorLast &&
-        exchangeSessions(priorLast, incomingFirst).length === 2)
-      throw new Error(`${symbol} needs an overlapping raw share-basis check before joining these adjacent sessions`);
-    for (const issue of normalized.withheld) {
-      if (merged.has(issue.session))
-        throw new Error(`Previously approved ${symbol} session no longer reconciles on ${issue.session}`);
+  const from = previous?.from ?? FIRST_EDITION_DAY;
+  if (previous) {
+    for (const { symbol, reviewedThrough } of approved.values()) {
+      const history = (source: Issuer[]) => source.find(row => row.symbol === symbol)!.cash.filter(row =>
+        row.session >= from && row.session <= reviewedThrough);
+      if (digest(history(previous.issuers)) !== digest(history(issuers)))
+        throw new Error(`Issuer history changed for previously checked ${symbol} sessions`);
     }
-    for (const row of normalized.rows.filter(row => row.session >= from)) {
-      const prior = merged.get(row.session);
-      if (prior && (row.open !== prior.open || row.close !== prior.close))
-        throw new Error(`Previously approved ${symbol} prices changed for ${row.session}`);
-      merged.set(row.session, row);
-    }
-    approved.push({ symbol, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
-      withheld: normalized.withheld,
-      proof: { source, comparison: raw.map(row => row.sha256), splitComparison: splits.map(row => row.sha256),
-        listingReferences: listing.map(({ session, source, sha256 }) => ({ session, source, sha256 })) } });
   }
-  const approval: Approval = { schemaVersion: 1, source: FIRST_RATE_SOURCE, from, through,
-    approvedAt: new Date().toISOString(), issuers, symbols: approved };
-  const evidence = firstRatePriceEvidence(approval);
+  const failures = sampleFailures.filter(row => pending.includes(row.symbol));
+  const reviewed: Symbol[] = [];
+  for (const sample of samples.filter(row => pending.includes(row.symbol))) {
+    try {
+      const match = await reviewSample(directory, sample, through, from, cachedOnly, observed, approved.get(sample.symbol));
+      approved.set(sample.symbol, match);
+      reviewed.push(sample.symbol);
+    } catch (error) {
+      failures.push({ symbol: sample.symbol, reason: error instanceof Error ? error.message.slice(0, 240) : "Price comparison failed" });
+    }
+  }
+  if (!reviewed.length)
+    throw new Error(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
+
+  const symbols = FIRST_RATE_SYMBOLS.flatMap(symbol => approved.has(symbol) ? [approved.get(symbol)!] : []);
+  const approval: Approval = { schemaVersion: 1, source: FIRST_RATE_SOURCE, from,
+    through, approvedAt: new Date().toISOString(), issuers, symbols };
+  const counts = approvedCounts(approval);
   // Archive each accepted capture before advancing the current receipt.
   const stored = { approval, sha256: digest(approval) };
-  const captured = resolve(directory, "approvals", `${through}.json`);
+  const fingerprint = digest({ ...approval, approvedAt: null });
+  const captured = resolve(directory, "approvals", `${approval.through}-${fingerprint}.json`);
   const replay = await readResearchReceipt<StoredApproval>(captured);
   if (replay && (replay.sha256 !== digest(replay.approval) ||
       digest({ ...replay.approval, approvedAt: approval.approvedAt }) !== stored.sha256))
     throw new Error("A previous capture for that FirstRate session differs");
   if (!replay) await durableJSON(captured, stored, true);
   await durableJSON(resolve(directory, "approved.json"), replay ?? stored);
-  return { status: "qualified", from, through, approved: evidence.map(({ instrument, sessions }) =>
-    ({ instrument, sessions: sessions.length })), withheld: approved.flatMap(({ symbol, withheld }) =>
-    withheld.map(row => ({ symbol, ...row }))) };
+  return { status: "qualified", from, through: approval.through, reviewed, approved: counts, failures,
+    withheld: symbols.flatMap(({ symbol, withheld }) => withheld.map(row => ({ symbol, ...row }))) };
 }

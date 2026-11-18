@@ -50,4 +50,13 @@ test("FirstRate cash adjustment uses the prior regular close and preserves missi
   assert.equal(result.adjustment, "total-return-adjusted");
   assert.deepEqual(result.expectedSessions, ["2026-11-23", "2026-11-24", "2026-11-25", "2026-11-27", "2026-11-30"]);
   assert.deepEqual(result.sessions, [{ ...rows[0], open: 99, close: 99 }, rows[1], rows[2]]);
+
+  const [spy, qqq] = approval.symbols;
+  const retained = { ...qqq, reviewedThrough: "2026-11-24", rows: rows.slice(0, 2) };
+  const partial = firstRatePriceEvidence({ ...approval, symbols: [spy, retained] });
+  assert.deepEqual(partial.map(row => row.instrument), ["SPY", "QQQ"]);
+  assert.deepEqual(partial[1].expectedSessions, partial[0].expectedSessions);
+  assert.deepEqual(partial[1].sessions.map(row => row.session), ["2026-11-23", "2026-11-24"]);
+  assert.throws(() => firstRatePriceEvidence({ ...approval, symbols: [spy, { ...retained, rows }] }),
+    /invalid sessions for QQQ/);
 });

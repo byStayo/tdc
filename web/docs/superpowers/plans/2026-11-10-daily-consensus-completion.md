@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. The FirstRate collector now advances each independently verified ETF even when a different sample is stale. A replay using saved production evidence resolved 173 targets during the simulated QQQ outage and the remaining 63 when QQQ returned, without changing either prior prices or the earlier receipt. The longer Stocklake TLT sample failed the official short-session and historical price-basis checks. [Replay and source evidence](../../FREE_FEED_PATH.md#november-18--independent-firstrate-refresh-and-tlt-price-reconciliation)
+
 - November 18 follow-up. Ran the deterministic technical momentum and volatility screen on 5,015 genuine prelaunch outcomes with 174 issuer distributions applied. All five missed the 0.01 improvement over the comparison models. The public FirstRate files still end November 17. The technical vote and full price coverage remain open. [Price controls and benchmark](../../FREE_FEED_PATH.md#november-18--technical-trend-and-volatility-benchmark)
 
 - November 18 follow-up. Tested a reproducible CFTC options-positioning candidate across 815 actual ETF outcomes before the first edition. All five instruments missed the directional margin on their 33-date chronological tests. Checked three current free TLT leads. Stocklake has the full date window with unverified price definitions and upstream terms, Atlantis supplies only closes, and the Marilux download still needs a verified connection from the host and comparison against regular-session references. [Source checks and benchmark](../../FREE_FEED_PATH.md#november-18--tlt-source-checks-and-cftc-options-benchmark)
