@@ -1,5 +1,7 @@
 import type { Horizon, Instrument, Snapshot } from "./types.ts";
 import { asIssuedConsensus } from "./as-issued.ts";
+import { effectiveStatus } from "./engine.ts";
+import { signalScore } from "./scoring-policy.ts";
 import type { PromotionEvidence } from "./learning-audit.ts";
 import { OUTCOME_PRICE_BASIS, requireOutcomePriceBasis } from "./price-basis.ts";
 
@@ -37,6 +39,15 @@ export interface Forecast {
   target: "next-session-open-to-horizon-close";
   priceAdjustment: typeof OUTCOME_PRICE_BASIS;
 }
+
+/** FRED's data terms prohibit model development and training with its content. */
+export function permitsModelInputs(snapshot: Snapshot, instrument: Instrument, horizon: Horizon): boolean {
+  return !snapshot.signals.some(signal =>
+    signalScore(signal, instrument, horizon) !== null &&
+    effectiveStatus(signal, snapshot.cutoff) === "available" &&
+    /^(?:fred|alfred)\.stlouisfed\.org$/.test(new URL(signal.source.url).hostname));
+}
+
 export function predict(model: LogisticModel, features: number[]) {
   if (
     features.length !== model.weights.length ||

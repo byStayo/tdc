@@ -18,6 +18,9 @@ export function retainLastKnown(
       !prior ||
       prior.status !== "available" ||
       !prior.source.observedAt ||
+      // A failed primary macro request cannot revive a former FRED reading.
+      (signal.id.startsWith("fred-") && new URL(prior.source.url).hostname === "fred.stlouisfed.org" &&
+        new URL(signal.source.url).hostname !== "fred.stlouisfed.org") ||
       (!prior.series.length &&
         !(prior.id === "gdelt-finance-news" && previous.news)) ||
       prior.source.frequency === "scheduled events"

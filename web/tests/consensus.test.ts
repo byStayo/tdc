@@ -17,7 +17,6 @@ import {
   effectiveStatus,
 } from "../lib/consensus/engine.ts";
 import {
-  fredPoints,
   ecbPoints,
   rssItems,
   safeURL,
@@ -261,15 +260,7 @@ test("missing and stale observations never vote neutral; correlated indicators d
     null,
   );
 });
-test("source parsers reject missing/non-numeric/future observations and preserve valid zero", () => {
-  assert.deepEqual(
-    fredPoints(
-      "observation_date,X\n2026-11-01,.\n2026-11-02,0\n2026-11-03,abc\n2027-01-01,5",
-      "X",
-      at,
-    ),
-    [{ date: "2026-11-02", value: 0 }],
-  );
+test("FX and calendar parsers verify primary-source values and timestamps", () => {
   const pairs = ecbPoints(
     '<Cube time="2026-11-02"><Cube currency="USD" rate="1.2"/><Cube currency="JPY" rate="150"/></Cube>',
   );
@@ -290,19 +281,19 @@ test("source parsers reject missing/non-numeric/future observations and preserve
     0,
   );
   assert.throws(() => safeURL("https://localhost/data"));
-  assert.throws(() => safeURL("https://fred.stlouisfed.org/data?token=secret"));
+  assert.throws(() => safeURL("https://home.treasury.gov/data?token=secret"));
 });
 test("source fetches are bounded and refuse HTTP errors", async () => {
   await assert.rejects(
     publicText(
-      "https://fred.stlouisfed.org/test",
+      "https://home.treasury.gov/test",
       async () => new Response("down", { status: 503 }),
     ),
     /503/,
   );
   await assert.rejects(
     publicText(
-      "https://fred.stlouisfed.org/test",
+      "https://home.treasury.gov/test",
       async () => new Response("x".repeat(2_000_001)),
     ),
     /2 MB/,

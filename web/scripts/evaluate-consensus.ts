@@ -11,6 +11,7 @@ import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { assertCommittedReservations } from "../lib/consensus/learning-audit.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { permitsModelInputs } from "../lib/consensus/model.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
@@ -123,12 +124,13 @@ try {
             meanBuyHoldReturnPct:stats.meanBuyHoldReturnPct, brier:stats.brier});
         }
         const trainingRows: TrainingRow[] = [];
-        // Training and reported performance use exactly the same predeclared edition.
+        // Preserve the predeclared edition selection before checking source rights.
         for (const row of selection.selected.filter((item) =>
           item.instrument === instrument && item.horizon === horizon && item.engineVersion === ENGINE_VERSION,
         )) {
           const snapshot = snapshots.find((item) => item.id === row.snapshotId);
           if (!snapshot) throw new Error("Outcome references missing snapshot");
+          if (!permitsModelInputs(snapshot, instrument, horizon)) continue;
           trainingRows.push(outcomeTrainingRow(row, snapshot));
         }
         const incumbent = registry.models.find(

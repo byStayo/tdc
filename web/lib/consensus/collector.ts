@@ -15,6 +15,8 @@ import { collectEtfFlows } from "./etf-flows.ts";
 import { collectEtfiqRetailOrders, collectSecMidas } from "./order-activity.ts";
 import { collectFuturesOptions } from "./futures-options.ts";
 import { collectTaiwan } from "./taiwan.ts";
+import { fedMarketProviders } from "./fed-market-data.ts";
+import { federalReserveBoardProviders } from "./board-statistics.ts";
 import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
 import { createHash } from "node:crypto";
 import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
@@ -43,6 +45,8 @@ const HOSTS = new Set([
   "data-api.ecb.europa.eu",
   "www.federalreserve.gov",
   "www.newyorkfed.org",
+  "markets.newyorkfed.org",
+  "home.treasury.gov",
   "www.mof.go.jp",
   "www.boj.or.jp",
   "www.bankofengland.co.uk",
@@ -115,28 +119,6 @@ export async function publicText(
   const { bytes, sha256, retrievedAt } = await publicBytes(url, fetcher);
   return { text: bytes.toString("utf8"), sha256, retrievedAt };
 }
-export function fredPoints(text: string, id: string, cutoff: string): Point[] {
-  const [header, ...lines] = text.trim().split(/\r?\n/);
-  if (header !== `observation_date,${id}` && header !== `DATE,${id}`)
-    throw new Error("Unexpected FRED schema");
-  const values = new Map<string, number>();
-  for (const line of lines) {
-    const [date, value, extra] = line.split(",");
-    if (
-      !publicDate(date) ||
-      date > cutoff.slice(0, 10) ||
-      extra !== undefined ||
-      !value ||
-      !/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(value)
-    )
-      continue;
-    if (Number.isFinite(Number(value))) values.set(date, Number(value));
-  }
-  return [...values]
-    .map(([date, value]) => ({ date, value }))
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-260);
-}
 function source(
   input: Partial<Provenance> & Pick<Provenance, "name" | "url" | "retrievedAt">,
 ): Provenance {
@@ -191,34 +173,23 @@ function changeScore(
     : null;
 }
 export async function macro(fetcher: Fetcher): Promise<Signal[]> {
+  const now = new Date().toISOString();
+  const read = (url: string) => publicText(url, fetcher);
+  const providers = { ...fedMarketProviders(read, now), ...federalReserveBoardProviders(read) };
   return Promise.all(
     MACRO_SERIES.map(async (descriptor) => {
-      const url = `https://fred.stlouisfed.org/series/${descriptor.id}`,
-        signal = blank(
-          `fred-${descriptor.id}`,
-          descriptor.title,
-          descriptor.family,
-          url,
-          new Date().toISOString(),
-        );
+      const provider = providers[descriptor.id];
+      // Keep existing series IDs for rule replay. Provenance identifies the actual origin.
+      const signal = blank(`fred-${descriptor.id}`, descriptor.title, descriptor.family, provider.source.url, now);
+      signal.source = source({ ...provider.source, retrievedAt: now, frequency: descriptor.frequency });
       signal.unit = descriptor.unit;
       signal.staleAfterDays = descriptor.lag;
       signal.methodology = `Change in the published series scaled by ${descriptor.scale} ${descriptor.unit}, capped to [-1,1], with ${descriptor.polarity > 0 ? "rises" : "falls"} treated as a supportive prior. Daily/weekly/monthly views use ${descriptor.frequency === "daily" ? "1/5/21 observations" : descriptor.frequency === "weekly" ? "1/4/13 observations" : "1/3/6 observations"}. These are context windows, not validated return predictions.`;
       signal.limitation =
         "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.";
       try {
-        const from = new Date(Date.now() - 800 * 86400000)
-          .toISOString()
-          .slice(0, 10);
-        const response = await publicText(
-          `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${descriptor.id}&cosd=${from}`,
-          fetcher,
-        );
-        const series = fredPoints(
-          response.text,
-          descriptor.id,
-          response.retrievedAt,
-        );
+        const reading = await provider.read();
+        const { series } = reading;
         if (!series.length) throw new Error("No numeric observations");
         const current = series.at(-1)!,
           previous = series.at(-2),
@@ -232,14 +203,12 @@ export async function macro(fetcher: Fetcher): Promise<Signal[]> {
           ...signal,
           status: "available" as const,
           source: source({
-            name: "Federal Reserve / FRED",
-            url,
-            retrievedAt: response.retrievedAt,
-            sha256: response.sha256,
+            ...(reading.source ?? provider.source),
+            retrievedAt: reading.retrievedAt,
+            releasedAt: reading.releasedAt,
+            sha256: reading.sha256,
             observedAt: current.date,
             frequency: descriptor.frequency,
-            attribution:
-              "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
           }),
           series,
           metrics: [

@@ -8,7 +8,7 @@ import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
 import { digest, publishCollectedSnapshot, publishSnapshot } from "../lib/consensus/history.ts";
-import { forecastSnapshot } from "../lib/consensus/model.ts";
+import { forecastSnapshot, permitsModelInputs } from "../lib/consensus/model.ts";
 import { freezeConsensus } from "../lib/consensus/as-issued.ts";
 import { applyScoringPolicy } from "../lib/consensus/scoring-policy.ts";
 import { readReservations, reservationAnchors, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
@@ -69,7 +69,8 @@ const registry = JSON.parse(
 const reservations = await readReservations(root);
 snapshot.evaluationAnchors = reservationAnchors(reservations);
 for (const model of registry.models) await validateActiveModelTree(root, model, reservations);
-snapshot.forecasts = forecastSnapshot(snapshot, registry.models);
+snapshot.forecasts = forecastSnapshot(snapshot, registry.models.filter(model =>
+  permitsModelInputs(snapshot, model.instrument, model.horizon)));
 await durableJSON(draftPath, snapshot);
 if (process.argv.includes("--publish")) {
   const result = await publishSnapshot(root, snapshot);

@@ -42,15 +42,26 @@ test('all retained feed families distinguish transport loss from invalid or revo
     const next={...previous,issuedAt:'2026-11-04T12:00:00.000Z',cutoff:'2026-11-04T12:00:00.000Z',signals};
     const retained=retainLastKnown(next,previous);
     if(kind==='validation') assert.ok(retained.signals.every(s=>s.status==='unavailable'));
-    else for(const id of ['fred-DGS10','fx-EUR','policy-ecb-deposit','tic-for_lt_total','earnings-NVDA','cftc-13874A-asset','gdelt-finance-news','sec-private-equity-assets']) {
+    else for(const id of ['fx-EUR','policy-ecb-deposit','tic-for_lt_total','earnings-NVDA','cftc-13874A-asset','gdelt-finance-news','sec-private-equity-assets']) {
       assert.deepEqual(retained.signals.find(s=>s.id===id)?.source,previous.signals.find(s=>s.id===id)!.source,id);
       assert.match(retained.signals.find(s=>s.id===id)!.collectionNote!,/original dates/);
     }
   }
 });
 
+test('Treasury outages retain earlier Treasury observations without reviving FRED data', async () => {
+  const previous: Snapshot = JSON.parse(await readFile(new URL('../public/consensus/2026-11-03T08-48-02-469Z.json', import.meta.url), 'utf8'));
+  const failed = (await macro(async () => new Response('', { status: 503 }))).find(signal => signal.id === 'fred-DGS10')!;
+  const next = { ...previous, issuedAt: '2026-11-04T12:00:00.000Z', cutoff: '2026-11-04T12:00:00.000Z', signals: [failed] };
+  assert.equal(retainLastKnown(next, previous).signals[0].status, 'unavailable');
+  const existing = previous.signals.find(signal => signal.id === failed.id)!;
+  existing.source.url = failed.source.url;
+  existing.source.name = failed.source.name;
+  assert.deepEqual(retainLastKnown(next, previous).signals[0].source, existing.source);
+});
+
 test('size and schema errors never masquerade as transport while interrupted streams do',async()=>{
-  const url='https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10';
+  const url='https://home.treasury.gov/treasury-daily-interest-rate-xml-feed';
   await assert.rejects(publicText(url,async()=>new Response('x'.repeat(2_000_001))),error=>sourceFailureKind(error)==='validation');
   await assert.rejects(publicText(url,async()=>{throw new Error('connection reset');}),error=>error instanceof SourceTransportError);
   const stream=new ReadableStream<Uint8Array>({start(controller){controller.error(new Error('broken stream'));}});

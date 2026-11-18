@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { EXCHANGE_CALENDAR } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { collectKibotPrices, isFullKibotSession } from "../lib/consensus/kibot.ts";
@@ -66,7 +67,8 @@ try {
   for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
     for (const horizon of HORIZONS) {
       const rows = selected.filter(row => row.instrument === instrument && row.horizon === horizon &&
-        row.engineVersion === ENGINE_VERSION).map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!));
+        row.engineVersion === ENGINE_VERSION && permitsModelInputs(byId.get(row.snapshotId)!, instrument, horizon))
+        .map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!));
       const consumedThrough = reservations.filter(record => record.instrument === instrument && record.horizon === horizon)
         .sort((a, b) => b.attempt - a.attempt)[0]?.consumedThrough;
       const plan = planCandidate(rows, now, {

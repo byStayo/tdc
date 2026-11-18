@@ -8,6 +8,7 @@ import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import type { CashDistribution } from "../lib/consensus/corporate-adjustment.ts";
 import { evaluateOutcome, outcomeTrainingRow, outcomeWindowSessions, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { exchangeCalendarVersion, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { evaluateCandidate, planCandidate } from "../lib/consensus/learning.ts";
@@ -172,7 +173,8 @@ try {
       row.engineVersion === ENGINE_VERSION);
     const prior = reservations.filter(row => row.instrument === instrument && row.horizon === horizon)
       .sort((a, b) => b.attempt - a.attempt)[0];
-    const plan = planCandidate(rows.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!)), now, {
+    const eligible = rows.filter(row => permitsModelInputs(byId.get(row.snapshotId)!, instrument, horizon));
+    const plan = planCandidate(eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!)), now, {
       engineVersion: ENGINE_VERSION, consumedThrough: prior?.consumedThrough,
       minimumSamples: PROSPECTIVE_MINIMUM, minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true,
     });

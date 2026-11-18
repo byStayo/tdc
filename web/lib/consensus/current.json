@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-18T17-33-38-200Z",
-  "issuedAt": "2026-11-18T17:33:38.200Z",
-  "cutoff": "2026-11-18T17:25:52.184Z",
+  "id": "2026-11-18T20-01-40-765Z",
+  "issuedAt": "2026-11-18T20:01:40.765Z",
+  "cutoff": "2026-11-18T19:58:25.019Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -20,185 +20,21 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "4.83 %; down from the previous daily observation.",
+      "summary": "4.8 %; down from the previous daily observation.",
       "source": {
-        "observedAt": "2026-11-16",
+        "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "b81abc263d0e77eedba52c7fe1fa2cae1e142b4416d81746accf018fd3b89214",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/DGS2",
-        "retrievedAt": "2026-11-18T17:25:42.701Z"
+        "attribution": "U.S. Department of the Treasury.",
+        "usage": "Official published Treasury constant-maturity par yields, in percent per annum.",
+        "sha256": "7430531ede185fa9fada18540dd95d734a306e8aa6d60f82469a3bf738742f4a",
+        "name": "U.S. Department of the Treasury · Daily Treasury Par Yield Curve Rates",
+        "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+        "retrievedAt": "2026-11-18T19:58:25.012Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2025-10-31",
-          "value": 3.6
-        },
-        {
-          "date": "2025-11-03",
-          "value": 3.6
-        },
-        {
-          "date": "2025-11-04",
-          "value": 3.58
-        },
-        {
-          "date": "2025-11-05",
-          "value": 3.63
-        },
-        {
-          "date": "2025-11-06",
-          "value": 3.57
-        },
-        {
-          "date": "2025-11-07",
-          "value": 3.55
-        },
-        {
-          "date": "2025-11-10",
-          "value": 3.58
-        },
-        {
-          "date": "2025-11-12",
-          "value": 3.56
-        },
-        {
-          "date": "2025-11-13",
-          "value": 3.58
-        },
-        {
-          "date": "2025-11-14",
-          "value": 3.62
-        },
-        {
-          "date": "2025-11-17",
-          "value": 3.6
-        },
-        {
-          "date": "2025-11-18",
-          "value": 3.58
-        },
-        {
-          "date": "2025-11-19",
-          "value": 3.58
-        },
-        {
-          "date": "2025-11-20",
-          "value": 3.55
-        },
-        {
-          "date": "2025-11-21",
-          "value": 3.51
-        },
-        {
-          "date": "2025-11-24",
-          "value": 3.46
-        },
-        {
-          "date": "2025-11-25",
-          "value": 3.43
-        },
-        {
-          "date": "2025-11-26",
-          "value": 3.45
-        },
-        {
-          "date": "2025-11-28",
-          "value": 3.47
-        },
-        {
-          "date": "2025-12-01",
-          "value": 3.54
-        },
-        {
-          "date": "2025-12-02",
-          "value": 3.51
-        },
-        {
-          "date": "2025-12-03",
-          "value": 3.49
-        },
-        {
-          "date": "2025-12-04",
-          "value": 3.52
-        },
-        {
-          "date": "2025-12-05",
-          "value": 3.56
-        },
-        {
-          "date": "2025-12-08",
-          "value": 3.57
-        },
-        {
-          "date": "2025-12-09",
-          "value": 3.61
-        },
-        {
-          "date": "2025-12-10",
-          "value": 3.54
-        },
-        {
-          "date": "2025-12-11",
-          "value": 3.52
-        },
-        {
-          "date": "2025-12-12",
-          "value": 3.52
-        },
-        {
-          "date": "2025-12-15",
-          "value": 3.51
-        },
-        {
-          "date": "2025-12-16",
-          "value": 3.48
-        },
-        {
-          "date": "2025-12-17",
-          "value": 3.49
-        },
-        {
-          "date": "2025-12-18",
-          "value": 3.46
-        },
-        {
-          "date": "2025-12-19",
-          "value": 3.48
-        },
-        {
-          "date": "2025-12-22",
-          "value": 3.44
-        },
-        {
-          "date": "2025-12-23",
-          "value": 3.48
-        },
-        {
-          "date": "2025-12-24",
-          "value": 3.47
-        },
-        {
-          "date": "2025-12-26",
-          "value": 3.46
-        },
-        {
-          "date": "2025-12-29",
-          "value": 3.45
-        },
-        {
-          "date": "2025-12-30",
-          "value": 3.45
-        },
-        {
-          "date": "2025-12-31",
-          "value": 3.47
-        },
         {
           "date": "2026-01-02",
           "value": 3.47
@@ -1074,26 +910,30 @@
         {
           "date": "2026-11-16",
           "value": 4.83
+        },
+        {
+          "date": "2026-11-17",
+          "value": 4.8
         }
       ],
       "metrics": [
         {
           "label": "2-year Treasury",
-          "value": 4.83,
+          "value": 4.8,
           "unit": "%",
-          "date": "2026-11-16"
+          "date": "2026-11-17"
         },
         {
           "label": "Change from previous observation",
-          "value": -0.04999999999999982,
+          "value": -0.03000000000000025,
           "unit": "%",
-          "date": "2026-11-16"
+          "date": "2026-11-17"
         }
       ],
       "scores": {
-        "daily": 0.2499999999999991,
+        "daily": 0.15000000000000124,
         "weekly": -1,
-        "monthly": -0.3000000000000025
+        "monthly": -0.29999999999999805
       },
       "staleAfterDays": 7,
       "unit": "%",
@@ -1119,185 +959,21 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "5.12 %; down from the previous daily observation.",
+      "summary": "5.1 %; down from the previous daily observation.",
       "source": {
-        "observedAt": "2026-11-16",
+        "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "b36089ae4f0fffc830ccec44f7336a706726ea8113b205606e4f226a7fd00e30",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/DGS10",
-        "retrievedAt": "2026-11-18T17:25:42.706Z"
+        "attribution": "U.S. Department of the Treasury.",
+        "usage": "Official published Treasury constant-maturity par yields, in percent per annum.",
+        "sha256": "7430531ede185fa9fada18540dd95d734a306e8aa6d60f82469a3bf738742f4a",
+        "name": "U.S. Department of the Treasury · Daily Treasury Par Yield Curve Rates",
+        "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+        "retrievedAt": "2026-11-18T19:58:25.012Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2025-10-31",
-          "value": 4.11
-        },
-        {
-          "date": "2025-11-03",
-          "value": 4.13
-        },
-        {
-          "date": "2025-11-04",
-          "value": 4.1
-        },
-        {
-          "date": "2025-11-05",
-          "value": 4.17
-        },
-        {
-          "date": "2025-11-06",
-          "value": 4.11
-        },
-        {
-          "date": "2025-11-07",
-          "value": 4.11
-        },
-        {
-          "date": "2025-11-10",
-          "value": 4.13
-        },
-        {
-          "date": "2025-11-12",
-          "value": 4.08
-        },
-        {
-          "date": "2025-11-13",
-          "value": 4.11
-        },
-        {
-          "date": "2025-11-14",
-          "value": 4.14
-        },
-        {
-          "date": "2025-11-17",
-          "value": 4.13
-        },
-        {
-          "date": "2025-11-18",
-          "value": 4.12
-        },
-        {
-          "date": "2025-11-19",
-          "value": 4.13
-        },
-        {
-          "date": "2025-11-20",
-          "value": 4.1
-        },
-        {
-          "date": "2025-11-21",
-          "value": 4.06
-        },
-        {
-          "date": "2025-11-24",
-          "value": 4.04
-        },
-        {
-          "date": "2025-11-25",
-          "value": 4.01
-        },
-        {
-          "date": "2025-11-26",
-          "value": 4
-        },
-        {
-          "date": "2025-11-28",
-          "value": 4.02
-        },
-        {
-          "date": "2025-12-01",
-          "value": 4.09
-        },
-        {
-          "date": "2025-12-02",
-          "value": 4.09
-        },
-        {
-          "date": "2025-12-03",
-          "value": 4.06
-        },
-        {
-          "date": "2025-12-04",
-          "value": 4.11
-        },
-        {
-          "date": "2025-12-05",
-          "value": 4.14
-        },
-        {
-          "date": "2025-12-08",
-          "value": 4.17
-        },
-        {
-          "date": "2025-12-09",
-          "value": 4.18
-        },
-        {
-          "date": "2025-12-10",
-          "value": 4.13
-        },
-        {
-          "date": "2025-12-11",
-          "value": 4.14
-        },
-        {
-          "date": "2025-12-12",
-          "value": 4.19
-        },
-        {
-          "date": "2025-12-15",
-          "value": 4.18
-        },
-        {
-          "date": "2025-12-16",
-          "value": 4.15
-        },
-        {
-          "date": "2025-12-17",
-          "value": 4.16
-        },
-        {
-          "date": "2025-12-18",
-          "value": 4.12
-        },
-        {
-          "date": "2025-12-19",
-          "value": 4.16
-        },
-        {
-          "date": "2025-12-22",
-          "value": 4.17
-        },
-        {
-          "date": "2025-12-23",
-          "value": 4.18
-        },
-        {
-          "date": "2025-12-24",
-          "value": 4.15
-        },
-        {
-          "date": "2025-12-26",
-          "value": 4.14
-        },
-        {
-          "date": "2025-12-29",
-          "value": 4.12
-        },
-        {
-          "date": "2025-12-30",
-          "value": 4.14
-        },
-        {
-          "date": "2025-12-31",
-          "value": 4.18
-        },
         {
           "date": "2026-01-02",
           "value": 4.19
@@ -2173,26 +1849,30 @@
         {
           "date": "2026-11-16",
           "value": 5.12
+        },
+        {
+          "date": "2026-11-17",
+          "value": 5.1
         }
       ],
       "metrics": [
         {
           "label": "10-year Treasury",
-          "value": 5.12,
+          "value": 5.1,
           "unit": "%",
-          "date": "2026-11-16"
+          "date": "2026-11-17"
         },
         {
           "label": "Change from previous observation",
-          "value": -0.03000000000000025,
+          "value": -0.020000000000000462,
           "unit": "%",
-          "date": "2026-11-16"
+          "date": "2026-11-17"
         }
       ],
       "scores": {
-        "daily": 0.15000000000000124,
+        "daily": 0.10000000000000231,
         "weekly": -1,
-        "monthly": -0.10000000000000231
+        "monthly": -0.049999999999998934
       },
       "staleAfterDays": 7,
       "unit": "%",
@@ -2219,185 +1899,21 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "5.46 %; down from the previous daily observation.",
+      "summary": "5.46 %; unchanged from the previous daily observation.",
       "source": {
-        "observedAt": "2026-11-16",
+        "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "371802e000eb3e4bff5841d4cc7f8a401db03de70bcfbfa0c84599bc9034ef75",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/DGS30",
-        "retrievedAt": "2026-11-18T17:25:42.705Z"
+        "attribution": "U.S. Department of the Treasury.",
+        "usage": "Official published Treasury constant-maturity par yields, in percent per annum.",
+        "sha256": "7430531ede185fa9fada18540dd95d734a306e8aa6d60f82469a3bf738742f4a",
+        "name": "U.S. Department of the Treasury · Daily Treasury Par Yield Curve Rates",
+        "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+        "retrievedAt": "2026-11-18T19:58:25.012Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2025-10-31",
-          "value": 4.67
-        },
-        {
-          "date": "2025-11-03",
-          "value": 4.69
-        },
-        {
-          "date": "2025-11-04",
-          "value": 4.67
-        },
-        {
-          "date": "2025-11-05",
-          "value": 4.74
-        },
-        {
-          "date": "2025-11-06",
-          "value": 4.69
-        },
-        {
-          "date": "2025-11-07",
-          "value": 4.7
-        },
-        {
-          "date": "2025-11-10",
-          "value": 4.71
-        },
-        {
-          "date": "2025-11-12",
-          "value": 4.67
-        },
-        {
-          "date": "2025-11-13",
-          "value": 4.7
-        },
-        {
-          "date": "2025-11-14",
-          "value": 4.74
-        },
-        {
-          "date": "2025-11-17",
-          "value": 4.73
-        },
-        {
-          "date": "2025-11-18",
-          "value": 4.74
-        },
-        {
-          "date": "2025-11-19",
-          "value": 4.75
-        },
-        {
-          "date": "2025-11-20",
-          "value": 4.73
-        },
-        {
-          "date": "2025-11-21",
-          "value": 4.71
-        },
-        {
-          "date": "2025-11-24",
-          "value": 4.68
-        },
-        {
-          "date": "2025-11-25",
-          "value": 4.67
-        },
-        {
-          "date": "2025-11-26",
-          "value": 4.64
-        },
-        {
-          "date": "2025-11-28",
-          "value": 4.67
-        },
-        {
-          "date": "2025-12-01",
-          "value": 4.74
-        },
-        {
-          "date": "2025-12-02",
-          "value": 4.74
-        },
-        {
-          "date": "2025-12-03",
-          "value": 4.73
-        },
-        {
-          "date": "2025-12-04",
-          "value": 4.76
-        },
-        {
-          "date": "2025-12-05",
-          "value": 4.79
-        },
-        {
-          "date": "2025-12-08",
-          "value": 4.81
-        },
-        {
-          "date": "2025-12-09",
-          "value": 4.8
-        },
-        {
-          "date": "2025-12-10",
-          "value": 4.78
-        },
-        {
-          "date": "2025-12-11",
-          "value": 4.79
-        },
-        {
-          "date": "2025-12-12",
-          "value": 4.85
-        },
-        {
-          "date": "2025-12-15",
-          "value": 4.84
-        },
-        {
-          "date": "2025-12-16",
-          "value": 4.82
-        },
-        {
-          "date": "2025-12-17",
-          "value": 4.83
-        },
-        {
-          "date": "2025-12-18",
-          "value": 4.8
-        },
-        {
-          "date": "2025-12-19",
-          "value": 4.82
-        },
-        {
-          "date": "2025-12-22",
-          "value": 4.84
-        },
-        {
-          "date": "2025-12-23",
-          "value": 4.83
-        },
-        {
-          "date": "2025-12-24",
-          "value": 4.79
-        },
-        {
-          "date": "2025-12-26",
-          "value": 4.81
-        },
-        {
-          "date": "2025-12-29",
-          "value": 4.8
-        },
-        {
-          "date": "2025-12-30",
-          "value": 4.81
-        },
-        {
-          "date": "2025-12-31",
-          "value": 4.84
-        },
         {
           "date": "2026-01-02",
           "value": 4.86
@@ -3273,6 +2789,10 @@
         {
           "date": "2026-11-16",
           "value": 5.46
+        },
+        {
+          "date": "2026-11-17",
+          "value": 5.46
         }
       ],
       "metrics": [
@@ -3280,17 +2800,17 @@
           "label": "30-year Treasury",
           "value": 5.46,
           "unit": "%",
-          "date": "2026-11-16"
+          "date": "2026-11-17"
         },
         {
           "label": "Change from previous observation",
-          "value": -0.009999999999999787,
+          "value": 0,
           "unit": "%",
-          "date": "2026-11-16"
+          "date": "2026-11-17"
         }
       ],
       "scores": {
-        "daily": 0.049999999999998934,
+        "daily": 0,
         "weekly": -1,
         "monthly": -0.15000000000000124
       },
@@ -3324,12 +2844,12 @@
         "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "0c3a04dce92163f3db33a5e295510d69c81ee593e3784538b32305479e2e5a6e",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/SOFR",
-        "retrievedAt": "2026-11-18T17:25:42.686Z"
+        "attribution": "SOFR data from the Federal Reserve Bank of New York.",
+        "usage": "The SOFR data are subject to the New York Fed Terms of Use at https://www.newyorkfed.org/privacy/termsofuse. The New York Fed disclaims responsibility for publication by The Daily Consensus, endorsement of this republication, and liability for use.",
+        "sha256": "70cf99d46dec353cb74b29362506b198ac6277df1e561b52225dd6e3867a64d1",
+        "name": "Federal Reserve Bank of New York · SOFR",
+        "url": "https://www.newyorkfed.org/markets/reference-rates/sofr",
+        "retrievedAt": "2026-11-18T19:58:08.038Z"
       },
       "methodology": "Published daily changes scaled by 0.2 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -4423,12 +3943,12 @@
         "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "b4cecc6a758b2a2d204616d689b240d890806f2dec08cb6664e7c69f7c6d686f",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/EFFR",
-        "retrievedAt": "2026-11-18T17:25:42.709Z"
+        "attribution": "EFFR data from the Federal Reserve Bank of New York.",
+        "usage": "The EFFR data are subject to the New York Fed Terms of Use at https://www.newyorkfed.org/privacy/termsofuse. The New York Fed disclaims responsibility for publication by The Daily Consensus, endorsement of this republication, and liability for use.",
+        "sha256": "d880a829a5a7da5787dce47f321f9f5a67c61d64bc79af270220dc6bb37912e8",
+        "name": "Federal Reserve Bank of New York · EFFR",
+        "url": "https://www.newyorkfed.org/markets/reference-rates/effr",
+        "retrievedAt": "2026-11-18T19:58:08.111Z"
       },
       "methodology": "Published daily changes scaled by 0.25 % and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -5520,454 +5040,18 @@
       "summary": "6,758,867 $m; up from the previous weekly observation.",
       "source": {
         "observedAt": "2026-11-11",
-        "releasedAt": null,
+        "releasedAt": "2026-11-12",
         "frequency": "weekly",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "8f2f4879942ffd7b6317e6415a938f3e35739b5b51c137f2681842cad5ca1aef",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/WALCL",
-        "retrievedAt": "2026-11-18T17:25:42.972Z"
+        "attribution": "Board of Governors of the Federal Reserve System.",
+        "usage": "Wednesday total assets in H.4.1 Table 5, in USD millions.",
+        "sha256": "edf5e979fe12032b76d98917760f6ba386167326cf80e4b10e16a549f7d0da96",
+        "name": "Federal Reserve Board · H.4.1",
+        "url": "https://www.federalreserve.gov/releases/h41/current/default.htm",
+        "retrievedAt": "2026-11-18T19:58:09.382Z"
       },
       "methodology": "Published weekly changes scaled by 200000 $m and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2024-09-11",
-          "value": 7115001
-        },
-        {
-          "date": "2024-09-18",
-          "value": 7109137
-        },
-        {
-          "date": "2024-09-25",
-          "value": 7080059
-        },
-        {
-          "date": "2024-10-02",
-          "value": 7046925
-        },
-        {
-          "date": "2024-10-09",
-          "value": 7046840
-        },
-        {
-          "date": "2024-10-16",
-          "value": 7039284
-        },
-        {
-          "date": "2024-10-23",
-          "value": 7029408
-        },
-        {
-          "date": "2024-10-30",
-          "value": 7013490
-        },
-        {
-          "date": "2024-11-06",
-          "value": 6994299
-        },
-        {
-          "date": "2024-11-13",
-          "value": 6967108
-        },
-        {
-          "date": "2024-11-20",
-          "value": 6923731
-        },
-        {
-          "date": "2024-11-27",
-          "value": 6905140
-        },
-        {
-          "date": "2024-12-04",
-          "value": 6895827
-        },
-        {
-          "date": "2024-12-11",
-          "value": 6897485
-        },
-        {
-          "date": "2024-12-18",
-          "value": 6889332
-        },
-        {
-          "date": "2024-12-25",
-          "value": 6885963
-        },
-        {
-          "date": "2025-01-01",
-          "value": 6852491
-        },
-        {
-          "date": "2025-01-08",
-          "value": 6853554
-        },
-        {
-          "date": "2025-01-15",
-          "value": 6834070
-        },
-        {
-          "date": "2025-01-22",
-          "value": 6831760
-        },
-        {
-          "date": "2025-01-29",
-          "value": 6818186
-        },
-        {
-          "date": "2025-02-05",
-          "value": 6810935
-        },
-        {
-          "date": "2025-02-12",
-          "value": 6813513
-        },
-        {
-          "date": "2025-02-19",
-          "value": 6782332
-        },
-        {
-          "date": "2025-02-26",
-          "value": 6766101
-        },
-        {
-          "date": "2025-03-05",
-          "value": 6756764
-        },
-        {
-          "date": "2025-03-12",
-          "value": 6759571
-        },
-        {
-          "date": "2025-03-19",
-          "value": 6755982
-        },
-        {
-          "date": "2025-03-26",
-          "value": 6740253
-        },
-        {
-          "date": "2025-04-02",
-          "value": 6723452
-        },
-        {
-          "date": "2025-04-09",
-          "value": 6727416
-        },
-        {
-          "date": "2025-04-16",
-          "value": 6727113
-        },
-        {
-          "date": "2025-04-23",
-          "value": 6726930
-        },
-        {
-          "date": "2025-04-30",
-          "value": 6709277
-        },
-        {
-          "date": "2025-05-07",
-          "value": 6710889
-        },
-        {
-          "date": "2025-05-14",
-          "value": 6713270
-        },
-        {
-          "date": "2025-05-21",
-          "value": 6688726
-        },
-        {
-          "date": "2025-05-28",
-          "value": 6673244
-        },
-        {
-          "date": "2025-06-04",
-          "value": 6672885
-        },
-        {
-          "date": "2025-06-11",
-          "value": 6677155
-        },
-        {
-          "date": "2025-06-18",
-          "value": 6681056
-        },
-        {
-          "date": "2025-06-25",
-          "value": 6662200
-        },
-        {
-          "date": "2025-07-02",
-          "value": 6659598
-        },
-        {
-          "date": "2025-07-09",
-          "value": 6661912
-        },
-        {
-          "date": "2025-07-16",
-          "value": 6659273
-        },
-        {
-          "date": "2025-07-23",
-          "value": 6657715
-        },
-        {
-          "date": "2025-07-30",
-          "value": 6642578
-        },
-        {
-          "date": "2025-08-06",
-          "value": 6640843
-        },
-        {
-          "date": "2025-08-13",
-          "value": 6643615
-        },
-        {
-          "date": "2025-08-20",
-          "value": 6618415
-        },
-        {
-          "date": "2025-08-27",
-          "value": 6603384
-        },
-        {
-          "date": "2025-09-03",
-          "value": 6602071
-        },
-        {
-          "date": "2025-09-10",
-          "value": 6605962
-        },
-        {
-          "date": "2025-09-17",
-          "value": 6608597
-        },
-        {
-          "date": "2025-09-24",
-          "value": 6608395
-        },
-        {
-          "date": "2025-10-01",
-          "value": 6587119
-        },
-        {
-          "date": "2025-10-08",
-          "value": 6590815
-        },
-        {
-          "date": "2025-10-15",
-          "value": 6596454
-        },
-        {
-          "date": "2025-10-22",
-          "value": 6589533
-        },
-        {
-          "date": "2025-10-29",
-          "value": 6587034
-        },
-        {
-          "date": "2025-11-05",
-          "value": 6572732
-        },
-        {
-          "date": "2025-11-12",
-          "value": 6580462
-        },
-        {
-          "date": "2025-11-19",
-          "value": 6555283
-        },
-        {
-          "date": "2025-11-26",
-          "value": 6552419
-        },
-        {
-          "date": "2025-12-03",
-          "value": 6535781
-        },
-        {
-          "date": "2025-12-10",
-          "value": 6539303
-        },
-        {
-          "date": "2025-12-17",
-          "value": 6556861
-        },
-        {
-          "date": "2025-12-24",
-          "value": 6581231
-        },
-        {
-          "date": "2025-12-31",
-          "value": 6640618
-        },
-        {
-          "date": "2026-01-07",
-          "value": 6573602
-        },
-        {
-          "date": "2026-01-14",
-          "value": 6581700
-        },
-        {
-          "date": "2026-01-21",
-          "value": 6584580
-        },
-        {
-          "date": "2026-01-28",
-          "value": 6587568
-        },
-        {
-          "date": "2026-02-04",
-          "value": 6605909
-        },
-        {
-          "date": "2026-02-11",
-          "value": 6622382
-        },
-        {
-          "date": "2026-02-18",
-          "value": 6613395
-        },
-        {
-          "date": "2026-02-25",
-          "value": 6613797
-        },
-        {
-          "date": "2026-03-04",
-          "value": 6628894
-        },
-        {
-          "date": "2026-03-11",
-          "value": 6646344
-        },
-        {
-          "date": "2026-03-18",
-          "value": 6655939
-        },
-        {
-          "date": "2026-03-25",
-          "value": 6657161
-        },
-        {
-          "date": "2026-04-01",
-          "value": 6675344
-        },
-        {
-          "date": "2026-04-08",
-          "value": 6693871
-        },
-        {
-          "date": "2026-04-15",
-          "value": 6705696
-        },
-        {
-          "date": "2026-04-22",
-          "value": 6707419
-        },
-        {
-          "date": "2026-04-29",
-          "value": 6699950
-        },
-        {
-          "date": "2026-05-06",
-          "value": 6709505
-        },
-        {
-          "date": "2026-05-13",
-          "value": 6728502
-        },
-        {
-          "date": "2026-05-20",
-          "value": 6713643
-        },
-        {
-          "date": "2026-05-27",
-          "value": 6704383
-        },
-        {
-          "date": "2026-06-03",
-          "value": 6711495
-        },
-        {
-          "date": "2026-06-10",
-          "value": 6725397
-        },
-        {
-          "date": "2026-06-17",
-          "value": 6736424
-        },
-        {
-          "date": "2026-06-24",
-          "value": 6735645
-        },
-        {
-          "date": "2026-07-01",
-          "value": 6724564
-        },
-        {
-          "date": "2026-07-08",
-          "value": 6735609
-        },
-        {
-          "date": "2026-07-15",
-          "value": 6743028
-        },
-        {
-          "date": "2026-07-22",
-          "value": 6747378
-        },
-        {
-          "date": "2026-07-29",
-          "value": 6738190
-        },
-        {
-          "date": "2026-08-05",
-          "value": 6748567
-        },
-        {
-          "date": "2026-08-12",
-          "value": 6759955
-        },
-        {
-          "date": "2026-08-19",
-          "value": 6745699
-        },
-        {
-          "date": "2026-08-26",
-          "value": 6730912
-        },
-        {
-          "date": "2026-09-02",
-          "value": 6737204
-        },
-        {
-          "date": "2026-09-09",
-          "value": 6740619
-        },
-        {
-          "date": "2026-09-16",
-          "value": 6746548
-        },
-        {
-          "date": "2026-09-23",
-          "value": 6747704
-        },
-        {
-          "date": "2026-09-30",
-          "value": 6743031
-        },
-        {
-          "date": "2026-10-07",
-          "value": 6747560
-        },
         {
           "date": "2026-10-14",
           "value": 6755639
@@ -6035,454 +5119,18 @@
       "summary": "914,370 $m; down from the previous weekly observation.",
       "source": {
         "observedAt": "2026-11-11",
-        "releasedAt": null,
+        "releasedAt": "2026-11-12",
         "frequency": "weekly",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "76fa87acaa59209f555add4d64680709c2233775e88479f9e0ed993c1cec6f15",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/WTREGEN",
-        "retrievedAt": "2026-11-18T17:25:42.708Z"
+        "attribution": "Board of Governors of the Federal Reserve System.",
+        "usage": "Week-average Treasury General Account balance in H.4.1 Table 1, in USD millions.",
+        "sha256": "edf5e979fe12032b76d98917760f6ba386167326cf80e4b10e16a549f7d0da96",
+        "name": "Federal Reserve Board · H.4.1",
+        "url": "https://www.federalreserve.gov/releases/h41/current/default.htm",
+        "retrievedAt": "2026-11-18T19:58:09.382Z"
       },
       "methodology": "Published weekly changes scaled by 100000 $m and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2024-09-11",
-          "value": 755958
-        },
-        {
-          "date": "2024-09-18",
-          "value": 771194
-        },
-        {
-          "date": "2024-09-25",
-          "value": 806771
-        },
-        {
-          "date": "2024-10-02",
-          "value": 798277
-        },
-        {
-          "date": "2024-10-09",
-          "value": 802115
-        },
-        {
-          "date": "2024-10-16",
-          "value": 791792
-        },
-        {
-          "date": "2024-10-23",
-          "value": 829991
-        },
-        {
-          "date": "2024-10-30",
-          "value": 835237
-        },
-        {
-          "date": "2024-11-06",
-          "value": 842051
-        },
-        {
-          "date": "2024-11-13",
-          "value": 832186
-        },
-        {
-          "date": "2024-11-20",
-          "value": 751873
-        },
-        {
-          "date": "2024-11-27",
-          "value": 775250
-        },
-        {
-          "date": "2024-12-04",
-          "value": 789516
-        },
-        {
-          "date": "2024-12-11",
-          "value": 775067
-        },
-        {
-          "date": "2024-12-18",
-          "value": 767932
-        },
-        {
-          "date": "2024-12-25",
-          "value": 764770
-        },
-        {
-          "date": "2025-01-01",
-          "value": 719873
-        },
-        {
-          "date": "2025-01-08",
-          "value": 652636
-        },
-        {
-          "date": "2025-01-15",
-          "value": 641225
-        },
-        {
-          "date": "2025-01-22",
-          "value": 677282
-        },
-        {
-          "date": "2025-01-29",
-          "value": 784206
-        },
-        {
-          "date": "2025-02-05",
-          "value": 805593
-        },
-        {
-          "date": "2025-02-12",
-          "value": 828102
-        },
-        {
-          "date": "2025-02-19",
-          "value": 790062
-        },
-        {
-          "date": "2025-02-26",
-          "value": 681161
-        },
-        {
-          "date": "2025-03-05",
-          "value": 548331
-        },
-        {
-          "date": "2025-03-12",
-          "value": 512581
-        },
-        {
-          "date": "2025-03-19",
-          "value": 435936
-        },
-        {
-          "date": "2025-03-26",
-          "value": 360177
-        },
-        {
-          "date": "2025-04-02",
-          "value": 313326
-        },
-        {
-          "date": "2025-04-09",
-          "value": 306049
-        },
-        {
-          "date": "2025-04-16",
-          "value": 422983
-        },
-        {
-          "date": "2025-04-23",
-          "value": 606632
-        },
-        {
-          "date": "2025-04-30",
-          "value": 595741
-        },
-        {
-          "date": "2025-05-07",
-          "value": 583727
-        },
-        {
-          "date": "2025-05-14",
-          "value": 575846
-        },
-        {
-          "date": "2025-05-21",
-          "value": 503055
-        },
-        {
-          "date": "2025-05-28",
-          "value": 467204
-        },
-        {
-          "date": "2025-06-04",
-          "value": 378947
-        },
-        {
-          "date": "2025-06-11",
-          "value": 332907
-        },
-        {
-          "date": "2025-06-18",
-          "value": 337762
-        },
-        {
-          "date": "2025-06-25",
-          "value": 364375
-        },
-        {
-          "date": "2025-07-02",
-          "value": 359516
-        },
-        {
-          "date": "2025-07-09",
-          "value": 319889
-        },
-        {
-          "date": "2025-07-16",
-          "value": 296247
-        },
-        {
-          "date": "2025-07-23",
-          "value": 323176
-        },
-        {
-          "date": "2025-07-30",
-          "value": 370507
-        },
-        {
-          "date": "2025-08-06",
-          "value": 421043
-        },
-        {
-          "date": "2025-08-13",
-          "value": 504304
-        },
-        {
-          "date": "2025-08-20",
-          "value": 519534
-        },
-        {
-          "date": "2025-08-27",
-          "value": 589998
-        },
-        {
-          "date": "2025-09-03",
-          "value": 597513
-        },
-        {
-          "date": "2025-09-10",
-          "value": 672274
-        },
-        {
-          "date": "2025-09-17",
-          "value": 756376
-        },
-        {
-          "date": "2025-09-24",
-          "value": 804856
-        },
-        {
-          "date": "2025-10-01",
-          "value": 805139
-        },
-        {
-          "date": "2025-10-08",
-          "value": 807428
-        },
-        {
-          "date": "2025-10-15",
-          "value": 809593
-        },
-        {
-          "date": "2025-10-22",
-          "value": 908001
-        },
-        {
-          "date": "2025-10-29",
-          "value": 957990
-        },
-        {
-          "date": "2025-11-05",
-          "value": 940979
-        },
-        {
-          "date": "2025-11-12",
-          "value": 953816
-        },
-        {
-          "date": "2025-11-19",
-          "value": 941926
-        },
-        {
-          "date": "2025-11-26",
-          "value": 903394
-        },
-        {
-          "date": "2025-12-03",
-          "value": 937167
-        },
-        {
-          "date": "2025-12-10",
-          "value": 858946
-        },
-        {
-          "date": "2025-12-17",
-          "value": 833093
-        },
-        {
-          "date": "2025-12-24",
-          "value": 837120
-        },
-        {
-          "date": "2025-12-31",
-          "value": 837306
-        },
-        {
-          "date": "2026-01-07",
-          "value": 796148
-        },
-        {
-          "date": "2026-01-14",
-          "value": 779175
-        },
-        {
-          "date": "2026-01-21",
-          "value": 869261
-        },
-        {
-          "date": "2026-01-28",
-          "value": 923042
-        },
-        {
-          "date": "2026-02-04",
-          "value": 908773
-        },
-        {
-          "date": "2026-02-11",
-          "value": 915306
-        },
-        {
-          "date": "2026-02-18",
-          "value": 912727
-        },
-        {
-          "date": "2026-02-25",
-          "value": 887612
-        },
-        {
-          "date": "2026-03-04",
-          "value": 832053
-        },
-        {
-          "date": "2026-03-11",
-          "value": 838186
-        },
-        {
-          "date": "2026-03-18",
-          "value": 853052
-        },
-        {
-          "date": "2026-03-25",
-          "value": 874077
-        },
-        {
-          "date": "2026-04-01",
-          "value": 847718
-        },
-        {
-          "date": "2026-04-08",
-          "value": 748376
-        },
-        {
-          "date": "2026-04-15",
-          "value": 751354
-        },
-        {
-          "date": "2026-04-22",
-          "value": 1005968
-        },
-        {
-          "date": "2026-04-29",
-          "value": 981929
-        },
-        {
-          "date": "2026-05-06",
-          "value": 877761
-        },
-        {
-          "date": "2026-05-13",
-          "value": 838584
-        },
-        {
-          "date": "2026-05-20",
-          "value": 781293
-        },
-        {
-          "date": "2026-05-27",
-          "value": 830296
-        },
-        {
-          "date": "2026-06-03",
-          "value": 875713
-        },
-        {
-          "date": "2026-06-10",
-          "value": 828122
-        },
-        {
-          "date": "2026-06-17",
-          "value": 880713
-        },
-        {
-          "date": "2026-06-24",
-          "value": 918696
-        },
-        {
-          "date": "2026-07-01",
-          "value": 880237
-        },
-        {
-          "date": "2026-07-08",
-          "value": 774062
-        },
-        {
-          "date": "2026-07-15",
-          "value": 756218
-        },
-        {
-          "date": "2026-07-22",
-          "value": 829623
-        },
-        {
-          "date": "2026-07-29",
-          "value": 910776
-        },
-        {
-          "date": "2026-08-05",
-          "value": 907324
-        },
-        {
-          "date": "2026-08-12",
-          "value": 963950
-        },
-        {
-          "date": "2026-08-19",
-          "value": 953612
-        },
-        {
-          "date": "2026-08-26",
-          "value": 950736
-        },
-        {
-          "date": "2026-09-02",
-          "value": 967935
-        },
-        {
-          "date": "2026-09-09",
-          "value": 883335
-        },
-        {
-          "date": "2026-09-16",
-          "value": 877028
-        },
-        {
-          "date": "2026-09-23",
-          "value": 977084
-        },
-        {
-          "date": "2026-09-30",
-          "value": 948674
-        },
-        {
-          "date": "2026-10-07",
-          "value": 880253
-        },
         {
           "date": "2026-10-14",
           "value": 883373
@@ -6547,25 +5195,21 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "0.351 $bn; up from the previous daily observation.",
+      "summary": "0.331 $bn; down from the previous daily observation.",
       "source": {
-        "observedAt": "2026-11-17",
-        "releasedAt": null,
+        "observedAt": "2026-11-18",
+        "releasedAt": "2026-11-18T18:15:28.000Z",
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "19daed0baf6eb4143d5cdb5ec29d4b05f873e7d2537ce952143a1615e206c931",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/RRPONTSYD",
-        "retrievedAt": "2026-11-18T17:25:42.699Z"
+        "attribution": "Federal Reserve Bank of New York · Open Market Trading Desk.",
+        "usage": "Terms: https://www.newyorkfed.org/privacy/termsofuse. Accepted dollars are converted to billions. Small-value exercises are excluded.",
+        "sha256": "ade3571bb04f2df541818d3dbbcedcab190045e857a93dcac85df2206fdc4248",
+        "name": "Federal Reserve Bank of New York · Overnight Reverse Repo",
+        "url": "https://www.newyorkfed.org/markets/desk-operations/reverse-repo",
+        "retrievedAt": "2026-11-18T19:58:08.242Z"
       },
       "methodology": "Published daily changes scaled by 100 $bn and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2025-10-31",
-          "value": 51.802
-        },
         {
           "date": "2025-11-03",
           "value": 23.792
@@ -6576,7 +5220,7 @@
         },
         {
           "date": "2025-11-05",
-          "value": 12.814
+          "value": 12.7
         },
         {
           "date": "2025-11-06",
@@ -7088,7 +5732,7 @@
         },
         {
           "date": "2026-05-13",
-          "value": 3.719
+          "value": 3.609
         },
         {
           "date": "2026-05-14",
@@ -7601,26 +6245,30 @@
         {
           "date": "2026-11-17",
           "value": 0.351
+        },
+        {
+          "date": "2026-11-18",
+          "value": 0.331
         }
       ],
       "metrics": [
         {
           "label": "Overnight reverse repo",
-          "value": 0.351,
+          "value": 0.331,
           "unit": "$bn",
-          "date": "2026-11-17"
+          "date": "2026-11-18"
         },
         {
           "label": "Change from previous observation",
-          "value": 0.16899999999999998,
+          "value": -0.019999999999999962,
           "unit": "$bn",
-          "date": "2026-11-17"
+          "date": "2026-11-18"
         }
       ],
       "scores": {
-        "daily": -0.0016899999999999999,
-        "weekly": -0.0009899999999999998,
-        "monthly": -0.00251
+        "daily": 0.00019999999999999963,
+        "weekly": -0.0017900000000000001,
+        "monthly": -0.00001000000000000001
       },
       "staleAfterDays": 7,
       "unit": "$bn",
@@ -7649,454 +6297,18 @@
       "summary": "2,960,603 $m; up from the previous weekly observation.",
       "source": {
         "observedAt": "2026-11-11",
-        "releasedAt": null,
+        "releasedAt": "2026-11-12",
         "frequency": "weekly",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "d1b789c653685814906c00ef736be50fc1cec3c70d66cc4b8feeebd49af012e7",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/WRESBAL",
-        "retrievedAt": "2026-11-18T17:25:42.705Z"
+        "attribution": "Board of Governors of the Federal Reserve System.",
+        "usage": "Week-average reserve balances in H.4.1 Table 1, in USD millions.",
+        "sha256": "edf5e979fe12032b76d98917760f6ba386167326cf80e4b10e16a549f7d0da96",
+        "name": "Federal Reserve Board · H.4.1",
+        "url": "https://www.federalreserve.gov/releases/h41/current/default.htm",
+        "retrievedAt": "2026-11-18T19:58:09.382Z"
       },
       "methodology": "Published weekly changes scaled by 200000 $m and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
-        {
-          "date": "2024-09-11",
-          "value": 3320818
-        },
-        {
-          "date": "2024-09-18",
-          "value": 3313281
-        },
-        {
-          "date": "2024-09-25",
-          "value": 3169149
-        },
-        {
-          "date": "2024-10-02",
-          "value": 3089598
-        },
-        {
-          "date": "2024-10-09",
-          "value": 3186207
-        },
-        {
-          "date": "2024-10-16",
-          "value": 3209877
-        },
-        {
-          "date": "2024-10-23",
-          "value": 3230145
-        },
-        {
-          "date": "2024-10-30",
-          "value": 3236958
-        },
-        {
-          "date": "2024-11-06",
-          "value": 3274120
-        },
-        {
-          "date": "2024-11-13",
-          "value": 3244149
-        },
-        {
-          "date": "2024-11-20",
-          "value": 3286885
-        },
-        {
-          "date": "2024-11-27",
-          "value": 3227674
-        },
-        {
-          "date": "2024-12-04",
-          "value": 3225075
-        },
-        {
-          "date": "2024-12-11",
-          "value": 3264559
-        },
-        {
-          "date": "2024-12-18",
-          "value": 3282229
-        },
-        {
-          "date": "2024-12-25",
-          "value": 3247382
-        },
-        {
-          "date": "2025-01-01",
-          "value": 3095997
-        },
-        {
-          "date": "2025-01-08",
-          "value": 3254743
-        },
-        {
-          "date": "2025-01-15",
-          "value": 3340816
-        },
-        {
-          "date": "2025-01-22",
-          "value": 3332278
-        },
-        {
-          "date": "2025-01-29",
-          "value": 3224785
-        },
-        {
-          "date": "2025-02-05",
-          "value": 3177065
-        },
-        {
-          "date": "2025-02-12",
-          "value": 3220027
-        },
-        {
-          "date": "2025-02-19",
-          "value": 3270082
-        },
-        {
-          "date": "2025-02-26",
-          "value": 3327249
-        },
-        {
-          "date": "2025-03-05",
-          "value": 3312625
-        },
-        {
-          "date": "2025-03-12",
-          "value": 3400235
-        },
-        {
-          "date": "2025-03-19",
-          "value": 3467789
-        },
-        {
-          "date": "2025-03-26",
-          "value": 3450933
-        },
-        {
-          "date": "2025-04-02",
-          "value": 3379339
-        },
-        {
-          "date": "2025-04-09",
-          "value": 3474682
-        },
-        {
-          "date": "2025-04-16",
-          "value": 3452030
-        },
-        {
-          "date": "2025-04-23",
-          "value": 3256734
-        },
-        {
-          "date": "2025-04-30",
-          "value": 3219214
-        },
-        {
-          "date": "2025-05-07",
-          "value": 3218636
-        },
-        {
-          "date": "2025-05-14",
-          "value": 3235723
-        },
-        {
-          "date": "2025-05-21",
-          "value": 3289469
-        },
-        {
-          "date": "2025-05-28",
-          "value": 3270661
-        },
-        {
-          "date": "2025-06-04",
-          "value": 3294381
-        },
-        {
-          "date": "2025-06-11",
-          "value": 3407108
-        },
-        {
-          "date": "2025-06-18",
-          "value": 3406366
-        },
-        {
-          "date": "2025-06-25",
-          "value": 3369328
-        },
-        {
-          "date": "2025-07-02",
-          "value": 3225980
-        },
-        {
-          "date": "2025-07-09",
-          "value": 3330249
-        },
-        {
-          "date": "2025-07-16",
-          "value": 3398822
-        },
-        {
-          "date": "2025-07-23",
-          "value": 3362277
-        },
-        {
-          "date": "2025-07-30",
-          "value": 3347414
-        },
-        {
-          "date": "2025-08-06",
-          "value": 3332492
-        },
-        {
-          "date": "2025-08-13",
-          "value": 3320050
-        },
-        {
-          "date": "2025-08-20",
-          "value": 3317292
-        },
-        {
-          "date": "2025-08-27",
-          "value": 3224967
-        },
-        {
-          "date": "2025-09-03",
-          "value": 3181701
-        },
-        {
-          "date": "2025-09-10",
-          "value": 3160774
-        },
-        {
-          "date": "2025-09-17",
-          "value": 3073355
-        },
-        {
-          "date": "2025-09-24",
-          "value": 3002218
-        },
-        {
-          "date": "2025-10-01",
-          "value": 2966094
-        },
-        {
-          "date": "2025-10-08",
-          "value": 2998471
-        },
-        {
-          "date": "2025-10-15",
-          "value": 3019028
-        },
-        {
-          "date": "2025-10-22",
-          "value": 2933037
-        },
-        {
-          "date": "2025-10-29",
-          "value": 2848021
-        },
-        {
-          "date": "2025-11-05",
-          "value": 2862569
-        },
-        {
-          "date": "2025-11-12",
-          "value": 2855030
-        },
-        {
-          "date": "2025-11-19",
-          "value": 2888643
-        },
-        {
-          "date": "2025-11-26",
-          "value": 2896586
-        },
-        {
-          "date": "2025-12-03",
-          "value": 2858284
-        },
-        {
-          "date": "2025-12-10",
-          "value": 2932112
-        },
-        {
-          "date": "2025-12-17",
-          "value": 2959044
-        },
-        {
-          "date": "2025-12-24",
-          "value": 2955581
-        },
-        {
-          "date": "2025-12-31",
-          "value": 2957410
-        },
-        {
-          "date": "2026-01-07",
-          "value": 2996379
-        },
-        {
-          "date": "2026-01-14",
-          "value": 3049630
-        },
-        {
-          "date": "2026-01-21",
-          "value": 2954903
-        },
-        {
-          "date": "2026-01-28",
-          "value": 2901600
-        },
-        {
-          "date": "2026-02-04",
-          "value": 2925170
-        },
-        {
-          "date": "2026-02-11",
-          "value": 2939557
-        },
-        {
-          "date": "2026-02-18",
-          "value": 2949804
-        },
-        {
-          "date": "2026-02-25",
-          "value": 2965765
-        },
-        {
-          "date": "2026-03-04",
-          "value": 3015531
-        },
-        {
-          "date": "2026-03-11",
-          "value": 3037665
-        },
-        {
-          "date": "2026-03-18",
-          "value": 3019995
-        },
-        {
-          "date": "2026-03-25",
-          "value": 2993955
-        },
-        {
-          "date": "2026-04-01",
-          "value": 3026708
-        },
-        {
-          "date": "2026-04-08",
-          "value": 3116247
-        },
-        {
-          "date": "2026-04-15",
-          "value": 3129588
-        },
-        {
-          "date": "2026-04-22",
-          "value": 2901825
-        },
-        {
-          "date": "2026-04-29",
-          "value": 2918599
-        },
-        {
-          "date": "2026-05-06",
-          "value": 3032588
-        },
-        {
-          "date": "2026-05-13",
-          "value": 3102810
-        },
-        {
-          "date": "2026-05-20",
-          "value": 3129562
-        },
-        {
-          "date": "2026-05-27",
-          "value": 3066560
-        },
-        {
-          "date": "2026-06-03",
-          "value": 3013902
-        },
-        {
-          "date": "2026-06-10",
-          "value": 3080723
-        },
-        {
-          "date": "2026-06-17",
-          "value": 3033444
-        },
-        {
-          "date": "2026-06-24",
-          "value": 2951416
-        },
-        {
-          "date": "2026-07-01",
-          "value": 2966897
-        },
-        {
-          "date": "2026-07-08",
-          "value": 3098911
-        },
-        {
-          "date": "2026-07-15",
-          "value": 3142721
-        },
-        {
-          "date": "2026-07-22",
-          "value": 3062149
-        },
-        {
-          "date": "2026-07-29",
-          "value": 2984570
-        },
-        {
-          "date": "2026-08-05",
-          "value": 2993349
-        },
-        {
-          "date": "2026-08-12",
-          "value": 2944059
-        },
-        {
-          "date": "2026-08-19",
-          "value": 2935287
-        },
-        {
-          "date": "2026-08-26",
-          "value": 2924936
-        },
-        {
-          "date": "2026-09-02",
-          "value": 2894531
-        },
-        {
-          "date": "2026-09-09",
-          "value": 2991310
-        },
-        {
-          "date": "2026-09-16",
-          "value": 3013794
-        },
-        {
-          "date": "2026-09-23",
-          "value": 2930193
-        },
-        {
-          "date": "2026-09-30",
-          "value": 2948090
-        },
-        {
-          "date": "2026-10-07",
-          "value": 3029659
-        },
         {
           "date": "2026-10-14",
           "value": 3022140
@@ -8164,14 +6376,14 @@
       "summary": "122.65 index; up from the previous daily observation.",
       "source": {
         "observedAt": "2026-11-13",
-        "releasedAt": null,
+        "releasedAt": "2026-11-16",
         "frequency": "daily",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "cb3749e0eafdeb54a2c9f9b61be02e73afbab8b5d355d3c070a7f00bd482ffca",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/DTWEXBGS",
-        "retrievedAt": "2026-11-18T17:25:42.703Z"
+        "attribution": "Board of Governors of the Federal Reserve System.",
+        "usage": "Daily nominal Broad Dollar Index, January 2006 = 100. History includes revisions available at capture.",
+        "sha256": "0e790e3143c55310fd100ec5e4cb9f0d1f38abb32797c725d43e5c8fea9390e8",
+        "name": "Federal Reserve Board · H.10",
+        "url": "https://www.federalreserve.gov/releases/h10/current/default.htm",
+        "retrievedAt": "2026-11-18T19:58:08.066Z"
       },
       "methodology": "Published daily changes scaled by 2 index and capped to [-1,1]. Falls are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
@@ -9260,136 +7472,64 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "2,992.91 $bn; up from the previous monthly observation.",
+      "summary": "2,992.9 $bn; up from the previous monthly observation.",
       "source": {
         "observedAt": "2026-10-01",
-        "releasedAt": null,
+        "releasedAt": "2026-11-13",
         "frequency": "monthly",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "ea909def09a29e685e1a44c8300e3cd7b196a0342c59da90803c50fcd48457a8",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/BUSLOANS",
-        "retrievedAt": "2026-11-18T17:25:42.702Z"
+        "attribution": "Board of Governors of the Federal Reserve System.",
+        "usage": "Seasonally adjusted Table 2, in USD billions at the published 0.1-billion precision.",
+        "sha256": "615f2c4a45b4181932d9809ae9cd29a27646685c6daf4eaae51490b620b069ca",
+        "name": "Federal Reserve Board · H.8",
+        "url": "https://www.federalreserve.gov/releases/h8/current/default.htm",
+        "retrievedAt": "2026-11-18T19:58:08.386Z"
       },
       "methodology": "Published monthly changes scaled by 60 $bn and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
-          "date": "2024-09-01",
-          "value": 2777.5789
-        },
-        {
-          "date": "2024-10-01",
-          "value": 2787.0074
-        },
-        {
-          "date": "2024-11-01",
-          "value": 2793.3641
-        },
-        {
-          "date": "2024-12-01",
-          "value": 2770.9995
-        },
-        {
-          "date": "2025-01-01",
-          "value": 2668.4136
-        },
-        {
-          "date": "2025-02-01",
-          "value": 2671.4335
-        },
-        {
-          "date": "2025-03-01",
-          "value": 2671.0367
-        },
-        {
-          "date": "2025-04-01",
-          "value": 2657.3406
-        },
-        {
-          "date": "2025-05-01",
-          "value": 2670.9336
-        },
-        {
-          "date": "2025-06-01",
-          "value": 2677.9272
-        },
-        {
-          "date": "2025-07-01",
-          "value": 2665.6378
-        },
-        {
-          "date": "2025-08-01",
-          "value": 2679.7863
-        },
-        {
-          "date": "2025-09-01",
-          "value": 2691.0056
-        },
-        {
           "date": "2025-10-01",
-          "value": 2692.3482
-        },
-        {
-          "date": "2025-11-01",
-          "value": 2700.8376
-        },
-        {
-          "date": "2025-12-01",
-          "value": 2708.5488
-        },
-        {
-          "date": "2026-01-01",
-          "value": 2735.9586
-        },
-        {
-          "date": "2026-02-01",
-          "value": 2782.5874
-        },
-        {
-          "date": "2026-03-01",
-          "value": 2819.5981
+          "value": 2692.3
         },
         {
           "date": "2026-04-01",
-          "value": 2855.4383
+          "value": 2855.4
         },
         {
           "date": "2026-05-01",
-          "value": 2885.7448
+          "value": 2885.7
         },
         {
           "date": "2026-06-01",
-          "value": 2897.5918
+          "value": 2897.6
         },
         {
           "date": "2026-07-01",
-          "value": 2888.166
+          "value": 2888.2
         },
         {
           "date": "2026-08-01",
-          "value": 2934.4204
+          "value": 2934.4
         },
         {
           "date": "2026-09-01",
-          "value": 2959.0377
+          "value": 2959
         },
         {
           "date": "2026-10-01",
-          "value": 2992.9104
+          "value": 2992.9
         }
       ],
       "metrics": [
         {
           "label": "Commercial & industrial loans",
-          "value": 2992.9104,
+          "value": 2992.9,
           "unit": "$bn",
           "date": "2026-10-01"
         },
         {
           "label": "Change from previous observation",
-          "value": 33.87270000000035,
+          "value": 33.90000000000009,
           "unit": "$bn",
           "date": "2026-10-01"
         }
@@ -9397,7 +7537,7 @@
       "scores": {
         "daily": null,
         "weekly": null,
-        "monthly": 0.5645450000000058
+        "monthly": 0.5650000000000015
       },
       "staleAfterDays": 70,
       "unit": "$bn",
@@ -9423,492 +7563,64 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "20,083.123 $bn; up from the previous weekly observation.",
+      "summary": "20,083.1 $bn; up from the previous weekly observation.",
       "source": {
         "observedAt": "2026-11-04",
-        "releasedAt": null,
+        "releasedAt": "2026-11-13",
         "frequency": "weekly",
-        "attribution": "Board of Governors of the Federal Reserve System / Federal Reserve Bank of New York, via FRED, Federal Reserve Bank of St. Louis",
-        "usage": "Official public observations; modifications attributed to The Daily Consensus",
-        "sha256": "53284842ad0cbb619eacbe5660a3d4419225c7f726b2b6fa445f0c1987aebfa8",
-        "name": "Federal Reserve / FRED",
-        "url": "https://fred.stlouisfed.org/series/TOTBKCR",
-        "retrievedAt": "2026-11-18T17:25:42.712Z"
+        "attribution": "Board of Governors of the Federal Reserve System.",
+        "usage": "Seasonally adjusted Table 2, in USD billions at the published 0.1-billion precision.",
+        "sha256": "615f2c4a45b4181932d9809ae9cd29a27646685c6daf4eaae51490b620b069ca",
+        "name": "Federal Reserve Board · H.8",
+        "url": "https://www.federalreserve.gov/releases/h8/current/default.htm",
+        "retrievedAt": "2026-11-18T19:58:08.386Z"
       },
       "methodology": "Published weekly changes scaled by 150 $bn and capped to [-1,1]. Rises are a declared supportive equity prior, not measured predictive accuracy. Daily series use 1/5/21 observations for daily/weekly/monthly; weekly series vote only weekly/monthly using 1/4 reports; monthly series vote only monthly using 1 report. TLT receives only the 10-year and 30-year yield-change priors (falling yields supportive); funding, dollar, liquidity and credit series remain nonvoting TLT context. These lagged context windows are not forward return forecasts.",
       "limitation": "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.",
       "series": [
         {
-          "date": "2024-09-11",
-          "value": 17827.0054
-        },
-        {
-          "date": "2024-09-18",
-          "value": 17839.8021
-        },
-        {
-          "date": "2024-09-25",
-          "value": 17863.579
-        },
-        {
-          "date": "2024-10-02",
-          "value": 17890.7964
-        },
-        {
-          "date": "2024-10-09",
-          "value": 17905.288
-        },
-        {
-          "date": "2024-10-16",
-          "value": 17923.266
-        },
-        {
-          "date": "2024-10-23",
-          "value": 17935.483
-        },
-        {
-          "date": "2024-10-30",
-          "value": 17944.8893
-        },
-        {
-          "date": "2024-11-06",
-          "value": 17928.7477
-        },
-        {
-          "date": "2024-11-13",
-          "value": 17951.1185
-        },
-        {
-          "date": "2024-11-20",
-          "value": 17935.9595
-        },
-        {
-          "date": "2024-11-27",
-          "value": 17961.2034
-        },
-        {
-          "date": "2024-12-04",
-          "value": 17959.7509
-        },
-        {
-          "date": "2024-12-11",
-          "value": 17977.184
-        },
-        {
-          "date": "2024-12-18",
-          "value": 17966.5369
-        },
-        {
-          "date": "2024-12-25",
-          "value": 17974.8809
-        },
-        {
-          "date": "2025-01-01",
-          "value": 17970.0629
-        },
-        {
-          "date": "2025-01-08",
-          "value": 17985.6595
-        },
-        {
-          "date": "2025-01-15",
-          "value": 17982.4597
-        },
-        {
-          "date": "2025-01-22",
-          "value": 18019.8761
-        },
-        {
-          "date": "2025-01-29",
-          "value": 18003.0573
-        },
-        {
-          "date": "2025-02-05",
-          "value": 18020.8304
-        },
-        {
-          "date": "2025-02-12",
-          "value": 18029.0793
-        },
-        {
-          "date": "2025-02-19",
-          "value": 18065.2246
-        },
-        {
-          "date": "2025-02-26",
-          "value": 18092.7713
-        },
-        {
-          "date": "2025-03-05",
-          "value": 18118.0811
-        },
-        {
-          "date": "2025-03-12",
-          "value": 18125.0852
-        },
-        {
-          "date": "2025-03-19",
-          "value": 18162.1504
-        },
-        {
-          "date": "2025-03-26",
-          "value": 18180.5634
-        },
-        {
-          "date": "2025-04-02",
-          "value": 18193.3911
-        },
-        {
-          "date": "2025-04-09",
-          "value": 18236.6152
-        },
-        {
-          "date": "2025-04-16",
-          "value": 18304.7547
-        },
-        {
-          "date": "2025-04-23",
-          "value": 18318.9552
-        },
-        {
-          "date": "2025-04-30",
-          "value": 18365.1299
-        },
-        {
-          "date": "2025-05-07",
-          "value": 18359.1161
-        },
-        {
-          "date": "2025-05-14",
-          "value": 18370.1092
-        },
-        {
-          "date": "2025-05-21",
-          "value": 18383.4657
-        },
-        {
-          "date": "2025-05-28",
-          "value": 18399.1918
-        },
-        {
-          "date": "2025-06-04",
-          "value": 18406.1273
-        },
-        {
-          "date": "2025-06-11",
-          "value": 18441.7514
-        },
-        {
-          "date": "2025-06-18",
-          "value": 18462.322
-        },
-        {
-          "date": "2025-06-25",
-          "value": 18473.5209
-        },
-        {
-          "date": "2025-07-02",
-          "value": 18517.719
-        },
-        {
-          "date": "2025-07-09",
-          "value": 18537.4604
-        },
-        {
-          "date": "2025-07-16",
-          "value": 18554.6106
-        },
-        {
-          "date": "2025-07-23",
-          "value": 18583.5058
-        },
-        {
-          "date": "2025-07-30",
-          "value": 18600.6194
-        },
-        {
-          "date": "2025-08-06",
-          "value": 18624.0375
-        },
-        {
-          "date": "2025-08-13",
-          "value": 18651.0952
-        },
-        {
-          "date": "2025-08-20",
-          "value": 18648.9623
-        },
-        {
-          "date": "2025-08-27",
-          "value": 18714.5143
-        },
-        {
-          "date": "2025-09-03",
-          "value": 18699.4949
-        },
-        {
-          "date": "2025-09-10",
-          "value": 18725.1785
-        },
-        {
-          "date": "2025-09-17",
-          "value": 18735.4884
-        },
-        {
-          "date": "2025-09-24",
-          "value": 18758.4085
-        },
-        {
-          "date": "2025-10-01",
-          "value": 18782.9184
-        },
-        {
-          "date": "2025-10-08",
-          "value": 18791.2907
-        },
-        {
-          "date": "2025-10-15",
-          "value": 18826.3065
-        },
-        {
-          "date": "2025-10-22",
-          "value": 18850.6519
-        },
-        {
-          "date": "2025-10-29",
-          "value": 18839.8427
-        },
-        {
-          "date": "2025-11-05",
-          "value": 18867.7891
-        },
-        {
-          "date": "2025-11-12",
-          "value": 18896.4335
-        },
-        {
-          "date": "2025-11-19",
-          "value": 18922.6175
-        },
-        {
-          "date": "2025-11-26",
-          "value": 18937.472
-        },
-        {
-          "date": "2025-12-03",
-          "value": 18910.5332
-        },
-        {
-          "date": "2025-12-10",
-          "value": 18927.6533
-        },
-        {
-          "date": "2025-12-17",
-          "value": 18943.2771
-        },
-        {
-          "date": "2025-12-24",
-          "value": 18968.409
-        },
-        {
-          "date": "2025-12-31",
-          "value": 18964.2829
-        },
-        {
-          "date": "2026-01-07",
-          "value": 19021.6213
-        },
-        {
-          "date": "2026-01-14",
-          "value": 19070.7068
-        },
-        {
-          "date": "2026-01-21",
-          "value": 19130.857
-        },
-        {
-          "date": "2026-01-28",
-          "value": 19145.95
-        },
-        {
-          "date": "2026-02-04",
-          "value": 19185.032
-        },
-        {
-          "date": "2026-02-11",
-          "value": 19241.8798
-        },
-        {
-          "date": "2026-02-18",
-          "value": 19266.8543
-        },
-        {
-          "date": "2026-02-25",
-          "value": 19270.894
-        },
-        {
-          "date": "2026-03-04",
-          "value": 19310.4475
-        },
-        {
-          "date": "2026-03-11",
-          "value": 19342.6035
-        },
-        {
-          "date": "2026-03-18",
-          "value": 19352.4128
-        },
-        {
-          "date": "2026-03-25",
-          "value": 19378.859
-        },
-        {
-          "date": "2026-04-01",
-          "value": 19423.6549
-        },
-        {
-          "date": "2026-04-08",
-          "value": 19450.9764
-        },
-        {
-          "date": "2026-04-15",
-          "value": 19468.2854
-        },
-        {
-          "date": "2026-04-22",
-          "value": 19459.5965
-        },
-        {
-          "date": "2026-04-29",
-          "value": 19465.83
-        },
-        {
-          "date": "2026-05-06",
-          "value": 19503.2283
-        },
-        {
-          "date": "2026-05-13",
-          "value": 19539.0675
-        },
-        {
-          "date": "2026-05-20",
-          "value": 19574.7662
-        },
-        {
-          "date": "2026-05-27",
-          "value": 19596.0216
-        },
-        {
-          "date": "2026-06-03",
-          "value": 19588.1281
-        },
-        {
-          "date": "2026-06-10",
-          "value": 19646.069
-        },
-        {
-          "date": "2026-06-17",
-          "value": 19660.3214
-        },
-        {
-          "date": "2026-06-24",
-          "value": 19684.2237
-        },
-        {
-          "date": "2026-07-01",
-          "value": 19656.153
-        },
-        {
-          "date": "2026-07-08",
-          "value": 19681.3436
-        },
-        {
-          "date": "2026-07-15",
-          "value": 19774.8951
-        },
-        {
-          "date": "2026-07-22",
-          "value": 19749.5625
-        },
-        {
-          "date": "2026-07-29",
-          "value": 19779.1684
-        },
-        {
-          "date": "2026-08-05",
-          "value": 19795.164
-        },
-        {
-          "date": "2026-08-12",
-          "value": 19806.5067
-        },
-        {
-          "date": "2026-08-19",
-          "value": 19842.9787
-        },
-        {
-          "date": "2026-08-26",
-          "value": 19846.4732
-        },
-        {
-          "date": "2026-09-02",
-          "value": 19849.4688
-        },
-        {
-          "date": "2026-09-09",
-          "value": 19883.2498
-        },
-        {
-          "date": "2026-09-16",
-          "value": 19894.4028
-        },
-        {
-          "date": "2026-09-23",
-          "value": 19871.2523
-        },
-        {
           "date": "2026-09-30",
-          "value": 19893.1549
+          "value": 19893.6
         },
         {
           "date": "2026-10-07",
-          "value": 19940.4589
+          "value": 19939.5
         },
         {
           "date": "2026-10-14",
-          "value": 19984.4261
+          "value": 19984.4
         },
         {
           "date": "2026-10-21",
-          "value": 20014.4012
+          "value": 20014.4
         },
         {
           "date": "2026-10-28",
-          "value": 20025.0788
+          "value": 20025.1
         },
         {
           "date": "2026-11-04",
-          "value": 20083.1228
+          "value": 20083.1
         }
       ],
       "metrics": [
         {
           "label": "Commercial bank credit",
-          "value": 20083.1228,
+          "value": 20083.1,
           "unit": "$bn",
           "date": "2026-11-04"
         },
         {
           "label": "Change from previous observation",
-          "value": 58.04400000000169,
+          "value": 58,
           "unit": "$bn",
           "date": "2026-11-04"
         }
       ],
       "scores": {
         "daily": null,
-        "weekly": 0.38696000000001124,
-        "monthly": 0.9510926666666637
+        "weekly": 0.38666666666666666,
+        "monthly": 0.9573333333333236
       },
       "staleAfterDays": 21,
       "unit": "$bn",
@@ -9944,7 +7656,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -10252,7 +7964,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -10560,7 +8272,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -10868,7 +8580,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -11176,7 +8888,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -11484,7 +9196,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -11792,7 +9504,7 @@
         "sha256": "80e2745d2d069112d3655d52a09e187409b3accb6be0648b0898b87f5c8ed213",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
-        "retrievedAt": "2026-11-18T17:25:43.289Z"
+        "retrievedAt": "2026-11-18T19:58:08.559Z"
       },
       "methodology": "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
       "limitation": "Daily reference fix; no live or intraday currency prices.",
@@ -12096,7 +9808,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -12338,7 +10050,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -12580,7 +10292,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -12822,7 +10534,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13064,7 +10776,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13306,7 +11018,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13548,7 +11260,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -13790,7 +11502,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14031,7 +11743,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14272,7 +11984,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14513,7 +12225,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14754,7 +12466,7 @@
         "sha256": "d254883215ef28e29f03b0f3a5b43e2118db15eb444570c33dfb1929d2527f2d",
         "name": "CFTC · TFF futures only",
         "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602",
-        "retrievedAt": "2026-11-18T17:25:43.295Z"
+        "retrievedAt": "2026-11-18T19:58:11.734Z"
       },
       "methodology": "Futures-only net contracts divided by open interest. Standing net levels are context only and never a daily vote. Weekly/monthly use 1/4-report changes scaled by 10/15 percentage points, capped [-1,1]; these are declared priors, not measured predictive accuracy. Equity contracts apply to their named ETF and MARKET. Treasury bond futures apply only to TLT. The 10-year Treasury contract is intermediate-duration context only, with no TLT or MARKET directional vote.",
       "limitation": "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
@@ -14990,17 +12702,17 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "Agencies extend comment period for proposed third-party risk management guidance",
+      "summary": "Minutes of the Federal Open Market Committee, October 27-28, 2026",
       "source": {
-        "observedAt": "2026-11-13T21:15:00.000Z",
-        "releasedAt": "2026-11-13T21:15:00.000Z",
+        "observedAt": "2026-11-18T19:00:00.000Z",
+        "releasedAt": "2026-11-18T19:00:00.000Z",
         "frequency": "event-driven",
         "attribution": "Federal Reserve",
         "usage": "Official RSS headlines with attribution and direct source links",
-        "sha256": "e3409b4269304eb422bd6fecf3317fbfb21de7f280477dc0237fda091f0125c4",
+        "sha256": "37dd749fb9a477a979204d94a5aa7fd6720d71e514e2fbfd03edd26bccb52680",
         "name": "Federal Reserve",
         "url": "https://www.federalreserve.gov/feeds/press_all.xml",
-        "retrievedAt": "2026-11-18T17:25:42.716Z"
+        "retrievedAt": "2026-11-18T19:58:08.128Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15010,7 +12722,7 @@
           "label": "Recent official releases sampled",
           "value": 8,
           "unit": "releases",
-          "date": "2026-11-13T21:15:00.000Z"
+          "date": "2026-11-18T19:00:00.000Z"
         }
       ],
       "scores": {
@@ -15045,7 +12757,7 @@
         "sha256": "b5a78765206be3e1d8ca69843ec8a162fc9cd7423445f876780f8fd3d9e28baf",
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/rss/press.html",
-        "retrievedAt": "2026-11-18T17:25:43.085Z"
+        "retrievedAt": "2026-11-18T19:58:08.358Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15090,7 +12802,7 @@
         "sha256": "7f56828649ebdf766a457515c2525f61ac30518fcaae3e09cdd16b8d7d79cc36",
         "name": "Bank of Japan",
         "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
-        "retrievedAt": "2026-11-18T17:25:42.933Z"
+        "retrievedAt": "2026-11-18T19:58:08.331Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15135,7 +12847,7 @@
         "sha256": "8d950d5f5349e767051c2176f748c5b691f5dd73f47a0c604196c6318ca4ea13",
         "name": "Bank of England",
         "url": "https://www.bankofengland.co.uk/rss/news",
-        "retrievedAt": "2026-11-18T17:25:42.747Z"
+        "retrievedAt": "2026-11-18T19:58:08.236Z"
       },
       "methodology": "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
       "limitation": "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
@@ -15172,7 +12884,7 @@
       "status": "available",
       "summary": "State Employment and Unemployment (Monthly) is the next scheduled release.",
       "source": {
-        "observedAt": "2026-11-18T17:25:42.903Z",
+        "observedAt": "2026-11-18T19:58:08.850Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "US Bureau of Labor Statistics",
@@ -15180,7 +12892,7 @@
         "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
         "name": "US Bureau of Labor Statistics",
         "url": "https://www.bls.gov/schedule/news_release/bls.ics",
-        "retrievedAt": "2026-11-18T17:25:42.903Z"
+        "retrievedAt": "2026-11-18T19:58:08.850Z"
       },
       "methodology": "Official BLS iCalendar, filtered to the next 35 days. US Eastern timestamps are converted with America/New_York daylight-saving rules. Event presence does not cast a directional vote.",
       "limitation": "Schedules can change. This calendar does not include every central-bank meeting, earnings release or geopolitical event.",
@@ -15190,7 +12902,7 @@
           "label": "Upcoming releases · 35 days",
           "value": 14,
           "unit": "events",
-          "date": "2026-11-18T17:25:42.903Z"
+          "date": "2026-11-18T19:58:08.850Z"
         }
       ],
       "scores": {
@@ -15363,7 +13075,7 @@
         "sha256": "a110a9c6472ec39a5a7d10c6064e9794f2285a5153ec77215b33736f2ff20a63",
         "name": "SEC XBRL · NVDA",
         "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0001045810/us-gaap/Revenues.json",
-        "retrievedAt": "2026-11-18T17:25:42.794Z"
+        "retrievedAt": "2026-11-18T19:58:08.417Z"
       },
       "methodology": "Reported quarterly financial figures and year-over-year comparisons are context only. Revenue growth is not a surprise against expectations or evidence of the next daily, weekly or monthly price direction. No directional vote until matched expectations and a reviewed response model are available. Original source, period and any restatement limitations remain attached.",
       "limitation": "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
@@ -15473,13 +13185,13 @@
       "source": {
         "name": "Bank of England",
         "url": "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
-        "retrievedAt": "2026-11-18T17:25:42.925Z",
-        "observedAt": "2026-11-18T17:25:42.925Z",
+        "retrievedAt": "2026-11-18T19:58:08.416Z",
+        "observedAt": "2026-11-18T19:58:08.416Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "Bank of England",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "08de0c1c8bfde9ba90b960369e8a3243ea183f649f508340f366d8daad95599f"
+        "sha256": "4ac81db51e166759d5673e5d14db695b5e3fbcad328d38802ab1b5eb32803e6c"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Official local calendar dates, not predicted decisions. Date-only events keep their London, Frankfurt or Tokyo date. Japan's minutes and opinions are labelled separately from policy decisions; exact release times are not inferred from a general convention.",
@@ -15489,7 +13201,7 @@
           "label": "Upcoming events · 70 days",
           "value": 1,
           "unit": "events",
-          "date": "2026-11-18T17:25:42.925Z"
+          "date": "2026-11-18T19:58:08.416Z"
         }
       ],
       "scores": {
@@ -15518,13 +13230,13 @@
       "source": {
         "name": "European Central Bank",
         "url": "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html",
-        "retrievedAt": "2026-11-18T17:25:43.189Z",
-        "observedAt": "2026-11-18T17:25:43.189Z",
+        "retrievedAt": "2026-11-18T19:58:08.754Z",
+        "observedAt": "2026-11-18T19:58:08.754Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "European Central Bank",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "c4eb2d9b7ca3aa8dbb79cf08983a2e3fd0d92f25a011e944864cfb4af1a24607"
+        "sha256": "b39aa8a074db84cebe5a4332e2b26f83ef58d0034cd6ead6ef338ae768bb1aff"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Official local calendar dates, not predicted decisions. Date-only events keep their London, Frankfurt or Tokyo date. Japan's minutes and opinions are labelled separately from policy decisions; exact release times are not inferred from a general convention.",
@@ -15534,7 +13246,7 @@
           "label": "Upcoming events · 70 days",
           "value": 1,
           "unit": "events",
-          "date": "2026-11-18T17:25:43.189Z"
+          "date": "2026-11-18T19:58:08.754Z"
         }
       ],
       "scores": {
@@ -15563,8 +13275,8 @@
       "source": {
         "name": "Bank of Japan",
         "url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm",
-        "retrievedAt": "2026-11-18T17:25:43.086Z",
-        "observedAt": "2026-11-18T17:25:43.086Z",
+        "retrievedAt": "2026-11-18T19:58:08.793Z",
+        "observedAt": "2026-11-18T19:58:08.793Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "Bank of Japan",
@@ -15579,7 +13291,7 @@
           "label": "Upcoming events · 70 days",
           "value": 5,
           "unit": "events",
-          "date": "2026-11-18T17:25:43.086Z"
+          "date": "2026-11-18T19:58:08.793Z"
         }
       ],
       "scores": {
@@ -15608,13 +13320,13 @@
       "source": {
         "name": "Federal Reserve",
         "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-        "retrievedAt": "2026-11-18T17:25:42.935Z",
-        "observedAt": "2026-11-18T17:25:42.935Z",
+        "retrievedAt": "2026-11-18T19:58:08.310Z",
+        "observedAt": "2026-11-18T19:58:08.310Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "Federal Reserve",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "299c1d059b7b01ca0e454732213c972150eda7146b8bd4a9cdb375b326a4e0ca"
+        "sha256": "6d65cf0ec3a8cbdc832db32b3733e0b6a50e82ee80d8ef0aa0237a0c2798ebda"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Meeting dates, not a predicted rate decision. A date-only event does not imply a confirmed announcement time.",
@@ -15624,7 +13336,7 @@
           "label": "Upcoming events · 70 days",
           "value": 2,
           "unit": "events",
-          "date": "2026-11-18T17:25:42.935Z"
+          "date": "2026-11-18T19:58:08.310Z"
         }
       ],
       "scores": {
@@ -15649,17 +13361,17 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "3 upcoming events; next: Treasury 20-Year bond auction · $16bn offered.",
+      "summary": "2 upcoming events; next: Treasury 4-Week bill auction · $115bn offered.",
       "source": {
         "name": "US Treasury",
         "url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json",
-        "retrievedAt": "2026-11-18T17:25:43.946Z",
-        "observedAt": "2026-11-18T17:25:43.946Z",
+        "retrievedAt": "2026-11-18T19:58:09.289Z",
+        "observedAt": "2026-11-18T19:58:09.289Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "US Treasury",
         "usage": "Selected public schedule facts with attribution and direct source link.",
-        "sha256": "0513b7ba479f73f12104e8e0955d690fb6948dc5045ac997cb4b941e81013016"
+        "sha256": "11d74cde21cfe8450b014e8d521f37db9b71a7751fa83e76dd7bfb4abcf81c7c"
       },
       "methodology": "Dated official schedule, filtered to the next 70 days. Exact auction times use America/New_York. Date-only schedules retain date precision. No directional vote.",
       "limitation": "Announced auctions only; tentative future issuance is not included. Offering size is not a forecast of net liquidity withdrawal.",
@@ -15667,9 +13379,9 @@
       "metrics": [
         {
           "label": "Upcoming events · 70 days",
-          "value": 3,
+          "value": 2,
           "unit": "events",
-          "date": "2026-11-18T17:25:43.946Z"
+          "date": "2026-11-18T19:58:09.289Z"
         }
       ],
       "scores": {
@@ -15698,8 +13410,8 @@
       "source": {
         "name": "OCC / Options Industry Council",
         "url": "https://www.optionseducation.org/referencelibrary/expiration-calendar",
-        "retrievedAt": "2026-11-18T17:25:42.927Z",
-        "observedAt": "2026-11-18T17:25:42.927Z",
+        "retrievedAt": "2026-11-18T19:58:08.456Z",
+        "observedAt": "2026-11-18T19:58:08.456Z",
         "releasedAt": null,
         "frequency": "scheduled events",
         "attribution": "OCC / Options Industry Council",
@@ -15714,7 +13426,7 @@
           "label": "Upcoming events · 70 days",
           "value": 10,
           "unit": "events",
-          "date": "2026-11-18T17:25:42.927Z"
+          "date": "2026-11-18T19:58:08.456Z"
         }
       ],
       "scores": {
@@ -15739,17 +13451,17 @@
         "TLT"
       ],
       "status": "available",
-      "summary": "33 finance stories from 15 publishers in the 17:00 UTC batch. News tone is descriptive, not a trading call.",
+      "summary": "20 finance stories from 16 publishers in the 19:45 UTC batch. News tone is descriptive, not a trading call.",
       "source": {
         "name": "The GDELT Project",
         "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-18T17:25:44.515Z",
-        "observedAt": "2026-11-18T17:00:00.000Z",
+        "retrievedAt": "2026-11-18T19:58:09.828Z",
+        "observedAt": "2026-11-18T19:45:00.000Z",
         "releasedAt": null,
         "frequency": "15-minute batch",
         "attribution": "The GDELT Project · https://www.gdeltproject.org/",
         "usage": "Open GDELT metadata, redistributed with citation and source link. Original articles remain with their publishers.",
-        "sha256": "71710e4171fa8cc62afad73c605ea466564045931486016d77cd961e9fd7b789"
+        "sha256": "b42871cd71f89e1e61c327a3afdaf41daa49221738810aec0998ce6350676397"
       },
       "methodology": "Bounded public GKG batch, finance-theme and headline filters, syndicated headline deduplication, publisher-balanced tone. No directional score inferred from tone.",
       "limitation": "Sampled English-language global finance coverage with possible topic errors and residual syndication. This is not the full daily news cycle or sentiment toward an individual ETF.",
@@ -15757,21 +13469,21 @@
       "metrics": [
         {
           "label": "Distinct sampled stories",
-          "value": 33,
+          "value": 20,
           "unit": "stories",
-          "date": "2026-11-18T17:00:00.000Z"
+          "date": "2026-11-18T19:45:00.000Z"
         },
         {
           "label": "Publishers represented",
-          "value": 15,
+          "value": 16,
           "unit": "publishers",
-          "date": "2026-11-18T17:00:00.000Z"
+          "date": "2026-11-18T19:45:00.000Z"
         },
         {
           "label": "Publisher-balanced tone",
-          "value": -0.1855400868637135,
+          "value": 1.036764834178944,
           "unit": "−100 to +100",
-          "date": "2026-11-18T17:00:00.000Z"
+          "date": "2026-11-18T19:45:00.000Z"
         }
       ],
       "scores": {
@@ -15996,7 +13708,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-18T17:25:52.154Z",
+        "retrievedAt": "2026-11-18T19:58:17.997Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16226,7 +13938,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-18T17:25:52.154Z",
+        "retrievedAt": "2026-11-18T19:58:17.997Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16456,7 +14168,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-18T17:25:52.154Z",
+        "retrievedAt": "2026-11-18T19:58:17.997Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16686,7 +14398,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-18T17:25:52.154Z",
+        "retrievedAt": "2026-11-18T19:58:17.997Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -16916,7 +14628,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table1.txt",
-        "retrievedAt": "2026-11-18T17:25:52.154Z",
+        "retrievedAt": "2026-11-18T19:58:17.997Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -17146,7 +14858,7 @@
       "source": {
         "name": "US Treasury · TIC",
         "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table2.txt",
-        "retrievedAt": "2026-11-18T17:25:52.123Z",
+        "retrievedAt": "2026-11-18T19:58:18.783Z",
         "observedAt": "2026-08-31",
         "releasedAt": null,
         "frequency": "monthly · published with a lag",
@@ -17414,7 +15126,7 @@
         "url": "https://www.sec.gov/files/investment/private-funds-statistics-2025-q4-supporting-data.xlsx",
         "observedAt": "2025-12-31",
         "releasedAt": null,
-        "retrievedAt": "2026-11-18T17:25:45.722Z",
+        "retrievedAt": "2026-11-18T19:58:08.886Z",
         "frequency": "quarterly aggregate · substantial publication lag",
         "attribution": "US Securities and Exchange Commission, aggregate Form PF statistics",
         "usage": "US government public aggregate statistics; no private fund filings",
@@ -17446,7 +15158,7 @@
       "source": {
         "name": "Federal Reserve · target lower bound",
         "url": "https://fred.stlouisfed.org/series/DFEDTARL",
-        "retrievedAt": "2026-11-18T17:25:42.890Z",
+        "retrievedAt": "2026-11-18T19:58:08.406Z",
         "observedAt": "2026-11-18",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -20422,7 +18134,7 @@
       "source": {
         "name": "Federal Reserve · target upper bound",
         "url": "https://fred.stlouisfed.org/series/DFEDTARU",
-        "retrievedAt": "2026-11-18T17:25:42.888Z",
+        "retrievedAt": "2026-11-18T19:58:08.404Z",
         "observedAt": "2026-11-18",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -23398,7 +21110,7 @@
       "source": {
         "name": "ECB · deposit facility rate",
         "url": "https://data.ecb.europa.eu/data/datasets/FM/FM.D.U2.EUR.4F.KR.DFR.LEV",
-        "retrievedAt": "2026-11-18T17:25:43.419Z",
+        "retrievedAt": "2026-11-18T19:58:09.175Z",
         "observedAt": "2026-11-18",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -26374,7 +24086,7 @@
       "source": {
         "name": "Bank of England · Bank Rate",
         "url": "https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp",
-        "retrievedAt": "2026-11-18T17:25:43.415Z",
+        "retrievedAt": "2026-11-18T19:58:09.108Z",
         "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -28450,7 +26162,7 @@
       "source": {
         "name": "Bank of Canada · overnight target",
         "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/",
-        "retrievedAt": "2026-11-18T17:25:43.089Z",
+        "retrievedAt": "2026-11-18T19:58:08.564Z",
         "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily policy level",
@@ -30570,13 +28282,13 @@
       "source": {
         "name": "Bank of Canada · Market Participants Survey",
         "url": "https://www.bankofcanada.ca/2026/11/market-participants-survey-third-quarter-of-2026/",
-        "retrievedAt": "2026-11-18T17:25:43.174Z",
+        "retrievedAt": "2026-11-18T19:58:08.644Z",
         "observedAt": "2026-10-01",
         "releasedAt": "2026-11-09",
         "frequency": "quarterly survey",
         "attribution": "Bank of Canada, Market Participants Survey",
         "usage": "Reused with attribution under https://www.bankofcanada.ca/terms/; year-end row selected and reformatted by The Daily Consensus.",
-        "sha256": "b1df9b74fecaf89eb7cdc5b98da4ad4e8716e467fe087b6d94d00ccf6270fde3"
+        "sha256": "1ac489cb72329501494f3f6f191fc2ddf6f1bc8520c0880e0251cc8bb28da2c7"
       },
       "methodology": "Select the nearest reported calendar year-end on or after the publication year from the policy-rate forecast table. Use the survey fieldwork end as the observation date and the official publication date separately.",
       "limitation": "A small survey of market participants. It provides neither an official policy target nor traded event probabilities. No directional vote.",
@@ -30632,13 +28344,13 @@
       "source": {
         "name": "New York Fed · Survey of Consumer Expectations",
         "url": "https://www.newyorkfed.org/newsevents/news/research/2026/20261109",
-        "retrievedAt": "2026-11-18T17:25:43.617Z",
+        "retrievedAt": "2026-11-18T19:58:08.975Z",
         "observedAt": "2026-10-31",
         "releasedAt": "2026-11-09",
         "frequency": "monthly survey",
         "attribution": "Source: Survey of Consumer Expectations, ©2013-2020 Federal Reserve Bank of New York. The SCE data are available without charge at https://www.newyorkfed.org/microeconomics/sce and may be used subject to license terms posted there. The New York Fed disclaims any responsibility for this analysis and interpretation of Survey of Consumer Expectations data.",
         "usage": "Terms: https://www.newyorkfed.org/privacy/termsofuse. The Daily Consensus extracted and reformatted the published reading.",
-        "sha256": "09ef3655774afbdc4ad2432dc8b4565f7dfde44068e06b30046ed7ac45f863eb"
+        "sha256": "57fafec9307e0c5ed185a58336c5b293d23bd21ca041a14d3cb22fcb6e89709b"
       },
       "methodology": "Use the published mean household probability of higher U.S. stock prices in 12 months. The reference month ends on the observation date. Record the separately dated press release and include the reported monthly change when stated.",
       "limitation": "A monthly household survey about a 12-month expectation. It does not measure ETF positions or next-session direction.",
@@ -30680,7 +28392,7 @@
         "url": "https://www.mof.go.jp/policy/international_policy/reference/itn_transactions_in_securities/week.csv",
         "observedAt": "2026-11-07",
         "releasedAt": null,
-        "retrievedAt": "2026-11-18T17:25:44.772Z",
+        "retrievedAt": "2026-11-18T19:58:10.328Z",
         "sha256": "21f435c89e24ccda9b9ac84b00ae23f296c6b6ba56b3cd32a0fc7c46c28237bf",
         "frequency": "weekly designated-investor transactions",
         "attribution": "Ministry of Finance Japan, International Transactions in Securities. Dates and rows selected and labels adapted by The Daily Consensus.",
@@ -30736,7 +28448,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526463399/0001193125-26-463399-index.html",
         "observedAt": "2026-09-30",
         "releasedAt": "2026-11-16",
-        "retrievedAt": "2026-11-18T17:25:44.481Z",
+        "retrievedAt": "2026-11-18T19:58:09.661Z",
         "frequency": "quarterly holdings",
         "sha256": "390ebf6f91e83759fe5b55fb5e9325a94cc95e320900755d0740ed877e516d08",
         "attribution": "Berkshire Hathaway; original filing via SEC EDGAR",
@@ -30801,7 +28513,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000004/0001350694-26-000004-index.html",
         "observedAt": "2026-09-30",
         "releasedAt": "2026-11-16",
-        "retrievedAt": "2026-11-18T17:25:46.033Z",
+        "retrievedAt": "2026-11-18T19:58:11.063Z",
         "frequency": "quarterly holdings",
         "sha256": "9bd54870ef66256ef156fdf7751fd25fc34f4557b1842f4017747b939aaf8b9e",
         "attribution": "Bridgewater Associates; original filing via SEC EDGAR",
@@ -30878,7 +28590,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://developer.finra.org/specific-terms-equity-data",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -30918,7 +28630,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -30958,7 +28670,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://docs.x.com/",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -30998,7 +28710,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://developers.facebook.com/docs/instagram-platform/",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31038,7 +28750,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31078,7 +28790,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31118,7 +28830,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31158,7 +28870,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31198,7 +28910,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://polymarket.com/tos",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31238,7 +28950,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/methodology",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31278,7 +28990,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.sec.gov/edgar/search/",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31318,7 +29030,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.sec.gov/data-research/investment-management-data/division-investment-management-private-fund-statistics",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -31342,7 +29054,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-18T17:25:50.306Z",
+        "retrievedAt": "2026-11-18T19:58:13.017Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "weekly",
@@ -31401,7 +29113,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-18T17:25:50.306Z",
+        "retrievedAt": "2026-11-18T19:58:13.017Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "weekly",
@@ -31460,7 +29172,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-18T17:25:50.306Z",
+        "retrievedAt": "2026-11-18T19:58:13.017Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "weekly",
@@ -31519,7 +29231,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-18T17:25:50.306Z",
+        "retrievedAt": "2026-11-18T19:58:13.017Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "weekly",
@@ -31578,7 +29290,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-18T17:25:50.306Z",
+        "retrievedAt": "2026-11-18T19:58:13.017Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "weekly",
@@ -31637,7 +29349,7 @@
       "source": {
         "name": "CFTC · Traders in Financial Futures",
         "url": "https://publicreporting.cftc.gov/resource/udgc-27he.json?%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=cftc_contract_market_code%2Creport_date_as_yyyy_mm_dd%2Cmarket_and_exchange_names%2Ccontract_units%2Copen_interest_all%2Cfutonly_or_combined&%24order=report_date_as_yyyy_mm_dd+DESC%2Ccftc_contract_market_code%2Cfutonly_or_combined&%24limit=120",
-        "retrievedAt": "2026-11-18T17:25:50.306Z",
+        "retrievedAt": "2026-11-18T19:58:13.017Z",
         "observedAt": "2026-11-10",
         "releasedAt": null,
         "frequency": "weekly",
@@ -31695,7 +29407,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-18T17:25:44.470Z",
+        "retrievedAt": "2026-11-18T19:58:09.513Z",
         "observedAt": "2026-11-16",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -31765,7 +29477,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-18T17:25:44.470Z",
+        "retrievedAt": "2026-11-18T19:58:09.513Z",
         "observedAt": "2026-11-16",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -31823,7 +29535,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-18T17:25:44.470Z",
+        "retrievedAt": "2026-11-18T19:58:09.513Z",
         "observedAt": "2026-11-16",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -31881,7 +29593,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-18T17:25:44.470Z",
+        "retrievedAt": "2026-11-18T19:58:09.513Z",
         "observedAt": "2026-11-16",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -31939,7 +29651,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-18T17:25:44.470Z",
+        "retrievedAt": "2026-11-18T19:58:09.513Z",
         "observedAt": "2026-11-16",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -31997,7 +29709,7 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-18T17:25:44.470Z",
+        "retrievedAt": "2026-11-18T19:58:09.513Z",
         "observedAt": "2026-11-16",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
@@ -32055,7 +29767,7 @@
       "source": {
         "name": "Quantisnow · monthly analyst ratings",
         "url": "https://www.quantisnow.com/data/analyst-ratings.json",
-        "retrievedAt": "2026-11-18T17:25:42.500Z",
+        "retrievedAt": "2026-11-18T19:58:07.736Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "monthly counts; current month to date",
@@ -32095,7 +29807,7 @@
       "source": {
         "name": "Taiwan Stock Exchange · TAIEX price index",
         "url": "https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST",
-        "retrievedAt": "2026-11-18T17:25:44.236Z",
+        "retrievedAt": "2026-11-18T19:58:09.381Z",
         "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily Taiwan end of day",
@@ -32214,7 +29926,7 @@
       "source": {
         "name": "Taiwan Stock Exchange · TAIEX total-return index",
         "url": "https://openapi.twse.com.tw/v1/indicesReport/MFI94U",
-        "retrievedAt": "2026-11-18T17:25:44.237Z",
+        "retrievedAt": "2026-11-18T19:58:09.523Z",
         "observedAt": "2026-11-17",
         "releasedAt": null,
         "frequency": "daily Taiwan end of day",
@@ -32315,13 +30027,13 @@
       "source": {
         "name": "Federal Reserve · Financial Accounts S124.8.t",
         "url": "https://www.federalreserve.gov/releases/z1/20260911/html/S124_8_t.htm",
-        "retrievedAt": "2026-11-18T17:25:43.097Z",
+        "retrievedAt": "2026-11-18T19:58:08.566Z",
         "observedAt": "2026-06-30",
         "releasedAt": "2026-09-11",
         "frequency": "quarterly",
         "attribution": "Board of Governors of the Federal Reserve System, Financial Accounts of the United States",
         "usage": "Federal Reserve Board-produced public-domain data, with source attribution. No third-party microdata is redistributed.",
-        "sha256": "875249aa85de8fe260f6d8e97d81f7325219b1182841256579fec12ec098e647"
+        "sha256": "bec3642c975f29dc73487ade242ac82924501d2fe5b30939a6fcc2c7b356a52e"
       },
       "methodology": "Net acquisition of private-credit loans by private debt funds (FA443067205). Quarterly figures are billions of dollars at a seasonally adjusted annual rate (SAAR), not the cash amount moved during the quarter. Financial-asset acquisition includes these loans; net fund share issues is a distinct funding measure. No directional vote.",
       "limitation": "Lagged private-credit context, not daily private-equity investment flows, capital calls, distributions or known investor intent. Figures may be revised. Each release's units and input availability require review. The 2026-09-11 release has underlying private-debt inputs only through 2026-03-31; later quarters are estimates, not newly reported fund activity.",
@@ -32401,7 +30113,7 @@
       "source": {
         "name": "ETFIQ · retail order activity estimate",
         "url": "https://etfiq.com/funds/spy/trading/",
-        "retrievedAt": "2026-11-18T17:25:44.137Z",
+        "retrievedAt": "2026-11-18T19:58:09.437Z",
         "observedAt": "2026-09-30",
         "releasedAt": null,
         "frequency": "monthly SEC Rule 605 reports",
@@ -32460,7 +30172,7 @@
       "source": {
         "name": "ETFIQ · retail order activity estimate",
         "url": "https://etfiq.com/funds/qqq/trading/",
-        "retrievedAt": "2026-11-18T17:25:44.137Z",
+        "retrievedAt": "2026-11-18T19:58:09.405Z",
         "observedAt": "2026-09-30",
         "releasedAt": null,
         "frequency": "monthly SEC Rule 605 reports",
@@ -32519,7 +30231,7 @@
       "source": {
         "name": "ETFIQ · retail order activity estimate",
         "url": "https://etfiq.com/funds/iwm/trading/",
-        "retrievedAt": "2026-11-18T17:25:44.466Z",
+        "retrievedAt": "2026-11-18T19:58:09.610Z",
         "observedAt": "2026-09-30",
         "releasedAt": null,
         "frequency": "monthly SEC Rule 605 reports",
@@ -32578,7 +30290,7 @@
       "source": {
         "name": "ETFIQ · retail order activity estimate",
         "url": "https://etfiq.com/funds/dia/trading/",
-        "retrievedAt": "2026-11-18T17:25:44.150Z",
+        "retrievedAt": "2026-11-18T19:58:09.610Z",
         "observedAt": "2026-09-30",
         "releasedAt": null,
         "frequency": "monthly SEC Rule 605 reports",
@@ -32637,7 +30349,7 @@
       "source": {
         "name": "ETFIQ · retail order activity estimate",
         "url": "https://etfiq.com/funds/tlt/trading/",
-        "retrievedAt": "2026-11-18T17:25:44.268Z",
+        "retrievedAt": "2026-11-18T19:58:09.413Z",
         "observedAt": "2026-09-30",
         "releasedAt": null,
         "frequency": "monthly SEC Rule 605 reports",
@@ -34701,7 +32413,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-18T17:25:52.184Z",
+        "retrievedAt": "2026-11-18T19:58:25.019Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -34712,6 +32424,15 @@
     }
   ],
   "catalysts": [
+    {
+      "id": "c0c4ef66e0d9307c0568",
+      "title": "Minutes of the Federal Open Market Committee, October 27-28, 2026",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm",
+      "at": "2026-11-18T19:00:00.000Z",
+      "source": "Federal Reserve",
+      "kind": "release",
+      "importance": "context"
+    },
     {
       "id": "cae0ebe96330058d23f1",
       "title": "Boris Vujčić: Financial Stability Review - November 2026",
@@ -34983,15 +32704,6 @@
       "importance": "context"
     },
     {
-      "id": "a0c3e1be77e8b5a27f79",
-      "title": "Federal Reserve issues FOMC statement",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
-      "at": "2026-10-28T18:00:00.000Z",
-      "source": "Federal Reserve",
-      "kind": "release",
-      "importance": "context"
-    },
-    {
       "id": "5ca9250a110cd819876d",
       "title": "Remit for the Monetary Policy Committee - October 2026",
       "url": "https://www.bankofengland.co.uk/letter/2026/mpc-remit-2026",
@@ -35215,15 +32927,6 @@
       "importance": "major"
     },
     {
-      "id": "treasury-912810UZ9-2026-11-18",
-      "title": "Treasury 20-Year bond auction · $16bn offered",
-      "at": "2026-11-18T18:00:00.000Z",
-      "url": "https://www.treasurydirect.gov/auctions/upcoming/",
-      "source": "US Treasury",
-      "kind": "scheduled",
-      "importance": "major"
-    },
-    {
       "id": "treasury-912797WG8-2026-11-19",
       "title": "Treasury 4-Week bill auction · $115bn offered",
       "at": "2026-11-19T16:30:00.000Z",
@@ -35333,164 +33036,235 @@
     }
   ],
   "news": {
-    "batchAt": "2026-11-18T17:00:00.000Z",
-    "sourceUrl": "https://data.gdeltproject.org/gdeltv2/20261118170000.gkg.csv.zip",
-    "sourceHash": "71710e4171fa8cc62afad73c605ea466564045931486016d77cd961e9fd7b789",
-    "rowsScanned": 1580,
-    "matchedArticles": 42,
-    "storyCount": 33,
-    "publishers": 15,
-    "positive": 10,
-    "negative": 13,
+    "batchAt": "2026-11-18T19:45:00.000Z",
+    "sourceUrl": "https://data.gdeltproject.org/gdeltv2/20261118194500.gkg.csv.zip",
+    "sourceHash": "b42871cd71f89e1e61c327a3afdaf41daa49221738810aec0998ce6350676397",
+    "rowsScanned": 1857,
+    "matchedArticles": 28,
+    "storyCount": 20,
+    "publishers": 16,
+    "positive": 8,
+    "negative": 2,
     "balanced": 10,
-    "meanTone": -0.1855400868637135,
+    "meanTone": 1.036764834178944,
     "stories": [
       {
-        "id": "ad777825c450b3891d77",
-        "title": "Bank chief says interest rates not 'pre-set' amid further potential rise",
-        "url": "https://www.lancashiretelegraph.co.uk/news/national/26742400.bank-chief-says-interest-rates-not-pre-set-amid-potential-rise/",
-        "domain": "lancashiretelegraph.co.uk",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:32:00.000Z",
-        "tone": -0.564971751412429,
+        "id": "92f628d3da91f8b59d38",
+        "title": "Trump cites progress on Thailand trade deal as Nvidia posts $116B revenue after CEO exit",
+        "url": "https://wach.com/news/nation-world/trump-cites-progress-on-thailand-trade-deal-as-nvidia-posts-116b-revenue-after-ceo-exit-steve-moore-white-house-economic-adviser-china-xi-putin-russia-iran-jensen-huang-technology-chinese-spy-tariffs",
+        "domain": "wach.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:17:00.000Z",
+        "tone": 1.35795763172189,
         "themes": [
-          "ECON_INTEREST_RATES",
-          "ECON_INFLATION"
+          "ECON_STOCKMARKET"
         ],
-        "mentions": 8
+        "mentions": 5
       },
       {
-        "id": "c40f0a6bbf8158504f67",
-        "title": "AI stocks hold steadier after Nvidia says it sees strong growth ahead",
-        "url": "https://www.pilotonline.com/2026/11/18/stock-market-nvidia/",
-        "domain": "pilotonline.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T13:47:00.000Z",
-        "tone": -1.04849279161206,
+        "id": "54cbe15c1858d31db3fa",
+        "title": "What investors should know about Anthropic's unusual IPO",
+        "url": "https://abcnews.com/US/wireStory/investors-anthropics-unusual-ipo-138254440",
+        "domain": "abcnews.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": null,
+        "tone": 0,
+        "themes": [
+          "ECON_STOCKMARKET",
+          "ECON_INTEREST_RATES"
+        ],
+        "mentions": 4
+      },
+      {
+        "id": "157fd4af84c06f4816fa",
+        "title": "Wall Street zigzags as Nvidia and other AI stocks keep swinging",
+        "url": "https://www.2news.com/news/national/wall-street-zigzags-as-nvidia-and-other-ai-stocks-keep-swinging/article_61ed01b7-4030-5f1f-aa09-0e757c099a74.html",
+        "domain": "2news.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:13:00.000Z",
+        "tone": -0.629722921914358,
         "themes": [
           "ECON_STOCKMARKET",
           "WB_332_CAPITAL_MARKETS",
           "ECON_INFLATION",
           "ECON_INTEREST_RATES"
         ],
-        "mentions": 3
+        "mentions": 2
       },
       {
-        "id": "163c61cc17e6fadca33b",
-        "title": "2 Unstoppable Dividend Stocks I'd Buy With $1,000 Before the End of November",
-        "url": "https://www.fool.com/investing/2026/11/18/2-unstoppable-dividend-stocks-id-buy-with-1000-before-the-end-of-november/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:13:00.000Z",
-        "tone": 0.394632991318074,
+        "id": "018e93f75d3a6670456a",
+        "title": "Fuel prices rise to highest level ever as inflation squeezing families",
+        "url": "https://www.stroudnewsandjournal.co.uk/news/26742733.uk-inflation-rise-drivers-face-higher-petrol-prices/",
+        "domain": "stroudnewsandjournal.co.uk",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T17:35:00.000Z",
+        "tone": -0.530035335689046,
+        "themes": [
+          "ECON_INFLATION",
+          "ECON_INTEREST_RATES",
+          "WB_332_CAPITAL_MARKETS"
+        ],
+        "mentions": 1
+      },
+      {
+        "id": "1793ab8162a4ca2a3a88",
+        "title": "Fed minutes October 2026: Officials expect more rate hikes, worry about AI",
+        "url": "https://www.cnbc.com/2026/11/18/fed-minutes-october-2026.html",
+        "domain": "cnbc.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:00:00.000Z",
+        "tone": -1.72413793103448,
+        "themes": [
+          "ECON_INTEREST_RATES",
+          "ECON_INFLATION",
+          "ECON_CENTRALBANK"
+        ],
+        "mentions": 1
+      },
+      {
+        "id": "1f01e9493560afba14a3",
+        "title": "Brady Corporation Announces First Quarter 2027 Earnings Conference Call",
+        "url": "https://www.manilatimes.net/2026/11/19/tmt-newswire/globenewswire/brady-corporation-announces-first-quarter-2027-earnings-conference-call/2473502",
+        "domain": "manilatimes.net",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:01:00.000Z",
+        "tone": 4.9469964664311,
         "themes": [
           "ECON_STOCKMARKET"
         ],
         "mentions": 1
       },
       {
-        "id": "1750677fa6e843d4239d",
-        "title": "U.S. Stocks Showing A Lack Of Direction Ahead Of Fed Minutes",
-        "url": "https://www.finanzen.ch/nachrichten/aktien/u-s-stocks-showing-a-lack-of-direction-ahead-of-fed-minutes-1036779831",
-        "domain": "finanzen.ch",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": null,
-        "tone": -1.30505709624796,
+        "id": "20a51414f86b49dfb1d9",
+        "title": "Fed policymakers focused on inflation risks in October, with some seeing need for bigger rate hike",
+        "url": "https://ksevradio.com/fed-policymakers-focused-on-inflation-risks-in-october-with-some-seeing-need-for-bigger-rate-hike/",
+        "domain": "ksevradio.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:01:00.000Z",
+        "tone": -0.41407867494824,
         "themes": [
-          "ECON_STOCKMARKET",
+          "ECON_INFLATION",
           "ECON_INTEREST_RATES",
           "ECON_CENTRALBANK"
         ],
         "mentions": 1
       },
       {
-        "id": "1ea156b48196d6a2a6ac",
-        "title": "New startup BeeStow lets you gift stocks by text, email or QR code",
-        "url": "https://www.kxxv.com/consumer/new-startup-beestow-lets-you-gift-stocks-by-text-email-or-qr-code",
-        "domain": "kxxv.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T13:32:00.000Z",
-        "tone": 3.86740331491713,
+        "id": "3492da6d82f332633354",
+        "title": "Lisa Cook refuses to participate in Trump administration's latest effort to remove her from Fed",
+        "url": "https://thegrio.com/2026/11/18/lisa-cook-white-house-hearing-federal-reserve/",
+        "domain": "thegrio.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T16:55:00.000Z",
+        "tone": -6.05381165919282,
         "themes": [
-          "ECON_STOCKMARKET",
-          "ECON_WORLDCURRENCIES"
+          "ECON_CENTRALBANK",
+          "WB_332_CAPITAL_MARKETS"
         ],
         "mentions": 1
       },
       {
-        "id": "27bbb8850f06de24ec57",
-        "title": "Sudden Drop In State Revenues Pushes School Budget $500K Over Tax Cap",
-        "url": "https://www.caledonianrecord.com/news/local/sudden-drop-in-state-revenues-pushes-school-budget-500k-over-tax-cap/article_69cdcc2f-0b9b-5c5a-bc2c-45f85c6bbb0b.html",
-        "domain": "caledonianrecord.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:00:00.000Z",
-        "tone": 0,
+        "id": "449a2c2a93e987230e13",
+        "title": "Fed officials focus on inflation risks in October as some see need for further rate hikes",
+        "url": "https://www.theglobeandmail.com/business/article-fed-officials-focus-on-inflation-risks-in-october-as-some-see-need-for/",
+        "domain": "theglobeandmail.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:26:00.000Z",
+        "tone": -0.437636761487965,
         "themes": [
-          "ECON_INFLATION"
+          "ECON_INFLATION",
+          "ECON_INTEREST_RATES",
+          "ECON_CENTRALBANK"
         ],
         "mentions": 1
       },
       {
-        "id": "285a09390bdb5394ceb0",
-        "title": "Why Sandisk Stock Dropped Again | The Motley Fool",
-        "url": "https://www.fool.com/investing/2026/11/18/why-sandisk-stock-dropped-again/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:42:00.000Z",
-        "tone": -3.23275862068965,
+        "id": "48d36d758c2848e12b95",
+        "title": "Bank of Canada official discusses guidance on interest rate path",
+        "url": "https://www.bnnbloomberg.ca/business/economics/2026/11/18/bank-of-canada-official-downplays-need-for-more-forward-guidance-on-rate-path/",
+        "domain": "bnnbloomberg.ca",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": null,
+        "tone": 0.546448087431694,
         "themes": [
-          "ECON_STOCKMARKET"
+          "ECON_CENTRALBANK",
+          "ECON_INTEREST_RATES"
         ],
         "mentions": 1
       },
       {
-        "id": "2e86f7e8168de37b8346",
-        "title": "Is Micron Next to Announce a Stock Split?",
-        "url": "https://www.fool.com/investing/2026/11/18/is-micron-next-to-announce-a-stock-split/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:15:00.000Z",
-        "tone": -4.57697642163662,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "2f601f117a6f64b93b15",
-        "title": "Indian Stocks Slide as Sensex Falls 500 Points, Nifty Drops Below 25,250",
-        "url": "https://indianewengland.com/indian-stocks-slide-as-sensex-falls-500-points-nifty-drops-below-25250/",
-        "domain": "indianewengland.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:35:00.000Z",
-        "tone": -0.45766590389016,
-        "themes": [
-          "ECON_STOCKMARKET",
-          "ECON_WORLDCURRENCIES"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "2ffeb4e669f3a2aa51e1",
-        "title": "Nvidia Stock Wavers After Fiscal Q3 Earnings Report | Investor's Business Daily",
-        "url": "https://www.investors.com/news/technology/nvidia-stock-fiscal-q3-2027-earnings-report/",
-        "domain": "investors.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:55:00.000Z",
-        "tone": -3.03030303030303,
+        "id": "5d3db1d52a57344febb3",
+        "title": "Target Stock Jumps 5% As Q3 Profit Rises",
+        "url": "https://www.rttnews.com/story.aspx?Id=3715997",
+        "domain": "rttnews.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T17:25:00.000Z",
+        "tone": 3.2258064516129,
         "themes": [
           "ECON_STOCKMARKET"
         ],
         "mentions": 1
       },
       {
-        "id": "3197347a0071a28e4429",
-        "title": "JPMorgan Chase Earned a Profit in Both 2008 and 2009. History Says That's the Bank to Own If a Recession Hits.",
-        "url": "https://www.fool.com/investing/2026/11/18/jpmorgan-chase-earned-a-profit-in-both-2008-and-2009-history-says-thats-the-bank-to-own-if-a-recession-hits/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:30:00.000Z",
-        "tone": -2.12121212121212,
+        "id": "867f0275ca6d81b5dfde",
+        "title": "BellRing Brands Stock Jumps 19% Despite Lower Q4 Earnings",
+        "url": "https://www.rttnews.com/story.aspx?Id=3715982",
+        "domain": "rttnews.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T16:02:00.000Z",
+        "tone": 1.8018018018018,
+        "themes": [
+          "ECON_STOCKMARKET"
+        ],
+        "mentions": 1
+      },
+      {
+        "id": "878ebf3de20c6fa35f9d",
+        "title": "The Stock Market brings special deals and festive fun to shoppers!",
+        "url": "https://fox11online.com/living/featured-segments/the-stock-market-brings-special-deals-and-festive-fun-to-shoppers",
+        "domain": "fox11online.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T17:38:00.000Z",
+        "tone": 8.33333333333333,
+        "themes": [
+          "ECON_STOCKMARKET"
+        ],
+        "mentions": 1
+      },
+      {
+        "id": "879bedc0e7ce475f95b1",
+        "title": "Durum wheat offers $100/t premium as yields close the gap | Farm Weekly",
+        "url": "https://www.farmweekly.com.au/story/9394104/durum-wheat-offers-100t-premium-as-yields-close-the-gap/",
+        "domain": "farmweekly.com.au",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:00:00.000Z",
+        "tone": 1.31578947368421,
+        "themes": [
+          "ECON_STOCKMARKET"
+        ],
+        "mentions": 1
+      },
+      {
+        "id": "956921c8e9dcb32074e0",
+        "title": "Ardent Health Stock Falls 20% After Secondary Offering Price Set",
+        "url": "https://www.rttnews.com/story.aspx?Id=3715996",
+        "domain": "rttnews.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T17:22:00.000Z",
+        "tone": 0.53475935828877,
+        "themes": [
+          "ECON_STOCKMARKET"
+        ],
+        "mentions": 1
+      },
+      {
+        "id": "ab499225e319ed9e9e7f",
+        "title": "Who will score big from Anthropic's IPO?",
+        "url": "https://www.marketplace.org/story/2026/11/18/who-will-score-big-from-anthropics-ipo",
+        "domain": "marketplace.org",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T16:24:00.000Z",
+        "tone": 2.43055555555556,
         "themes": [
           "ECON_STOCKMARKET",
           "WB_332_CAPITAL_MARKETS"
@@ -35498,299 +33272,58 @@
         "mentions": 1
       },
       {
-        "id": "410fc41727f84aa06ed5",
-        "title": "BEFORE THE BELL: World markets are mixed as AI stocks recover after Wall Street losses",
-        "url": "https://www.wptf.com/2026/11/18/before-the-bell-world-markets-are-mixed-as-ai-stocks-recover-after-wall-street-losses/",
-        "domain": "wptf.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T13:11:00.000Z",
-        "tone": -2.3841059602649,
+        "id": "ce5ef39f63fd0b563c45",
+        "title": "Bank of Japan Lifts 2027 Inflation View to 2.6%, Keeps Growth Outlook",
+        "url": "https://econotimes.com/Bank-of-Japan-Lifts-2027-Inflation-View-to-2-6-Keeps-Growth-Outlook-1779115",
+        "domain": "econotimes.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T18:56:00.000Z",
+        "tone": -0.852272727272727,
         "themes": [
-          "ECON_STOCKMARKET",
           "ECON_INFLATION",
-          "ECON_INTEREST_RATES",
           "ECON_WORLDCURRENCIES"
         ],
         "mentions": 1
       },
       {
-        "id": "5313e8d3fec54436dfdf",
-        "title": "Fed Gov. Waller: 'Shock' Rate Hike May Be Needed With Inflation 'Spreading Out'",
-        "url": "https://www.investors.com/news/fed-gov-waller-shock-rate-hike-needed-inflation-spreading-out/",
-        "domain": "investors.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T13:32:00.000Z",
-        "tone": -6.45161290322581,
+        "id": "dc51afe590b75b13fd78",
+        "title": "CBN, NNPC sign MoU to strengthen forex inflows, energy financing &#x2013; The Sun Nigeria",
+        "url": "https://thesun.ng/cbn-nnpc-sign-mou-to-strengthen-forex-inflows-energy-financing/",
+        "domain": "thesun.ng",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T17:57:00.000Z",
+        "tone": 4.86284289276808,
         "themes": [
-          "ECON_INFLATION",
           "ECON_CENTRALBANK"
         ],
         "mentions": 1
       },
       {
-        "id": "5611abb70386ab9d45b6",
-        "title": "NVIDIA (NVDA) Q3 2027 Earnings Call Transcript",
-        "url": "https://www.fool.com/earnings/call-transcripts/2026/11/18/nvidia-nvda-q3-2027-earnings-call-transcript/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:08:00.000Z",
-        "tone": 2.23034274193548,
-        "themes": [
-          "ECON_WORLDCURRENCIES",
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "6e5dfd06394d85815ad3",
-        "title": "Home Depot: Fiscal Q3 Earnings Snapshot",
-        "url": "https://www.local3news.com/local-news/georgia/home-depot-fiscal-q3-earnings-snapshot/article_bb305af5-f7bb-5d09-9f8e-ade8d2e42810.html",
-        "domain": "local3news.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-17T11:06:00.000Z",
-        "tone": 3.125,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "7472584d258d0a37b6e8",
-        "title": "Anthropic IPO: AI lab considers increasing offering",
-        "url": "https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html",
+        "id": "efe6239bf2c21bc850de",
+        "title": "Nvidia's earnings report had something for the bulls, bears and everyone in between",
+        "url": "https://www.cnbc.com/investingclub/2026/11/18/nvidias-earnings-report-had-something-for-the-bulls-bears-and-everyone-in-between.html",
         "domain": "cnbc.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:15:00.000Z",
-        "tone": -0.77120822622108,
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:07:00.000Z",
+        "tone": 0.515796260477112,
         "themes": [
-          "ECON_STOCKMARKET"
+          "ECON_CENTRALBANK"
         ],
         "mentions": 1
       },
       {
-        "id": "77ea0db27dcfbba2014b",
-        "title": "Sam Altman Says He Doesn't Know if Anthropic's AI Development Is Safe Ahead of IPO",
-        "url": "https://www.thewrap.com/industry-news/tech/sam-altman-anthropic-ai-safety-dealbook/",
-        "domain": "thewrap.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:48:00.000Z",
-        "tone": 1.74216027874565,
+        "id": "ff0a9356c05860dcb2c5",
+        "title": "Fed minutes: Higher interest rates needed in December as inflation worries mount",
+        "url": "https://www.2news.com/news/national/fed-minutes-higher-interest-rates-needed-in-december-as-inflation-worries-mount/article_ed3fd550-f994-5d36-b63c-f835a24a1fef.html",
+        "domain": "2news.com",
+        "batchAt": "2026-11-18T19:45:00.000Z",
+        "publishedAt": "2026-11-18T19:09:00.000Z",
+        "tone": 0.294117647058823,
         "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "7d6ab61000215d65c18a",
-        "title": "OneWater Marine: Fiscal Q4 Earnings Snapshot",
-        "url": "https://www.local3news.com/local-news/georgia/onewater-marine-fiscal-q4-earnings-snapshot/article_c29e4696-ea49-5262-8e1c-df800411e819.html",
-        "domain": "local3news.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-17T12:17:00.000Z",
-        "tone": 2.01342281879195,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "80e7ed577ea6ec51c499",
-        "title": "Anthropic prices major IPO as Nvidia scandal unsettles AI shares",
-        "url": "https://news.az/news/anthropic-prices-major-ipo-as-nvidia-scandal-unsettles-ai-shares",
-        "domain": "news.az",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": null,
-        "tone": -1.65289256198347,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "846670c944074fe3b481",
-        "title": "Why Figs Stock Popped Today | The Motley Fool",
-        "url": "https://www.fool.com/investing/2026/11/18/why-figs-stock-popped-today/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:08:00.000Z",
-        "tone": -2.13592233009709,
-        "themes": [
-          "ECON_STOCKMARKET",
-          "ECON_WORLDCURRENCIES"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "8f259cc648d187dc1d71",
-        "title": "Bullish Stock Jumps On Earnings, Revenue Gains. Board Approves $300 Mil Buyback Plan.",
-        "url": "https://www.investors.com/news/bullish-earnings-q3-2026-blsh-stock-tokenized-stocks-bitcoin-cryptocurrency/",
-        "domain": "investors.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:17:00.000Z",
-        "tone": 8.06451612903226,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "90590dc8f906c1c54bb9",
-        "title": "i3 Verticals (IIIV) Q4 2026 Earnings Call Transcript",
-        "url": "https://www.fool.com/earnings/call-transcripts/2026/11/18/i3-verticals-iiiv-q4-2026-earnings-call-transcript/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:37:00.000Z",
-        "tone": 1.9205298013245,
-        "themes": [
-          "ECON_WORLDCURRENCIES",
+          "ECON_CENTRALBANK",
           "ECON_INTEREST_RATES",
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "9fc3b8d76128c715e15f",
-        "title": "Google Cloud Grew 103%. Azure Grew 48%. AWS Grew 39%. Only 1 of These Stocks Is a Buy Right Now.",
-        "url": "https://www.fool.com/investing/2026/11/18/google-cloud-grew-103-azure-grew-48-aws-grew-39-only-1-of-these-stocks-is-a-buy-right-now/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:23:00.000Z",
-        "tone": 0.10548523206751,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "b35cbe60a8707efd4812",
-        "title": "Why TJX Companies Stock Jumped 10% Today",
-        "url": "https://www.fool.com/investing/2026/11/18/why-tjx-companies-stock-jumped-10-today/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:57:00.000Z",
-        "tone": 3.37837837837838,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "b970a49b1513c0f673a0",
-        "title": "Kevin O'Leary Warns Anthropic Investors It May Not Turn a Profit Until 2030 Despite IPO Backing",
-        "url": "https://www.ibtimes.co.uk/kevin-oleary-anthropic-ipo-profitability-2030-1833078",
-        "domain": "ibtimes.co.uk",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:42:00.000Z",
-        "tone": -0.33003300330033,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "c484c7dffa508fc8c5fb",
-        "title": "Nu Holdings Is Up About 40% From Its $9 IPO Price. Prediction: It Doubles That Price by 2030.",
-        "url": "https://www.fool.com/investing/2026/11/18/nu-holdings-is-up-about-40-from-its-usd9-ipo-price-prediction-it-doubles-that-price-by-2030/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:30:00.000Z",
-        "tone": 1.20845921450151,
-        "themes": [
-          "ECON_STOCKMARKET",
-          "ECON_INFLATION"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "c6da529924a97e809945",
-        "title": "Insight Molecular Diagnostics: Q3 Earnings Snapshot",
-        "url": "https://www.local3news.com/local-news/tennessee/insight-molecular-diagnostics-q3-earnings-snapshot/article_2965ec0e-eb69-5fc8-96ee-d826f64414cc.html",
-        "domain": "local3news.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-16T22:46:00.000Z",
-        "tone": -2,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "d823307a7c33da76c055",
-        "title": "Morning Kickstart: Waller makes the case for 50 bps as Nvidia lifts Nasdaq futures",
-        "url": "https://investinglive.com/technical-analysis/morning-kickstart-waller-makes-the-case-for-50-bps-as-nvidia-lifts-nasdaq-futures/",
-        "domain": "investinglive.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T13:22:00.000Z",
-        "tone": -0.242522231204527,
-        "themes": [
           "ECON_INFLATION",
-          "ECON_STOCKMARKET",
-          "ECON_WORLDCURRENCIES"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "db27815d1b210a1f6c85",
-        "title": "Has a Stock Market Crash Started? Here's What Sobering Lessons From the Dot-Com Bust Say Comes Next",
-        "url": "https://www.fool.com/investing/2026/11/18/has-a-stock-market-crash-started-here-s-what-sobering-lessons-from-the-dot-com-bust-say-comes-next/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:36:00.000Z",
-        "tone": -2.02558635394456,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "db5eaebfda04e61841eb",
-        "title": "IRIDEX (IRIX) Q3 2026 Earnings Call Transcript",
-        "url": "https://www.fool.com/earnings/call-transcripts/2026/11/18/iridex-irix-q3-2026-earnings-call-transcript/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:08:00.000Z",
-        "tone": 0.348495964783566,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "e33b51fa652c04ed6a32",
-        "title": "Monday.com vs. ServiceNow: Which Technology Stock Is a Better Buy for 2027?",
-        "url": "https://www.fool.com/coverage/better-buy/2026/11/18/monday-com-vs-servicenow-which-technology-stock-is-a-better-buy-for-2027/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:20:00.000Z",
-        "tone": -1.12191473448018,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "ef22a15e754f29068557",
-        "title": "S&P 500 falls below 200-day moving average",
-        "url": "https://www.cnbc.com/2026/11/18/sp-500-falls-below-200-day-moving-average.html",
-        "domain": "cnbc.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T15:16:00.000Z",
-        "tone": -0.54054054054054,
-        "themes": [
-          "ECON_STOCKMARKET"
-        ],
-        "mentions": 1
-      },
-      {
-        "id": "ef512be27ffc77a97296",
-        "title": "1 Major Lesson Anthropic Investors Can Learn From SpaceX's IPO",
-        "url": "https://www.fool.com/investing/2026/11/18/major-lesson-anthropic-investors-learn-from-spacex-ipo/?source=iedfolrf0000001",
-        "domain": "fool.com",
-        "batchAt": "2026-11-18T17:00:00.000Z",
-        "publishedAt": "2026-11-18T16:31:00.000Z",
-        "tone": 1.08191653786708,
-        "themes": [
-          "ECON_STOCKMARKET"
+          "WB_332_CAPITAL_MARKETS"
         ],
         "mentions": 1
       }
@@ -35809,7 +33342,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526463399/0001193125-26-463399-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526463399/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526463399/60471.xml",
-        "retrievedAt": "2026-11-18T17:25:44.481Z",
+        "retrievedAt": "2026-11-18T19:58:09.661Z",
         "hashes": {
           "submissions": "36acd8c38ede6dd10bb9a2367fef6324472fcaf9bdec260ca99fa486a55b1595",
           "index": "fe45889c3baf82b76e020ae8e8a2e75829b98fcac597c31d800725a4f35249bf",
@@ -35863,7 +33396,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.xml",
-        "retrievedAt": "2026-11-18T17:25:45.179Z",
+        "retrievedAt": "2026-11-18T19:58:10.206Z",
         "hashes": {
           "submissions": "36acd8c38ede6dd10bb9a2367fef6324472fcaf9bdec260ca99fa486a55b1595",
           "index": "55b791cd90a12c4fe10c0d13471853e3e53ccbede45157b4264092aa0f5674f9",
@@ -35922,7 +33455,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000004/0001350694-26-000004-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000004/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000004/infotable.xml",
-        "retrievedAt": "2026-11-18T17:25:46.033Z",
+        "retrievedAt": "2026-11-18T19:58:11.063Z",
         "hashes": {
           "submissions": "39d809159a865e57e037db0a50b4416567b031f01a2649836f044efe233f4ebc",
           "index": "45fe1b717824909afa29114617c95b6c7564fe8f022596bea569d5a021407782",
@@ -35976,7 +33509,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
         "coverUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/primary_doc.xml",
         "tableUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/infotable.xml",
-        "retrievedAt": "2026-11-18T17:25:46.641Z",
+        "retrievedAt": "2026-11-18T19:58:11.710Z",
         "hashes": {
           "submissions": "39d809159a865e57e037db0a50b4416567b031f01a2649836f044efe233f4ebc",
           "index": "011280fc4b3fbb1565fe5bfa3b8d5cdf61ca3fda4f282f4a8f1b9ef769a1d628",
@@ -36043,13 +33576,13 @@
     {
       "instrument": "MARKET",
       "horizon": "daily",
-      "score": 0.014936666666666812,
+      "score": 0.0022333333333337604,
       "coverage": 0.5399673202614379,
       "directionalCoverage": 0.2,
-      "agreement": 1,
-      "bullish": 1,
+      "agreement": null,
+      "bullish": 0,
       "bearish": 0,
-      "neutral": 2,
+      "neutral": 3,
       "abstain": true,
       "reasons": [
         "Less than 70% of the requested evidence is current.",
@@ -36155,7 +33688,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.0016899999999999999,
+          "score": 0.00019999999999999963,
           "status": "available"
         },
         {
@@ -36164,7 +33697,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.10000000000000009,
+          "score": 0.06000000000000094,
           "status": "available"
         },
         {
@@ -36200,7 +33733,7 @@
     {
       "instrument": "MARKET",
       "horizon": "weekly",
-      "score": -0.13583738359355543,
+      "score": -0.13593605026022434,
       "coverage": 0.5399673202614379,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
@@ -36311,7 +33844,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": 0.15831125,
+          "score": 0.15811124999999998,
           "status": "available"
         },
         {
@@ -36347,7 +33880,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.38696000000001124,
+          "score": 0.38666666666666666,
           "status": "available"
         }
       ],
@@ -36356,7 +33889,7 @@
     {
       "instrument": "MARKET",
       "horizon": "monthly",
-      "score": 0.04098015400818489,
+      "score": 0.043774720674850755,
       "coverage": 0.5399673202614379,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.75,
@@ -36467,7 +34000,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.15100625,
+          "score": -0.15038125000000002,
           "status": "available"
         },
         {
@@ -36476,7 +34009,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.15000000000000124,
+          "score": -0.13999999999999968,
           "status": "available"
         },
         {
@@ -36503,7 +34036,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.7578188333333348,
+          "score": 0.7611666666666626,
           "status": "available"
         }
       ],
@@ -36512,13 +34045,13 @@
     {
       "instrument": "SPY",
       "horizon": "daily",
-      "score": 0.014936666666666812,
+      "score": 0.0022333333333337604,
       "coverage": 0.5427777777777778,
       "directionalCoverage": 0.2,
-      "agreement": 1,
-      "bullish": 1,
+      "agreement": null,
+      "bullish": 0,
       "bearish": 0,
-      "neutral": 2,
+      "neutral": 3,
       "abstain": true,
       "reasons": [
         "Less than 70% of the requested evidence is current.",
@@ -36624,7 +34157,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.0016899999999999999,
+          "score": 0.00019999999999999963,
           "status": "available"
         },
         {
@@ -36633,7 +34166,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.10000000000000009,
+          "score": 0.06000000000000094,
           "status": "available"
         },
         {
@@ -36669,7 +34202,7 @@
     {
       "instrument": "SPY",
       "horizon": "weekly",
-      "score": -0.11052770866970038,
+      "score": -0.11062637533636929,
       "coverage": 0.5427777777777778,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -36780,7 +34313,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": 0.15831125,
+          "score": 0.15811124999999998,
           "status": "available"
         },
         {
@@ -36816,7 +34349,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.38696000000001124,
+          "score": 0.38666666666666666,
           "status": "available"
         }
       ],
@@ -36825,7 +34358,7 @@
     {
       "instrument": "SPY",
       "horizon": "monthly",
-      "score": 0.05358552009077614,
+      "score": 0.05638008675744201,
       "coverage": 0.5427777777777778,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -36936,7 +34469,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.15100625,
+          "score": -0.15038125000000002,
           "status": "available"
         },
         {
@@ -36945,7 +34478,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.15000000000000124,
+          "score": -0.13999999999999968,
           "status": "available"
         },
         {
@@ -36972,7 +34505,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.7578188333333348,
+          "score": 0.7611666666666626,
           "status": "available"
         }
       ],
@@ -36981,13 +34514,13 @@
     {
       "instrument": "QQQ",
       "horizon": "daily",
-      "score": 0.014936666666666812,
+      "score": 0.0022333333333337604,
       "coverage": 0.5427777777777778,
       "directionalCoverage": 0.2,
-      "agreement": 1,
-      "bullish": 1,
+      "agreement": null,
+      "bullish": 0,
       "bearish": 0,
-      "neutral": 2,
+      "neutral": 3,
       "abstain": true,
       "reasons": [
         "Less than 70% of the requested evidence is current.",
@@ -37093,7 +34626,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.0016899999999999999,
+          "score": 0.00019999999999999963,
           "status": "available"
         },
         {
@@ -37102,7 +34635,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.10000000000000009,
+          "score": 0.06000000000000094,
           "status": "available"
         },
         {
@@ -37138,7 +34671,7 @@
     {
       "instrument": "QQQ",
       "horizon": "weekly",
-      "score": -0.11728562673648417,
+      "score": -0.11738429340315308,
       "coverage": 0.5427777777777778,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
@@ -37249,7 +34782,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": 0.15831125,
+          "score": 0.15811124999999998,
           "status": "available"
         },
         {
@@ -37285,7 +34818,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.38696000000001124,
+          "score": 0.38666666666666666,
           "status": "available"
         }
       ],
@@ -37294,7 +34827,7 @@
     {
       "instrument": "QQQ",
       "horizon": "monthly",
-      "score": 0.07501724448119292,
+      "score": 0.07781181114785878,
       "coverage": 0.5427777777777778,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -37405,7 +34938,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.15100625,
+          "score": -0.15038125000000002,
           "status": "available"
         },
         {
@@ -37414,7 +34947,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.15000000000000124,
+          "score": -0.13999999999999968,
           "status": "available"
         },
         {
@@ -37441,7 +34974,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.7578188333333348,
+          "score": 0.7611666666666626,
           "status": "available"
         }
       ],
@@ -37450,13 +34983,13 @@
     {
       "instrument": "IWM",
       "horizon": "daily",
-      "score": 0.014936666666666812,
+      "score": 0.0022333333333337604,
       "coverage": 0.5005555555555555,
       "directionalCoverage": 0.2,
-      "agreement": 1,
-      "bullish": 1,
+      "agreement": null,
+      "bullish": 0,
       "bearish": 0,
-      "neutral": 2,
+      "neutral": 3,
       "abstain": true,
       "reasons": [
         "Less than 70% of the requested evidence is current.",
@@ -37562,7 +35095,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.0016899999999999999,
+          "score": 0.00019999999999999963,
           "status": "available"
         },
         {
@@ -37571,7 +35104,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.10000000000000009,
+          "score": 0.06000000000000094,
           "status": "available"
         },
         {
@@ -37607,7 +35140,7 @@
     {
       "instrument": "IWM",
       "horizon": "weekly",
-      "score": -0.11958059543282781,
+      "score": -0.11967926209949672,
       "coverage": 0.5005555555555555,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
@@ -37718,7 +35251,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": 0.15831125,
+          "score": 0.15811124999999998,
           "status": "available"
         },
         {
@@ -37754,7 +35287,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.38696000000001124,
+          "score": 0.38666666666666666,
           "status": "available"
         }
       ],
@@ -37763,7 +35296,7 @@
     {
       "instrument": "IWM",
       "horizon": "monthly",
-      "score": 0.08233469863751364,
+      "score": 0.0851292653041795,
       "coverage": 0.5005555555555555,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -37874,7 +35407,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.15100625,
+          "score": -0.15038125000000002,
           "status": "available"
         },
         {
@@ -37883,7 +35416,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.15000000000000124,
+          "score": -0.13999999999999968,
           "status": "available"
         },
         {
@@ -37910,7 +35443,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.7578188333333348,
+          "score": 0.7611666666666626,
           "status": "available"
         }
       ],
@@ -37919,13 +35452,13 @@
     {
       "instrument": "DIA",
       "horizon": "daily",
-      "score": 0.014936666666666812,
+      "score": 0.0022333333333337604,
       "coverage": 0.5405555555555556,
       "directionalCoverage": 0.2,
-      "agreement": 1,
-      "bullish": 1,
+      "agreement": null,
+      "bullish": 0,
       "bearish": 0,
-      "neutral": 2,
+      "neutral": 3,
       "abstain": true,
       "reasons": [
         "Less than 70% of the requested evidence is current.",
@@ -38031,7 +35564,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.0016899999999999999,
+          "score": 0.00019999999999999963,
           "status": "available"
         },
         {
@@ -38040,7 +35573,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.10000000000000009,
+          "score": 0.06000000000000094,
           "status": "available"
         },
         {
@@ -38076,7 +35609,7 @@
     {
       "instrument": "DIA",
       "horizon": "weekly",
-      "score": -0.19595560353520938,
+      "score": -0.19605427020187832,
       "coverage": 0.5405555555555556,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6,
@@ -38187,7 +35720,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": 0.15831125,
+          "score": 0.15811124999999998,
           "status": "available"
         },
         {
@@ -38223,7 +35756,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.38696000000001124,
+          "score": 0.38666666666666666,
           "status": "available"
         }
       ],
@@ -38232,7 +35765,7 @@
     {
       "instrument": "DIA",
       "horizon": "monthly",
-      "score": -0.04701684717674311,
+      "score": -0.04422228051007724,
       "coverage": 0.5405555555555556,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.8,
@@ -38343,7 +35876,7 @@
           "weight": 1,
           "expected": 4,
           "available": 4,
-          "score": -0.15100625,
+          "score": -0.15038125000000002,
           "status": "available"
         },
         {
@@ -38352,7 +35885,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.15000000000000124,
+          "score": -0.13999999999999968,
           "status": "available"
         },
         {
@@ -38379,7 +35912,7 @@
           "weight": 1,
           "expected": 12,
           "available": 10,
-          "score": 0.7578188333333348,
+          "score": 0.7611666666666626,
           "status": "available"
         }
       ],
@@ -38388,13 +35921,13 @@
     {
       "instrument": "TLT",
       "horizon": "daily",
-      "score": 0.10000000000000009,
+      "score": 0.050000000000001155,
       "coverage": 0.4865873015873016,
       "directionalCoverage": 0.06666666666666667,
-      "agreement": 1,
-      "bullish": 1,
+      "agreement": null,
+      "bullish": 0,
       "bearish": 0,
-      "neutral": 0,
+      "neutral": 1,
       "abstain": true,
       "reasons": [
         "Less than 70% of the requested evidence is current.",
@@ -38509,7 +36042,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": 0.10000000000000009,
+          "score": 0.050000000000001155,
           "status": "available"
         },
         {
@@ -38702,7 +36235,7 @@
     {
       "instrument": "TLT",
       "horizon": "monthly",
-      "score": -0.07076132659474013,
+      "score": -0.05826132659473928,
       "coverage": 0.4865873015873016,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
@@ -38823,7 +36356,7 @@
           "weight": 1,
           "expected": 7,
           "available": 7,
-          "score": -0.12500000000000178,
+          "score": -0.10000000000000009,
           "status": "available"
         },
         {

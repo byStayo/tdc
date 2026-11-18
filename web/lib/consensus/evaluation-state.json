@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "transactionId": "3cf93ac4-c7e2-4d72-a42f-4140409d2ee1",
+  "transactionId": "a369afc1-bd33-4183-962c-121e41caa573",
   "status": "complete",
   "hashes": {
     "public/consensus/outcomes.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "public/consensus/outcome-selection.json": "f05dc25f6ccbc46247da57461955d0d16452d307e4270db5729f657c7bf2a807",
     "lib/consensus/models.json": "448bba0a144f2fa440af9a5cc014f48da830b4eb11516466ab0cc392435548a9",
-    "lib/consensus/performance.json": "01a8bb04885ad5b82b706c10dfa83963e81b5dbd3d340c37e886c307a33678ce"
+    "lib/consensus/performance.json": "0cff5844af8bcdab551188b55108bb6a0f64f3feb0de6b45684ebdb7d8b3c713"
   },
   "artifacts": {
     "public/consensus/models/DIA-daily-4f53cda18c2baa0c.json": "013b470a63b7ffd6d63cfab9ac826f1883380af50a41bcc8af5c7160e8f9f18d",
