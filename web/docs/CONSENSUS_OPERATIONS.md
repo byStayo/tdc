@@ -55,6 +55,8 @@ The evaluator archives candidate and active-model artifacts and updates the regi
 
 The restoration and weekday publisher share one chat. Do not deploy a dirty or concurrently edited tree. Collect/evaluate, inspect changed evidence, run relevant checks and real-browser QA, commit the authorized branch, deploy with the existing Vercel project, then verify normal public HTTPS and the browser. Record deployment ID, commit, health, coverage and limitations in `../VISUAL_BUILD_STATUS.md`.
 
+The publishing Mac runs `com.bystayo.daily-consensus.harvest` on weekdays at 7:48 a.m. New York time. The local job checks the designated clean tracking checkout, runs the bounded private OCC check and creates the free preparation receipt. The existing 8 a.m. editorial automation reuses it only after verifying the date, evidence file, digest and base edition. If the receipt is unavailable, it falls back to the same preparation script. The host logs and receipt are ignored under `.editorial/`.
+
 Private collection probes, historical experiment models, raw prices and backups stay outside Git/deployment. `.consensus` is excluded by both Git and Vercel. Original recovery backups remain outside `web/`. No page view calls a provider or model to generate a consensus. The weekday automation uses the Codex subscription for editorial review; the public server serves saved artifacts.
 
 ## Current verification boundary

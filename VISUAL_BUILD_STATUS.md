@@ -2,6 +2,8 @@
 
 The user rejected the earlier research-desk definition of completion on November3,2026. The active goal is the complete visual morning consensus product described in web/docs/VISUAL_PRODUCT.md. Prior goal closure is superseded. Never call an unavailable tile or untested adapter a completed integration.
 
+The November 18 source release is live from `8336b58f079744c07d094b3017e25f7c79ad53d2` on deployment `dpl_8oH2j8c85HgLZWBMnm7TKbbx8V6w`. The new household and Japan equity-flow source drawers were verified at 390 pixels with their attribution visible. Public health, both archive checks and the current directional and model gaps are recorded in [HANDOFF.md](HANDOFF.md).
+
 ## In progress
 - Recovered original Bias Report images and Abacus document inspected. Original categories: professional/AI/dark-pool/technical/inverse-Twitter; conviction bars, directional votes and support/resistance levels. Historical percentages are not validated performance evidence.
 - Source and architecture audit; build a versioned signal registry, family-capped consensus, immutable publications, outcome ledger and held-out model evaluation.

@@ -56,6 +56,7 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18. Activated a deterministic 7:48 a.m. weekday host collector ahead of the existing editorial review. Its launchd test produced a verified free preparation receipt. Two new official observations are live: the New York Fed household stock outlook and Japan's signed weekly equity flows. Private OCC capture reached all five ETFs with no prospective pairs. Independent CTA reconciliation matched three ETFs for November 17. The strict audit still has 3 of 15 daily voting families, 315 elapsed targets awaiting approved prices and zero active models. [Source qualification](../../FREE_FEED_PATH.md#november-18--deterministic-collection-and-source-probes)
 - November 10. Confirmed the weekday loop is active and the maintainer thread still has only the outgoing inquiry.
 - November 10. Verified the live health endpoint, the local publication tree and all 28 edition hashes. The current production edition is `2026-11-10T18-01-30-142Z` with 99 tracked signals, 86 available and 18 abstentions. A context observation can be available without voting.
 - November 10. Anonymous browser checks passed at 375 and 1440 pixels for the morning view, Research Desk, archive, original article reader and methodology. The morning report picker rendered all five ETF briefs on mobile. A native touch scroll moved 543 pixels with the viewport scale remaining 1. The Research Desk served the current headline with JavaScript disabled.
