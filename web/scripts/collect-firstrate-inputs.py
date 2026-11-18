@@ -92,6 +92,13 @@ def utc(instant):
     return instant.astimezone(dt.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
+def read_ohlcv(symbol, row):
+    o, h, lo, c, volume = (float(row[key]) for key in HEADERS[1:])
+    if not all(math.isfinite(value) and value > 0 for value in (o, h, lo, c, volume)) or lo > min(o, c) or h < max(o, c):
+        raise ValueError(f"Invalid {symbol} sample OHLCV")
+    return o, c
+
+
 def read_daily(symbol, raw):
     with ZipFile(BytesIO(raw)) as archive:
         members = archive.infolist()
@@ -112,13 +119,40 @@ def read_daily(symbol, raw):
             day = row["timestamp"]
             if len(row) != len(HEADERS) or dt.date.fromisoformat(day).isoformat() != day or rows and day <= rows[-1]["session"]:
                 raise ValueError(f"Invalid {symbol} sample date order")
-            o, h, lo, c, volume = (float(row[key]) for key in HEADERS[1:])
-            if not all(math.isfinite(value) and value > 0 for value in (o, h, lo, c, volume)) or lo > min(o, c) or h < max(o, c):
-                raise ValueError(f"Invalid {symbol} sample OHLCV")
+            o, c = read_ohlcv(symbol, row)
             rows.append({"session": day, "open": o, "close": c})
         if not 1 <= len(rows) <= 16:
             raise ValueError(f"Unexpected {symbol} sample size")
     return rows
+
+
+def read_regular_minutes(symbol, raw, daily):
+    """Verify the first and last trade prices from a full Eastern core session."""
+    by_day = {row["session"]: [] for row in daily}
+    with ZipFile(BytesIO(raw)) as archive:
+        member = archive.getinfo(f"{symbol}_1min_sample.csv")
+        if member.file_size > 3_000_000:
+            raise ValueError(f"Oversized {symbol} minute file")
+        text = archive.read("_readme_documentation.txt").decode("utf-8-sig").lower()
+        if "timestamps run from the start of the period" not in text or "timezone is us eastern time" not in text:
+            raise ValueError(f"{symbol} minute clock documentation changed")
+        table = csv.DictReader(StringIO(archive.read(member).decode("utf-8-sig")))
+        if tuple(table.fieldnames or []) != HEADERS:
+            raise ValueError(f"{symbol} minute sample fields changed")
+        for row in table:
+            stamp = row["timestamp"]
+            day = stamp[:10]
+            if day in by_day and "09:30:00" <= stamp[11:] < "16:00:00":
+                by_day[day].append(row)
+    result = []
+    for day, rows in by_day.items():
+        start = dt.datetime.fromisoformat(day + "T09:30:00")
+        if len(rows) != 390 or any(row["timestamp"] != (start + dt.timedelta(minutes=index)).isoformat(sep=" ") or
+                                   len(row) != len(HEADERS) for index, row in enumerate(rows)):
+            continue
+        pairs = [read_ohlcv(symbol, row) for row in rows]
+        result.append({"session": day, "open": pairs[0][0], "close": pairs[-1][1]})
+    return result
 
 
 def main():
@@ -150,10 +184,16 @@ def main():
         for symbol in (() if issuer_history else EQUITY_SAMPLES):
             url = STORAGE + f"frd_sample_etf_{symbol}.zip"
             try:
-                _, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only,
+                raw, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only,
                                         args.through.isoformat(), args.expected_close)
-                samples.append({**meta, "symbol": symbol, "basis": "split-adjusted",
-                                "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows})
+                sample = {**meta, "symbol": symbol, "basis": "split-adjusted",
+                          "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows}
+                if args.independent_samples:
+                    try:
+                        sample["regularMinutes"] = read_regular_minutes(symbol, raw, rows)
+                    except (ValueError, KeyError, TypeError, BadZipFile):
+                        sample["regularMinutes"] = []
+                samples.append(sample)
             except (OSError, ValueError, KeyError, TypeError, BadZipFile) as error:
                 if not args.independent_samples:
                     raise

@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. Reconciled the withheld November 3 DIA session from the complete licensed core-minute pair, independent raw and split-only pairs and final Arca evidence. The source replay found eight additional daily and eight weekly archive targets with the existing gates. The monthly windows include the November 27 early close, which needs its own verified prices. [DIA repair and proof](../../FREE_FEED_PATH.md#november-18--dia-regular-session-price-repair)
+
 - November 18 follow-up. The FirstRate collector now advances each independently verified ETF even when a different sample is stale. A replay using saved production evidence resolved 173 targets during the simulated QQQ outage and the remaining 63 when QQQ returned, without changing either prior prices or the earlier receipt. The longer Stocklake TLT sample failed the official short-session and historical price-basis checks. [Replay and source evidence](../../FREE_FEED_PATH.md#november-18--independent-firstrate-refresh-and-tlt-price-reconciliation)
 
 - November 18 follow-up. Ran the deterministic technical momentum and volatility screen on 5,015 genuine prelaunch outcomes with 174 issuer distributions applied. All five missed the 0.01 improvement over the comparison models. The public FirstRate files still end November 17. The technical vote and full price coverage remain open. [Price controls and benchmark](../../FREE_FEED_PATH.md#november-18--technical-trend-and-volatility-benchmark)

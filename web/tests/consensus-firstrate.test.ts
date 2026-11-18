@@ -19,6 +19,16 @@ test("FirstRate withholds a directional disagreement and a short session while k
   assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [raw[0]]), result);
   assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [candidate[0]]).rows, [candidate[0], raw[2]]);
   assert.throws(() => reconcileFirstRateRows("DIA", candidate, raw, [price("2026-11-25", 50, 50), ...raw.slice(1)]), /split-basis/);
+
+  const listing = [price("2026-11-25", 100.02, 99.99)];
+  const repaired = reconcileFirstRateRows("DIA", candidate, raw, raw, listing, raw);
+  assert.deepEqual(repaired.rows, [raw[0], raw[2]]);
+  assert.deepEqual(repaired.regularMinuteSessions, [raw[0].session]);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [], raw), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, listing,
+    [price("2026-11-25", 100, 99.98), ...raw.slice(1)]), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-25", 100.01, 100.01)], raw), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-25", 100.05, 99.99)], raw), result);
 });
 
 test("FirstRate cash adjustment uses the prior regular close and preserves missing calendar dates", () => {

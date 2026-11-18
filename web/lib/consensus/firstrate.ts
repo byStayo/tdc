@@ -23,16 +23,22 @@ type Symbol = (typeof FIRST_RATE_SYMBOLS)[number];
 type Bar = Pick<SessionPrice, "session" | "open" | "close">;
 type PriceSource = { symbol: Symbol; url: string; sha256: string; basis: "split-adjusted";
   capturedAt: string; modifiedAt: string; rows: Bar[] };
+type Sample = PriceSource & { regularMinutes: Bar[] };
 type Issuer = { symbol: typeof ETF_SYMBOLS[number]; source: string; sha256: string;
   capturedAt: string; cash: CashDistribution[] };
 type SampleFailure = { symbol: Symbol; reason: string };
+type ListingProof = { session: string; source: string; sha256: string };
+type MinuteRepair = {
+  session: string; captureSession: string; source: Omit<PriceSource, "rows">;
+  rawSha256: string; splitSha256: string; listing: ListingProof;
+};
 type ApprovedSymbol = {
   symbol: Symbol;
   reviewedThrough?: string;
   rows: SessionPrice[];
   withheld: { session: string; reason: "short-session" | "price" | "direction" }[];
   proof: { source: Omit<PriceSource, "rows">; comparison: string[]; splitComparison: string[];
-    listingReferences: { session: string; source: string; sha256: string }[] };
+    listingReferences: ListingProof[]; minuteRepairs?: MinuteRepair[] };
 };
 type ReviewedSymbol = ApprovedSymbol & { reviewedThrough: string };
 type Approval = {
@@ -61,13 +67,20 @@ function fullSession(day: string) {
   return session !== null && isFullKibotSession(session.openAt, session.closeAt);
 }
 
+function withinPriceLimits(row: Bar, reference: Bar) {
+  return [row.open, row.close, reference.open, reference.close].every(price => Number.isFinite(price) && price > 0) &&
+    Math.abs(row.open / reference.open - 1) * BASIS_POINTS <= 3 &&
+    Math.abs(row.close / reference.close - 1) * BASIS_POINTS <= 15;
+}
+
 /** Require one intact, independently compared price basis for each confirmed full session. */
 export function reconcileFirstRateRows(
-  symbol: Symbol, candidate: Bar[], raw: SessionPrice[], splitOnly: SessionPrice[], listing: Bar[] = [],
+  symbol: Symbol, candidate: Bar[], raw: SessionPrice[], splitOnly: SessionPrice[], listing: Bar[] = [], regularMinutes: Bar[] = [],
 ) {
   if (candidate.length !== raw.length || candidate.length !== splitOnly.length)
     throw new Error(`${symbol} FirstRate comparison has missing sessions`);
   const withheld: ApprovedSymbol["withheld"] = [];
+  const regularMinuteSessions: string[] = [];
   const rows = candidate.flatMap((row, i) => {
     const expected = raw[i], split = splitOnly[i];
     const clock = exchangeSession(row.session);
@@ -75,22 +88,29 @@ export function reconcileFirstRateRows(
       throw new Error(`${symbol} FirstRate comparison has different session dates`);
     if (expected.open !== split.open || expected.close !== split.close)
       throw new Error(`${symbol} has a split-basis difference on ${row.session}`);
-    const open = Math.abs(row.open / expected.open - 1) * BASIS_POINTS;
-    const close = Math.abs(row.close / expected.close - 1) * BASIS_POINTS;
-    const listedMatch = listing.some(mark => mark.session === row.session && mark.open === row.open && mark.close === row.close);
+    const listed = listing.find(mark => mark.session === row.session);
+    const listedMatch = listed?.open === row.open && listed.close === row.close;
     let reason: ApprovedSymbol["withheld"][number]["reason"] | undefined;
     if (!fullSession(row.session)) reason = "short-session";
-    else if (![row.open, row.close].every(price => Number.isFinite(price) && price > 0) || open > 3 || close > 15)
-      reason = "price";
-    else if (Math.sign(row.close - row.open) !== Math.sign(expected.close - expected.open) && !listedMatch)
+    else if (!withinPriceLimits(row, expected)) reason = "price";
+    else if (Math.sign(row.close - row.open) !== Math.sign(expected.close - expected.open) && !listedMatch) {
+      const minutes = regularMinutes.find(bar => bar.session === row.session);
+      // The same licensed ZIP must exactly match an independent regular-session pair.
+      // The listing market corroborates the direction and both price tolerances.
+      if (minutes && listed && minutes.open === expected.open && minutes.close === expected.close &&
+          withinPriceLimits(minutes, listed) && Math.sign(minutes.close - minutes.open) === Math.sign(listed.close - listed.open)) {
+        regularMinuteSessions.push(row.session);
+        return [{ ...clock, open: minutes.open, close: minutes.close }];
+      }
       reason = "direction";
+    }
     if (reason) {
       withheld.push({ session: row.session, reason });
       return [];
     }
     return [{ ...clock, open: row.open, close: row.close }];
   });
-  return { rows, withheld };
+  return { rows, withheld, regularMinuteSessions };
 }
 
 async function listingReferences(directory: string, symbol: Symbol, dates: string[]) {
@@ -129,13 +149,20 @@ export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
       ordered.some((symbol, index) => symbol !== approval.symbols[index].symbol))
     throw new Error("FirstRate approval has an invalid source or instrument list");
   verifyIssuers(approval.issuers, approval.through, approval.approvedAt);
-  return approval.symbols.map(({ symbol, rows, reviewedThrough = approval.through }) => {
+  return approval.symbols.map(({ symbol, rows, proof, reviewedThrough = approval.through }) => {
     const byDate = new Map(rows.map(row => [row.session, row]));
     if (!dates.includes(reviewedThrough) || byDate.size !== rows.length ||
         rows.some(row => row.session < approval.from || row.session > reviewedThrough ||
         !fullSession(row.session) || row.openAt !== exchangeSession(row.session)!.openAt ||
         row.closeAt !== exchangeSession(row.session)!.closeAt))
       throw new Error(`FirstRate approval has invalid sessions for ${symbol}`);
+    const repairs = proof.minuteRepairs ?? [];
+    if (new Set(repairs.map(repair => repair.session)).size !== repairs.length || repairs.some(repair =>
+      !byDate.has(repair.session) || repair.captureSession < repair.session || repair.captureSession > reviewedThrough ||
+      repair.source.symbol !== symbol || repair.source.url !== sourceURL(symbol) ||
+      repair.listing.session !== repair.session ||
+      ![repair.source.sha256, repair.rawSha256, repair.splitSha256, repair.listing.sha256].every(hash => SHA256.test(hash))))
+      throw new Error(`FirstRate ${symbol} minute repair lacks its pinned independent evidence`);
     const blocks: SessionPrice[][] = [];
     let block: SessionPrice[] = [];
     for (const day of dates) {
@@ -165,9 +192,9 @@ export async function loadFirstRatePrices(root: string) {
   return approval ? firstRatePriceEvidence(approval) : [];
 }
 
-async function reviewSample(directory: string, sample: PriceSource, through: string, from: string,
+async function reviewSample(directory: string, sample: Sample, through: string, from: string,
   cachedOnly: boolean, observed: string, old?: ApprovedSymbol): Promise<ReviewedSymbol> {
-  const { rows, ...source } = sample;
+  const { rows, regularMinutes, ...source } = sample;
   const { symbol } = source;
   const dates = exchangeSessions(rows[0].session, through);
   const closingAt = exchangeSession(through)!.closeAt;
@@ -180,13 +207,16 @@ async function reviewSample(directory: string, sample: PriceSource, through: str
   const raw = await collectResearchPrices(directory, symbol, dates, comparison);
   const splits = await collectResearchPrices(directory, symbol, dates, { ...comparison, splitAdjusted: true });
   const asTraded = raw.flatMap(row => row.sessions), splitOnly = splits.flatMap(row => row.sessions);
-  const check = reconcileFirstRateRows(symbol, rows, asTraded, splitOnly);
+  const repairs = new Map(old?.proof.minuteRepairs?.map(repair => [repair.session, repair]));
+  const priorRows = new Map(old?.rows.map(row => [row.session, row]));
+  const candidates = rows.map(row => repairs.has(row.session) ? priorRows.get(row.session)! : row);
+  const check = reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly);
   const listing = await listingReferences(directory, symbol,
     check.withheld.filter(row => row.reason === "direction").map(row => row.session));
   const normalized = listing.length
-    ? reconcileFirstRateRows(symbol, rows, asTraded, splitOnly, listing.map(row => row.mark))
+    ? reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly, listing.map(row => row.mark), regularMinutes)
     : check;
-  const merged = new Map(old?.rows.map(row => [row.session, row]));
+  const merged = new Map(priorRows);
   const priorLast = old?.rows.at(-1)?.session;
   const incomingFirst = normalized.rows[0]?.session;
   if (priorLast && incomingFirst && incomingFirst > priorLast &&
@@ -203,10 +233,17 @@ async function reviewSample(directory: string, sample: PriceSource, through: str
     merged.set(row.session, row);
   }
   if (!merged.size) throw new Error(`${symbol} has no independently verified price sessions`);
+  const references = listing.map(({ session, source, sha256 }) => ({ session, source, sha256 }));
+  for (const session of normalized.regularMinuteSessions) {
+    const rawReference = raw.find(receipt => receipt.from <= session && receipt.through >= session)!;
+    const splitReference = splits.find(receipt => receipt.from <= session && receipt.through >= session)!;
+    repairs.set(session, { session, captureSession: through, source, rawSha256: rawReference.sha256,
+      splitSha256: splitReference.sha256, listing: references.find(reference => reference.session === session)! });
+  }
   return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
     withheld: normalized.withheld,
     proof: { source, comparison: raw.map(row => row.sha256), splitComparison: splits.map(row => row.sha256),
-      listingReferences: listing.map(({ session, source, sha256 }) => ({ session, source, sha256 })) } };
+      listingReferences: references, ...(repairs.size ? { minuteRepairs: [...repairs.values()] } : {}) } };
 }
 
 function approvedCounts(approval: Approval) {
@@ -214,24 +251,31 @@ function approvedCounts(approval: Approval) {
 }
 
 /** Caller holds the existing publication lock. The only committed output is an owner-local receipt. */
-export async function prepareFirstRate(root: string, cachedOnly = false, now = new Date().toISOString()) {
-  const through = priorSession(now);
-  if (through < FIRST_EDITION_DAY) return { status: "no_issued_targets", through };
+export async function prepareFirstRate(root: string, cachedOnly = false, now = new Date().toISOString(), reviewWithheld = false) {
   const directory = resolve(root, directoryName);
   const previous = await readApproval(root);
+  if (reviewWithheld && !previous) throw new Error("FirstRate replay needs a verified capture");
+  const through = reviewWithheld ? previous!.through : priorSession(now);
+  if (through < FIRST_EDITION_DAY) return { status: "no_issued_targets", through };
   const approved = new Map(previous?.symbols.map(row =>
     [row.symbol, { ...row, reviewedThrough: row.reviewedThrough ?? previous.through }]));
-  const pending = FIRST_RATE_SYMBOLS.filter(symbol => (approved.get(symbol)?.reviewedThrough ?? "") < through);
+  const pending = FIRST_RATE_SYMBOLS.filter(symbol => {
+    const old = approved.get(symbol);
+    return reviewWithheld
+      ? old?.reviewedThrough === through && old.withheld.some(row => row.reason === "direction")
+      : (old?.reviewedThrough ?? "") < through;
+  });
   if (previous && (previous.through > through || !pending.length))
     return { status: "reused", through: previous.through, approved: approvedCounts(previous) };
+  const pinned = cachedOnly || reviewWithheld;
   await durableDirectory(directory, 0o700);
   const { stdout } = await promisify(execFile)("python3",
     ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"), through, "--independent-samples",
       "--expected-close", exchangeSession(through)!.closeAt.replace(/Z$/, "+00:00"),
-      ...(cachedOnly ? ["--cached-only"] : [])],
+      ...(pinned ? ["--cached-only"] : [])],
     { timeout: 105_000, maxBuffer: 256_000 });
   const { samples, sampleFailures, issuers } = JSON.parse(stdout) as {
-    samples: PriceSource[]; sampleFailures: SampleFailure[]; issuers: Issuer[] };
+    samples: Sample[]; sampleFailures: SampleFailure[]; issuers: Issuer[] };
   const inventory = [...samples, ...sampleFailures].map(row => row.symbol);
   if (inventory.length !== FIRST_RATE_SYMBOLS.length || FIRST_RATE_SYMBOLS.some(symbol => !inventory.includes(symbol)))
     throw new Error("FirstRate did not account for each documented sample");
@@ -250,13 +294,18 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   const reviewed: Symbol[] = [];
   for (const sample of samples.filter(row => pending.includes(row.symbol))) {
     try {
-      const match = await reviewSample(directory, sample, through, from, cachedOnly, observed, approved.get(sample.symbol));
+      const old = approved.get(sample.symbol);
+      const match = await reviewSample(directory, sample, through, from, pinned, observed, old);
+      if (reviewWithheld && !old!.withheld.some(row => row.reason === "direction" &&
+          match.rows.some(bar => bar.session === row.session))) continue;
       approved.set(sample.symbol, match);
       reviewed.push(sample.symbol);
     } catch (error) {
       failures.push({ symbol: sample.symbol, reason: error instanceof Error ? error.message.slice(0, 240) : "Price comparison failed" });
     }
   }
+  if (reviewWithheld && !reviewed.length)
+    return { status: "no_verified_disputes", through, approved: approvedCounts(previous!), failures };
   if (!reviewed.length)
     throw new Error(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
 
