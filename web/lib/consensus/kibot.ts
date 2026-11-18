@@ -5,12 +5,18 @@ import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { sourceResponse, sourceChunk } from "./source-failure.ts";
 import { newYorkDate } from "./time.ts";
 import { INSTRUMENTS } from "./types.ts";
+import type { Instrument } from "./types.ts";
 
-const SOURCE = "https://www.kibot.com/api/history-request.html";
+export const KIBOT_PRICE_CITATION = "https://www.kibot.com/api/history-request.html";
 const MAX_BYTES = 64 * 1024;
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
+type SessionClock = typeof exchangeSession;
 
-export function parseKibotDaily(csv: string, expectedSessions: string[]): SessionPrice[] {
+export function isFullKibotSession(openAt: string, closeAt: string): boolean {
+  return Date.parse(closeAt) - Date.parse(openAt) === 6.5 * 3_600_000;
+}
+
+export function parseKibotDaily(csv: string, expectedSessions: string[], sessionClock: SessionClock = exchangeSession): SessionPrice[] {
   const rows = csv.trim().split(/\r?\n/);
   const sessions = rows.map(line => {
     const fields = line.split(",");
@@ -18,7 +24,7 @@ export function parseKibotDaily(csv: string, expectedSessions: string[]): Sessio
     if (!match || fields.length !== 6) throw new Error("Invalid Kibot daily response");
     const [, month, day, year] = match;
     const date = year + "-" + month + "-" + day;
-    const bar = exchangeSession(date);
+    const bar = sessionClock(date);
     if (!bar) throw new Error("Kibot bar outside an exchange session");
     const [open, high, low, close, volume] = fields.slice(1).map(Number);
     if (!fields.slice(1).every(field => /^\d+(?:\.\d+)?$/.test(field)) ||
@@ -34,6 +40,52 @@ export function parseKibotDaily(csv: string, expectedSessions: string[]): Sessio
   return sessions;
 }
 
+export async function collectKibotSeries(
+  instrument: Exclude<Instrument, "MARKET">,
+  expectedSessions: string[],
+  options: { unadjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock } = {},
+): Promise<{ sessions: SessionPrice[]; sha256: string }> {
+  const from = expectedSessions[0];
+  const through = expectedSessions.at(-1);
+  const sessionClock = options.sessionClock ?? exchangeSession;
+  if (!from || !through || Date.parse(through) - Date.parse(from) > 370 * 86400000 ||
+      expectedSessions.some((day, index) => !sessionClock(day) || (index > 0 && day <= expectedSessions[index - 1])))
+    throw new Error("Kibot collection requires an ordered, bounded reviewed session range");
+
+  const american = (date: string) => date.slice(5, 7) + "/" + date.slice(8) + "/" + date.slice(0, 4);
+  const url = new URL("https://api.kibot.com/");
+  // Both literal guest values are the provider's documented anonymous access.
+  url.search = new URLSearchParams({
+    action: "history", interval: "daily", symbol: instrument, user: "guest", password: "guest",
+    unadjusted: options.unadjusted ? "1" : "0", startdate: american(from), enddate: american(through),
+  }).toString();
+  const response = await sourceResponse(options.fetcher ?? fetch, url.href, {
+    redirect: "error", signal: AbortSignal.timeout(15000),
+  });
+  const reader = response.body!.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  try {
+    for (;;) {
+      const part = await sourceChunk(reader);
+      if (part.done) break;
+      length += part.value.byteLength;
+      if (length > MAX_BYTES) throw new Error("Kibot daily response exceeds the byte limit");
+      chunks.push(part.value);
+    }
+  } catch (error) {
+    await reader.cancel().catch(() => undefined);
+    throw error;
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = Buffer.concat(chunks);
+  return {
+    sessions: parseKibotDaily(bytes.toString("utf8"), expectedSessions, sessionClock),
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  };
+}
+
 export async function collectKibotPrices(from: string, cutoff: string, fetcher: Fetcher = fetch, unadjusted = false) {
   const today = newYorkDate(cutoff);
   const yesterday = new Date(Date.parse(today) - 86400000).toISOString().slice(0, 10);
@@ -42,40 +94,14 @@ export async function collectKibotPrices(from: string, cutoff: string, fetcher: 
   const expectedSessions = exchangeSessions(from, yesterday);
   const through = expectedSessions.at(-1);
   if (!through) throw new Error("No completed exchange sessions in the collection range");
-  const american = (date: string) => date.slice(5, 7) + "/" + date.slice(8) + "/" + date.slice(0, 4);
   const evidence: PriceEvidence[] = [];
   const hashes: Record<string, string> = {};
   for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET")) {
-    const url = new URL("https://api.kibot.com/");
-    // Both literal guest values are the provider's documented anonymous access.
-    url.search = new URLSearchParams({
-      action: "history", interval: "daily", symbol: instrument, user: "guest", password: "guest",
-      unadjusted: unadjusted ? "1" : "0", startdate: american(from), enddate: american(through),
-    }).toString();
-    const response = await sourceResponse(fetcher, url.href, {
-      redirect: "error", signal: AbortSignal.timeout(15000),
-    });
-    const reader = response.body!.getReader();
-    const chunks: Uint8Array[] = [];
-    let length = 0;
-    try {
-      for (;;) {
-        const part = await sourceChunk(reader);
-        if (part.done) break;
-        length += part.value.byteLength;
-        if (length > MAX_BYTES) throw new Error("Kibot daily response exceeds the byte limit");
-        chunks.push(part.value);
-      }
-    } catch (error) {
-      await reader.cancel().catch(() => undefined);
-      throw error;
-    }
-    const bytes = Buffer.concat(chunks);
-    const sessions = parseKibotDaily(bytes.toString("utf8"), expectedSessions);
+    const { sessions, sha256 } = await collectKibotSeries(instrument, expectedSessions, { unadjusted, fetcher });
     // As-traded bars are a reconciliation reference. The evaluator rejects this basis.
-    evidence.push({ instrument, source: SOURCE, adjustment: unadjusted ? "unadjusted" : OUTCOME_PRICE_BASIS,
+    evidence.push({ instrument, source: KIBOT_PRICE_CITATION, adjustment: unadjusted ? "unadjusted" : OUTCOME_PRICE_BASIS,
       expectedSessions, sessions });
-    hashes[instrument] = createHash("sha256").update(bytes).digest("hex");
+    hashes[instrument] = sha256;
   }
   return { evidence, hashes, through };
 }

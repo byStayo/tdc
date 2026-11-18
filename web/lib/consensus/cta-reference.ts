@@ -153,9 +153,9 @@ export function parseCtaReference(bytes: Uint8Array, bounds: Session): CtaRefere
 /** Supply previously downloaded private archive bytes to validate without another request. */
 export async function collectCtaReference(
   day: string,
-  options: { cachedBytes?: Uint8Array; fetcher?: Fetcher } = {},
+  options: { cachedBytes?: Uint8Array; fetcher?: Fetcher; sessionClock?: typeof exchangeSession } = {},
 ): Promise<{ reference: CtaReference; bytes: Uint8Array }> {
-  const bounds = exchangeSession(day);
+  const bounds = (options.sessionClock ?? exchangeSession)(day);
   if (!bounds) throw new Error("CTA date has no reviewed exchange session");
   if (options.cachedBytes) {
     return { reference: parseCtaReference(options.cachedBytes, bounds), bytes: options.cachedBytes };

@@ -6,6 +6,7 @@ import { effectiveStatus } from "../lib/consensus/engines/v2.ts";
 import { ETF_FLOW_PREFIX } from "../lib/consensus/etf-flows.ts";
 import { selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
+import { isFullKibotSession } from "../lib/consensus/kibot.ts";
 import { PROSPECTIVE_MINIMUM } from "../lib/consensus/learning-audit.ts";
 import { FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
@@ -30,7 +31,8 @@ if (saved.schemaVersion !== 2 || !Array.isArray(saved.outcomes) ||
     }))
   throw new Error("Private outcome ledger differs from verified history");
 
-const { policy, selected } = selectScoredOutcomes(saved.outcomes);
+const { policy, selected } = selectScoredOutcomes((saved.outcomes as Outcome[])
+  .filter(row => isFullKibotSession(row.entryAt, row.exitAt)));
 const groups = Object.entries(futuresByETF).flatMap(([instrument, contract]) => {
   const sessions = selected.filter(row => row.instrument === instrument);
   const candidates = [

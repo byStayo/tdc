@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { collectKibotPrices, parseKibotDaily } from "../lib/consensus/kibot.ts";
+import { collectKibotPrices, isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot.ts";
 
 const sessions = ["2026-11-06", "2026-11-09"];
 const csv = "11/06/2026,100,103,99,102,12345\r\n11/09/2026,102,104,101,103,23456\r\n";
@@ -38,4 +38,14 @@ test("the guest collector requests all five ETFs only through the prior complete
     assert.equal(new URL(evidence.source).search, "");
     assert.deepEqual(evidence.expectedSessions, sessions);
   }
+});
+
+test("a captured short-session price remains ineligible for the private daily label", () => {
+  const rows = parseKibotDaily(
+    "11/25/2026,100,103,99,102,12345\n11/27/2026,102,104,101,103,23456",
+    ["2026-11-25", "2026-11-27"],
+  );
+  assert.equal(rows[1].closeAt, "2026-11-27T18:00:00.000Z");
+  assert.deepEqual(rows.filter(row => isFullKibotSession(row.openAt, row.closeAt)).map(row => row.session),
+    ["2026-11-25"]);
 });

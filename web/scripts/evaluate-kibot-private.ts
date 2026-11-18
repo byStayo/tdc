@@ -6,7 +6,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { EXCHANGE_CALENDAR } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
-import { collectKibotPrices } from "../lib/consensus/kibot.ts";
+import { collectKibotPrices, isFullKibotSession } from "../lib/consensus/kibot.ts";
 import { planCandidate } from "../lib/consensus/learning.ts";
 import { MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, readReservations } from "../lib/consensus/learning-audit.ts";
 import { ENGINE_VERSION } from "../lib/consensus/registry.ts";
@@ -42,15 +42,26 @@ try {
   if (existing.size !== outcomes.length) throw new Error("Duplicate private outcome");
 
   const { evidence, hashes, through } = await collectKibotPrices(collectionStart, now);
+  const unqualifiedShortSessions = new Set<string>();
+  const fullSessionEvidence = evidence.map(prices => ({
+    ...prices,
+    // Keep the session in expectedSessions so a withheld bar cannot shift the target.
+    sessions: prices.sessions.filter(({ session, openAt, closeAt }) => {
+      if (isFullKibotSession(openAt, closeAt)) return true;
+      unqualifiedShortSessions.add(session);
+      return false;
+    }),
+  }));
   // Guest adjustment data can lag issuer distributions. The common price
   // adjustment factor cancels between the open and close of the same session.
   for (const snapshot of snapshots)
-    for (const prices of evidence) {
+    for (const prices of fullSessionEvidence) {
       if (existing.has(outcomeKey({ snapshotId: snapshot.id, instrument: prices.instrument, horizon: "daily" }))) continue;
       const row = evaluateOutcome(snapshot, prices, "daily", now);
       if (row) outcomes.push(row);
     }
-  const selected = selectScoredOutcomes(outcomes).selected;
+  const qualifiedOutcomes = outcomes.filter(row => isFullKibotSession(row.entryAt, row.exitAt));
+  const selected = selectScoredOutcomes(qualifiedOutcomes).selected;
   const cohorts = [];
   for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
     for (const horizon of HORIZONS) {
@@ -67,8 +78,10 @@ try {
     }
   const summary = {
     through, sourceSymbols: evidence.length, sessionsPerSymbol: evidence[0].sessions.length,
-    added: outcomes.length - before, resolved: outcomes.length, selected: selected.length,
-    pending: snapshots.length * evidence.length * HORIZONS.length - outcomes.length,
+    unqualifiedShortSessions: [...unqualifiedShortSessions].sort(),
+    retainedUnqualifiedRows: outcomes.length - qualifiedOutcomes.length,
+    added: outcomes.length - before, resolved: qualifiedOutcomes.length, selected: selected.length,
+    pending: snapshots.length * evidence.length * HORIZONS.length - qualifiedOutcomes.length,
     candidatesEligible: cohorts.filter(cohort => cohort.status === "ready").length,
     trained: 0,
   };

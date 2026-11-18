@@ -1,13 +1,15 @@
 import { readFile, stat } from "node:fs/promises";
 import { isAbsolute } from "node:path";
-import { collectCtaReference } from "../lib/consensus/cta-reference.ts";
-import { collectKibotPrices } from "../lib/consensus/kibot.ts";
-import { exchangeSession } from "../lib/consensus/exchange-calendar.ts";
+import { collectCtaReference, CTA_REFERENCE_SYMBOLS } from "../lib/consensus/cta-reference.ts";
+import { collectKibotSeries } from "../lib/consensus/kibot.ts";
+import { EXCHANGE_CALENDAR, exchangeSession } from "../lib/consensus/exchange-calendar.ts";
+import { historicalResearchSession } from "../lib/consensus/research-session-calendar.ts";
 
 const [day, flag, file, ...extra] = process.argv.slice(2);
 if (!day || (flag !== undefined && (flag !== "--file" || !file || !isAbsolute(file))) || extra.length)
   throw new Error("Usage: npm run consensus:research-cta-reference -- YYYY-MM-DD [--file /absolute/private/summary.csv]");
-const session = exchangeSession(day);
+const sessionClock = day < EXCHANGE_CALENDAR.from ? historicalResearchSession : exchangeSession;
+const session = sessionClock(day);
 if (!session || Date.parse(session.closeAt) >= Date.now())
   throw new Error("CTA reconciliation requires a completed reviewed exchange session");
 
@@ -18,13 +20,16 @@ if (file) {
     throw new Error("The cached CTA summary must be a file under 80 MB");
   cachedBytes = await readFile(file);
 }
-const cutoff = new Date(Date.parse(day) + 86400000 + 13 * 3600000).toISOString();
-const [{ reference }, kibot] = await Promise.all([
-  collectCtaReference(day, { cachedBytes }),
-  collectKibotPrices(day, cutoff, fetch, true),
+const [{ reference }, checks] = await Promise.all([
+  collectCtaReference(day, { cachedBytes, sessionClock }),
+  Promise.all(CTA_REFERENCE_SYMBOLS.map(async symbol => {
+    const { sessions } = await collectKibotSeries(symbol, [day], { unadjusted: true, sessionClock });
+    return [symbol, sessions[0]] as const;
+  })),
 ]);
+const rawPrices = new Map(checks);
 const comparisons = reference.rows.map(row => {
-  const price = kibot.evidence.find(item => item.instrument === row.symbol)?.sessions.find(item => item.session === day);
+  const price = rawPrices.get(row.symbol);
   if (!price) throw new Error("Missing raw Kibot reference session: " + row.symbol);
   const openBps = (row.open / price.open - 1) * 10_000;
   const closeBps = (row.close / price.close - 1) * 10_000;

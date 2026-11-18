@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { exchangeSession } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
+import { isFullKibotSession } from "../lib/consensus/kibot.ts";
 import { PROSPECTIVE_MINIMUM } from "../lib/consensus/learning-audit.ts";
 import {
   collectOccVolume, occCapturePrecedesOutcome, OCC_VOLUME_SYMBOLS, previousOccSession,
@@ -88,7 +89,8 @@ async function countPairedSessions() {
     const capture = await loadCapture(day);
     if (capture) captures.set(day, capture);
   }
-  const { policy, selected } = selectScoredOutcomes(ledger.outcomes);
+  const { policy, selected } = selectScoredOutcomes(ledger.outcomes
+    .filter(row => isFullKibotSession(row.entryAt, row.exitAt)));
   const groups = OCC_VOLUME_SYMBOLS.map((symbol) => {
     const sessions = selected.filter(row => row.instrument === symbol);
     const matchedDays = new Set<string>();

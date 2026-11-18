@@ -35,6 +35,7 @@
     "consensus:research-directional-coverage": "node --experimental-strip-types scripts/research-directional-coverage.ts",
     "consensus:research-occ-volume": "node --experimental-strip-types scripts/research-occ-volume.ts",
     "consensus:research-cta-reference": "node --experimental-strip-types scripts/research-cta-reference.ts",
+    "consensus:research-treasury-auction-demand": "node --experimental-strip-types scripts/research-treasury-auction-demand.ts",
     "consensus:research-families-private": "node --experimental-strip-types scripts/research-families-private.ts",
     "consensus:research-events-private": "node --experimental-strip-types scripts/research-events-private.ts",
     "consensus:research-news-private": "node --experimental-strip-types scripts/research-news-private.ts",
