@@ -52,6 +52,7 @@
     "consensus:research-retail": "node --experimental-strip-types scripts/research-nyfed-retail.ts",
     "consensus:research-nyfed-nowcast": "node --experimental-strip-types scripts/research-nyfed-nowcast.ts",
     "consensus:research-cftc-options": "node --experimental-strip-types scripts/research-cftc-option-positioning.ts",
+    "consensus:research-technical-momentum": "node --experimental-strip-types scripts/research-technical-momentum.ts",
     "consensus:research-nport-close": "node --experimental-strip-types scripts/research-nport-close.ts",
     "consensus:research-families-private": "node --experimental-strip-types scripts/research-families-private.ts",
     "consensus:research-events-private": "node --experimental-strip-types scripts/research-events-private.ts",

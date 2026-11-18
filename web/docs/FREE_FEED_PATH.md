@@ -1,5 +1,23 @@
 # Free feed access and alternatives
 
+## November 18 — Technical trend and volatility benchmark
+
+The fixed private test used January 3, 2022 through November 2, 2026. Each fund had 1,213 dated exchange sessions with identical as-traded and split-only opens and closes. The existing issuer captures supplied 174 cash distributions across the five funds. The study adjusted on the verified ex-dates and withheld the 21-session lookback and its target whenever either contained a shortened session. There were 1,003 usable targets per fund and 201 chronological test dates per fund, starting November 17, 2025. [Kibot fields and evaluation access](https://www.kibot.com/api/history-request.html) · [Kibot license](https://www.kibot.com/license.html) · [Issuer history parser](../scripts/issuer_corporate_actions.py)
+
+The previous full-session body is the comparison feature. The candidate adds five-session adjusted close momentum, adjusted close relative to the prior 20-close geometric mean, and the root mean square of 20 completed daily log returns. Every feature uses the preceding completed sessions at an 8 a.m. New York forecast cutoff. The target is the same session's regular open-to-close direction. An independent Python calculation reconstructed the issuer-adjusted returns from raw close ratios and reproduced both Brier scores for every fund. Lower error is better.
+
+| ETF | Cash distributions | Previous body | Trend and volatility | Training base rate |
+| --- | ---: | ---: | ---: | ---: |
+| SPY | 19 | 0.25132 | 0.25237 | 0.25172 |
+| QQQ | 20 | 0.25176 | 0.25336 | 0.25216 |
+| IWM | 19 | 0.24965 | 0.24948 | 0.24983 |
+| DIA | 58 | 0.25186 | 0.25166 | 0.25186 |
+| TLT | 58 | 0.24948 | 0.24761 | 0.24982 |
+
+The 50/50 baseline scored 0.25000. All five fell short of the declared 0.01 margin over each baseline. The historical inputs are retrospective and some test dates overlap an earlier prelaunch research study. The public archived predictions and prospective reserves retain their existing boundary. The price receipts and frozen fits are owner-local in `.consensus/private-technical-momentum/`.
+
+The four current FirstRate sample headers returned HTTP 200 at the evening recheck. The latest file modifications were between 5:15 and 5:19 a.m. New York on November 18, before the November 18 close. They still qualify through November 17. [FirstRate sample documentation](https://firstratedata.com/stock-data)
+
 ## November 18 — TLT source checks and CFTC options benchmark
 
 The free Stocklake MCP returned 13 TLT daily OHLCV bars, including all 11 sessions from November 3 through 17. Its terms leave the underlying data with unnamed third-party providers, prohibit API data redistribution and give no session or adjustment definitions. Atlantis also returned all the dates from November 2 through 17, but only closing prices. Its terms preserve upstream restrictions. The public Marilux TLT page shows regular-session selection, as-traded prices and a distribution history that matches the official November 2 iShares amount. The download page offers daily files for up to five symbols per request with three free downloads per verified account. Its terms allow nonreconstructible output from internal analysis, subject to its upstream and competing-service restrictions. Standard HTTPS requests from the publication host failed during TLS negotiation, so the regular-session export and its opens and closes remain unverified. [Stocklake tools](https://api.stocklake.dev/docs/tools) · [Stocklake terms](https://api.stocklake.dev/legal) · [Atlantis API](https://atlantisdatasolutions.com/api) · [Marilux TLT](https://marilux.dev/en/data/TLT) · [Downloads](https://marilux.dev/en/data) · [Marilux terms](https://marilux.dev/en/terms)

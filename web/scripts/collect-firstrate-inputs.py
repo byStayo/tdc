@@ -123,24 +123,31 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("through", type=dt.date.fromisoformat)
     parser.add_argument("--cached-only", action="store_true")
+    parser.add_argument("--cached-issuer-history-from", type=dt.date.fromisoformat,
+                        help="Read only issuer histories from an existing capture")
     args = parser.parse_args()
     folder = ROOT / ".consensus" / "private-firstrate" / "captures" / args.through.isoformat()
+    issuer_history = args.cached_issuer_history_from
+    cached_only = args.cached_only or issuer_history is not None
+    if issuer_history and issuer_history > args.through:
+        parser.error("Issuer history starts after the capture session")
+    start = issuer_history.isoformat() if issuer_history else "2026-01-01"
     os.umask(0o077)
     try:
-        if not args.cached_only:
+        if not cached_only:
             folder.mkdir(parents=True, mode=0o700, exist_ok=True)
         if folder.is_symlink() or S_IMODE(folder.stat().st_mode) != 0o700:
             raise ValueError("FirstRate capture must use an owner-only directory")
         samples = []
-        for symbol in EQUITY_SAMPLES:
+        for symbol in (() if issuer_history else EQUITY_SAMPLES):
             url = STORAGE + f"frd_sample_etf_{symbol}.zip"
-            _, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, args.cached_only, args.through.isoformat())
+            _, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only, args.through.isoformat())
             samples.append({**meta, "symbol": symbol, "basis": "split-adjusted",
                             "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows})
         issuers = []
         for symbol in SYMBOLS:
-            raw, meta, _ = capture(folder, f"issuer-{symbol}", ISSUERS[symbol], ISSUER_SIZE, args.cached_only)
-            issuers.append({**issuer_cash(symbol, raw), "capturedAt": meta["capturedAt"]})
+            raw, meta, _ = capture(folder, f"issuer-{symbol}", ISSUERS[symbol], ISSUER_SIZE, cached_only)
+            issuers.append({**issuer_cash(symbol, raw, start), "capturedAt": meta["capturedAt"]})
         print(json.dumps({"samples": samples, "issuers": issuers}, allow_nan=False, separators=(",", ":")))
     except (OSError, ValueError, KeyError, TypeError, BadZipFile) as error:
         print(str(error), file=sys.stderr)
