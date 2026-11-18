@@ -26,6 +26,7 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
+import { KIBOT_RESEARCH_STUDIES, type KibotResearch } from "@/lib/consensus/kibot-research";
 import type {
   Catalyst,
   Family,
@@ -1163,12 +1164,14 @@ export default function MorningBoard({
   history,
   performance,
   experiments,
+  kibotResearch,
   communityEnabled = false,
 }: {
   initial: Snapshot;
   history: HistoryEntry[];
   performance: PerformanceReport;
   experiments: Experiments;
+  kibotResearch: KibotResearch | null;
   communityEnabled?: boolean;
 }) {
   const [snapshot, setSnapshot] = useState(initial),
@@ -2340,6 +2343,69 @@ export default function MorningBoard({
                   </ol>
                 </section>
               </div>
+              {kibotResearch && (
+                <section className={`${styles.panel} ${styles.experiments}`}>
+                  <div className={styles.panelHead}>
+                    <div>
+                      <h3>ETF validation research</h3>
+                      <p className={styles.muted}>Same-session forecast checks through {kibotResearch.through}.</p>
+                    </div>
+                  </div>
+                  <div className={styles.tableScroll}>
+                    <table role="table">
+                      <caption>One edition was selected before the open for each checked ETF session. Model eligibility uses the prospective record above.</caption>
+                      <thead role="rowgroup">
+                        <tr role="row">
+                          <th scope="col" role="columnheader">ETF</th>
+                          <th scope="col" role="columnheader">Sessions checked</th>
+                          <th scope="col" role="columnheader">Forecast calls</th>
+                        </tr>
+                      </thead>
+                      <tbody role="rowgroup">
+                        {kibotResearch.daily.filter(row => instrument === "MARKET" || row.instrument === instrument).map(row => (
+                          <tr key={row.instrument} role="row">
+                            <th scope="row" role="rowheader">{row.instrument}</th>
+                            <td role="cell" data-label="Sessions checked">{row.sessions}</td>
+                            <td role="cell" data-label="Forecast calls">{row.calls}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className={styles.tableScroll}>
+                    <table role="table">
+                      <caption>Historical holdout tests on prelaunch sessions. The candidate had to beat the training base rate and a 50/50 baseline (0.2500) by more than 0.01 Brier.</caption>
+                      <thead role="rowgroup">
+                        <tr role="row">
+                          <th scope="col" role="columnheader">Study</th>
+                          <th scope="col" role="columnheader">ETF</th>
+                          <th scope="col" role="columnheader">Test sessions</th>
+                          <th scope="col" role="columnheader">Model Brier</th>
+                          <th scope="col" role="columnheader">Base-rate Brier</th>
+                          <th scope="col" role="columnheader">Result</th>
+                        </tr>
+                      </thead>
+                      <tbody role="rowgroup">
+                        {kibotResearch.studies.filter(row => instrument === "MARKET" || row.instrument === instrument).map(row => (
+                          <tr key={`${row.family}:${row.instrument}`} role="row">
+                            <th scope="row" role="rowheader">
+                              {KIBOT_RESEARCH_STUDIES.find(study => study.family === row.family)?.label}
+                            </th>
+                            <td role="cell" data-label="ETF">{row.instrument}</td>
+                            <td role="cell" data-label="Test sessions">{row.testSamples}</td>
+                            <td role="cell" data-label="Model Brier">{row.modelBrier.toFixed(4)}</td>
+                            <td role="cell" data-label="Base-rate Brier">{row.baseRateBrier.toFixed(4)}</td>
+                            <td role="cell" data-label="Result">{row.clearedMargin ? "Passed" : "Below threshold"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">
+                    Kibot research data terms <ExternalLink size={13} />
+                  </a>
+                </section>
+              )}
               <section className={`${styles.panel} ${styles.experiments}`}>
                 <div className={styles.panelHead}>
                   <div>

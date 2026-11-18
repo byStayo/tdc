@@ -10,6 +10,7 @@ import { durableJSON, durableDirectory, syncDirectory } from "../publication-sto
 import { assertNoPendingEvaluation } from "./evaluation-transaction.ts";
 import { FAMILIES } from "./registry.ts";
 import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "./marketparquet-aggregate.ts";
+import { KIBOT_RESEARCH_FILE, validateKibotResearch } from "./kibot-research.ts";
 import { publicDate } from "../public-normalization.ts";
 import { validateSourceCitation } from "./source-citation.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
@@ -382,9 +383,9 @@ async function indexedPublications(root: string): Promise<{ history: HistoryEntr
 }
 
 async function unindexedFiles(root: string, history: HistoryEntry[]): Promise<string[]> {
-  // The aggregate validation report is a reviewed public file beside the editions.
+  // Aggregate validation reports are reviewed public files beside the editions.
   const known = new Set(["index.json", "outcomes.json", "outcome-selection.json", MARKETPARQUET_AGGREGATE_FILE,
-    ...history.map(entry => `${entry.id}.json`)]);
+    KIBOT_RESEARCH_FILE, ...history.map(entry => `${entry.id}.json`)]);
   try {
     return (await readdir(resolve(root, "public/consensus"), { withFileTypes: true }))
       .filter(entry => !known.has(entry.name) && (entry.name.endsWith(".json") || entry.name.endsWith(".tmp")))
@@ -403,6 +404,8 @@ export async function verifyPublicationTree(root: string): Promise<{ current: Sn
   if (orphans.length) throw new Error(`Unindexed publication files: ${orphans.join(", ")}`);
   const aggregate = await optionalJSON<unknown>(resolve(root, "public/consensus", MARKETPARQUET_AGGREGATE_FILE));
   if (aggregate !== null) validateMarketParquetAggregate(aggregate, history.map(entry => entry.id));
+  const research = await optionalJSON<unknown>(resolve(root, "public/consensus", KIBOT_RESEARCH_FILE));
+  if (research !== null) validateKibotResearch(research, history[0]);
   const current = await optionalJSON<Snapshot>(resolve(root, "lib/consensus/current.json"));
   if (!current || !history.length || history.at(-1)!.id !== current.id || digest(current) !== history.at(-1)!.sha256)
     throw new Error("Current edition differs from its immutable archive");

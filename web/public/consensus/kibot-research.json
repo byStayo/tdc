@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "source": "https://www.kibot.com/license.html",
+  "firstEdition": "2026-11-03T06-28-30-460Z",
+  "through": "2026-11-17",
+  "daily": [
+    {
+      "instrument": "SPY",
+      "sessions": 8,
+      "calls": 0
+    },
+    {
+      "instrument": "QQQ",
+      "sessions": 8,
+      "calls": 0
+    },
+    {
+      "instrument": "IWM",
+      "sessions": 8,
+      "calls": 0
+    },
+    {
+      "instrument": "DIA",
+      "sessions": 8,
+      "calls": 0
+    },
+    {
+      "instrument": "TLT",
+      "sessions": 8,
+      "calls": 0
+    }
+  ],
+  "studies": [
+    {
+      "family": "technicals",
+      "instrument": "SPY",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2504,
+      "baseRateBrier": 0.2535,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "QQQ",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2559,
+      "baseRateBrier": 0.2547,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "IWM",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2629,
+      "baseRateBrier": 0.2645,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "DIA",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2645,
+      "baseRateBrier": 0.2603,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "TLT",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.262,
+      "baseRateBrier": 0.2624,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "SPY",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2784,
+      "baseRateBrier": 0.2535,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "QQQ",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2692,
+      "baseRateBrier": 0.2547,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "IWM",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2769,
+      "baseRateBrier": 0.2645,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "DIA",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2591,
+      "baseRateBrier": 0.2603,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "TLT",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2688,
+      "baseRateBrier": 0.2624,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "SPY",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2572,
+      "baseRateBrier": 0.2528,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "QQQ",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2588,
+      "baseRateBrier": 0.254,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "IWM",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2751,
+      "baseRateBrier": 0.2659,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "DIA",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2653,
+      "baseRateBrier": 0.2613,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "TLT",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2658,
+      "baseRateBrier": 0.261,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "SPY",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2518,
+      "baseRateBrier": 0.251,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "QQQ",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2507,
+      "baseRateBrier": 0.2519,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "IWM",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2645,
+      "baseRateBrier": 0.264,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "DIA",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2599,
+      "baseRateBrier": 0.2594,
+      "clearedMargin": false
+    },
+    {
+      "family": "rates",
+      "instrument": "TLT",
+      "samples": 135,
+      "testSamples": 27,
+      "modelBrier": 0.2523,
+      "baseRateBrier": 0.2551,
+      "clearedMargin": false
+    }
+  ]
+}
