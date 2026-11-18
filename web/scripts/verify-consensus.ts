@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
-import type { Outcome } from "../lib/consensus/types.ts";
 import { outcomeWindowSessions, performance } from "../lib/consensus/evaluation.ts";
+import { loadEvaluationOutcomes, PUBLIC_OUTCOME_INDEX, validateOutcomeIndex } from "../lib/consensus/outcome-ledger.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { readReservations, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 import { assertEvaluationReleaseState } from "../lib/consensus/evaluation-transaction.ts";
@@ -20,14 +20,15 @@ if (args.length && (!audit || args.length !== (requireComplete ? 2 : 1)))
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { current, history } = await verifyPublicationTree(root);
 await assertEvaluationReleaseState(root);
-const outcomes: Outcome[] = JSON.parse(
-  await readFile(resolve(root, "public/consensus/outcomes.json"), "utf8"),
+const outcomes: unknown = JSON.parse(
+  await readFile(resolve(root, PUBLIC_OUTCOME_INDEX), "utf8"),
 );
+validateOutcomeIndex(outcomes);
 for (const row of outcomes) {
   if (history.find(entry => entry.id === row.snapshotId)?.engineVersion !== row.engineVersion)
     throw new Error("Outcome engine version differs from its immutable edition");
 }
-performance(outcomes, 2, current.engineVersion);
+if (audit) performance(await loadEvaluationOutcomes(root), 2, current.engineVersion);
 const registry = JSON.parse(
   await readFile(resolve(root, "lib/consensus/models.json"), "utf8"),
 );

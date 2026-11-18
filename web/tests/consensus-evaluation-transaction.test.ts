@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, readFile, writeFile, rm, readdir, cp, symlink } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, rm, readdir, cp, symlink, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -10,13 +10,22 @@ import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { digest } from "../lib/consensus/history.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
+import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER } from "../lib/consensus/outcome-ledger.ts";
+import type { Outcome } from "../lib/consensus/types.ts";
 
+const fixtureOutcome: Outcome = {
+  snapshotId: "2026-11-02T12-00-00-000Z", instrument: "SPY", horizon: "daily", engineVersion: "consensus-rules-2.0.0",
+  issuedAt: "2026-11-02T12:00:00.000Z", entryAt: "2026-11-02T14:30:00.000Z", exitAt: "2026-11-02T21:00:00.000Z",
+  entry: 100, exit: 101, returnPct: 1, predictedScore: null, predictedProbability: null, abstained: true,
+  directionCorrect: null, source: "https://example.com/synthetic-fixture", adjustment: "total-return-adjusted",
+};
 const writes: EvaluationWrite[] = [
   { path: "public/consensus/models/SPY-daily-test.json", value: {fixture:true}, immutable:true },
-  { path: "public/consensus/outcomes.json", value: [{fixture:true}] },
+  { path: "public/consensus/outcomes.json", value: outcomeIndex([fixtureOutcome]) },
   { path: "public/consensus/outcome-selection.json", value: {superseded:[]} },
   { path: "lib/consensus/models.json", value: {models:[]} },
   { path: "lib/consensus/performance.json", value: {resolved:1} },
+  { path: PRIVATE_OUTCOME_LEDGER, value: [fixtureOutcome] },
 ];
 for (const point of writes) test(`evaluation recovers after ${point.path} without re-evaluating a test window`, async () => {
   const root = await mkdtemp(join(tmpdir(), "tdc-evaluation-tx-"));
@@ -39,6 +48,8 @@ test("transaction recovery rejects intervening edits, unsafe paths, symlinks and
   const root=await mkdtemp(join(tmpdir(),"tdc-evaluation-conflict-"));
   try {
     await assert.rejects(commitEvaluationTransaction(root,[{path:"../escape.json",value:{}}]),/Unexpected/);
+    await assert.rejects(commitEvaluationTransaction(root,[{...writes[1],value:[fixtureOutcome]}]),/Public outcome index/);
+    await assert.rejects(commitEvaluationTransaction(root,[writes[1]]),/Private evaluation ledger differs/);
     await assert.rejects(commitEvaluationTransaction(root,writes,path=>{if(path===writes[0].path)throw new Error("stop");}),/stop/);
     await mkdir(join(root,"lib/consensus"),{recursive:true});
     await writeFile(join(root,"lib/consensus/models.json"),'{"intervening":true}');
@@ -89,10 +100,10 @@ test("the actual evaluator scores a covered date and records uncovered targets a
     const dates=[...exchangeSessions("2026-11-02","2026-12-31"),"2027-01-04"];
     const prices=[{instrument:"SPY",source:"https://example.com/synthetic-fixture",adjustment:"total-return-adjusted",expectedSessions:dates,
       sessions:dates.map(day=>({... (day.startsWith("2026")?exchangeSession(day)!:{session:day,openAt:`${day}T14:30:00.000Z`,closeAt:`${day}T21:00:00.000Z`}),open:100,close:101}))}];
-    await writeFile(join(root,"prices.json"),JSON.stringify(prices));
+    await writeFile(join(root,"prices.json"),JSON.stringify(prices),{mode:0o600});
     execFileSync("git",["init","--quiet"],{cwd:root});
     const invalidPrices=join(root,"market-prices.json");
-    await writeFile(invalidPrices,JSON.stringify([{...prices[0],instrument:"MARKET"}]));
+    await writeFile(invalidPrices,JSON.stringify([{...prices[0],instrument:"MARKET"}]),{mode:0o600});
     assert.throws(()=>execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts","--prices",invalidPrices],{cwd:root,encoding:"utf8",stdio:"pipe"}),/One verified price evidence set per instrument required/);
     const runWithoutPrices=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts"],{cwd:root,encoding:"utf8"}));
     assert.equal(runWithoutPrices.status,"awaiting_price_evidence");
@@ -104,7 +115,17 @@ test("the actual evaluator scores a covered date and records uncovered targets a
     assert.ok(report.pending.some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-12-03")&&row.horizon==="monthly"));
     assert.equal(report.pending.filter((row:{instrument:string})=>row.instrument!=="SPY").length,index.length*4*3);
     const firstOutcomes=await readFile(join(root,"public/consensus/outcomes.json"),"utf8");
+    const privatePath=join(root, PRIVATE_OUTCOME_LEDGER);
+    const privateText=await readFile(privatePath,"utf8");
+    const privateOutcomes=JSON.parse(privateText) as Outcome[];
+    assert.equal((await stat(privatePath)).mode & 0o777, 0o600);
+    assert.ok(privateOutcomes.some(row=>row.entry===100&&row.exit===101&&row.returnPct>0));
+    assert.deepEqual(JSON.parse(firstOutcomes),outcomeIndex(privateOutcomes));
+    await writeFile(privatePath,JSON.stringify([{...privateOutcomes[0],exit:102},...privateOutcomes.slice(1)]));
+    await assert.rejects(loadEvaluationOutcomes(root),/differ from their completed evaluation transaction/);
+    await writeFile(privatePath,privateText);
     const secondWithoutPrices=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts"],{cwd:root,encoding:"utf8"}));
+    assert.equal(secondWithoutPrices.status,"tracking");
     assert.equal(secondWithoutPrices.pending,index.length*5*3-JSON.parse(firstOutcomes).length,"Already resolved targets do not return to pending when price files are omitted");
     assert.equal(await readFile(join(root,"public/consensus/outcomes.json"),"utf8"),firstOutcomes,"Previously resolved evidence is preserved");
     assert.ok(JSON.parse(await readFile(join(root,"public/consensus/outcomes.json"),"utf8")).some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-11-02")&&row.horizon==="daily"));
@@ -145,6 +166,7 @@ test("remote release checks reject partial exports without a private journal and
     await cp(join(root,"lib"),join(exported,"lib"),{recursive:true});
     await cp(join(root,"public"),join(exported,"public"),{recursive:true});
     await assertEvaluationReleaseState(exported);
+    await assert.rejects(readFile(join(exported,PRIVATE_OUTCOME_LEDGER)),/ENOENT/);
     for(const path of ["public/consensus/outcomes.json","public/consensus/outcome-selection.json","lib/consensus/models.json","lib/consensus/performance.json"]){
       const before=await readFile(join(exported,path),"utf8");
       await writeFile(join(exported,path),JSON.stringify({unexpected:"uncommitted release state"}));

@@ -192,7 +192,9 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
     assert.equal(cohort.status, "insufficient_data");
     assert.equal(report.cohorts.find((item: {instrument:string;horizon:string;engineVersion:string})=>item.instrument==="SPY"&&item.horizon==="daily"&&item.engineVersion==="consensus-rules-1.1.0").resolved,1);
     assert.equal(report.cohorts.find((item: {instrument:string;horizon:string;engineVersion:string})=>item.instrument==="SPY"&&item.horizon==="daily"&&item.engineVersion==="consensus-rules-2.0.0").resolved,500);
-    assert.deepEqual(JSON.parse(await readFile(join(directory, "outcomes.json"), "utf8")), outcomes);
+    assert.deepEqual(JSON.parse(await readFile(join(directory, "outcomes.json"), "utf8")),
+      outcomes.map(({snapshotId, instrument, horizon, engineVersion}) => ({snapshotId, instrument, horizon, engineVersion})));
+    assert.deepEqual(JSON.parse(await readFile(join(root, ".consensus/private-evaluation/outcomes.json"), "utf8")), outcomes);
     await rm(join(directory, "evaluations"), { recursive: true });
     await assert.rejects(run(), /pending evaluation reservations|durable anchor/);
   } finally { await rm(root, { recursive: true, force: true }); }

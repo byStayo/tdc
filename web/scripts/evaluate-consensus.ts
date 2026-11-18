@@ -1,9 +1,10 @@
 import {
   readFile,
+  lstat,
   mkdir,
   readdir,
 } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { resolve, dirname, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { commitEvaluationTransaction, recoverEvaluationTransaction, type EvaluationWrite } from "../lib/consensus/evaluation-transaction.ts";
@@ -11,6 +12,7 @@ import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { assertCommittedReservations } from "../lib/consensus/learning-audit.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
@@ -30,23 +32,30 @@ import type { PerformanceReport } from "../lib/consensus/performance-types.ts";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   dir = resolve(root, "public/consensus");
 const now = new Date().toISOString();
-const argument = process.argv.indexOf("--prices"),
-  supplied: PriceEvidence[] =
-    argument < 0
-      ? []
-      : JSON.parse(await readFile(resolve(process.argv[argument + 1]), "utf8"));
-if (
-  !Array.isArray(supplied) ||
-  new Set(supplied.map((item) => item.instrument)).size !== supplied.length ||
-  supplied.some((item) => !INSTRUMENTS.includes(item.instrument) || item.instrument === "MARKET")
-)
-  throw new Error("One verified price evidence set per instrument required");
+const args = process.argv.slice(2);
+if (args.length && (args.length !== 2 || args[0] !== "--prices" || !isAbsolute(args[1])))
+  throw new Error("Usage: consensus:evaluate [--prices /absolute/private/approved-prices.json]");
+
+async function readPrices(): Promise<PriceEvidence[]> {
+  if (!args.length) return [];
+  const file = await lstat(args[1]);
+  if (!file.isFile() || file.mode & 0o077) throw new Error("Approved prices require an owner-only regular file");
+  const text = await readFile(args[1], "utf8");
+  let supplied: PriceEvidence[];
+  try { supplied = JSON.parse(text); }
+  catch { throw new Error("Approved prices require valid JSON"); }
+  if (!Array.isArray(supplied) || supplied.some(item => !item || !INSTRUMENTS.includes(item.instrument) || item.instrument === "MARKET") ||
+      new Set(supplied.map(item => item.instrument)).size !== supplied.length)
+    throw new Error("One verified price evidence set per instrument required");
+  return supplied;
+}
 const release = await acquirePublicationLock(root, "evaluation");
 let failure: {error: unknown} | undefined;
 try {
   if (await recoverEvaluationTransaction(root)) {
     console.log(JSON.stringify({ status: "recovered_evaluation_transaction", retrained: false }));
   } else {
+    const supplied = await readPrices();
     await assertCommittedReservations(root);
     const index: HistoryEntry[] = JSON.parse(
       await readFile(resolve(dir, "index.json"), "utf8"),
@@ -64,14 +73,7 @@ try {
     );
     const writes: EvaluationWrite[] = [];
     const pending: NonNullable<PerformanceReport["pending"]> = [];
-    let outcomes: Outcome[] = [];
-    try {
-      outcomes = JSON.parse(
-        await readFile(resolve(dir, "outcomes.json"), "utf8"),
-      );
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    }
+    const outcomes: Outcome[] = await loadEvaluationOutcomes(root);
     for (const snapshot of snapshots)
       for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
         for (const horizon of HORIZONS) {
@@ -213,7 +215,7 @@ try {
     const report: PerformanceReport = {
       engineVersion: ENGINE_VERSION,
       generatedAt: now,
-      status: supplied.length ? "tracking" : "awaiting_price_evidence",
+      status: supplied.length || outcomes.length ? "tracking" : "awaiting_price_evidence",
       resolved: metrics.resolved,
       calls: metrics.calls,
       abstentions: metrics.abstentions,
@@ -224,10 +226,11 @@ try {
       pending,
       cohorts,
       learning,
-      note: "Raw provider prices stay private. The outcome audit ledger is never rewritten. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version; training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio.",
+      note: "The private evaluation ledger retains the original outcome values. The public outcome index records resolved edition identities. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version and training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio.",
     };
+    if (outcomes.length) writes.push({ path: PRIVATE_OUTCOME_LEDGER, value: outcomes });
     writes.push(
-      { path: "public/consensus/outcomes.json", value: outcomes },
+      { path: PUBLIC_OUTCOME_INDEX, value: outcomeIndex(outcomes) },
       { path: "public/consensus/outcome-selection.json", value: { policy: selection.policy, superseded: selection.superseded } },
       { path: "lib/consensus/models.json", value: registry },
       { path: "lib/consensus/performance.json", value: report },
