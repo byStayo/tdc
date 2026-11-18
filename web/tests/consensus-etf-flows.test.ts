@@ -85,7 +85,8 @@ test('full and scoped flow collection have one stable order and fetch the feed o
   const later=new Date(Date.parse(full.issuedAt)+1000).toISOString();
   const scoped=await refreshEtfFlows(full,async()=>document(fixture(),later),()=>later);
   assert.equal(requests,1);assert.deepEqual(scoped.signals.map(s=>s.id),full.signals.map(s=>s.id));
-  assert.equal(full.signals.at(-1)!.id,'fed-private-credit-loans');
+  assert.ok(full.signals.findIndex(s=>s.id==='fed-private-credit-loans') >
+    full.signals.findLastIndex(s=>s.id.startsWith('etfiq-flow-')));
   assert.deepEqual(full.signals.filter(s=>s.id.startsWith('etfiq-flow-')).map(s=>s.series),scoped.signals.filter(s=>s.id.startsWith('etfiq-flow-')).map(s=>s.series));
 });
 

@@ -45,6 +45,7 @@ import RetailOutlook from "./RetailOutlook";
 import GuidancePanel from "./GuidancePanel";
 import ReportedEpsComparison from "./ReportedEpsComparison";
 import EtfFlows from "./EtfFlows";
+import EtfOrderActivity from "./EtfOrderActivity";
 import PrivateCreditContext from "./PrivateCreditContext";
 import OffExchangeActivity from "./OffExchangeActivity";
 import layout from "./MorningLayout.module.css";
@@ -432,6 +433,12 @@ function SourceDrawer({
                     : "Not supplied by source"}
                 </dd>
               </div>
+              {signal.source.vintageAt && (
+                <div>
+                  <dt>Provider vintage</dt>
+                  <dd>{datedYear(signal.source.vintageAt)}</dd>
+                </div>
+              )}
             </dl>
             <details>
               <summary>Calculation & limitations</summary>
@@ -1781,6 +1788,7 @@ export default function MorningBoard({
               <TaiwanMarket signals={current} reference={reference} onInspect={() => setFamily("international")} />
               <OffExchangeActivity review={snapshot.review} instrument={instrument} historical={historical} />
               <EtfFlows signals={snapshot.signals} instrument={instrument} reference={reference} />
+              <EtfOrderActivity signals={snapshot.signals} instrument={instrument} reference={reference} />
               <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>GO A LEVEL DEEPER</span>

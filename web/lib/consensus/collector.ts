@@ -10,6 +10,7 @@ import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { collectAnalystRatings } from "./analyst-ratings.ts";
 import { collectEtfFlows } from "./etf-flows.ts";
+import { collectEtfiqRetailOrders, collectSecMidas } from "./order-activity.ts";
 import { collectFuturesOptions } from "./futures-options.ts";
 import { collectTaiwan } from "./taiwan.ts";
 import { sourceResponse, sourceChunk, sourceFailureKind } from "./source-failure.ts";
@@ -901,6 +902,7 @@ export async function earnings(fetcher: Fetcher): Promise<Signal[]> {
 }
 export async function collectSnapshot(
   fetcher: Fetcher = fetch,
+  previous?: Snapshot,
 ): Promise<Snapshot> {
   // Small independent source batches; each failed source is retained as unavailable.
   const [
@@ -922,6 +924,8 @@ export async function collectSnapshot(
     analystRatings,
     etfFlows,
     futuresOptions,
+    retailOrders,
+    exchangeOrders,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -941,6 +945,8 @@ export async function collectSnapshot(
     collectAnalystRatings((url) => publicText(url, fetcher)),
     collectEtfFlows((url) => publicText(url, fetcher)),
     collectFuturesOptions((url) => publicText(url, fetcher)),
+    collectEtfiqRetailOrders((url) => publicText(url, fetcher)),
+    collectSecMidas((url) => publicText(url, fetcher), fetcher, previous?.signals),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -965,6 +971,8 @@ export async function collectSnapshot(
       analystRatings,
       ...taiwan,
       privateCredit,
+      ...retailOrders,
+      ...exchangeOrders,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
   return applyScoringPolicy({
@@ -982,7 +990,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 37,
+    sourcesAttempted: MACRO_SERIES.length + 44,
     collectionErrors: signals
       .filter(
         (signal) =>

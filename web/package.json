@@ -35,6 +35,8 @@
     "consensus:research-directional-coverage": "node --experimental-strip-types scripts/research-directional-coverage.ts",
     "consensus:research-families-private": "node --experimental-strip-types scripts/research-families-private.ts",
     "consensus:research-events-private": "node --experimental-strip-types scripts/research-events-private.ts",
+    "consensus:research-news-private": "node --experimental-strip-types scripts/research-news-private.ts",
+    "consensus:research-kibot-issuer-prices": "node --experimental-strip-types scripts/research-kibot-issuer-prices.ts",
     "consensus:validate-social-private": "node --experimental-strip-types scripts/validate-social-private.ts",
     "consensus:evaluate-marketparquet": "node --experimental-strip-types scripts/evaluate-marketparquet.ts",
     "consensus:reconcile-marketparquet": "node --experimental-strip-types scripts/reconcile-marketparquet.ts"

@@ -150,7 +150,6 @@ test("normal and scoped collection keep the same evidence order and observation 
   const scoped = await refreshPrivateCredit(before, async () => doc(html, now), () => now);
   const fed = scoped.signals.find(s => s.id === PRIVATE_CREDIT_ID)!;
   const sameDataFull = {...full, signals: full.signals.map(s => s.id === PRIVATE_CREDIT_ID ? fed : s)};
-  assert.equal(full.signals.at(-1)?.id, PRIVATE_CREDIT_ID);
   assert.deepEqual(sameDataFull.signals.map(s => s.id), scoped.signals.map(s => s.id));
   assert.equal(observationDigest(sameDataFull), observationDigest(scoped));
 });

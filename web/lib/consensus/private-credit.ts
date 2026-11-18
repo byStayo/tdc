@@ -155,10 +155,12 @@ export function validatePrivateCredit(signal: Signal): void {
 /** Scoped refresh preserves every unrelated observation and its original provenance. */
 export async function refreshPrivateCredit(previous: Snapshot, fetchText: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString()): Promise<Snapshot> {
   const signal = await collectPrivateCredit(fetchText, now), issuedAt = now();
-  const exists = previous.signals.some(s => s.id === PRIVATE_CREDIT_ID);
+  const signals = previous.signals.slice(), existing = signals.findIndex(s => s.id === PRIVATE_CREDIT_ID);
+  const anchor = existing >= 0 ? existing : signals.findIndex(s => s.id.startsWith("etfiq-retail-") || s.id.startsWith("sec-midas-"));
+  signals.splice(anchor < 0 ? signals.length : anchor, existing >= 0 ? 1 : 0, signal);
   return { ...previous, id: issuedAt.replace(/[:.]/g, "-"), issuedAt, cutoff: issuedAt,
     consensus: undefined, forecasts: undefined,
-    signals: exists ? previous.signals.map(s => s.id === PRIVATE_CREDIT_ID ? signal : s) : [...previous.signals, signal],
+    signals,
     sourcesAttempted: 2,
     collectionErrors: [...previous.collectionErrors.filter(s => !s.startsWith(`${PRIVATE_CREDIT_ID}:`)),
       ...(signal.status === "unavailable" ? [`${PRIVATE_CREDIT_ID}: ${signal.summary}`] : [])],

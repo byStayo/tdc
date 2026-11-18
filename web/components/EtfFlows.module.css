@@ -20,5 +20,13 @@
 .card a { min-height: 44px; display: inline-flex; align-items: center; color: var(--accent); font-size: 12px; padding-top: 8px; margin-top: auto; }
 .note { padding-top: 18px; margin-top: 20px; border-top: 1px solid var(--border-subtle); }
 .note a { color: var(--accent); }
+.activityTable { border-collapse: collapse; width: 100%; table-layout: fixed; margin-top: 18px; font-size: 13px; }
+.activityTable th, .activityTable td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border-subtle); overflow-wrap: anywhere; }
+.activityTable thead th { font-size: 12px; font-weight: 500; vertical-align: top; }
+.activityTable th:first-child { width: 52px; padding-left: 0; }
+.activityTable thead span, .activityDate { display: block; color: var(--text-muted); font-size: 11px; line-height: 1.55; }
+.activityValue { display: flex; flex-direction: column; justify-content: center; min-height: 44px; color: var(--text); font-variant-numeric: tabular-nums; }
+.activityValue:hover strong { color: var(--accent); text-decoration: underline; }
+.activityTable tr:last-child td, .activityTable tbody tr:last-child th { border-bottom: 0; }
 @media(max-width:800px) { .heading { flex-direction: column; gap: 10px; } .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media(max-width:520px) { .section { padding: 20px; } .heading h2 { font-size: 23px; } .grid { grid-template-columns: minmax(0,1fr); } }

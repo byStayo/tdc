@@ -8,10 +8,12 @@ export async function sourceResponse(
   fetcher: (url: string, init?: RequestInit) => Promise<Response>,
   url: string,
   init: RequestInit,
+  allowNotModified = false,
 ): Promise<Response> {
   let response: Response;
   try { response = await fetcher(url, init); }
   catch (cause) { throw new SourceTransportError("Source connection failed", {cause}); }
+  if (allowNotModified && response.status === 304) return response;
   if (!response.ok) {
     if (response.status === 408 || response.status === 429 || response.status >= 500)
       throw new SourceTransportError(`Source HTTP ${response.status}`);

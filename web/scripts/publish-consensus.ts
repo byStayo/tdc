@@ -51,7 +51,7 @@ let snapshot: Snapshot = reviewOnly
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
   : taiwanOnly ? await refreshTaiwan(previous!, publicText)
   : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText)
-  : analystOnly ? await refreshAnalystRatings(previous!, publicText) : await collectSnapshot();
+  : analystOnly ? await refreshAnalystRatings(previous!, publicText) : await collectSnapshot(fetch, previous ?? undefined);
 if (!reviewOnly && previous) snapshot = retainLastKnown(snapshot, previous);
 const review = JSON.parse(
   await readFile(

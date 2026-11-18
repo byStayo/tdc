@@ -18,6 +18,7 @@ import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
+import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
 import { validateTaiwan } from "./taiwan.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
@@ -64,6 +65,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validatePrivateCredit(signal);
     validateAnalystRatings(signal);
     validateEtfFlows(signal);
+    validateOrderActivity(signal);
     validateFuturesOptions(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
     if (
@@ -321,6 +323,7 @@ export function observationDigest(snapshot: Snapshot): string {
             : signal.source.observedAt,
         retrievedAt: null,
         sha256: null,
+        vintageAt: undefined,
       },
     })),
     catalysts: snapshot.catalysts,
