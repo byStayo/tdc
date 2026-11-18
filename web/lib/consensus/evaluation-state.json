@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "transactionId": "a369afc1-bd33-4183-962c-121e41caa573",
+  "transactionId": "57e97f3b-cf6a-436a-8197-8642130f27c3",
   "status": "complete",
   "hashes": {
-    "public/consensus/outcomes.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-    "public/consensus/outcome-selection.json": "f05dc25f6ccbc46247da57461955d0d16452d307e4270db5729f657c7bf2a807",
+    "public/consensus/outcomes.json": "4e034a1cd37778204256782db04b4955d0717ea323d7861e943e797cfc524797",
+    "public/consensus/outcome-selection.json": "bc70a522f5b59db885b555990f8bed509442a1847ec4eb4c49bbb404a55ef42e",
     "lib/consensus/models.json": "448bba0a144f2fa440af9a5cc014f48da830b4eb11516466ab0cc392435548a9",
-    "lib/consensus/performance.json": "0cff5844af8bcdab551188b55108bb6a0f64f3feb0de6b45684ebdb7d8b3c713"
+    "lib/consensus/performance.json": "ff526a9e267187b893175980b69135e6e6d33c9d6c64b94219fe51931b907213"
   },
   "artifacts": {
     "public/consensus/models/DIA-daily-4f53cda18c2baa0c.json": "013b470a63b7ffd6d63cfab9ac826f1883380af50a41bcc8af5c7160e8f9f18d",
@@ -84,5 +84,6 @@
     "public/consensus/models/TLT-weekly-wf1-a2961ae9443be96a.json": "05258b9f9828c78c29bbd41e7cc5d43f84b98654d636a7e1f9b0c5f40f1f2278",
     "public/consensus/models/TLT-weekly-wf2-7d1732a019e92394.json": "b08d99fabbc43125cdb15110082e0113edda25a0fa63769495249445e587ce3a",
     "public/consensus/models/TLT-weekly-wf2-ff737c0fe085b529.json": "fc8ce143d691e9971445cff94010e6b2b9ad229aefb020d9ac60d3f320294b39"
-  }
+  },
+  "outcomeLedgerTransactionId": "57e97f3b-cf6a-436a-8197-8642130f27c3"
 }

@@ -1,1 +1,1418 @@
-[]
+[
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T14-51-40-702Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-17-21-680Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T17-34-12-122Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T18-35-28-910Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T19-48-49-156Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T21-56-20-647Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T13-16-31-369Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T21-29-43-446Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-24-25-360Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-04T22-38-16-339Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T13-14-01-431Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T14-28-10-883Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-05T18-23-42-514Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T13-14-19-532Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-06T17-01-48-890Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T04-45-01-809Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T05-30-16-080Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T12-47-43-975Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T13-03-17-525Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T18-01-30-142Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T19-54-14-778Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-10T20-47-02-439Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "SPY",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "QQQ",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "IWM",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-11T13-07-46-894Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-12T13-01-38-859Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-12T13-01-38-859Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-12T13-01-38-859Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-12T13-01-38-859Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  }
+]

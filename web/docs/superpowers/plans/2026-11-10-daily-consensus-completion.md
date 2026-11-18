@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. The first free source for four ETFs passed the observed daily price, split-basis and reuse checks. FirstRate admitted 43 sessions through November 17 and the existing prospective evaluator resolved 236 archived targets with 52 selected outcomes. The provider's public TLT sample was stale, and one DIA date was excluded after the primary Arca check. There are 99 completed targets awaiting approved prices. All 12 previously open families and the prospective model gates are still open. [Source proof and outcome counts](../../FREE_FEED_PATH.md#november-18--firstrate-samples-and-resolved-outcomes)
+
 - November 18 follow-up. The reproducible New York Fed survey archive processed 281 official releases and found 118 distinct stock-probability observations, two short of the research floor. The separate Staff Nowcast study paired 154 retrospective revisions per ETF and scored 31 test dates per ETF. All five missed the research margin. The IEX free download and linked samples failed access checks. The private historical Kibot path works across all five ETFs. The recurring public-outcome price contract and the remaining voting families are open. [Source evidence and benchmarks](../../FREE_FEED_PATH.md#november-18--original-household-releases-and-nowcast)
 
 - November 18 follow-up. Finished the reproducible Korean archive across 470 entries. The IWM spread paired 434 sessions and underperformed FX alone on the common 87-date historical test. Embedded save times require separate prospective provenance. The international family stays open. [Full benchmark](../../FREE_FEED_PATH.md#november-18--full-korean-market-benchmark)

@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { durableJSON } from "../publication-storage.ts";
 import { type SessionPrice } from "./evaluation.ts";
 import { extendedResearchSession, extendedResearchSessions } from "./extended-research-calendar.ts";
+import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
 import { collectKibotSeries } from "./kibot.ts";
 import type { Instrument } from "./types.ts";
@@ -22,27 +23,36 @@ export async function readResearchReceipt<T>(file: string): Promise<T | null> {
 }
 
 /** Fetch the full calendar between the first and last requested outcome in each year. */
-export async function collectResearchPrices(directory: string, instrument: ETF, targets: string[]) {
+export async function collectResearchPrices(
+  directory: string, instrument: ETF, targets: string[],
+  { splitAdjusted = false, cachedOnly = false, reviewedExchangeCalendar = false } = {},
+) {
+  const session = reviewedExchangeCalendar ? exchangeSession : extendedResearchSession;
+  const sessions = reviewedExchangeCalendar ? exchangeSessions : extendedResearchSessions;
   const ordered = [...targets].sort();
   const years = [...new Set(ordered.map(day => day.slice(0, 4)))];
   const receipts: ResearchPriceReceipt[] = [];
   for (const year of years) {
     const intents = ordered.filter(day => day.startsWith(year));
-    const dates = extendedResearchSessions(intents[0], intents.at(-1)!);
+    const dates = sessions(intents[0], intents.at(-1)!);
     const from = dates[0], through = dates.at(-1)!;
     if (!from || !through) throw new Error("Private prices need a reviewed research range");
-    const path = resolve(directory, `${instrument}-${year}-${from}-${through}-raw.json`);
+    const basis = splitAdjusted ? "splits" : "raw";
+    const path = resolve(directory, `${instrument}-${year}-${from}-${through}-${basis}.json`);
     const stored = await readResearchReceipt<ResearchPriceReceipt>(path);
     let receipt: ResearchPriceReceipt;
     if (stored) receipt = stored;
     else {
-      const source = await collectKibotSeries(instrument, dates, { unadjusted: true, sessionClock: extendedResearchSession });
+      if (cachedOnly) throw new Error(`Missing private ${basis} comparison for ${instrument} through ${through}`);
+      const source = await collectKibotSeries(instrument, dates, {
+        unadjusted: !splitAdjusted, splitAdjusted, sessionClock: session,
+      });
       receipt = { instrument, from, through, ...source, priceDigest: digest(source.sessions) };
     }
     if (receipt.instrument !== instrument || receipt.from !== from || receipt.through !== through || !/^[a-f0-9]{64}$/.test(receipt.sha256) ||
         !Array.isArray(receipt.sessions) || receipt.sessions.length !== dates.length || digest(receipt.sessions) !== receipt.priceDigest ||
         receipt.sessions.some((bar, i) => {
-          const clock = extendedResearchSession(dates[i])!;
+          const clock = session(dates[i])!;
           return bar.session !== dates[i] || bar.openAt !== clock.openAt || bar.closeAt !== clock.closeAt ||
             ![bar.open, bar.close].every(price => Number.isFinite(price) && price > 0);
         })) throw new Error(`The ${instrument} ${year} prices differ from the reviewed private capture`);

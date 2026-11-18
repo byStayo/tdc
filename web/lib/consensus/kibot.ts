@@ -43,11 +43,12 @@ export function parseKibotDaily(csv: string, expectedSessions: string[], session
 export async function collectKibotSeries(
   instrument: Exclude<Instrument, "MARKET">,
   expectedSessions: string[],
-  options: { unadjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock } = {},
+  options: { unadjusted?: boolean; splitAdjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock } = {},
 ): Promise<{ sessions: SessionPrice[]; sha256: string }> {
   const from = expectedSessions[0];
   const through = expectedSessions.at(-1);
   const sessionClock = options.sessionClock ?? exchangeSession;
+  if (options.unadjusted && options.splitAdjusted) throw new Error("Choose one Kibot price basis");
   if (!from || !through || Date.parse(through) - Date.parse(from) > 370 * 86400000 ||
       expectedSessions.some((day, index) => !sessionClock(day) || (index > 0 && day <= expectedSessions[index - 1])))
     throw new Error("Kibot collection requires an ordered, bounded reviewed session range");
@@ -57,7 +58,8 @@ export async function collectKibotSeries(
   // Both literal guest values are the provider's documented anonymous access.
   url.search = new URLSearchParams({
     action: "history", interval: "daily", symbol: instrument, user: "guest", password: "guest",
-    unadjusted: options.unadjusted ? "1" : "0", startdate: american(from), enddate: american(through),
+    ...(options.splitAdjusted ? { splitadjusted: "1" } : { unadjusted: options.unadjusted ? "1" : "0" }),
+    startdate: american(from), enddate: american(through),
   }).toString();
   const response = await sourceResponse(options.fetcher ?? fetch, url.href, {
     redirect: "error", signal: AbortSignal.timeout(15000),

@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
+import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import {
   collectEditorialEvidence,
   PROJECT_ROOT,
@@ -45,6 +46,11 @@ try {
       error: error.killed ? "SEC earnings check exceeded 60 seconds"
         : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC earnings check did not complete",
     }));
+  const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
+    status: "unavailable",
+    error: error.killed ? "FirstRate source capture exceeded 105 seconds"
+      : error.stderr?.trim().slice(0, 200) || error.message || "FirstRate preparation did not complete",
+  }));
   const receipt = {
     schemaVersion: 1,
     preparedAt: new Date().toISOString(),
@@ -52,6 +58,7 @@ try {
     following,
     consensus,
     issuerRevenue,
+    firstRate,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));

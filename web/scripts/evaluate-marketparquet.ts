@@ -87,7 +87,7 @@ try {
   const { stdout } = await promisify(execFile)("uv", ["run", "--script", resolve(root, "scripts/collect-marketparquet.py"),
     licensed ? "licensed" : "sample", ...requests], {
     timeout: 120000, maxBuffer: 2_000_000,
-    env: { ...process.env, MARKETPARQUET_API_KEY: credential },
+    env: { ...process.env, MARKETPARQUET_API_KEY: credential, PYTHONDONTWRITEBYTECODE: "1" },
   });
   const capturedAt = new Date().toISOString();
   const incoming = JSON.parse(stdout) as Capture;

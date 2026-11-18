@@ -29,6 +29,12 @@ Reuse terms: https://www.bankofcanada.ca/terms/
 Date normalization, chart and rate-change calculations by The Daily Consensus.
 No Bank of Canada endorsement is implied.
 
+FirstRate Data equity ETF outcomes
+
+Source: FirstRate Data. https://firstratedata.com/stock-data
+Reuse terms: https://firstratedata.com/about/license
+Regular-session price reconciliation, issuer cash adjustments and evaluation by The Daily Consensus.
+
 Bank of Canada Market Participants Survey
 
 Source: Bank of Canada, Market Participants Survey.

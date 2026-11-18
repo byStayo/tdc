@@ -14,6 +14,7 @@ import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
+import { FIRST_RATE_SOURCE, loadFirstRatePrices } from "../lib/consensus/firstrate.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
@@ -37,7 +38,7 @@ if (args.length && (args.length !== 2 || args[0] !== "--prices" || !isAbsolute(a
   throw new Error("Usage: consensus:evaluate [--prices /absolute/private/approved-prices.json]");
 
 async function readPrices(): Promise<PriceEvidence[]> {
-  if (!args.length) return [];
+  if (!args.length) return loadFirstRatePrices(root);
   const file = await lstat(args[1]);
   if (!file.isFile() || file.mode & 0o077) throw new Error("Approved prices require an owner-only regular file");
   const text = await readFile(args[1], "utf8");
@@ -226,7 +227,9 @@ try {
       pending,
       cohorts,
       learning,
-      note: "The private evaluation ledger retains the original outcome values. The public outcome index records resolved edition identities. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version and training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio.",
+      note: "The private evaluation ledger retains the original outcome values. The public outcome index records resolved edition identities. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version and training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio." +
+        (outcomes.some(row => row.source === FIRST_RATE_SOURCE)
+          ? " Price source for covered equity outcomes is FirstRate Data. See the consensus attribution file." : ""),
     };
     if (outcomes.length) writes.push({ path: PRIVATE_OUTCOME_LEDGER, value: outcomes });
     writes.push(
