@@ -17,6 +17,7 @@ export type MarketParquetDay = {
 
 export function marketParquetEvidence(
   calendar: string[], files: MarketParquetDay[], cash: Record<ETF, CashDistribution[]>,
+  source = MARKETPARQUET_SOURCE,
 ): PriceEvidence[] {
   verifyExpectedSessions(calendar);
   const allowed = new Set(calendar);
@@ -51,7 +52,7 @@ export function marketParquetEvidence(
     const sessions = blocks.flatMap(rows => adjustETFPrices(rows, distributions.filter(
       action => action.session >= rows[0].session && action.session <= rows.at(-1)!.session,
     ), []));
-    return { instrument, source: MARKETPARQUET_SOURCE, adjustment: OUTCOME_PRICE_BASIS,
+    return { instrument, source, adjustment: OUTCOME_PRICE_BASIS,
       expectedSessions: calendar, sessions };
   });
 }

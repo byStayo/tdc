@@ -26,23 +26,49 @@ test("official 2026 equity closures, early closes and Eastern DST are independen
   assert.equal(exchangeSession("2026-07-02")!.closeAt, "2026-07-02T20:00:00.000Z");
   assert.equal(exchangeSession("2026-10-30")!.openAt, "2026-10-30T13:30:00.000Z");
   assert.equal(exchangeSession("2026-11-02")!.openAt, "2026-11-02T14:30:00.000Z");
-  assert.throws(() => exchangeSession("2027-01-04"), /reviewed coverage/);
   assert.throws(() => exchangeSession("2026-02-30"), /invalid/);
 });
 
+test("2027 coverage uses official full closures and stops at the first unresolved special close", () => {
+  for (const day of ["2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26", "2027-05-31",
+    "2027-06-18", "2027-07-05", "2027-09-06", "2027-11-25"]) {
+    assert.equal(exchangeSession(day), null);
+  }
+  assert.equal(exchangeSession("2027-03-12")!.openAt, "2027-03-12T14:30:00.000Z");
+  assert.equal(exchangeSession("2027-03-15")!.openAt, "2027-03-15T13:30:00.000Z");
+  assert.equal(exchangeSession("2027-07-02")!.closeAt, "2027-07-02T20:00:00.000Z");
+  assert.throws(() => exchangeSession("2027-11-26"), /reviewed coverage/);
+});
+
+test("a cross-year outcome keeps both reviewed calendar identifiers", () => {
+  const dates = exchangeSessions("2026-12-01", "2027-01-07");
+  const row: Snapshot = { ...snapshot, id: "2026-12-03T12-00-00-000Z", issuedAt: "2026-12-03T12:00:00.000Z" };
+  const evidence: PriceEvidence = { instrument: "QQQ", source: "https://example.com/fixture",
+    adjustment: "total-return-adjusted", expectedSessions: dates,
+    sessions: dates.map(day => ({ ...exchangeSession(day)!, open: 100, close: 101 })) };
+  const monthly = evaluateOutcome(row, evidence, "monthly", "2027-01-05T12:00:00.000Z");
+  assert.equal(monthly?.entryAt, "2026-12-03T14:30:00.000Z");
+  assert.equal(monthly?.exitAt, "2027-01-04T21:00:00.000Z");
+  assert.match(monthly!.calendarVersion!, /^us-equities-core-2026-.+\+us-equities-core-2027-/);
+  assert.equal(evaluateOutcome(row, evidence, "monthly", "2027-01-04T20:59:59.999Z"), null);
+  assert.equal(evaluateOutcome(row, { ...evidence, sessions: evidence.sessions.filter(bar => bar.session !== "2027-01-04") },
+    "monthly", "2027-01-05T12:00:00.000Z"), null);
+});
+
 test("out-of-coverage horizons remain pending without blocking covered rows in the same evidence", () => {
-  const dates = [...exchangeSessions("2026-12-01", "2026-12-31"), "2027-01-04"];
+  const dates = [...exchangeSessions("2027-11-01", "2027-11-25"), "2027-11-26"];
   const evidence: PriceEvidence = { instrument: "SPY", source: "https://example.com/fixture", adjustment: "total-return-adjusted", expectedSessions: dates,
-    sessions: dates.map(day => ({ ...(day.startsWith("2026") ? exchangeSession(day)! : {session:day,openAt:`${day}T14:30:00.000Z`,closeAt:`${day}T21:00:00.000Z`}), open:100,close:101 })) };
+    sessions: dates.map(day => ({ ...(day !== "2027-11-26" ? exchangeSession(day)! :
+      { session: day, openAt: `${day}T14:30:00.000Z`, closeAt: `${day}T18:00:00.000Z` }), open: 100, close: 101 })) };
   const issued = (day: string): Snapshot => ({ ...snapshot, id:`${day}T12-00-00-000Z`, issuedAt:`${day}T12:00:00.000Z` });
-  const now = "2027-01-05T22:00:00.000Z";
-  assert.ok(evaluateOutcome(issued("2026-12-03"), evidence, "daily", now));
-  assert.ok(evaluateOutcome(issued("2026-12-03"), evidence, "weekly", now));
-  assert.equal(evaluateOutcome(issued("2026-12-03"), evidence, "monthly", now), null);
-  assert.ok(evaluateOutcome(issued("2026-12-31"), evidence, "daily", now));
-  assert.equal(evaluateOutcome(issued("2026-12-31"), evidence, "weekly", now), null);
-  assert.equal(evaluateOutcome(issued("2027-01-04"), evidence, "daily", now), null);
-  assert.throws(() => evaluateOutcome(issued("2026-12-03"), { ...evidence, expectedSessions: dates.filter(day => day !== "2026-12-10"), sessions:evidence.sessions.filter(row=>row.session!=="2026-12-10") }, "daily", now), /independent reviewed schedule/);
+  const now = "2027-11-29T22:00:00.000Z";
+  assert.ok(evaluateOutcome(issued("2027-11-03"), evidence, "daily", now));
+  assert.ok(evaluateOutcome(issued("2027-11-03"), evidence, "weekly", now));
+  assert.equal(evaluateOutcome(issued("2027-11-03"), evidence, "monthly", now), null);
+  assert.ok(evaluateOutcome(issued("2027-11-24"), evidence, "daily", now));
+  assert.equal(evaluateOutcome(issued("2027-11-24"), evidence, "weekly", now), null);
+  assert.equal(evaluateOutcome(issued("2027-11-26"), evidence, "daily", now), null);
+  assert.throws(() => evaluateOutcome(issued("2027-11-03"), { ...evidence, expectedSessions: dates.filter(day => day !== "2027-11-10"), sessions:evidence.sessions.filter(row=>row.session!=="2027-11-10") }, "daily", now), /independent reviewed schedule/);
 });
 
 test("a price-derived calendar cannot omit sessions or insert exchange holidays", () => {

@@ -1,19 +1,16 @@
-import { createHash } from "node:crypto";
-import { lstat, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { publicDate } from "../lib/public-normalization.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { EXCHANGE_CALENDAR, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
-import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts";
+import { sentisenseCredential, sentisenseResponse } from "../lib/consensus/sentisense.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import { INSTRUMENTS } from "../lib/consensus/types.ts";
 
 const SYMBOLS = INSTRUMENTS.filter(symbol => symbol !== "MARKET");
-const SOURCE = "https://app.sentisense.ai/api/v1/stocks/";
 const IV_FIELDS = ["atmIv", "atmIv60", "atmIv90", "iv25p", "iv25c"] as const;
 const COUNT_FIELDS = ["putOi", "callOi", "putVol", "callVol"] as const;
-const MAX_BODY_BYTES = 2_000_000;
 
 function parseSession(row: Record<string, unknown>, expected: string) {
   if (row.date !== expected ||
@@ -25,28 +22,8 @@ function parseSession(row: Record<string, unknown>, expected: string) {
   return Object.fromEntries(["date", ...IV_FIELDS, "skew25d", ...COUNT_FIELDS].map(field => [field, row[field]]));
 }
 
-async function capture(symbol: typeof SYMBOLS[number], reportDate: string, apiKey: string) {
-  const url = `${SOURCE}${symbol}/options/history?window=1y`;
-  const response = await sourceResponse(fetch, url, {
-    headers: { "X-SentiSense-API-Key": apiKey },
-    signal: AbortSignal.timeout(15_000), redirect: "error", cache: "no-store",
-  });
-  const reader = response.body!.getReader();
-  const chunks: Uint8Array[] = [];
-  let length = 0;
-  try {
-    for (;;) {
-      const { done, value } = await sourceChunk(reader);
-      if (done) break;
-      length += value.byteLength;
-      if (length > MAX_BODY_BYTES) throw new Error("Options response exceeds its expected size");
-      chunks.push(value);
-    }
-  } finally {
-    await reader.cancel().catch(() => undefined);
-    reader.releaseLock();
-  }
-  const body = Buffer.concat(chunks, length);
+async function capture(symbol: typeof SYMBOLS[number], reportDate: string, apiKey: unknown) {
+  const { body, retrievedAt, sha256 } = await sentisenseResponse(`stocks/${symbol}/options/history?window=1y`, apiKey);
   const data = JSON.parse(body.toString("utf8")).data;
   const series: Record<string, unknown>[] = data?.series;
   if (data?.ticker !== symbol || data?.window !== "1y" || !Array.isArray(series) || !series.length ||
@@ -57,29 +34,9 @@ async function capture(symbol: typeof SYMBOLS[number], reportDate: string, apiKe
   if (series.at(-1)?.date !== reportDate)
     throw new Error(`${symbol} latest options date does not match the required prior session ${reportDate}`);
   return {
-    symbol, retrievedAt: new Date().toISOString(), sha256: createHash("sha256").update(body).digest("hex"),
+    symbol, retrievedAt, sha256,
     rows: series.length, session: parseSession(series.at(-1)!, reportDate),
   };
-}
-
-async function credential(directory: string) {
-  const fromEnv = process.env.SENTISENSE_API_KEY;
-  if (fromEnv) return { apiKey: fromEnv, access: "configured" };
-  for (const access of ["configured", "temporary"] as const) {
-    const path = resolve(directory, access === "configured" ? "credentials.json" : "temporary-access.json");
-    let stat;
-    try { stat = await lstat(path); }
-    catch (error) {
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
-      throw error;
-    }
-    if (!stat.isFile() || (stat.mode & 0o077)) throw new Error("Options credentials require an owner-only local file");
-    const { apiKey, expiresAt } = JSON.parse(await readFile(path, "utf8"));
-    if (access === "temporary" && !(Number.isSafeInteger(expiresAt) && expiresAt > Date.now() / 1000))
-      return { access: "temporary-credential-expired" };
-    return { access, apiKey };
-  }
-  return { access: "credential-unavailable" };
 }
 
 async function main() {
@@ -111,13 +68,11 @@ async function main() {
     return true;
   }
   if (await retained()) return;
-  const { access, apiKey } = await credential(directory);
+  const { access, apiKey } = await sentisenseCredential(directory);
   if (apiKey === undefined) {
     console.log(JSON.stringify({ status: access, reportDate: prior }));
     return;
   }
-  if (typeof apiKey !== "string" || !/^ss_live_[a-zA-Z0-9_-]+$/.test(apiKey))
-    throw new Error("Invalid options API credential format");
 
   // Three dates are distinct: the reported session, the actual retrieval
   // time, and any forecast cutoff that might later use this capture.

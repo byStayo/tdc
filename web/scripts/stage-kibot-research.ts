@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { outcomeWindowSessions, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { isFullKibotSession, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import {
@@ -30,7 +30,7 @@ try {
     throw new Error("Private Kibot ledger must cover a completed, reviewed session");
 
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
-  const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, EXCHANGE_CALENDAR.through);
+  const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
   const fullSessions = (ledger.outcomes as Outcome[]).filter(row => {
     const snapshot = byId.get(row.snapshotId);
     const target = snapshot && outcomeWindowSessions(snapshot.issuedAt, "daily", calendar)[0];

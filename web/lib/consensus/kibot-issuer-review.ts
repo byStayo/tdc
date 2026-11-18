@@ -80,9 +80,9 @@ function summarize(pairs: OutcomePair[]) {
     maxAbsReturnErrorBps: errors.length ? Math.max(...errors) : null };
 }
 
-export function scorePriceSensitivity({ snapshots, files, cash, raw, sameRunSessions, now }: {
+export function scorePriceSensitivity({ snapshots, files, cash, raw, sameRunSessions, now, candidateSource }: {
   snapshots: Snapshot[]; files: MarketParquetDay[]; cash: IssuerCash; raw: PriceEvidence[];
-  sameRunSessions: string[]; now: string;
+  sameRunSessions: string[]; now: string; candidateSource?: string;
 }) {
   const first = snapshots[0], lastFile = files.at(-1);
   if (!first || !lastFile) throw new Error("Sensitivity requires an archive and sample sessions");
@@ -101,7 +101,7 @@ export function scorePriceSensitivity({ snapshots, files, cash, raw, sameRunSess
   const matchedSessions = matched.map(({ session, sha256 }) => ({
     session, sha256, capture: fresh.has(session) ? "same-run" as const : "cached" as const,
   }));
-  const samplePrices = marketParquetEvidence(expectedSessions, matched, cash);
+  const samplePrices = marketParquetEvidence(expectedSessions, matched, cash, candidateSource);
   const referencePrices = ETF_SYMBOLS.map(symbol => {
     const series = findSeries(raw, symbol, "unadjusted");
     return { ...series, adjustment: OUTCOME_PRICE_BASIS, expectedSessions,
@@ -149,6 +149,7 @@ export function scorePriceSensitivity({ snapshots, files, cash, raw, sameRunSess
     { byCapture: Record<WindowCapture, ReturnType<typeof summarize>> }>;
   return { expectedSessions, matchedSessions, scoringPolicy: sample.policy, cohorts,
     excludedEarlyCloses: files.length - fullFiles.length, reconciliation: {
-      tolerance: MATCH_TOLERANCE, symbols: reconciliation.symbols.map(({ earlyClosesVerified: _earlyCloses, ...row }) => row),
+      tolerance: MATCH_TOLERANCE, verifiedThrough: reconciliation.verifiedThrough,
+      symbols: reconciliation.symbols.map(({ earlyClosesVerified: _earlyCloses, ...row }) => row),
     } };
 }

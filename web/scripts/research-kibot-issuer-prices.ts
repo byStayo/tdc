@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import type { CashDistribution } from "../lib/consensus/corporate-adjustment.ts";
-import { EXCHANGE_CALENDAR, exchangeSession } from "../lib/consensus/exchange-calendar.ts";
+import { exchangeCalendarVersion, exchangeSession } from "../lib/consensus/exchange-calendar.ts";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { collectKibotPrices } from "../lib/consensus/kibot.ts";
 import { kibotIssuerCollectionStart, reviewIssuerBoundaries, scorePriceSensitivity } from "../lib/consensus/kibot-issuer-review.ts";
@@ -30,11 +30,13 @@ const validHash = (value: string) => /^[a-f0-9]{64}$/.test(value);
 function readProvenance(ledger: SampleLedger, manifest: EvaluationManifest) {
   const inputs = manifest.inputs;
   if (ledger.schemaVersion !== 1 || manifest.schemaVersion !== 1 || manifest.source !== MARKETPARQUET_SOURCE ||
-      inputs?.mode !== "sample" || inputs.calendar !== EXCHANGE_CALENDAR.id ||
+      inputs?.mode !== "sample" ||
       !Array.isArray(ledger.bars) || !ledger.bars.length || !Array.isArray(ledger.distributions) ||
       !Array.isArray(inputs.files) || !Array.isArray(inputs.sameRunSessions) || !Array.isArray(inputs.issuers))
     throw new Error("Missing private sample provenance");
   const files = ledger.bars;
+  if (inputs.calendar !== exchangeCalendarVersion(files[0].session, files.at(-1)!.session))
+    throw new Error("Sample calendar differs from the official dates covered by the ledger");
   const byDate = new Map(files.map(file => [file.session, file.sha256]));
   const manifestFiles = new Map(inputs.files.map(file => [file.session, file.sha256]));
   const sameRun = new Set(inputs.sameRunSessions);
@@ -94,7 +96,7 @@ async function main() {
   const ledgerSha256 = hash(ledgerText), manifestSha256 = hash(manifestText);
   const evidence = {
     schemaVersion: 1, purpose: "internal-price-sensitivity", evaluatedAt: now,
-    archive: { calendar: EXCHANGE_CALENDAR.id, sha256: digest(history), editions: history.length },
+    archive: { calendar: manifest.inputs.calendar, sha256: digest(history), editions: history.length },
     marketParquet: { source: MARKETPARQUET_SOURCE, mode: "sample", ledgerSha256, manifestSha256,
       capturedAt: ledger.capturedAt, manifestEvaluatedAt: manifest.evaluatedAt,
       files: files.map(({ session, sha256 }) => ({

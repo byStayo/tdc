@@ -24,7 +24,8 @@ test("OCC capture uses only the last prior date from the reviewed New York sessi
   assert.equal(previousOccSession("2026-11-18T23:00:00.000Z"), date);
   assert.equal(previousOccSession("2026-11-27T13:00:00.000Z"), "2026-11-25");
   assert.equal(previousOccSession("2026-11-30T13:00:00.000Z"), "2026-11-27");
-  assert.throws(() => previousOccSession("2027-01-04T13:00:00.000Z"), /reviewed exchange calendar/);
+  assert.equal(previousOccSession("2027-01-04T13:00:00.000Z"), "2026-12-31");
+  assert.throws(() => previousOccSession("2027-11-26T13:00:00.000Z"), /reviewed exchange calendar/);
 });
 
 test("OCC volume parser checks report scope, rejects sparse responses and counts distinct customer rows", () => {

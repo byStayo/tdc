@@ -4,7 +4,7 @@ import { newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
 import { requireOutcomePriceBasis } from "./price-basis.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, hasReviewedCalendar, verifyExpectedSessions } from "./exchange-calendar.ts";
+import { exchangeCalendarVersion, exchangeSession, hasReviewedCalendar, verifyExpectedSessions } from "./exchange-calendar.ts";
 import type { TrainingRow } from "./learning.ts";
 
 export const outcomeKey = (row: Pick<Outcome, "snapshotId" | "instrument" | "horizon">) =>
@@ -139,7 +139,7 @@ export function evaluateOutcome(
   if (forecast && (forecast.priceAdjustment !== prices.adjustment || forecast.engineVersion !== snapshot.engineVersion))
       throw new Error("Forecast and outcome price basis or engine version differ");
   return {
-    calendarVersion: EXCHANGE_CALENDAR.id,
+    calendarVersion: exchangeCalendarVersion(start.session, exit.session),
     engineVersion: snapshot.engineVersion,
     snapshotId: snapshot.id,
     instrument: prices.instrument,

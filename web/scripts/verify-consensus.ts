@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import type { Outcome } from "../lib/consensus/types.ts";
 import { outcomeWindowSessions, performance } from "../lib/consensus/evaluation.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { readReservations, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 import { assertEvaluationReleaseState } from "../lib/consensus/evaluation-transaction.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
@@ -64,7 +64,7 @@ if (!audit) {
         model.instrument === instrument && model.horizon === horizon))
       .map(horizon => ({ instrument, horizon })));
   const pendingTargets = report.pending?.length ?? null;
-  const reviewedSessions = exchangeSessions(EXCHANGE_CALENDAR.from, EXCHANGE_CALENDAR.through);
+  const reviewedSessions = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
   const issued = new Map(history.map(entry => [entry.id, entry.issuedAt]));
   const now = new Date().toISOString();
   const pendingByStatus = { priceEvidenceDue: 0, awaitingHorizon: 0, calendarCoverageMissing: 0 };

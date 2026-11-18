@@ -8,7 +8,7 @@ import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import type { CashDistribution } from "../lib/consensus/corporate-adjustment.ts";
 import { evaluateOutcome, outcomeTrainingRow, outcomeWindowSessions, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
-import { exchangeSession, exchangeSessions, EXCHANGE_CALENDAR } from "../lib/consensus/exchange-calendar.ts";
+import { exchangeCalendarVersion, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { evaluateCandidate, planCandidate } from "../lib/consensus/learning.ts";
 import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, promotionEvidence, readReservations, reserveEvaluation, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
@@ -68,7 +68,7 @@ try {
   const from = newYorkDate(snapshots[0].issuedAt);
   const yesterday = new Date(Date.parse(newYorkDate(now)) - 86400000).toISOString().slice(0, 10);
   const completed = exchangeSessions(from, yesterday);
-  const calendar = exchangeSessions(from, EXCHANGE_CALENDAR.through);
+  const calendar = exchangeSessions(from, REVIEWED_EXCHANGE_THROUGH);
   const through = completed.at(-1)!;
   let old: Ledger | undefined;
   try {
@@ -229,7 +229,8 @@ try {
   const evaluation = { ...report, evaluatedAt: now, missingSessions, unreviewedEarlyCloses, outcomes, trainingPerformed,
     // Inputs that reproduce this run from the private ledger.
     inputs: {
-      mode: licensed ? "licensed" : "sample", calendar: EXCHANGE_CALENDAR.id, editions: snapshots.length,
+      mode: licensed ? "licensed" : "sample",
+      calendar: exchangeCalendarVersion(captured[0].session, captured.at(-1)!.session), editions: snapshots.length,
       sameRunSessions: [...fetchedDays].sort(),
       unavailable: incoming.sessions.filter(file => !("bars" in file)),
       files: bars.map(({ session, sha256 }) => ({ session, sha256 })),
