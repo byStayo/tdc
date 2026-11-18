@@ -15,11 +15,11 @@ if (args.length > 1 || (args.length === 1 && args[0] !== "--public-only"))
   throw new Error("Usage: npm run editorial:prepare -- [--public-only]");
 const publicOnly = args[0] === "--public-only";
 
-async function collect(script: string, ...scriptArgs: string[]) {
+async function collect(script: string, scriptArgs: string[] = [], timeout?: number) {
   const { stdout } = await run(
     process.execPath,
     ["--experimental-strip-types", resolve(PROJECT_ROOT, "scripts", script), ...scriptArgs],
-    { cwd: PROJECT_ROOT, maxBuffer: 512_000 },
+    { cwd: PROJECT_ROOT, maxBuffer: 512_000, timeout },
   );
   return JSON.parse(stdout);
 }
@@ -37,14 +37,21 @@ try {
   };
   const following = publicOnly
     ? { status: "skipped_public_only" }
-    : await collect("collect-following-feeds.ts", "--scheduled");
+    : await collect("collect-following-feeds.ts", ["--scheduled"]);
   const consensus = await collect("publish-consensus.ts");
+  const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
+    .catch((error: { killed?: boolean; stderr?: string }) => ({
+      status: "unavailable",
+      error: error.killed ? "SEC earnings check exceeded 60 seconds"
+        : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC earnings check did not complete",
+    }));
   const receipt = {
     schemaVersion: 1,
     preparedAt: new Date().toISOString(),
     editorial,
     following,
     consensus,
+    issuerRevenue,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));

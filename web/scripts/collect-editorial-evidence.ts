@@ -26,7 +26,7 @@ export function assertPublicURL(input: unknown): string {
   url.searchParams.sort(); return url.href;
 }
 
-async function fetchText(url: string, fetcher: Fetcher): Promise<{ text: string; retrievedAt: string }> {
+export async function fetchText(url: string, fetcher: Fetcher): Promise<{ text: string; retrievedAt: string; sha256: string }> {
   assertPublicURL(url);
   const response = await fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json,text/csv,text/html' }, redirect: 'error', signal: AbortSignal.timeout(20_000) });
   if (!response.ok || !response.body) throw new Error(`Public source returned HTTP ${response.status}`);
@@ -39,7 +39,8 @@ async function fetchText(url: string, fetcher: Fetcher): Promise<{ text: string;
       chunks.push(result.value);
     }
   } catch (error) { await reader.cancel().catch(() => undefined); throw error; }
-  return { text: Buffer.concat(chunks).toString('utf8'), retrievedAt: new Date().toISOString() };
+  const body = Buffer.concat(chunks);
+  return { text: body.toString('utf8'), retrievedAt: new Date().toISOString(), sha256: createHash('sha256').update(body).digest('hex') };
 }
 
 export function parseFREDCSV(input: string, id: string): { date: string; value: number | null }[] {
