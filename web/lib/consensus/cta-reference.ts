@@ -11,6 +11,7 @@ type Fetcher = Parameters<typeof sourceResponse>[0];
 
 const ARCHIVE = "https://ftp.nyse.com/cts_summary_files/";
 const MAX_BYTES = 80_000_000;
+const MAX_CORRECTION_BYTES = 5_000_000;
 const MINUTE = 60_000;
 const HEADER = "Msg Cat/Type,TransTime,SeqNum,Symbol,instrumentType,partiId,prevClosePriceDate,lastClosePrice,highPrice,lowPrice,openPrice,totalVolume,shortSaleRestrictionInd,primaryListingMarketPartiId,financialStausInd,numberOfParticipants";
 const MONTHS = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
@@ -66,6 +67,64 @@ function positivePrice(value: string): number {
   if (!/^\d+(?:\.\d{1,6})?$/.test(value) || !Number.isFinite(price) || price <= 0)
     throw new Error("Invalid CTA summary price");
   return price;
+}
+
+const correctionHeaders = {
+  CXE: "Msg Cat/Type,ParticipandID,TransTime,SeqNum,Prn,Symbol,instrumentType,saleCondition,lastTradePrice,tradeVolume,saleDays,stopStockInd,trfInd,tradeThroughExemptInd,shortSaleRestrictionInd,origPrn,origSaleCondition,origTradePrice,origTradeVolume,origSaleDays,origStopStockInd,origTradeThroughExemptInd,origShortSaleRestrictionInd,ts2,cancelErrorAct,primaryListingMarketPartiId,financialStatusInd,cons prevClosePriceDate,cons lastPartiId,cons lastPrice,cons highPrice,cons lowPrice,cons totalVolume,cons tick,cons lastHighLowInd,parti prevClosePriceDate,parti lastPrice,parti highPrice,parti lowPrice,parti openPrice,parti totalVolume,parti tick,parti lastHighLowInd",
+  PRIORDAY: "Msg Cat/Type,ParticipandID,TransTime,SeqNum,Symbol,instrumentType,saleCondition,tradePrice,tradeVolume,saleDays,stopStockInd,tradeThroughExemptInd,shortSaleRestrictionInd,priorDay/Time,trfId,origSaleCondition,origTradePrice,origTradeVolume,origSaleDays,origStopStockInd,origTradeThroughExemptInd,origShortSaleRestrictionInd,origPriorDay,cancelErrorAction",
+};
+export type CtaCorrectionKind = keyof typeof correctionHeaders;
+type CtaCorrectionEvent = {
+  symbol: ReferenceSymbol; message: string; sequence: string; eventAt: string; participant: string;
+  condition: string; originalCondition: string; action: string;
+  listing: string | null; lastVenue: string | null; consolidatedLast: number | null; priorTradeAt: string | null;
+};
+
+function correctionUrl(date: string, kind: CtaCorrectionKind) {
+  return `${ARCHIVE}CTA.Summary.${kind}.${date.replaceAll("-", "")}.csv`;
+}
+
+function priorTradeTime(raw: string) {
+  const match = /^_(\d{2})\/(\d{2})\/(\d{4}) (\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?)$/.exec(raw);
+  if (!match) throw new Error("Unrecognized timestamp in prior-day CTA row");
+  const [, month, day, year, time] = match;
+  return summaryTime(`${year}-${month}-${day}`, `_${time}`);
+}
+
+/** Correction messages provide reported conditions and revised statistics, not execution timestamps for official marks. */
+export function parseCtaCorrectionReport(bytes: Uint8Array, reportDate: string, kind: CtaCorrectionKind) {
+  if (!bytes.byteLength || bytes.byteLength > MAX_CORRECTION_BYTES) throw new Error("Invalid CTA correction file size");
+  const [preamble, header, ...lines] = new TextDecoder("utf-8", { fatal: true }).decode(bytes).split(/\r?\n/);
+  if (header !== correctionHeaders[kind] || archiveDay(preamble) !== reportDate) throw new Error("CTA correction schema or date differs");
+  const columns = header.split(",");
+  const rows = lines.flatMap<CtaCorrectionEvent>(line => {
+    const fields = line.split(",");
+    const value = (name: string) => fields[columns.indexOf(name)] ?? "";
+    const symbol = CTA_REFERENCE_SYMBOLS.find(ticker => ticker === value("Symbol"));
+    if (!symbol) return [];
+    const message = value("Msg Cat/Type");
+    const type = kind === "CXE" ? /^(?:Fractional)?Trade(?:CancelError|Correction)$/ : /^(?:Fractional)?PriorDayTrade(?:CancelError|Correction)?$/;
+    if (!type.test(message) || value("instrumentType") !== "Equity" || !/^_\d+$/.test(value("SeqNum")) || !value("ParticipandID"))
+      throw new Error(`Invalid CTA correction row for ${symbol}`);
+    const eventAt = summaryTime(reportDate, value("TransTime"));
+    const condition = value("saleCondition").trim();
+    const originalCondition = value("origSaleCondition").trim();
+    const event = { symbol, message, sequence: value("SeqNum"), eventAt, participant: value("ParticipandID"), condition, originalCondition };
+    if (kind === "CXE") {
+      const listing = value("primaryListingMarketPartiId");
+      // The reference ETFs all list on Arca. A FINRA correction carries FINRA's
+      // participant open. It cannot answer what the primary listing opened at.
+      if (listing !== "ARCA" || !value("cons lastPartiId")) throw new Error("Missing CTA listing or consolidated trade venue");
+      return [{ ...event, action: value("cancelErrorAct"), listing, lastVenue: value("cons lastPartiId"),
+        consolidatedLast: positivePrice(value("cons lastPrice")), priorTradeAt: null }];
+    }
+    const priorTradeAt = priorTradeTime(value("origPriorDay") || value("priorDay/Time"));
+    if (priorTradeAt >= eventAt) throw new Error("Prior-day CTA trade date follows its report");
+    return [{ ...event, action: value("cancelErrorAction"), listing: null, lastVenue: null, consolidatedLast: null, priorTradeAt }];
+  });
+  const duplicateKey = (event: typeof rows[number]) => `${event.symbol}/${event.participant}/${event.sequence}/${event.eventAt}`;
+  if (new Set(rows.map(duplicateKey)).size !== rows.length) throw new Error("Duplicate target CTA correction record");
+  return { reportDate, kind, source: correctionUrl(reportDate, kind), sha256: createHash("sha256").update(bytes).digest("hex"), rows };
 }
 
 type ClosingSummary = { at: string; close: number; venue: string; open?: number };
@@ -162,7 +221,18 @@ export async function collectCtaReference(
   }
   if (Date.now() < Date.parse(bounds.closeAt) + 240 * MINUTE)
     throw new Error("CTA final summary is not due yet");
-  const response = await sourceResponse(options.fetcher ?? fetch, archiveUrl(day), {
+  const bytes = await fetchCtaArchive(archiveUrl(day), MAX_BYTES, options.fetcher);
+  return { reference: parseCtaReference(bytes, bounds), bytes };
+}
+
+export async function collectCtaCorrectionReport(reportDate: string, kind: CtaCorrectionKind, cachedBytes?: Uint8Array) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(reportDate)) throw new Error("Invalid CTA correction report date");
+  const bytes = cachedBytes ?? await fetchCtaArchive(correctionUrl(reportDate, kind), MAX_CORRECTION_BYTES);
+  return { report: parseCtaCorrectionReport(bytes, reportDate, kind), bytes };
+}
+
+async function fetchCtaArchive(url: string, maximum: number, fetcher = fetch as Fetcher): Promise<Uint8Array> {
+  const response = await sourceResponse(fetcher, url, {
     redirect: "error",
     signal: AbortSignal.timeout(60_000),
     headers: {
@@ -175,13 +245,13 @@ export async function collectCtaReference(
   let size = 0;
   try {
     const declared = response.headers.get("content-length");
-    if (declared !== null && Number(declared) > MAX_BYTES)
-      throw new Error("CTA archive exceeds 80 MB");
+    if (declared !== null && Number(declared) > maximum)
+      throw new Error("CTA archive exceeds its byte limit");
     for (;;) {
       const piece = await sourceChunk(reader);
       if (piece.done) break;
       size += piece.value.byteLength;
-      if (size > MAX_BYTES) throw new Error("CTA archive exceeds 80 MB");
+      if (size > maximum) throw new Error("CTA archive exceeds its byte limit");
       chunks.push(piece.value);
     }
     const encoding = response.headers.get("content-encoding");
@@ -193,6 +263,5 @@ export async function collectCtaReference(
   } finally {
     reader.releaseLock();
   }
-  const bytes = Buffer.concat(chunks, size);
-  return { reference: parseCtaReference(bytes, bounds), bytes };
+  return Buffer.concat(chunks, size);
 }
