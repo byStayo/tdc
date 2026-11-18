@@ -4,6 +4,8 @@ Stocklake returned the full November 3–17 TLT window with OHLCV. The provider 
 
 The new deterministic CFTC options study collected 1,810 original government report rows and compared futures positioning alone with futures plus the options component. It used 163 real prelaunch outcomes per ETF and 33 chronological test dates per ETF. The options feature reduced test error for SPY and QQQ by 0.00311 and 0.00084 respectively, with all five missing the declared margin over their baselines. The retrospective vintage and the assumed source lag are recorded. The frozen captures and fits remain owner-local. [Benchmark](web/docs/FREE_FEED_PATH.md#november-18--tlt-source-checks-and-cftc-options-benchmark)
 
+Yale's official GitHub series supplied 128 historical monthly retail confidence readings since 2016. The repository had only 13 new readings with a dated revision in the current format, and six older readings changed. Publication requires a grant. The retail candidate remains open. [Yale vintage check](web/docs/FREE_FEED_PATH.md#november-18--tlt-source-checks-and-cftc-options-benchmark)
+
 TypeScript, 397 tests and prebuild integrity passed. The strict audit returned exit 2 with 37 verified editions, 236 resolved archive targets, three of 15 families voting, 99 elapsed targets awaiting approved prices, 220 awaiting their horizons, and zero active models. The live archive and prospective outcome contract match the FirstRate release below.
 
 ## November 18 — First free production outcome evidence for four ETFs
