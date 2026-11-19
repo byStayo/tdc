@@ -6,7 +6,7 @@ import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
 import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
-import { loadFirstRateTechnicals, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
+import { loadFirstRatePremarket, loadFirstRateTechnicals, replaceFirstRatePremarket, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
 import { loadTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
@@ -82,6 +82,15 @@ if (!scoped || technicalsOnly) {
   snapshot = { ...snapshot, signals, sourcesAttempted: technicalsOnly ? 2 : snapshot.sourcesAttempted + 2,
     collectionErrors: [...snapshot.collectionErrors.filter(msg => !msg.startsWith("daily-prices:")),
       ...(missing ? [`daily-prices: ${missing.instruments.join(", ")}. ${missing.summary}`] : [])] };
+}
+const premarket = !scoped || technicalsOnly ? await loadFirstRatePremarket(root, snapshot.cutoff).catch(() => []) : undefined;
+const withPremarket = replaceFirstRatePremarket(snapshot.signals, premarket, snapshot.cutoff);
+if (withPremarket !== snapshot.signals) {
+  const ids = ["premarket-bars", "previous-premarket-bars"];
+  snapshot = { ...snapshot, signals: withPremarket,
+    collectionErrors: [...snapshot.collectionErrors.filter(msg => !ids.some(id => msg.startsWith(id + ":"))),
+      ...withPremarket.filter(s => ids.includes(s.id) && s.status === "unavailable")
+        .map(s => `${s.id}: ${s.instruments.join(", ")}. ${s.summary}`)] };
 }
 if (!reviewOnly && previous) snapshot = retainLastKnown(snapshot, previous);
 const review = JSON.parse(

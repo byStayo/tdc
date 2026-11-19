@@ -10,6 +10,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 from stat import S_IMODE
 import sys
 from tempfile import NamedTemporaryFile
@@ -157,10 +158,53 @@ def read_regular_minutes(symbol, raw, daily, short_days):
     return result
 
 
+def read_premarket(symbol, raw, day):
+    """Read only the archived 04:00–09:29 Eastern minutes for one approved date."""
+    with ZipFile(BytesIO(raw)) as archive:
+        members = archive.infolist()
+        if len(members) > 12 or len({entry.filename for entry in members}) != len(members):
+            raise ValueError("Unexpected sample archive")
+        docs = archive.getinfo("_readme_documentation.txt")
+        minute_file = archive.getinfo(f"{symbol}_1min_sample.csv")
+        if docs.file_size > 25_000 or minute_file.file_size > 3_000_000:
+            raise ValueError("Oversized premarket sample")
+        readme = archive.read(docs).decode("utf-8-sig").lower()
+        if not all(term in readme for term in ("two weeks of split-adjusted sample data",
+                "timestamps run from the start of the period", "timezone is us eastern time",
+                "times with zero volume are omitted", "https://firstratedata.com/about/license")):
+            raise ValueError("Premarket time, coverage or price basis changed")
+        table = csv.DictReader(StringIO(archive.read(minute_file).decode("utf-8-sig")))
+        if tuple(table.fieldnames or []) != HEADERS:
+            raise ValueError("Premarket sample fields changed")
+        bars = {}
+        for row in table:
+            stamp = row["timestamp"]
+            if not isinstance(stamp, str) or dt.date.fromisoformat(stamp[:10]).isoformat() != stamp[:10]:
+                raise ValueError("Invalid minute date")
+            if stamp[:10] != day:
+                continue
+            clock = dt.datetime.fromisoformat(stamp)
+            if clock.isoformat(sep=" ") != stamp or clock.tzinfo is not None:
+                raise ValueError("Invalid Eastern minute timestamp")
+            if not dt.time(4) <= clock.time() < dt.time(9, 30):
+                continue
+            if clock.second or clock.microsecond or stamp in bars or len(row) != len(HEADERS) or not all(
+                    re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", row[key] or "") for key in HEADERS[1:-1]) or not re.fullmatch(
+                    r"[0-9]+", row["volume"] or ""):
+                raise ValueError("Invalid or duplicate premarket minute")
+            bars[stamp] = read_ohlcv(symbol, row)
+    first, last = bars.get(day + " 04:00:00"), bars.get(day + " 09:29:00")
+    if first is None or last is None:
+        raise ValueError("Premarket boundary minute unavailable")
+    return {"session": day, "changePct": round(100 * (last[1] / first[0] - 1), 1), "activeMinutes": len(bars)}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("through", type=dt.date.fromisoformat)
     parser.add_argument("--cached-only", action="store_true")
+    parser.add_argument("--cached-premarket", choices=EQUITY_SAMPLES,
+                        help="Replay one approved sample locally and return derived premarket statistics")
     parser.add_argument("--independent-samples", action="store_true",
                         help="Report unverified sample files separately from verified captures")
     parser.add_argument("--expected-close", type=dt.datetime.fromisoformat)
@@ -170,7 +214,7 @@ def main():
     args = parser.parse_args()
     folder = ROOT / ".consensus" / "private-firstrate" / "captures" / args.through.isoformat()
     issuer_history = args.cached_issuer_history_from
-    cached_only = args.cached_only or issuer_history is not None
+    cached_only = args.cached_only or issuer_history is not None or args.cached_premarket is not None
     if issuer_history and issuer_history > args.through:
         parser.error("Issuer history starts after the capture session")
     if args.expected_close and args.expected_close.tzinfo is None:
@@ -183,6 +227,17 @@ def main():
             folder.mkdir(parents=True, mode=0o700, exist_ok=True)
         if folder.is_symlink() or S_IMODE(folder.stat().st_mode) != 0o700:
             raise ValueError("FirstRate capture must use an owner-only directory")
+        if args.cached_premarket:
+            if not args.expected_close:
+                raise ValueError("Premarket replay requires the reviewed session close")
+            symbol = args.cached_premarket
+            raw, meta, _ = capture(folder, f"sample-{symbol}", STORAGE + f"frd_sample_etf_{symbol}.zip",
+                                   SAMPLE_SIZE, True, expected_close=args.expected_close)
+            result = {**read_premarket(symbol, raw, args.through.isoformat()), "symbol": symbol, "url": meta["url"],
+                      "sha256": meta["sha256"], "retrievedAt": meta["capturedAt"],
+                      "vintageAt": utc(parsedate_to_datetime(meta["lastModified"]))}
+            print(json.dumps(result, allow_nan=False))
+            return
         samples = []
         failures = []
         for symbol in (() if issuer_history else EQUITY_SAMPLES):

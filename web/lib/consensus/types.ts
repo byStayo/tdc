@@ -44,6 +44,8 @@ export interface Provenance {
   releasedAt: string | null;
   /** Provider page or archive revision, separate from the observation and original release. */
   vintageAt?: string;
+  /** Time the publisher approved the captured source for use. */
+  approvedAt?: string;
   frequency: string;
   attribution: string;
   usage: string;

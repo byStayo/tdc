@@ -223,6 +223,7 @@ const REQUIRED_FEEDS: {
   title: string;
   reason: string;
   url: string;
+  instruments?: Instrument[];
 }[] = [
   {
     id: "off-exchange",
@@ -291,10 +292,18 @@ const REQUIRED_FEEDS: {
   {
     id: "premarket-bars",
     family: "premarket",
-    title: "Premarket tape",
+    title: "Current-session premarket tape",
     reason:
-      "An extended-hours bar feed is required to calculate the gap and range; no previous close or intraday prices are fabricated.",
+      "The current session’s premarket gap, range and volume await a verified extended-hours feed.",
     url: "https://thedailyconsensus.com/research-desk",
+  },
+  {
+    id: "previous-premarket-bars",
+    family: "premarket",
+    title: "Previous-session premarket window",
+    reason: "The preceding exchange session needs verified 4:00 a.m. and 9:29 a.m. New York bars for this ETF.",
+    url: "https://firstratedata.com/stock-data",
+    instruments: ["SPY", "QQQ", "IWM", "DIA", "TLT"],
   },
   {
     id: "prediction-markets",
@@ -334,7 +343,7 @@ export function missingSignals(at: string): Signal[] {
   return REQUIRED_FEEDS.map((feed) => ({
     ...feed,
     shortLabel: feed.title,
-    instruments: ["MARKET", "SPY", "QQQ", "IWM", "DIA", "TLT"] as Instrument[],
+    instruments: feed.instruments ?? ["MARKET", "SPY", "QQQ", "IWM", "DIA", "TLT"] as Instrument[],
     status: "unavailable",
     summary: feed.reason,
     methodology:

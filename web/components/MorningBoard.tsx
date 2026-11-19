@@ -444,6 +444,12 @@ function SourceDrawer({
                   <dd>{datedYear(signal.source.vintageAt)}</dd>
                 </div>
               )}
+              {signal.source.approvedAt && (
+                <div>
+                  <dt>Source approved</dt>
+                  <dd>{datedYear(signal.source.approvedAt)} · {time(signal.source.approvedAt)} ET</dd>
+                </div>
+              )}
             </dl>
             <details>
               <summary>Calculation & limitations</summary>

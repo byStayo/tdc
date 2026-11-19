@@ -13,8 +13,10 @@ import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { collectResearchPrices, readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
 import { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, technicalSignals } from "./firstrate-technicals.ts";
+import { firstRatePremarketSignal, type PremarketSample } from "./firstrate-premarket.ts";
 
 export { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, replaceTechnicalSignals } from "./firstrate-technicals.ts";
+export { replaceFirstRatePremarket } from "./firstrate-premarket.ts";
 const FIRST_RATE_SAMPLE_HOST = "https://frd001.s3.us-east-2.amazonaws.com/";
 const FIRST_EDITION_DAY = "2026-11-03";
 const BASIS_POINTS = 10_000;
@@ -266,6 +268,36 @@ export function firstRateTechnicalSignals(approval: Approval, cutoff: string) {
 export async function loadFirstRateTechnicals(root: string, cutoff: string) {
   const approval = await readApproval(root);
   return approval ? firstRateTechnicalSignals(approval, cutoff) : [];
+}
+
+/** Replay only captured ZIPs pinned by the per-symbol approval, without changing any price receipt. */
+export async function loadFirstRatePremarket(root: string, cutoff: string) {
+  const approval = await readApproval(root);
+  if (!approval || approval.source !== FIRST_RATE_SOURCE || approval.approvedAt > cutoff) return [];
+  const observations = await Promise.all(FIRST_RATE_SYMBOLS.map(async symbol => {
+    try {
+      const matches = approval.symbols.filter(row => row.symbol === symbol);
+      if (matches.length !== 1) return [];
+      const [entry] = matches, { source } = entry.proof;
+      const day = entry.reviewedThrough ?? approval.through;
+      const clock = exchangeSession(day);
+      // Approval pins the archive. Its regular-session settlement is independent of the premarket boundary prices.
+      if (!clock || day < approval.from || day > approval.through || source.symbol !== symbol || source.url !== sourceURL(symbol) ||
+          source.basis !== "split-adjusted" || !SHA256.test(source.sha256) ||
+          ![entry.proof.comparison, entry.proof.splitComparison].every(refs => refs.length && refs.every(hash => SHA256.test(hash)))) return [];
+      const { stdout } = await promisify(execFile)("python3", ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"),
+        day, "--cached-premarket", symbol, "--expected-close", clock.closeAt.replace(/Z$/, "+00:00")],
+      { timeout: 15_000, maxBuffer: 4096 });
+      const sample: PremarketSample & { url: string } = JSON.parse(stdout);
+      if (sample.symbol !== symbol || sample.session !== day || sample.url !== source.url || sample.sha256 !== source.sha256 ||
+          sample.retrievedAt !== source.capturedAt || sample.vintageAt !== source.modifiedAt) return [];
+      return [firstRatePremarketSignal(sample, approval.approvedAt, cutoff)];
+    } catch {
+      // One unavailable instrument must not suppress verified bars from another ETF.
+      return [];
+    }
+  }));
+  return observations.flat();
 }
 
 async function reviewSample(directory: string, sample: Sample, through: string, from: string,
