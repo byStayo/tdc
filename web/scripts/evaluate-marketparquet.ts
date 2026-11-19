@@ -11,9 +11,9 @@ import { evaluateOutcome, outcomeTrainingRow, outcomeWindowSessions, performance
 import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { exchangeCalendarVersion, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
-import { evaluateCandidate, planCandidate } from "../lib/consensus/learning.ts";
-import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, promotionEvidence, readReservations, reserveEvaluation, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
-import type { ActiveModel } from "../lib/consensus/model.ts";
+import { planCandidate } from "../lib/consensus/learning.ts";
+import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, readReservations } from "../lib/consensus/learning-audit.ts";
+import { marketParquetHoldouts } from "../lib/consensus/marketparquet-learning.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetEvidence, marketParquetIssuerFingerprints, matchesMarketParquetReview, reviewedMarketParquetDays, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
 import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "../lib/consensus/marketparquet-aggregate.ts";
 import type { LicensedCapture } from "../lib/consensus/marketparquet-settlement.ts";
@@ -26,15 +26,6 @@ type UnavailableDay = { session: string; httpStatus: number };
 type Capture = { sessions: (MarketParquetDay | UnavailableDay)[]; distributions: Issuer[]; licensedCapture?: LicensedCapture };
 type Ledger = { schemaVersion: 1; capturedAt?: string; expectedSessions?: string[]; bars: MarketParquetDay[];
   distributions: Issuer[]; licensedCapture?: LicensedCapture };
-type HoldoutSummary = { testLabels: number; candidateBrier: number; baseRateBrier: number; coinBrier: number; passed: boolean };
-
-function readHoldoutSummary(value: HoldoutSummary): HoldoutSummary {
-  const { testLabels, candidateBrier, baseRateBrier, coinBrier, passed } = value;
-  if (!Number.isInteger(testLabels) || testLabels < MINIMUM_TEST_LABELS || typeof passed !== "boolean" ||
-      ![candidateBrier, baseRateBrier, coinBrier].every(metric => Number.isFinite(metric) && metric >= 0 && metric <= 1))
-    throw new Error("Invalid saved MarketParquet holdout summary");
-  return { testLabels, candidateBrier, baseRateBrier, coinBrier, passed };
-}
 const arguments_ = process.argv.slice(2);
 if (arguments_.length > 1 || arguments_.some(arg => !["--publish", "--scheduled"].includes(arg)))
   throw new Error("Usage: evaluate-marketparquet.ts [--publish | --scheduled]");
@@ -163,9 +154,10 @@ try {
   const { selected, policy } = selectScoredOutcomes(outcomes);
   const reservations = await readReservations(root);
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
-  const { models } = JSON.parse(await readFile(resolve(root, "lib/consensus/models.json"), "utf8")) as { models: ActiveModel[] };
+  const savedHoldout = licensed ? await marketParquetHoldouts(root, snapshots, reservations) : null;
   const cohorts = [];
-  let trainingPerformed = false;
+  // Only evaluate-consensus owns new reservations, tests and model activation.
+  const trainingPerformed = false;
   const publish = !!arguments_[0] && licensedReviewThrough === through && selected.length > 0 &&
     completed.every(day => refetched.has(day));
   if (publish) await assertCommittedReservations(root);
@@ -176,43 +168,13 @@ try {
     const prior = reservations.filter(row => row.instrument === instrument && row.horizon === horizon)
       .sort((a, b) => b.attempt - a.attempt)[0];
     const eligible = rows.filter(row => permitsModelInputs(byId.get(row.snapshotId)!, instrument, horizon));
-    const plan = planCandidate(eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!)), now, {
+    const trainingRows = eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!));
+    const plan = planCandidate(trainingRows, now, {
       engineVersion: ENGINE_VERSION, consumedThrough: prior?.consumedThrough,
       minimumSamples: PROSPECTIVE_MINIMUM, minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true,
     });
     const stats = performance(rows, 2, ENGINE_VERSION);
-    let holdout: HoldoutSummary | null = null;
-    const resultPath = resolve(directory, `validation-${instrument}-${horizon}.json`);
-    if (licensed) {
-      try {
-        const savedResult = JSON.parse(await readFile(resultPath, "utf8"));
-        if (savedResult.engineVersion === ENGINE_VERSION &&
-          reservations.some(record => record.datasetHash === savedResult.datasetHash &&
-            record.instrument === instrument && record.horizon === horizon))
-          holdout = readHoldoutSummary(savedResult.summary);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      }
-    }
-    if (publish && plan.status === "ready") {
-      const incumbent = models.find(model => model.instrument === instrument && model.horizon === horizon);
-      if (incumbent) await validateActiveModelTree(root, incumbent, reservations);
-      const reservation = await reserveEvaluation(root, reservations, plan, instrument, horizon, now, incumbent);
-      reservations.push(reservation);
-      const candidate = evaluateCandidate(plan, incumbent?.model);
-      if (candidate.status !== "evaluated") throw new Error("Ready MarketParquet candidate failed to evaluate");
-      const gate = promotionEvidence(plan, candidate.model, reservation, incumbent?.model);
-      holdout = {
-        testLabels: candidate.split.test,
-        candidateBrier: candidate.candidateBrier,
-        baseRateBrier: candidate.baseRateBrier,
-        coinBrier: candidate.coinBrier,
-        passed: candidate.promoted && gate.passes,
-      };
-      await durableJSON(resultPath, { engineVersion: ENGINE_VERSION, datasetHash: plan.datasetHash,
-        attempt: reservation.attempt, candidate, gate, summary: holdout });
-      trainingPerformed = true;
-    }
+    const holdout = savedHoldout ? await savedHoldout(instrument, horizon, trainingRows, ENGINE_VERSION, plan.datasetHash) : null;
     cohorts.push({ instrument, horizon, resolved: rows.length, calls: stats.calls, abstentions: stats.abstentions,
       minimumSamples: plan.minimum, eligibility: plan.status, holdout });
   }
@@ -261,7 +223,7 @@ try {
       ({ symbol, verified: cash.filter(event => event.session <= through).length })), cohorts, families }, null, 2));
   if (arguments_[0] && !publish) {
     if (licensedReviewThrough !== through) {
-      console.log("Licensed capture saved. Reconcile the latest completed session before evaluating holdouts or staging the public aggregate.");
+      console.log("Licensed capture saved. Reconcile the latest completed session before staging the public aggregate.");
     } else {
       console.error("Public aggregate preserved. MarketParquet did not refresh the required completed sessions.");
       process.exitCode = 2;
