@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-19T13:01:15.098Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Fed minutes put the timing of tighter credit in focus for small caps",
+    "summary": "The October minutes published November 18 describe policymakers weighing persistent inflation against the effects of the September rate increase. The pace of any further change matters to businesses that refinance debt or borrow at floating rates.",
+    "bull": [
+      {
+        "text": "Most participants supported holding the federal funds target steady in October. Many wanted more information about financing conditions, investment demand and the effect of the previous increase.",
+        "sourceIds": [
+          "FED_FOMC_MINUTES"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Some participants judged policy insufficiently restrictive and preferred a further quarter-point rise. The cost to any small borrower also depends on its credit spread and reset date.",
+        "sourceIds": [
+          "FED_FOMC_MINUTES"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The November 10 Russell 2000 futures report showed leveraged funds net short 44,429 contracts and asset managers net long 19,663. Their next reported positions will provide a separate market observation.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "The October discussion precedes the November 10 futures observation. Neither source measures IWM fund flows, current dealer gamma or the refinancing terms of individual Russell 2000 companies."
+    ]
+  },
+  "sources": [
+    {
+      "id": "FED_FOMC_MINUTES",
+      "title": "Federal Reserve · FOMC minutes · released 2026-11-18",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm"
+    },
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    }
+  ]
+}

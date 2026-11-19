@@ -1,3 +1,9 @@
+## November 19 at 8:00 a.m. New York — morning edition
+
+The publisher issued `2026-11-19T13-00-31-020Z` at 8:00:31 a.m. from the 7:48:35 a.m. source cutoff. It used reviewed draft SHA-256 `3ce2799e825ef2fd3c44c778006ed70640a73705282a79b6c6263113f3d254d5` and base `2026-11-19T03-34-35-238Z`. There are 109 available signals out of 123, 64.0% weighted observation coverage and three voting families out of fifteen. Each of the five funds has eligible daily inputs and an abstention. The 600 targets reconcile to 268 settled, 67 awaiting completed TLT price evidence and 265 inside their forecast horizons. The licensed MarketParquet collector found no active entitlement.
+
+The market, SPY, QQQ and DIA reports cite Walmart's 6:58:52 a.m. earnings filing. The IWM and TLT reports use the November 18 FOMC minutes and a separately captured November 19 editorial packet, collected at 8:00:42 a.m. and reviewed at 8:01:15 a.m. That packet does not replace the earlier forecast inputs. The new minutes collector retains full documents privately and supplies dated citations and excerpts to editors. [Morning archive](https://thedailyconsensus.com/consensus/2026-11-19T13-00-31-020Z.json)
+
 ## November 19 before the open — licensed settlement and independent controls
 
 The licensed collection step previously reserved a model test before the production evaluator had a chance to use it. The scheduled collector now reports price coverage and source-matched, already completed tests. The journalled evaluator alone reserves, tests and activates new models. In the normal-entry regression it reserved 110 previously unseen synthetic test dates for each of five funds and activated all five fixture models. Rerunning preserved the reservations, and the source report withheld the simulated mixed-source score. The 451-test suite and TypeScript passed. These are software checks with synthetic labels. The real prospective model registry has zero active models.

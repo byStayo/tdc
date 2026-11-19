@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-19T13:01:15.098Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Fed minutes show a split over how soon to raise rates",
+    "summary": "The minutes released Wednesday describe the October 27–28 meeting. Most participants supported holding the federal funds target at 3.75% to 4.00%. Some favored a quarter-point increase. That disagreement matters to long bonds because expected future short rates help shape long yields.",
+    "bull": [
+      {
+        "text": "Participants who favored waiting cited the need to see how the September rate increase would pass through the economy.",
+        "sourceIds": [
+          "FED_FOMC_MINUTES"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Some participants favored another 25-basis-point increase in October, citing persistent inflation and the risk that a later response would need to be larger.",
+        "sourceIds": [
+          "FED_FOMC_MINUTES"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Leveraged funds were net short 149,858 Treasury bond futures contracts on November 10, down from 166,257 a week earlier. Both observations preceded publication of the minutes.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "limitations": [
+      "The minutes record views at the October meeting. Future policy decisions depend on later information. The CFTC series covers Treasury bond futures. TLT’s daily outcome requires the fund’s regular-session opening and closing prices."
+    ]
+  },
+  "sources": [
+    {
+      "id": "FED_FOMC_MINUTES",
+      "title": "Federal Reserve · FOMC minutes · released 2026-11-18",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm"
+    },
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    }
+  ]
+}

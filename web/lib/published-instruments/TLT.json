@@ -2,58 +2,50 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-18T02:22:35.142Z",
+  "createdAt": "2026-11-19T13:01:15.098Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Long Treasury yields remain elevated after a small retreat",
-    "summary": "The thirty-year yield edged down to 5.46% on November 16 after reaching 5.47% on November 13. In the November 10 Treasury bond futures report, the asset-manager net long and the leveraged-fund net short both narrowed.",
+    "headline": "Fed minutes show a split over how soon to raise rates",
+    "summary": "The minutes released Wednesday describe the October 27–28 meeting. Most participants supported holding the federal funds target at 3.75% to 4.00%. Some favored a quarter-point increase. That disagreement matters to long bonds because expected future short rates help shape long yields.",
     "bull": [
       {
-        "text": "The leveraged-fund net short in Treasury bond futures narrowed from 166,257 to 149,858 contracts between November 3 and 10.",
+        "text": "Participants who favored waiting cited the need to see how the September rate increase would pass through the economy.",
         "sourceIds": [
-          "CFTC_BOND"
+          "FED_FOMC_MINUTES"
         ]
       }
     ],
     "bear": [
       {
-        "text": "The thirty-year yield was 20 basis points above November 9 despite the latest 1-basis-point decline. The asset-manager net long in Treasury bond futures fell from 415,379 to 394,990 contracts in the November 10 report.",
+        "text": "Some participants favored another 25-basis-point increase in October, citing persistent inflation and the risk that a later response would need to be larger.",
         "sourceIds": [
-          "FRED_DGS30",
-          "CFTC_BOND"
+          "FED_FOMC_MINUTES"
         ]
       }
     ],
     "watch": [
       {
-        "text": "The thirty-year minus ten-year spread widened from 32 to 34 basis points between November 13 and 16, below the November 9 spread of 38 basis points. Those benchmark yields give curve context for a long-duration Treasury fund.",
+        "text": "Leveraged funds were net short 149,858 Treasury bond futures contracts on November 10, down from 166,257 a week earlier. Both observations preceded publication of the minutes.",
         "sourceIds": [
-          "FRED_DGS30",
-          "FRED_DGS10"
+          "CFTC_BOND"
         ]
       }
     ],
     "limitations": [
-      "Treasury bond futures and constant-maturity benchmark yields differ from the bonds TLT holds. Duration, portfolio composition and the shape of the yield curve affect fund returns.",
-      "The latest yield observations are from November 16 and futures positions are from November 10. This report has no verified TLT closing price, return, options exposure or dealer gamma."
+      "The minutes record views at the October meeting. Future policy decisions depend on later information. The CFTC series covers Treasury bond futures. TLT’s daily outcome requires the fund’s regular-session opening and closing prices."
     ]
   },
   "sources": [
     {
+      "id": "FED_FOMC_MINUTES",
+      "title": "Federal Reserve · FOMC minutes · released 2026-11-18",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm"
+    },
+    {
       "id": "CFTC_BOND",
       "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-10",
       "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
-    },
-    {
-      "id": "FRED_DGS30",
-      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS30"
-    },
-    {
-      "id": "FRED_DGS10",
-      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
-      "url": "https://fred.stlouisfed.org/series/DGS10"
     }
   ]
 }
