@@ -1,5 +1,21 @@
 # Free feed access and alternatives
 
+## November 18 — Original Philadelphia Fed ADS vintages
+
+The Philadelphia Fed publishes the ADS business conditions index as a workbook of dated releases. The verified November 17 ZIP contains 1,581 original vintages from December 2008 and 24,358 dated observation rows. The owner-only capture pins the 170,801,033-byte archive and its SHA-256. The deterministic extractor retains only the recent comparison set. It takes the change in the latest date shared by two consecutive original vintages. The available dates establish the release day. The benchmark assigns each update to the next scheduled exchange session at 8 a.m. New York time. It withholds the pair when that session or the preceding session is shortened and keeps only the final eligible update per target. [Official archive](https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/ads) · [Philadelphia Fed methodology](https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/ads/ads-technical-documentation.pdf)
+
+The comparison uses the prior full-session open-to-close log return and the change in the official Treasury 10-year yield between the two preceding sessions. The candidate adds the vintage revision with the sign specified for each ETF. The as-traded outcome uses the target session's open and close. Both sides use the same 386 dates per fund from January 7, 2022 through October 30, 2026. The 78-date chronological tests start September 29, 2025. The first archived forecast issued November 3, 2026 at 06:28:30 UTC. [Official Treasury curve](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve)
+
+| ETF | Comparison Brier | With ADS revision | Clears 0.01 margin |
+| --- | ---: | ---: | --- |
+| SPY | 0.248703 | 0.245678 | No |
+| QQQ | 0.250609 | 0.249768 | No |
+| IWM | 0.242435 | 0.242207 | No |
+| DIA | 0.250504 | 0.251128 | No |
+| TLT | 0.247685 | 0.250563 | No |
+
+The study remains private under the Philadelphia Fed's research-use terms. The archive has release dates with day-level precision, and the price captures are private research inputs. The command preserves both model fits, the original vintage and Treasury source hashes, and the test results. [Publisher terms](https://www.philadelphiafed.org/about-us/privacy-notice)
+
 ## November 18 — Early-close qualification and Tape C access checks
 
 The November 27 exchange calendar schedules a 1 p.m. New York close. Its session falls within 37 currently pending targets for each ETF, or 185 across the five funds. The FirstRate collector can now qualify a shortened SPY, IWM or DIA session from all 210 consecutive minutes, starting at 9:30 a.m. and ending with the 12:59 p.m. bar. The endpoint pair must exactly match the independent as-traded and split-only controls and agree with the final Arca participant record on direction and the existing 3 and 15 basis-point tolerances. The listing record must contain the reviewed session bounds and a final post-close summary. The same licensed sample and issuer coverage rules apply. [NYSE early closes](https://ir.theice.com/press/news-details/2024/NYSE-Group-Announces-2025-2026-and-2027-Holiday-and-Early-Closings-Calendar/default.aspx) · [Nasdaq calendar](https://www.nasdaq.com/market-activity/stock-market-holiday-schedule)

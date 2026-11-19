@@ -1,3 +1,9 @@
+## November 18 — Original Philadelphia Fed business-conditions benchmark
+
+The new repeatable research command extracted 409 consecutive revision comparisons from 410 selected original Philadelphia Fed ADS vintages. It paired the archived release dates and original Treasury curve with 386 distinct full sessions per ETF before the first published forecast. The same 78 dates formed each chronological test. SPY improved by 0.0030 Brier points over the strongest comparison. All five fell short of the required 0.01 improvement. The evidence and frozen result are owner-only under `.consensus/private-ads/`. [Methods and all five results](web/docs/FREE_FEED_PATH.md#november-18--original-philadelphia-fed-ads-vintages)
+
+TypeScript, all 399 tests and publication integrity passed. A separate score calculation reproduced all ten Brier values and verified the paired dates. The frozen command reused the saved result. The verified release contains 37 archive editions and 252 outcome IDs.
+
 ## November 18 — Early-close qualification for Arca funds
 
 The weekday FirstRate collector is ready to review shortened SPY, IWM and DIA sessions. It verifies all 210 consecutive core minutes, exact agreement with as-traded and split-only references, and the existing direction and price tolerances against the final Arca participant summary. The short proof and its original source survive rolling captures. The current archive has 185 targets whose windows include the November 27 early close, including 111 for the three covered Arca funds. The actual shortened session and its vendor files are still due. [Proof and access checks](web/docs/FREE_FEED_PATH.md#november-18--early-close-qualification-and-tape-c-access-checks)

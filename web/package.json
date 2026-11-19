@@ -51,6 +51,7 @@
     "consensus:collect-retail-research": "python3 scripts/collect-nyfed-outlook-releases.py",
     "consensus:research-retail": "node --experimental-strip-types scripts/research-nyfed-retail.ts",
     "consensus:research-nyfed-nowcast": "node --experimental-strip-types scripts/research-nyfed-nowcast.ts",
+    "consensus:research-philly-ads": "node --experimental-strip-types scripts/research-philly-ads.ts",
     "consensus:research-cftc-options": "node --experimental-strip-types scripts/research-cftc-option-positioning.ts",
     "consensus:research-technical-momentum": "node --experimental-strip-types scripts/research-technical-momentum.ts",
     "consensus:research-nport-close": "node --experimental-strip-types scripts/research-nport-close.ts",

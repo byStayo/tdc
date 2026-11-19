@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. Built a repeatable benchmark from original Philadelphia Fed business-conditions vintages and direct Treasury yield history. Each ETF paired with 386 real prelaunch price outcomes and 78 chronological test sessions. All five missed the 0.01 Brier improvement. The evidence stays in the private research ledger. [Source checks and benchmark](../../FREE_FEED_PATH.md#november-18--original-philadelphia-fed-ads-vintages)
+
 - November 18 follow-up. The FirstRate pipeline can now qualify Arca's SPY, IWM and DIA early closes from 210 complete minutes, the independent split and raw pairs and one final listing report. In the historical November 28 reference comparison SPY and IWM met the limits and DIA's closing difference failed. The upcoming November 27 session spans 185 pending targets. Nasdaq's free share-count files lack the required prices, and the comparable Cboe sample was inaccessible. [Early-close proof and open sources](../../FREE_FEED_PATH.md#november-18--early-close-qualification-and-tape-c-access-checks)
 
 - November 18 follow-up. Reconciled the withheld November 3 DIA session from the complete licensed core-minute pair, independent raw and split-only pairs and final Arca evidence. The source replay found eight additional daily and eight weekly archive targets with the existing gates. The monthly windows include the November 27 early close, which needs its own verified prices. [DIA repair and proof](../../FREE_FEED_PATH.md#november-18--dia-regular-session-price-repair)

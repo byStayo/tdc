@@ -3,6 +3,7 @@ import test from "node:test";
 import { extendedResearchSession, extendedResearchSessions } from "../lib/consensus/extended-research-calendar.ts";
 import { nowcastTargets } from "../scripts/research-nyfed-nowcast.ts";
 import { buildRetailRows, retailTargets, type RetailReading } from "../scripts/research-nyfed-retail.ts";
+import { adsTargets } from "../scripts/research-philly-ads.ts";
 
 function point(publicationDate: string, referenceMonthEnd: string): RetailReading {
   return { id: publicationDate, publicationDate, referenceMonthEnd, meanHigherStockPricesPercent: 42.4,
@@ -49,4 +50,19 @@ test("the Nowcast screen compares the same forecast quarter and skips the federa
   assert.deepEqual([...targets.keys()], ["2023-09-18", "2023-10-02", "2023-10-09", "2023-11-20"]);
   assert.deepEqual(targets.get("2023-10-09"), { observed: "2023-10-06", previous: "2023-09-29", quarter: "2023Q4", delta: 1 });
   assert.equal(targets.get("2023-11-20")?.previous, "2023-11-03");
+});
+
+test("ADS targets use a later full session and the two exact prior Treasury observations", () => {
+  const sessions = extendedResearchSessions("2025-11-24", "2026-11-02");
+  const yields = new Map([["2025-11-25", 4], ["2025-11-26", 4.25], ["2026-10-29", 4], ["2026-10-30", 4.25]]);
+  const updates = [
+    { date: "2025-11-26", previous: "2025-11-25", observed: "2025-11-25", change: 0.125 },
+    { date: "2026-10-30", previous: "2026-10-29", observed: "2026-10-28", change: 0.25 },
+    { date: "2026-10-31", previous: "2026-10-30", observed: "2026-10-28", change: 0.5 },
+  ];
+  assert.deepEqual([...adsTargets(updates, sessions, yields)], [["2026-11-02", {
+    ...updates[2], preceding: "2026-10-30", yieldChangeBps: 25,
+  }]]);
+  yields.delete("2026-10-29");
+  assert.equal(adsTargets(updates, sessions, yields).size, 0);
 });
