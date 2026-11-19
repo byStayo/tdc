@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BlueskyWindow, marketInstruments, marketStances, privateIdentifier, collectBlueskySample } from "../lib/consensus/bluesky.ts";
+import { BlueskyWindow, marketInstruments, marketStances, privateIdentifier, collectBlueskySample, xStanceAnalysis } from "../lib/consensus/bluesky.ts";
 const languageCue = (text: string, instrument: keyof ReturnType<typeof marketStances> = "MARKET") => marketStances(text)[instrument] ?? "unclassified";
 const start = "2026-11-03T20:20:00.000Z";
 const now = Date.parse(start) + 1000;
@@ -68,6 +68,23 @@ test("X ticker headings and first-person calls classify while questions and cond
     assert.equal(marketStances(text, "x").SPY ?? "unclassified", "unclassified", text);
   assert.equal(marketStances("$SPY — bullish").SPY ?? "unclassified", "unclassified");
   assert.equal(marketStances("$SPY — bullish but $TLT — bearish", "x").MARKET, "mixed");
+});
+test("X preserves explicit forward verbs after heading separators and matches the named Nasdaq-100 index", () => {
+  for (const [instrument, text, expected] of [
+    ["SPY", "$SPY: will fall.", "downward"], ["DIA", "$DIA — should move up.", "upward"],
+    ["IWM", "I expect $IWM: to decline.", "downward"], ["TLT", "$TLT → will sell off.", "downward"],
+    ["QQQ", "Nasdaq-100 will rise.", "upward"], ["QQQ", "I expect the Nasdaq‑100 to fall.", "downward"],
+  ] as const) {
+    assert.ok(marketInstruments(text, "x").includes(instrument));
+    assert.equal(marketStances(text, "x")[instrument], expected, text);
+  }
+  for (const text of ["$SPY: to gain exposure", "$SPY: will gain market share", "$SPY: will fall?", "$SPY: will fall unless oil rises", "$SPY and $QQQ: will fall", "She said $SPY: will fall", "Analysts expect the Nasdaq-100 to fall."])
+    assert.equal(marketStances(text, "x").MARKET ?? "unclassified", "unclassified", text);
+  assert.equal(marketStances("$SPY: will fall.").SPY ?? "unclassified", "unclassified");
+  assert.deepEqual(marketInstruments("Nasdaq-100 will rise."), []);
+  assert.equal(xStanceAnalysis("$SPY and Nasdaq-100 will rise.").abstentionReason, "noSingleSubject");
+  assert.equal(xStanceAnalysis("$SPY volume. Nasdaq-100 will rise?").abstentionReason, "guardedContext");
+  assert.equal(xStanceAnalysis("$SPY volume. Thoughts?").abstentionReason, "noAttachedDirection");
 });
 test("suppresses small samples and never pools counts between instrument views", () => {
   const w = new BlueskyWindow(start);

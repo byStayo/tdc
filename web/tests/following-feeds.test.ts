@@ -38,3 +38,45 @@ test("X public search stops on exhausted credits", async t => {
   await assert.rejects(collectXPublic({ bearerToken: "fixture-token" }, cutoff), /Source HTTP 402/);
   assert.equal(calls.mock.callCount(), 1);
 });
+
+test("X diagnostic partitions count each market participant's latest qualifying post once and suppress small reason cells", async t => {
+  let guarded = 10;
+  const calls = t.mock.method(globalThis, "fetch", async (input: string) => {
+    const url = new URL(input), query = url.searchParams.get("query")!;
+    if (query.includes("$QQQ")) assert.match(query, /"Nasdaq-100"/);
+    const rows = Array.from({ length: 20 }, (_, i) => ({ author_id: String(i + 123450000),
+      text: i < guarded ? "$SPY will rise?" : "$SPY volume update.", created_at: created, lang: "en" }));
+    if (query.includes("$TLT")) rows[0] = { ...rows[0], text: "$SPY: will rise.", created_at: "2026-11-11T11:59:59.000Z" };
+    return Response.json({ data: rows, includes: { users: rows.map(r => ({ id: r.author_id, protected: false })) }, meta: { result_count: rows.length } });
+  });
+  const first = await collectXPublic({ bearerToken: "fixture-token" }, cutoff);
+  assert.equal(first.read, 100);
+  assert.equal(first.readings[0].participants, 20);
+  assert.deepEqual(first.diagnostics, { state: "all_unclassified", marketAbstentionReasons: {
+    guardedContext: 10, noSingleSubject: 0, noAttachedDirection: 10 } });
+  guarded = 19;
+  const rare = await collectXPublic({ bearerToken: "fixture-token" }, cutoff);
+  assert.deepEqual(rare.diagnostics, { state: "all_unclassified", marketAbstentionReasons: null });
+  assert.equal(calls.mock.callCount(), 10);
+  assert.doesNotMatch(JSON.stringify([first, rare]), /fixture-token|123450000|volume update|author_id|will rise/);
+});
+
+test("X separates an empty query, a failing page and rejected full text without exposing a small group", async t => {
+  let mode = "empty";
+  t.mock.method(globalThis, "fetch", async () => {
+    if (mode === "empty") return Response.json({ meta: { result_count: 0 } });
+    if (mode === "invalidPage") return Response.json({ data: [], meta: { result_count: 20 } });
+    const rows = Array.from({ length: mode === "small" ? 2 : 10 }, (_, i) => ({ author_id: String(44000 + i),
+      text: "$SPY: will rise.", note_tweet: { text: null }, lang: "en", created_at: created }));
+    if (mode === "missingAuthors") return Response.json({ data: rows, meta: { result_count: rows.length } });
+    return Response.json({ data: rows, includes: { users: rows.map(row => ({ id: row.author_id, protected: false })) },
+      meta: { result_count: rows.length } });
+  });
+  for (const [input, state] of [["empty", "empty_sample"], ["invalidPage", "incomplete_source"], ["missingAuthors", "incomplete_source"],
+    ["small", "no_eligible_market_participants"], ["badText", "unusable_text_observed"]]) {
+    mode = input;
+    const report = await collectXPublic({ bearerToken: "fixture-token" }, cutoff);
+    assert.deepEqual(report.diagnostics, { state, marketAbstentionReasons: null });
+    assert.equal(report.readings[0].participants, 0);
+  }
+});

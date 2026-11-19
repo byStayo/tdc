@@ -4,7 +4,7 @@ import { INSTRUMENTS, type Instrument } from "./types.ts";
 /** Never persist network frames, post text, account identifiers or record URIs. */
 export const BLUESKY_STREAM = "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post";
 export const BLUESKY_METHOD = "bluesky-market-stance-v2" as const;
-export const X_STANCE_METHOD = "x-explicit-stances-v2" as const;
+export const X_STANCE_METHOD = "x-explicit-stances-v3" as const;
 export const MINIMUM_PARTICIPANTS = 10;
 export type LanguageCue = "upward" | "downward" | "mixed" | "unclassified";
 export type CueCounts = Record<LanguageCue, number>;
@@ -60,15 +60,20 @@ const etfAliases = Object.entries(etfNames) as [Exclude<Instrument, "MARKET">, R
 const equityMarket = /#stockmarket\b|\b(?:stock market|U\.?S\.? (?:stocks|equities)|Wall Street(?! Journal))\b/i;
 const relatedMarket = /\$(?:AAPL|MSFT|NVDA|AMZN|GOOGL|META|TSLA)\b|\b(?:Federal Reserve|Treasury yields)\b/i;
 const stanceSubjects = [...etfAliases, ["MARKET", equityMarket] as const];
-const withoutLinks = (text: string) => text.replace(/https?:\/\/\S+/gi, " ");
-export function marketInstruments(text: string): Instrument[] {
-  const cleaned = withoutLinks(text);
+function marketText(text: string, source?: "x") {
+  const cleaned = text.replace(/https?:\/\/\S+/gi, " ");
+  return source === "x" ? cleaned.replace(/\bNasdaq[-‐‑](?=100\b)/gi, "Nasdaq ") : cleaned;
+}
+export function marketInstruments(text: string, source?: "x"): Instrument[] {
+  const cleaned = marketText(text, source);
   const instruments = etfAliases.filter(([, pattern]) => pattern.test(cleaned)).map(([instrument]) => instrument);
   return instruments.length || equityMarket.test(cleaned) || relatedMarket.test(cleaned) ? ["MARKET", ...instruments] : [];
 }
 
 const uncertain = /\b(?:not|no|never|isn['’]t|aren['’]t|wasn['’]t|don['’]t|doesn['’]t|won['’]t|can['’]t|could|might|if|unless)\b/i;
 const retrospectiveOrReported = /\b(?:yesterday|last (?:week|month|year)|(?:days?|weeks?|months?) ago|said|says|according to|sarcasm)\b/i;
+const xQualifiedOrNonprice = /\b(?:above|below|provided|assuming|only when|as long as|gain (?:exposure|market share))\b/i;
+const xAttributedView = /\b(?:analysts?|strategists?|traders?|they|he|she)\s+(?:expect|say|think|believe)s?\b/i;
 const upward = /\bbullish\b/i;
 const downward = /\bbearish\b/i;
 const forwardMove = /^\s*(?:will|should|to)\s+(?:(rise|climb|gain|rally|break out|move up|go up)|(fall|drop|decline|sell off|break down|move down|go down))\b/i;
@@ -79,32 +84,43 @@ function combineCue(prior: LanguageCue | undefined, next: LanguageCue): Language
   return "mixed";
 }
 
-export function marketStances(text: string, source?: "x"): Partial<Record<Instrument, LanguageCue>> {
-  const cleaned = withoutLinks(text);
+export type XAbstentionReason = "guardedContext" | "noSingleSubject" | "noAttachedDirection";
+
+function analyzeStances(text: string, source?: "x"): {
+  cues: Partial<Record<Instrument, LanguageCue>>; abstentionReason: XAbstentionReason | null;
+} {
+  const cleaned = marketText(text, source);
   const cues: Partial<Record<Instrument, LanguageCue>> = {};
   // A quoted or interrogative post is too ambiguous to classify across clauses.
   if ((source === "x" ? /["“”]/ : /[?"“”]/).test(cleaned) ||
-      /(?:^|\s)\/s\b|\b(?:if|unless)\b/i.test(cleaned)) return cues;
+      /(?:^|\s)\/s\b|\b(?:if|unless)\b/i.test(cleaned)) return { cues, abstentionReason: "guardedContext" };
+  let guarded = false, singleSubject = false;
   const clauses = cleaned.replace(/\bU\.?S\.? (?=stocks|equities)/gi, "US ")
     .split(/[,;!\n]|\.(?=\s|$)|(?<=\?)\s+|\b(?:but|while|whereas)\b/i);
   for (const clause of clauses) {
-    if (clause.includes("?")) continue;
-    if (uncertain.test(clause) || retrospectiveOrReported.test(clause) || relatedMarket.test(clause)) continue;
+    if (clause.includes("?") || uncertain.test(clause) || retrospectiveOrReported.test(clause) || relatedMarket.test(clause) ||
+        (source === "x" && (xQualifiedOrNonprice.test(clause) || xAttributedView.test(clause)))) {
+      if (source === "x" && stanceSubjects.some(([, subject]) => subject.test(clause))) guarded = true;
+      continue;
+    }
     const subjects = stanceSubjects.flatMap(([instrument, pattern]) => {
       const match = pattern.exec(clause);
       return match ? [{ instrument, start: match.index, end: match.index + match[0].length }] : [];
     });
     if (subjects.length !== 1) continue;
+    singleSubject = true;
     const [{ instrument, start, end }] = subjects;
     const before = clause.slice(0, start);
     const after = clause.slice(end);
     let stance = after.match(/^\s*(?:(?:looks?|remains?|is|am|stays?)\s+)?(bullish|bearish)\b/i)?.[1] ??
       before.match(/\b(bullish|bearish)\s+on\s*$/i)?.[1];
-    let move = /^\s*to\b/i.test(after) && !/\b(?:expect|expects|expecting)\s*$/i.test(before) ? null : after.match(forwardMove);
+    const tail = source === "x" ? after.replace(/^\s*(?:(?:[:=→–—-]|🟢|🔴)\s*)+/u, "") : after;
+    const expectation = source === "x"
+      ? /(?:^\s*expect(?:ing)?|\b(?:i|we)\s+expect|\b(?:i(?:['’]m| am)|we(?:['’]re| are))\s+expecting)\s+(?:the\s+)?$/i.test(before)
+      : /\b(?:expect|expects|expecting)\s*$/i.test(before);
+    let move = /^\s*to\b/i.test(tail) && !expectation ? null : tail.match(forwardMove);
     if (source === "x") {
       // Ticker-first headings and concise first-person calls are common on X.
-      if (/\b(?:above|below|provided|assuming|only when|as long as)\b/i.test(clause)) continue;
-      const tail = after.replace(/^\s*(?:(?:[:=→–—-]|🟢|🔴)\s*)+/u, "");
       const lead = before.replace(/(?:[:=→–—-]|🟢|🔴|\s)+$/u, "");
       stance ??= tail.match(/^\s*(?:(?:still|now|very|leaning|looks?|remains?|is|stays?)\s+){0,2}(bullish|bearish)\b/i)?.[1] ??
         tail.match(/^\s*(?:bias|outlook|stance)\s*(?:is\s+|[:=]\s*)(bullish|bearish)\b/i)?.[1] ??
@@ -112,7 +128,7 @@ export function marketStances(text: string, source?: "x"): Partial<Record<Instru
       if (!stance && /\b(?:i(?:['’]m|\s+am)\s+|we(?:['’]re|\s+are)\s+)?(?:going|leaning)\s+(?:long|short)\s+(?:on\s+)?$/i.test(before))
         stance = /\bshort\s+(?:on\s+)?$/i.test(before) ? "bearish" : "bullish";
       move ??= tail.match(/^\s*(?:will|should)\s+(?:(bounce|recover|push higher|break higher)|(roll over|push lower|break lower|selloff))\b/i);
-      if (!stance && /\b(?:expect|expects|expecting)\s*$/i.test(before)) {
+      if (!stance && expectation) {
         const direction = tail.match(/^\s*(higher|lower)\b/i)?.[1]?.toLowerCase();
         if (direction) stance = direction === "higher" ? "bullish" : "bearish";
       }
@@ -125,7 +141,19 @@ export function marketStances(text: string, source?: "x"): Partial<Record<Instru
     cues[instrument] = combineCue(cues[instrument], cue);
     if (instrument !== "MARKET") cues.MARKET = combineCue(cues.MARKET, cue);
   }
-  return cues;
+  let abstentionReason: XAbstentionReason | null = null;
+  if (!cues.MARKET || cues.MARKET === "unclassified") {
+    abstentionReason = guarded ? "guardedContext" : singleSubject ? "noAttachedDirection" : "noSingleSubject";
+  }
+  return { cues, abstentionReason };
+}
+
+export function marketStances(text: string, source?: "x") {
+  return analyzeStances(text, source).cues;
+}
+
+export function xStanceAnalysis(text: string) {
+  return analyzeStances(text, "x");
 }
 
 /** A bounded window, with one most recent qualifying record per account for each view. */

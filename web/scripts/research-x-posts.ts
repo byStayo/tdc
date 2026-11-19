@@ -68,7 +68,7 @@ export async function runXResearch({ bearer, directory, replies = false, now = D
           : references !== undefined) continue;
         const text = xPostText(row);
         if (text === null) continue;
-        const instruments = marketInstruments(text).filter(instrument => instrument !== "MARKET");
+        const instruments = marketInstruments(text, "x").filter(instrument => instrument !== "MARKET");
         if (!instruments.length) continue;
         seen.add(row.id);
         const baseline = marketStances(text);

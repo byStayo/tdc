@@ -3,7 +3,8 @@ import { constants } from "node:fs";
 import { mkdir, open, rename, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, type LanguageCue } from "../lib/consensus/bluesky.ts";
+import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, xStanceAnalysis,
+  type LanguageCue, type XAbstentionReason } from "../lib/consensus/bluesky.ts";
 import { rssItems } from "../lib/consensus/collector.ts";
 import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
@@ -19,7 +20,7 @@ const starterFeeds = [
 const dayMs = 86_400_000;
 export const xSearchQueries = {
   SPY: '($SPY OR $SPX OR "S&P 500")',
-  QQQ: '($QQQ OR $NDX OR "Nasdaq 100")',
+  QQQ: '($QQQ OR $NDX OR "Nasdaq 100" OR "Nasdaq-100")',
   IWM: '($IWM OR $RUT OR "Russell 2000")',
   DIA: '($DIA OR $DJI OR "Dow Jones")',
   TLT: "$TLT",
@@ -113,7 +114,7 @@ export async function collectX(input: unknown, cutoff: string) {
   }).toString();
   const page = await readXPage(url, xAuthorization(url, account), 100);
   return { status: "ok", classifier: X_STANCE_METHOD, textMethod: X_POST_TEXT_METHOD, read: page.read, truncated: page.next !== null,
-    readings: summarize(page.posts, cutoff, "x") };
+    ...summarizeX(page.posts, cutoff, page.read, page.rejectedTextAuthors.size, page.missingVisibility) };
 }
 
 async function readXPage(url: URL, authorization: string, limit: number) {
@@ -124,15 +125,28 @@ async function readXPage(url: URL, authorization: string, limit: number) {
     throw new Error("Invalid X page");
   const users = body.includes === undefined ? [] : object(body.includes).users;
   if (!Array.isArray(users)) throw new Error("Invalid X author metadata");
-  const publicUsers = new Set(users.map(object).filter(user => isId(user.id) && user.protected === false).map(user => user.id));
+  const visibility = new Map<string, boolean>();
+  for (const user of users.map(object)) {
+    if (!isId(user.id) || typeof user.protected !== "boolean") continue;
+    if (visibility.has(user.id) && visibility.get(user.id) !== user.protected) throw new Error("Conflicting X author visibility");
+    visibility.set(user.id, user.protected);
+  }
+  let missingVisibility = false;
+  const rejectedTextAuthors = new Set<string>();
+  const from = Date.parse(url.searchParams.get("start_time")!), through = Date.parse(url.searchParams.get("end_time")!);
   const posts = rows.map(object).flatMap(row => {
-    if (!isId(row.author_id) || !publicUsers.has(row.author_id) || row.lang !== "en" ||
+    if (!isId(row.author_id) || row.lang !== "en" ||
         row.referenced_tweets !== undefined || row.withheld !== undefined || typeof row.created_at !== "string") return [];
+    const at = Date.parse(row.created_at);
+    if (!(at > from && at <= through)) return [];
+    if (!visibility.has(row.author_id)) { missingVisibility = true; return []; }
+    if (visibility.get(row.author_id)) return [];
     const text = xPostText(row);
-    return text === null ? [] : [{ author: row.author_id, at: Date.parse(row.created_at), text }];
+    if (text === null) { rejectedTextAuthors.add(row.author_id); return []; }
+    return [{ author: row.author_id, at, text }];
   });
   const next = typeof meta.next_token === "string" && meta.next_token.length <= 2048 ? meta.next_token : null;
-  return { posts, read: rows.length, next };
+  return { posts, read: rows.length, next, rejectedTextAuthors, missingVisibility };
 }
 
 export async function collectXPublic(input: unknown, cutoff: string) {
@@ -141,6 +155,8 @@ export async function collectXPublic(input: unknown, cutoff: string) {
   const authorization = "Bearer " + bearerToken;
   const start = new Date(Date.parse(cutoff) - dayMs).toISOString();
   const posts: Post[] = [];
+  const rejectedTextAuthors = new Set<string>();
+  let missingVisibility = false;
   const queries = [];
   for (const [instrument, terms] of Object.entries(xSearchQueries)) {
     const url = new URL("https://api.x.com/2/tweets/search/recent");
@@ -159,6 +175,8 @@ export async function collectXPublic(input: unknown, cutoff: string) {
       try {
         const page = await readXPage(url, authorization, xSearchPageSize);
         posts.push(...page.posts);
+        missingVisibility ||= page.missingVisibility;
+        for (const author of page.rejectedTextAuthors) rejectedTextAuthors.add(author);
         read += page.read;
         pages++;
         next = page.next;
@@ -167,15 +185,19 @@ export async function collectXPublic(input: unknown, cutoff: string) {
         failed = true;
         break;
       }
-      const reading = summarize(posts, cutoff, "x").find(item => item.instrument === instrument);
-      if (!next || (reading && reading.participants >= MINIMUM_PARTICIPANTS)) break;
+      if (!next) break;
+      // Only participant coverage controls pagination. Interpret each selected post in the final digest.
+      const participants = new Set(posts.filter(post => marketInstruments(post.text, "x").some(symbol => symbol === instrument))
+        .map(post => post.author));
+      if (participants.size >= MINIMUM_PARTICIPANTS) break;
     }
     queries.push({ instrument, read, pages, failed, truncated: next !== null });
   }
   const failedQueries = queries.filter(query => query.failed).length;
+  const read = queries.reduce((total, query) => total + query.read, 0);
   return { mode: "public_search", classifier: X_STANCE_METHOD, textMethod: X_POST_TEXT_METHOD,
     status: failedQueries === queries.length ? "unavailable" : failedQueries ? "partial" : "ok",
-    read: queries.reduce((total, query) => total + query.read, 0), queries, readings: summarize(posts, cutoff, "x") };
+    read, queries, ...summarizeX(posts, cutoff, read, rejectedTextAuthors.size, missingVisibility || failedQueries > 0) };
 }
 
 export async function collectInstagram(input: unknown, cutoff: string) {
@@ -211,15 +233,18 @@ export async function collectInstagram(input: unknown, cutoff: string) {
     accounts: account.handles.length, unavailableAccounts, truncated, readings: summarize(posts, cutoff) };
 }
 
-function summarize(posts: Post[], cutoff: string, source?: "x") {
+function summarize(posts: Post[], cutoff: string, source?: "x", reasons?: Record<XAbstentionReason, number>) {
   const end = Date.parse(cutoff);
   const latest = new Map<Instrument, Map<string, LanguageCue>>(INSTRUMENTS.map(symbol => [symbol, new Map()]));
   for (const post of posts.filter(post => post.at <= end && post.at > end - dayMs)
     .sort((a, b) => b.at - a.at)) {
-    const cues = marketStances(post.text, source);
-    for (const symbol of marketInstruments(post.text)) {
+    const interpretation = source === "x" ? xStanceAnalysis(post.text) : null;
+    const cues = interpretation?.cues ?? marketStances(post.text);
+    for (const symbol of marketInstruments(post.text, source)) {
       const authors = latest.get(symbol)!;
-      if (!authors.has(post.author)) authors.set(post.author, cues[symbol] ?? "unclassified");
+      if (authors.has(post.author)) continue;
+      authors.set(post.author, cues[symbol] ?? "unclassified");
+      if (reasons && symbol === "MARKET" && interpretation?.abstentionReason) reasons[interpretation.abstentionReason]++;
     }
   }
   return [...latest].map(([instrument, authors]) => {
@@ -227,6 +252,23 @@ function summarize(posts: Post[], cutoff: string, source?: "x") {
     for (const cue of authors.values()) counts[cue]++;
     return { instrument, participants: authors.size, counts: authors.size >= MINIMUM_PARTICIPANTS ? counts : null };
   });
+}
+
+function summarizeX(posts: Post[], cutoff: string, read: number, rejectedTextAuthors: number, failed: boolean) {
+  const reasons = { guardedContext: 0, noSingleSubject: 0, noAttachedDirection: 0 };
+  const readings = summarize(posts, cutoff, "x", reasons);
+  const market = readings.find(row => row.instrument === "MARKET")!;
+  let state: string;
+  if (!market.participants && failed) state = "incomplete_source";
+  else if (!read) state = "empty_sample";
+  else if (!market.participants && rejectedTextAuthors >= MINIMUM_PARTICIPANTS) state = "unusable_text_observed";
+  else if (!market.participants) state = "no_eligible_market_participants";
+  else if (!market.counts) state = "below_participant_minimum";
+  else state = market.counts.unclassified === market.participants ? "all_unclassified" : "explicit_cues_observed";
+  // Suppress the entire partition when a small nonzero cell could be recovered by subtraction.
+  const showReasons = (market.counts?.unclassified ?? 0) >= MINIMUM_PARTICIPANTS &&
+    Object.values(reasons).every(count => count === 0 || count >= MINIMUM_PARTICIPANTS);
+  return { readings, diagnostics: { state, marketAbstentionReasons: showReasons ? reasons : null } };
 }
 
 async function platform<T extends { status: string }>(input: unknown, collect: (input: unknown, cutoff: string) => Promise<T>, cutoff: string) {

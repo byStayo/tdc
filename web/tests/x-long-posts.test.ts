@@ -25,8 +25,8 @@ function post(index: number, text: string, fields: Record<string, unknown> = {})
 
 function longPostRows() {
   const originals = Array.from({ length: 10 }, (_, index) => {
-    const lead = "$SPY bullish. " + privateMarker + " ";
-    const tail = index === 9 ? ". $QQQ bearish unless the outlook changes." : ". $QQQ bearish.";
+    const lead = "$SPY: will rise. " + privateMarker + " ";
+    const tail = index === 9 ? ". Nasdaq-100 will fall unless the outlook changes." : ". I expect the Nasdaq-100 to fall.";
     const padding = index === 0 ? "🪐".repeat(25_000 - lead.length - tail.length) : "a".repeat(13_000);
     return post(index, preview, { note_tweet: { text: lead + padding + tail } });
   });
@@ -76,7 +76,7 @@ for (const [mode, collect] of Object.entries(daily)) {
     assert.deepEqual(reading("SPY")?.counts, { upward: 9, downward: 0, mixed: 0, unclassified: 1 });
     assert.deepEqual(reading("IWM"), { instrument: "IWM", participants: 1, counts: null });
     assert.equal(reading("TLT")?.participants, 0);
-    assert.equal(result.classifier, "x-explicit-stances-v2");
+    assert.equal(result.classifier, "x-explicit-stances-v3");
     assert.equal(result.textMethod, "x-api-note-tweet-v1");
     assert.deepEqual(fields.map(field => field.includes("note_tweet")), Array(mode === "timeline" ? 1 : 5).fill(true));
     assert.doesNotMatch(JSON.stringify(result), /fixture-|998012345678|997012345678|\$QQQ bearish/);
@@ -106,7 +106,7 @@ test("X research stores full-text original and reply cohorts with distinct sampl
   const originals = await runXResearch(options);
   const qqq = originals.cohorts.find(row => row.instrument === "QQQ");
   assert.equal(qqq?.current_down, 9);
-  assert.equal(qqq?.baseline_down, 9);
+  assert.equal(qqq?.baseline_down, 0);
   assert.equal(originals.uniquePosts, 11);
   const replies = await runXResearch({ ...options, replies: true });
   assert.equal(replies.totalUniquePosts, 22);
@@ -117,8 +117,8 @@ test("X research stores full-text original and reply cohorts with distinct sampl
   const db = new DatabaseSync(originals.database, { readOnly: true });
   try {
     assert.deepEqual(db.prepare("SELECT classifier, text_method FROM run").all().map(row => ({ ...row })), [
-      { classifier: "x-explicit-stances-v2", text_method: "x-api-note-tweet-v1" },
-      { classifier: "x-explicit-stances-v2", text_method: "x-api-note-tweet-v1" },
+      { classifier: "x-explicit-stances-v3", text_method: "x-api-note-tweet-v1" },
+      { classifier: "x-explicit-stances-v3", text_method: "x-api-note-tweet-v1" },
     ]);
     const rows = db.prepare("SELECT * FROM cohorts ORDER BY cohort, instrument").all();
     assert.deepEqual(rows.filter(row => row.instrument === "SPY").map(row =>
@@ -140,7 +140,7 @@ test("X research stores full-text original and reply cohorts with distinct sampl
 
 for (const [originalMethod, schemaChange] of [
   ["legacy preview-only run", "ALTER TABLE run DROP COLUMN text_method"],
-  ["different classifier", "UPDATE run SET classifier = 'earlier-stance-rules'"],
+  ["previous v2 classifier", "UPDATE run SET classifier = 'x-explicit-stances-v2'"],
 ]) {
   test(`X research rejects a reply supplement for a ${originalMethod} before requesting data or changing the database`, async t => {
     const options = await researchOptions(t);
