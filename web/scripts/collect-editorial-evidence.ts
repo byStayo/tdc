@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, writeFile, link, unlink } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { latestPublicPositioning, parseSECSubmissions, publicDate, PUBLIC_CONTRACT_CODES } from '../lib/public-normalization.ts';
+import { EDITORIAL_ISSUERS, latestPublicPositioning, parseSECSubmissions, publicDate, PUBLIC_CONTRACT_CODES } from '../lib/public-normalization.ts';
 
 export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk']);
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -66,10 +66,6 @@ const FRED = [
   { id: 'FRED_SOFR', series: 'SOFR', title: 'Federal Reserve / FRED · Secured Overnight Financing Rate', unit: 'percent', frequency: 'daily', editorialOnly: true },
 ] as const;
 const CFTC_IDS: Record<string, string> = { '13874A': 'CFTC_ES', '209742': 'CFTC_NQ', '239742': 'CFTC_RTY', '124603': 'CFTC_DOW', '020601': 'CFTC_BOND', '043602': 'CFTC_TENYEAR' };
-const ISSUERS = [
-  { ticker: 'AAPL', cik: '0000320193' }, { ticker: 'MSFT', cik: '0000789019' },
-  { ticker: 'NVDA', cik: '0001045810' }, { ticker: 'WMT', cik: '0000104169' },
-];
 const CFTC_METHOD = 'https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm';
 
 function failed(source: Omit<EditorialSource, 'status' | 'data' | 'observationDates'>): EditorialSource {
@@ -124,14 +120,14 @@ async function collectCFTC(fetcher: Fetcher): Promise<EditorialSource[]> {
 async function collectSEC(fetcher: Fetcher): Promise<EditorialSource[]> {
   const sources: EditorialSource[] = [];
   // Serialize and space requests to the declared issuers below the SEC fair-access ceiling.
-  for (const issuer of ISSUERS) {
+  for (const issuer of EDITORIAL_ISSUERS) {
     const url = `https://data.sec.gov/submissions/CIK${issuer.cik}.json`, base = { id: `SEC_${issuer.ticker}`, kind: 'sec' as const, title: `SEC · ${issuer.ticker} recent filings`, url, retrievalUrl: url };
     try {
       const response = await fetchText(url, fetcher), filings = parseSECSubmissions(JSON.parse(response.text), issuer.cik, 8);
       if (!filings.length) throw new Error('No usable SEC filings');
       sources.push({ ...base, retrievedAt: response.retrievedAt, status: 'ok', observationDates: [...new Set(filings.map(filing => filing.filedAt))], data: { cik: issuer.cik, ticker: issuer.ticker, filings } });
     } catch { sources.push(failed({ ...base, retrievedAt: new Date().toISOString() })); }
-    if (issuer !== ISSUERS.at(-1)) await new Promise(resolve => setTimeout(resolve, 160));
+    if (issuer !== EDITORIAL_ISSUERS.at(-1)) await new Promise(resolve => setTimeout(resolve, 160));
   }
   return sources;
 }

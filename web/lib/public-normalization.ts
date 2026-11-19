@@ -1,5 +1,10 @@
 import type { Filing, Positioning } from './contracts';
 
+export const EDITORIAL_ISSUERS = [
+  { ticker: 'AAPL', cik: '0000320193' }, { ticker: 'MSFT', cik: '0000789019' },
+  { ticker: 'NVDA', cik: '0001045810' }, { ticker: 'WMT', cik: '0000104169' },
+];
+
 const object = (value: unknown): Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const string = (value: unknown, limit = 400): string => typeof value === 'string' ? value.trim().slice(0, limit) : '';
 

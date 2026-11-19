@@ -1,5 +1,5 @@
 import type { Envelope, Filing, MacroSeries, Positioning } from "./contracts.ts";
-import { contractsForSymbol, hasRelatedContract, publicDate } from "./public-normalization.ts";
+import { EDITORIAL_ISSUERS, contractsForSymbol, hasRelatedContract, publicDate } from "./public-normalization.ts";
 import type { EditorialEvidence } from "../scripts/collect-editorial-evidence.ts";
 
 const ETF_CONTEXT = new Set(["SPY", "QQQ", "IWM", "DIA", "TLT", "GLD", "VTI", "VOO", "IEF"]);
@@ -24,6 +24,7 @@ export interface SavedPublicData {
   positioningRetrievedAt?: string | null;
   macro: MacroSeries[];
   positioning: Positioning[];
+  expectedFilingSources?: number;
   filings: { symbol: string; retrievedAt: string; data: Filing[] }[];
 }
 
@@ -31,6 +32,7 @@ export interface SavedPublicData {
 export function savedPublicData(evidence: EditorialEvidence): SavedPublicData {
   if (!publicDate(evidence.collectedAt)) throw new Error("Saved workspace needs a collection date");
   const result: SavedPublicData = { schemaVersion: 1, collectedAt: evidence.collectedAt, macroRetrievedAt: null, positioningRetrievedAt: null, macro: [], positioning: [], filings: [] };
+  result.expectedFilingSources = Math.max(3, evidence.sources.filter(source => source.kind === "sec").length);
   // A mixed-age panel reports its oldest included retrieval. A later review of
   // an unrelated source must not refresh the panel's provider-check timestamp.
   const oldest = (current: string | null | undefined, next: string) => !current || next < current ? next : current;
@@ -65,7 +67,8 @@ export function savedPublicData(evidence: EditorialEvidence): SavedPublicData {
       result.positioning.push({ id: data.id, market: data.market, contractCode: data.contractCode, reportDate: data.reportDate, units: data.units, ...counts });
     } else if (source.kind === "sec") {
       const data = source.data as { ticker: string; cik: string; filings: Filing[] };
-      if (!["AAPL", "MSFT", "NVDA"].includes(data.ticker) || data.filings.some(f => f.cik !== data.cik || !publicDate(f.filedAt) || !f.url.startsWith(`https://www.sec.gov/Archives/edgar/data/${Number(data.cik)}/`))) throw new Error("Invalid saved issuer filings");
+      if (!EDITORIAL_ISSUERS.some(issuer => issuer.ticker === data.ticker && issuer.cik === data.cik) ||
+          !Array.isArray(data.filings) || data.filings.some(f => f.cik !== data.cik || !publicDate(f.filedAt) || !f.url.startsWith(`https://www.sec.gov/Archives/edgar/data/${Number(data.cik)}/`))) throw new Error("Invalid saved issuer filings");
       result.filings.push({ symbol: data.ticker, retrievedAt: source.retrievedAt, data: data.filings });
     }
   }
@@ -86,12 +89,12 @@ export function savedPublicContext(saved: SavedPublicData, symbol: string, now =
   const context = ETF_CONTEXT.has(symbol), issuers = saved.filings.filter(issuer => context || issuer.symbol === symbol);
   const filingsRetrievedAt = issuers.map(issuer => issuer.retrievedAt).sort()[0] ?? null;
   const filings: Envelope<Filing[]> = {
-    status: issuers.length ? (Date.parse(now) - Date.parse(filingsRetrievedAt!) > 2 * 86400000 ? "stale" : context && issuers.length < 3 ? "partial" : "ok") : "unconfigured",
+    status: issuers.length ? (Date.parse(now) - Date.parse(filingsRetrievedAt!) > 2 * 86400000 ? "stale" : context && issuers.length < (saved.expectedFilingSources ?? 3) ? "partial" : "ok") : "unconfigured",
     source: "SEC EDGAR · saved publication", fetchedAt: filingsRetrievedAt ?? saved.collectedAt,
     asOf: issuers.flatMap(issuer => issuer.data.map(row => row.filedAt)).sort().at(-1) ?? null,
     data: issuers.flatMap(issuer => issuer.data).sort((a,b)=>b.filedAt.localeCompare(a.filedAt)),
-    coverage: context ? `AAPL, MSFT and NVDA filing context for ${symbol}; not the ETF's full holdings or fund disclosures.` : `Saved issuer coverage for ${symbol}.`,
-    message: issuers.length ? "Original filing dates and links, collected during editorial publication. Newer filings may exist; check EDGAR." : "This symbol is outside the saved AAPL/MSFT/NVDA filing coverage. Use the linked EDGAR search; no substitute company is shown.",
+    coverage: context ? `Recent issuer filings provide broad-market context for ${symbol}.` : `Saved issuer coverage for ${symbol}.`,
+    message: issuers.length ? "The saved filings link to their original EDGAR documents." : "This symbol has no saved filings. Search EDGAR for its original documents.",
   };
   const codes = contractsForSymbol(symbol), positions = saved.positioning.filter(row=>codes.includes(row.contractCode));
   const positioning: Envelope<Positioning[]> = {

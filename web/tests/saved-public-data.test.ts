@@ -29,6 +29,18 @@ test('a later unrelated release review preserves provider retrieval dates and ca
  assert.equal(savedPublicContext(mixed,'SPY',later).filings.status,'stale');
  assert.equal(savedPublicContext(mixed,mixed.filings[0].symbol,later).filings.status,'ok');
 });
+test('new Walmart filing coverage is available per issuer and missing rows keep the four-issuer panel partial', () => {
+ const base = source.sources.find((s: { id: string }) => s.id === 'SEC_NVDA')!;
+ const wmt = { ...base, id: 'SEC_WMT', data: { ticker: 'WMT', cik: '0000104169', filings: [
+   { cik: '0000104169', filedAt: '2026-11-03', url: 'https://www.sec.gov/Archives/edgar/data/104169/example.htm' },
+ ] } };
+ const expanded = (entry: unknown) => savedPublicData({ ...source, sources: [...source.sources, entry] } as typeof source);
+ assert.equal(savedPublicContext(expanded(wmt), 'WMT', at).filings.data[0].cik, '0000104169');
+ assert.equal(savedPublicContext(expanded(wmt), 'SPY', at).filings.status, 'ok');
+ assert.equal(savedPublicContext(expanded({ ...wmt, status: 'unavailable', data: null }), 'SPY', at).filings.status, 'partial');
+ assert.throws(() => expanded({ ...wmt, data: { ...wmt.data, ticker: 'NVDA' } }), /Invalid saved issuer/);
+});
+
 test('saved providers retain outage and age distinctions',()=>{
  const failed={...source,sources:source.sources.map((s:object)=>({...s,status:'unavailable',data:null}))};
  const empty=savedPublicContext(savedPublicData(failed),'SPY',at);
