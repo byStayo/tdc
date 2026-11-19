@@ -1,5 +1,7 @@
 # Visual Daily Consensus — active build
 
+The November 19 morning edition is live. All six individual reports and eighteen saved forecast views passed the production checks. The market had 64.0% weighted observation coverage and three of fifteen voting families. The homepage, research archive and research desk fit both 390-pixel and 1280-pixel viewports. [Release and validation receipt](HANDOFF.md#november-19-at-800-am-new-york--morning-edition)
+
 The November 18 10:34 p.m. New York edition adds verified TLT closing trends to the four existing ETF momentum panels. The TLT source drawer shows the dated one-, five- and twenty-session changes, Market History and iShares attribution, and the open and range that still need verified prices. TLT daily observation coverage is 50.88%. The market has 60.66% observation coverage and three of fifteen directional families. All six reports and 18 saved forecast views passed the production checks. The source drawer was verified at desktop and phone widths. [Release receipt](HANDOFF.md#november-18--tlt-closing-trends-live-and-original-insider-notices-available-to-editors)
 
 The user rejected the earlier research-desk definition of completion on November3,2026. The active goal is the complete visual morning consensus product described in web/docs/VISUAL_PRODUCT.md. Prior goal closure is superseded. Never call an unavailable tile or untested adapter a completed integration.
