@@ -99,6 +99,8 @@ On November 19 the last pre-open public read at 9:29:48.206 a.m. New York matche
 
 The later capital, earnings and events screens used 148 Federal Reserve releases, 163 distinct SEC earnings dates and 149 EIA inventory dates. Their chronological tests missed the predeclared comparisons. Further retail, dealer and Taiwan flow source checks did not supply enough properly dated, permitted releases to inspect returns. [Historical tests](../../FREE_FEED_PATH.md#november-18-late--independent-price-checks-and-three-directional-tests) · [November 19 source evidence](../../FREE_FEED_PATH.md#november-19-before-the-open--pricing-options-and-social-evidence)
 
+The November 19 claims-revision study reached 140 full SPY sessions and missed its held-out improvement threshold. A separate review of 517 SEC exhibits verified before-and-after analyst estimates across seven release dates. Cboe's public options samples had two dates across all five funds, and the first-time six-month archive requires account-specific delivery. [Measurements and primary sources](../../FREE_FEED_PATH.md#november-19-intraday-research)
+
 The November 18 late edition verified all 18 public views against the archive and reran the evaluator. Editors can now cite each original proposed-sale filing in the daily evidence packet. [Edition, validation and remaining gaps](../../../../HANDOFF.md#november-18--tlt-closing-trends-live-and-original-insider-notices-available-to-editors)
 
 ## Execution order and acceptance gates
