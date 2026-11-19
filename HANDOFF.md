@@ -1,3 +1,11 @@
+## November 18 — Guest ETF price check and SEC fundraising benchmark
+
+NineQuantAI returned all 65 requested recent ETF price pairs without a key. Sixty-four agreed with the private regular-session comparisons under the existing price and direction checks. DIA November 3 was the directional exception. All five November 28, 2025 closes matched the SEC filings. TLT's requested adjusted series omitted the November 2 distribution, a 41.93 basis-point discrepancy on both endpoints. The guest terms limit use to personal research and education. The source evidence is private, and the approved public price path continues to use FirstRate. [Price checks and access terms](web/docs/FREE_FEED_PATH.md#november-18--ninequantai-etf-price-reconciliation)
+
+The repeatable SEC Form D screen captured 20 original quarterly files and selected 43,645 initial private-equity and venture fund filings with positive reported sales. Each ETF paired with 1,156 full-session outcomes and 232 chronological test dates. The five candidates missed the 0.01 Brier improvement requirement. Independent calculations reproduced the features and all ten test scores. Original files and the frozen result are owner-only in `.consensus/private-form-d/`. [Filing basis and results](web/docs/FREE_FEED_PATH.md#november-18--original-sec-form-d-fundraising-benchmark)
+
+The twenty archived source files replay byte-for-byte in the offline collector. TypeScript, 400 tests and archive integrity passed. The prebuild verified 37 editions and 252 outcome IDs.
+
 ## November 18 — Marilux regular-session TLT preview
 
 The public Marilux download page opened in the browser with regular hours and unadjusted prices selected. Its November 17 preview reports 390 core minutes and displays the first and last core bars. The open was 1.26 basis points from the saved as-traded comparison and the close matched exactly. Both show the same direction. The full free export requires a verified account. Two standard HTTPS clients on the publishing host failed before receiving a response. One browser preview supports further review. A recurring export, all required dates and the early-close basis still need verification. [Download, terms and next checks](web/docs/FREE_FEED_PATH.md#november-18--tlt-source-checks-and-cftc-options-benchmark)

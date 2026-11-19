@@ -1,5 +1,37 @@
 # Free feed access and alternatives
 
+## November 18 — NineQuantAI ETF price reconciliation
+
+Eleven bounded guest candle requests returned all five regular-session date sequences from October 30 through November 17, a TLT adjusted series and one historical shortened session per ETF. The daily series labels its dates, T+1 availability and consolidated basis. Its candle fields contain no execution timestamps. The comparison used the saved independent as-traded prices and SEC filing marks. [Candle endpoint](https://ninequantai.com/en/api) · [SEC closing marks](#november-18--regulatory-short-session-closes-and-sec-form-4)
+
+| ETF | Recent comparisons passing | Short session open difference | Short session close difference |
+| --- | ---: | ---: | ---: |
+| SPY | 13 of 13 | 0.147 bps | 0 bps |
+| QQQ | 13 of 13 | 0 bps | 0 bps |
+| IWM | 13 of 13 | 0 bps | 0 bps |
+| DIA | 12 of 13 | 0 bps | 0 bps |
+| TLT | 13 of 13 | 0 bps | 0 bps |
+
+The sole recent directional discrepancy is DIA on November 3, the same date repaired from FirstRate core minutes. TLT's adjusted request returned unchanged prices across its November 2 distribution. The issuer cash implies a 41.93 basis-point adjustment for the prior day. The original bytes, dates, source hashes and detailed controls are retained for personal research. NineQuantAI's terms limit the free API to personal research and education. [Terms](https://ninequantai.com/en/terms) · [DIA repair](#november-18--dia-regular-session-price-repair)
+
+Market Data's Free Forever API documents 100 credits per day, one year of prices and a 24-hour lag. Its general terms defer derived use to upstream agreements, restrict standard accounts to individuals and retain the raw data while the account stays open. Its separate public-use terms permit short excerpts in journalism and educational work. Production model use and retention for this publication depend on the applicable data agreement. [Free access](https://www.marketdata.app/docs/account/free-accounts/) · [Terms](https://www.marketdata.app/terms/) · [Public-use terms](https://www.marketdata.app/terms/public-use/) · [Exchange agreements](https://www.marketdata.app/docs/account/data-policies/exchange-agreements/)
+
+The GitHub Market History catalog lists gold as its current coverage and leaves ETFs pending. Elendil Labs' licensed FOMC files cover selected event results. Its ETF history is fetched separately via `yfinance` and excluded from the repository. [Market History catalog](https://github.com/tohaitrieu/market-history) · [FOMC release provenance](https://github.com/Elendil-Labs/fomc-research)
+
+## November 18 — Original SEC Form D fundraising benchmark
+
+The SEC's 20 quarterly files from 2021 Q4 to 2026 Q3 contained 291,577 submissions. The parser joined original notices to their offerings by accession and counted 183,959 original filings in the complete date range. The selected series uses 43,645 original private-equity and venture fund notices with a pooled interest, a first-sale date and a positive reported amount sold. It aggregates by filing date. The source measures reported initial sales. The first sale can reflect an irrevocable commitment, and later capital calls follow the original offering. [SEC data](https://www.sec.gov/data-research/sec-markets-data/form-d-data-sets) · [Form and instructions](https://www.sec.gov/info/edgar/forms/formd.pdf)
+
+The benchmark compares the seven calendar days before each issue with the preceding eight seven-day blocks. Its baseline uses the corresponding change in all original notice counts, the prior full-session log price return and the official Treasury 10-year change. The candidate adds the change in log reported amounts with the predeclared sign for equities and TLT. The two fits share 1,156 full-session targets per ETF from January 5, 2022 through September 30, 2026, with 232 chronological test dates starting October 20, 2025. The research reconstructs historical availability using original filing dates as day-level proxies. [Official Treasury rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve)
+
+| ETF | Baseline model Brier | With Form D sales | Clears 0.01 improvement |
+| --- | ---: | ---: | --- |
+| SPY | 0.252790 | 0.252621 | No |
+| QQQ | 0.250059 | 0.250668 | No |
+| IWM | 0.251350 | 0.250431 | No |
+| DIA | 0.251757 | 0.251661 | No |
+| TLT | 0.250413 | 0.249531 | No |
+
 ## November 18 — Original Philadelphia Fed ADS vintages
 
 The Philadelphia Fed publishes the ADS business conditions index as a workbook of dated releases. The verified November 17 ZIP contains 1,581 original vintages from December 2008 and 24,358 dated observation rows. The owner-only capture pins the 170,801,033-byte archive and its SHA-256. The deterministic extractor retains only the recent comparison set. It takes the change in the latest date shared by two consecutive original vintages. The available dates establish the release day. The benchmark assigns each update to the next scheduled exchange session at 8 a.m. New York time. It withholds the pair when that session or the preceding session is shortened and keeps only the final eligible update per target. [Official archive](https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/ads) · [Philadelphia Fed methodology](https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/ads/ads-technical-documentation.pdf)

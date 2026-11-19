@@ -11,10 +11,23 @@ import {
   latestPrivateFundWorkbook,
   collectPrivateFunds,
 } from "../lib/consensus/private-funds.ts";
+import { formDFilingFeatures } from "../scripts/research-sec-form-d.ts";
 
 const cutoff = "2026-11-03T07:00:00.000Z";
 const header =
   "country\tcountry_code\tdate\tfor_lt_eqty_pos\tfor_lt_eqty_net\tfor_lt_eqty_valchg";
+test("Form D uses the previous calendar days and withholds filings from the forecast date", () => {
+  const filings = new Map([
+    ["2026-09-21", { date: "2026-09-21", original: 5, selected: 1, dollars: 9_000_000 }],
+    ["2026-09-28", { date: "2026-09-28", original: 9, selected: 1, dollars: 19_000_000 }],
+    ["2026-09-30", { date: "2026-09-30", original: 99, selected: 9, dollars: 900_000_000 }],
+  ]);
+  const features = formDFilingFeatures("2026-09-30", filings);
+  assert.deepEqual(features, { original: Math.log1p(9) - Math.log1p(5) / 8,
+    dollars: Math.log1p(19) - Math.log1p(9) / 8 });
+  filings.delete("2026-09-30");
+  assert.deepEqual(formDFilingFeatures("2026-09-30", filings), features);
+});
 test("Treasury flows use only the grand total, preserve negative/zero and keep valuations separate", () => {
   const data = [
     "Millions of dollars",

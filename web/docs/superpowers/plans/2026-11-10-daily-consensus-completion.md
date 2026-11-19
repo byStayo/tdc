@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. Reconciled 65 dated NineQuantAI ETF price pairs and the historical shortened session for all five. DIA November 3 disagreed on direction and TLT omitted its issuer distribution. The personal research scope keeps these outputs private. The new SEC Form D benchmark paired 5,780 real prelaunch ETF outcomes with dated fundraising evidence. Every candidate missed the 0.01 required margin. [Price reconciliation](../../FREE_FEED_PATH.md#november-18--ninequantai-etf-price-reconciliation) · [Capital benchmark](../../FREE_FEED_PATH.md#november-18--original-sec-form-d-fundraising-benchmark)
+
 - November 18 follow-up. Built a repeatable benchmark from original Philadelphia Fed business-conditions vintages and direct Treasury yield history. Each ETF paired with 386 real prelaunch price outcomes and 78 chronological test sessions. All five missed the 0.01 Brier improvement. The evidence stays in the private research ledger. [Source checks and benchmark](../../FREE_FEED_PATH.md#november-18--original-philadelphia-fed-ads-vintages)
 
 - November 18 follow-up. The FirstRate pipeline can now qualify Arca's SPY, IWM and DIA early closes from 210 complete minutes, the independent split and raw pairs and one final listing report. In the historical November 28 reference comparison SPY and IWM met the limits and DIA's closing difference failed. The upcoming November 27 session spans 185 pending targets. Nasdaq's free share-count files lack the required prices, and the comparable Cboe sample was inaccessible. [Early-close proof and open sources](../../FREE_FEED_PATH.md#november-18--early-close-qualification-and-tape-c-access-checks)
