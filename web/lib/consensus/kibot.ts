@@ -8,7 +8,8 @@ import { INSTRUMENTS } from "./types.ts";
 import type { Instrument } from "./types.ts";
 
 export const KIBOT_PRICE_CITATION = "https://www.kibot.com/api/history-request.html";
-const MAX_BYTES = 64 * 1024;
+export const MAX_KIBOT_RESPONSE_BYTES = 64 * 1024;
+export const MAX_KIBOT_RANGE_MS = 370 * 86400000;
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 type SessionClock = typeof exchangeSession;
 
@@ -56,7 +57,7 @@ export async function collectKibotSeries(
   const through = expectedSessions.at(-1);
   const sessionClock = options.sessionClock ?? exchangeSession;
   if (options.unadjusted && options.splitAdjusted) throw new Error("Choose one Kibot price basis");
-  if (!from || !through || Date.parse(through) - Date.parse(from) > 370 * 86400000 ||
+  if (!from || !through || Date.parse(through) - Date.parse(from) > MAX_KIBOT_RANGE_MS ||
       expectedSessions.some((day, index) => !sessionClock(day) || (index > 0 && day <= expectedSessions[index - 1])))
     throw new Error("Kibot collection requires an ordered, bounded reviewed session range");
 
@@ -79,7 +80,7 @@ export async function collectKibotSeries(
       const part = await sourceChunk(reader);
       if (part.done) break;
       length += part.value.byteLength;
-      if (length > MAX_BYTES) throw new Error("Kibot daily response exceeds the byte limit");
+      if (length > MAX_KIBOT_RESPONSE_BYTES) throw new Error("Kibot daily response exceeds the byte limit");
       chunks.push(part.value);
     }
   } catch (error) {
@@ -102,7 +103,7 @@ export async function collectKibotSeries(
 export async function collectKibotPrices(from: string, cutoff: string, fetcher: Fetcher = fetch, unadjusted = false) {
   const today = newYorkDate(cutoff);
   const yesterday = new Date(Date.parse(today) - 86400000).toISOString().slice(0, 10);
-  if (!hasReviewedCalendar(yesterday) || Date.parse(yesterday) - Date.parse(from) > 370 * 86400000)
+  if (!hasReviewedCalendar(yesterday) || Date.parse(yesterday) - Date.parse(from) > MAX_KIBOT_RANGE_MS)
     throw new Error("Kibot collection requires a bounded, independently reviewed calendar range");
   const expectedSessions = exchangeSessions(from, yesterday);
   const through = expectedSessions.at(-1);

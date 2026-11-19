@@ -17,7 +17,7 @@ import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, type MarketParquetDay } from "../lib
 import * as settlement from "../lib/consensus/marketparquet-settlement.ts";
 
 const dates = exchangeSessions("2026-11-19", "2026-11-30"), through = dates.at(-1)!;
-const captured = "2026-11-30T22:04:00.000Z", reviewed = "2026-11-30T22:10:00.000Z";
+const reviewed = "2026-11-30T22:10:00.000Z";
 const hash = (data: string | Buffer) => createHash("sha256").update(data).digest("hex");
 const issuerURLs = {
   SPY: "https://www.ssga.com/bin/v1/ssmp/fund/dividend-distribution?country=us&language=en&role=intermediary&product=etfs&ticker=SPY",
@@ -27,27 +27,28 @@ const issuerURLs = {
   TLT: "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf?cid=synd",
 };
 
-function proof() {
+function proof(sessions = dates, closing = 101) {
+  const through = sessions.at(-1)!, captured = through + "T22:04:00.000Z", reviewed = through + "T22:10:00.000Z";
   const grant = JSON.stringify({ plan: "full", assets: [{ asset_type: "etf_daily", access: "full" }] });
   const bytes = Buffer.alloc(80);
-  for (let i = 0; i < 5; i++) { bytes.writeDoubleBE(100, i * 16); bytes.writeDoubleBE(101, i * 16 + 8); }
-  const bars = dates.map(session => ({ session, sha256: hash(session),
-    bars: Object.fromEntries(ETF_SYMBOLS.map(symbol => [symbol, { open: 100, close: 101 }])) as MarketParquetDay["bars"] }));
+  for (let i = 0; i < 5; i++) { bytes.writeDoubleBE(100, i * 16); bytes.writeDoubleBE(closing, i * 16 + 8); }
+  const bars = sessions.map(session => ({ session, sha256: hash(session),
+    bars: Object.fromEntries(ETF_SYMBOLS.map(symbol => [symbol, { open: 100, close: closing }])) as MarketParquetDay["bars"] }));
   const amount = Buffer.alloc(8); amount.writeDoubleBE(0.4);
   const distributions = ETF_SYMBOLS.map(symbol => ({ symbol, source: issuerURLs[symbol], responseUrl: issuerURLs[symbol],
-    sha256: hash(symbol), capturedAt: "2026-11-30T22:03:00.000Z", actionsSha256: hash(symbol === "TLT" ? Buffer.concat([Buffer.from(dates[1]), amount]) : ""),
-    cash: symbol === "TLT" ? [{ session: dates[1], amount: 0.4 }] : [] }));
-  const ledger = { schemaVersion: 1, capturedAt: captured, expectedSessions: [...dates], bars, distributions,
+    sha256: hash(symbol), capturedAt: through + "T22:03:00.000Z", actionsSha256: hash(symbol === "TLT" ? Buffer.concat([Buffer.from(sessions[1]), amount]) : ""),
+    cash: symbol === "TLT" ? [{ session: sessions[1], amount: 0.4 }] : [] }));
+  const ledger = { schemaVersion: 1, capturedAt: captured, expectedSessions: [...sessions], bars, distributions,
     licensedCapture: { entitlement: { source: "https://marketparquet.com/api/v1/assets",
-      capturedAt: "2026-11-30T22:00:00.000Z", document: grant, sha256: hash(grant) },
+      capturedAt: through + "T22:00:00.000Z", document: grant, sha256: hash(grant) },
     downloads: bars.map(file => ({ session: file.session, source: "https://marketparquet.com/api/v1/download/etf_daily/" + file.session,
-      objectHost: "test.r2.cloudflarestorage.com", authorizedAt: "2026-11-30T22:01:00.000Z", retrievedAt: "2026-11-30T22:02:00.000Z",
+      objectHost: "test.r2.cloudflarestorage.com", authorizedAt: through + "T22:01:00.000Z", retrievedAt: through + "T22:02:00.000Z",
       sha256: file.sha256, size: 23456, authorizationSha256: hash("grant" + file.session), pricesSha256: hash(bytes) })) } };
-  const csv = dates.map(day => day.slice(5, 7) + "/" + day.slice(8) + "/" + day.slice(0, 4) + ",100,102,99,101,1000").join("\n");
+  const csv = sessions.map(day => day.slice(5, 7) + "/" + day.slice(8) + "/" + day.slice(0, 4) + `,100,102,99,${closing},1000`).join("\n");
   const controls = Object.fromEntries(ETF_SYMBOLS.map(symbol => [symbol, csv])) as Record<typeof ETF_SYMBOLS[number], string>;
   const ledgerText = JSON.stringify(ledger);
-  const receipt = { schemaVersion: 1, mode: "licensed", reconciledAt: reviewed, through, ledgerSha256: hash(ledgerText),
-    ledgerText, earlyClosesVerified: ["2026-11-27"], reference: { source: KIBOT_PRICE_CITATION, capturedAt: reviewed,
+  const receipt = { schemaVersion: 1 as const, mode: "licensed", reconciledAt: reviewed, through, ledgerSha256: hash(ledgerText),
+    ledgerText, earlyClosesVerified: sessions.filter(day => ["2026-11-27", "2026-12-24"].includes(day)), reference: { source: KIBOT_PRICE_CITATION, capturedAt: reviewed,
       hashes: Object.fromEntries(ETF_SYMBOLS.map(s => [s, hash(csv)])), csv: controls } };
   return { ledger, receipt };
 }
@@ -61,6 +62,56 @@ test("reads a completed same-run paid five-ETF capture, with a reviewed short cl
   assert.equal(tlt.sessions[0].open, 100 * (101 - 0.4) / 101);
   assert.equal(tlt.sessions[1].open, 100);
   assert.equal(tlt.sessions.find(row => row.session === "2026-11-27")?.closeAt, exchangeSession("2026-11-27")!.closeAt);
+});
+
+test("replays bounded independent responses across years and rejects a missing, overlapping or changed control chunk", async t => {
+  const calendar = exchangeSessions("2026-01-02", "2027-11-24");
+  const { receipt: legacy } = proof(calendar, 100.001);
+  assert.ok(Date.parse(legacy.through) - Date.parse(calendar[0]) > 370 * 86_400_000);
+  assert.throws(() => settlement.licensedSettlementPrices(legacy, legacy.reconciledAt), /control windows/);
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse(legacy.reconciledAt) });
+  const rows = legacy.reference.csv.TLT.replaceAll(",100,", ",100." + "0".repeat(130) + ",").split("\n");
+  assert.ok(Buffer.byteLength(rows.join("\n")) > 64 * 1024);
+  const datesBySymbol = new Map<string, string[]>();
+  const observed = await settlement.collectLicensedControls(calendar, async input => {
+    const url = new URL(input), params = url.searchParams, symbol = params.get("symbol")!;
+    assert.equal(url.origin, "https://api.kibot.com");
+    assert.equal(params.get("unadjusted"), "1");
+    const iso = (day: string) => day.slice(6) + "-" + day.slice(0, 2) + "-" + day.slice(3, 5);
+    const first = calendar.indexOf(iso(params.get("startdate")!)), last = calendar.indexOf(iso(params.get("enddate")!));
+    assert.ok(first >= 0 && last >= first);
+    const csv = rows.slice(first, last + 1).join("\n");
+    assert.ok(Buffer.byteLength(csv) < 64 * 1024);
+    datesBySymbol.set(symbol, [...(datesBySymbol.get(symbol) ?? []), ...calendar.slice(first, last + 1)]);
+    return new Response(csv);
+  });
+  const receipt = { ...legacy, schemaVersion: 2 as const, reference: { source: KIBOT_PRICE_CITATION,
+    capturedAt: legacy.reconciledAt, chunks: observed.chunks } };
+  assert.ok(observed.chunks.length > 1);
+  const root = await mkdtemp(join(tmpdir(), "marketparquet-controls-test-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await settlement.recordLicensedSettlement(join(root, ".consensus/private-marketparquet"), receipt, legacy.reconciledAt);
+  const verified = await settlement.loadLicensedSettlement(root, legacy.reconciledAt);
+  for (const symbol of ETF_SYMBOLS) {
+    assert.deepEqual(datesBySymbol.get(symbol), calendar);
+    assert.deepEqual(observed.reference[symbol].map(row => row.session), calendar);
+    assert.deepEqual(verified.find(row => row.instrument === symbol)!.sessions.map(row => row.session), calendar);
+  }
+  for (const mutate of [
+    (parts: typeof observed.chunks) => { parts.splice(1, 1); },
+    (parts: typeof observed.chunks) => { parts.splice(1, 0, parts[0]); },
+    (parts: typeof observed.chunks) => { parts.at(-1)!.hashes.TLT = hash("other bytes"); },
+    (parts: typeof observed.chunks) => { parts[1].capturedAt = calendar[0] + "T22:00:00.000Z"; },
+    (parts: typeof observed.chunks) => {
+      const last = parts.at(-1)!;
+      last.csv.TLT = last.csv.TLT.replace(",100.001,", ",99.999,");
+      last.hashes.TLT = hash(last.csv.TLT);
+    },
+  ]) {
+    const changed = structuredClone(receipt);
+    mutate(changed.reference.chunks);
+    assert.throws(() => settlement.licensedSettlementPrices(changed, legacy.reconciledAt));
+  }
 });
 
 test("independent proof withholds changed price values, public sample credentials, wrong issuer, stale/absent days and false direction", () => {

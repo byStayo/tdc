@@ -5,8 +5,9 @@ import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
-import { collectKibotPrices, collectKibotSeries, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
-import { licensedSettlementPrices, recordLicensedSettlement, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
+import { collectKibotPrices, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement,
+  type LicensedControlChunk, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
 import { ETF_SYMBOLS, reconcileMarketParquet, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 
 // Independent check of the private vendor ledger. Prints differences, never prices.
@@ -44,8 +45,8 @@ try {
   // An operator reference quoted to the cent is held to one cent-scale
   // tolerance. The built-in guest feed uses its last regular trade, which can
   // sit several basis points from the listing venue's closing auction.
-  let reference: ReferenceBars, source: string, hashes: Record<string, string>;
-  const controlCsv = {} as Record<typeof ETF_SYMBOLS[number], string>;
+  let reference: ReferenceBars, source: string, hashes: Record<string, string> | undefined;
+  let controlChunks: LicensedControlChunk[] | undefined;
   let tolerance = { openBps: 3, closeBps: 15 };
   if (referencePath) {
     if (!isAbsolute(referencePath)) throw new Error("Provide an absolute private reference path");
@@ -60,16 +61,11 @@ try {
     source = supplied.source;
     hashes = { reference: createHash("sha256").update(text).digest("hex") };
     tolerance = { openBps: 0.5, closeBps: 0.5 };
-  } else if (licensed && record) {
-    reference = {} as ReferenceBars;
-    hashes = {};
+  } else if (licensed) {
+    const controls = await collectLicensedControls(calendar);
+    reference = controls.reference;
+    controlChunks = controls.chunks;
     source = KIBOT_PRICE_CITATION;
-    for (const symbol of ETF_SYMBOLS) {
-      const captured = await collectKibotSeries(symbol, calendar, { unadjusted: true,
-        onVerifiedResponse: csv => { controlCsv[symbol] = csv; } });
-      reference[symbol] = captured.sessions;
-      hashes[symbol] = captured.sha256;
-    }
   } else {
     const collected = await collectKibotPrices(first, startedAt, fetch, true);
     reference = Object.fromEntries(collected.evidence.map(series => [series.instrument,
@@ -88,17 +84,19 @@ try {
     files: files.map(({ session, sha256 }) => ({ session, sha256 })),
     issuers: ledger.distributions.map(({ symbol, sha256 }) => ({ symbol, sha256 })),
     issuerActions: marketParquetIssuerFingerprints(ledger.distributions, first, through),
-    reference: { source, hashes, tolerance }, capturedAfterClose, ...result };
+    reference: { source, tolerance, ...(controlChunks ? {
+      chunks: controlChunks.map(({ from, through, capturedAt, hashes }) => ({ from, through, capturedAt, hashes })),
+    } : { hashes }) }, capturedAfterClose, ...result };
   const evidenceName = `reconciliation-${through}-${now.replace(/[:.]/g, "-")}.json`;
   await durableJSON(resolve(directory, evidenceName), summary, true);
 
   let reviewed = false;
   if (record && result.passed && capturedAfterClose) {
     let settlement: LicensedSettlement | undefined;
-    if (licensed && !referencePath) {
-      settlement = { schemaVersion: 1, mode: "licensed", through, reconciledAt: now,
+    if (controlChunks) {
+      settlement = { schemaVersion: 2, mode: "licensed", through, reconciledAt: now,
         ledgerText, ledgerSha256: summary.ledgerSha256, earlyClosesVerified: result.earlyClosesVerified,
-        reference: { source, capturedAt: controlsAt, csv: controlCsv, hashes } };
+        reference: { source, capturedAt: controlsAt, chunks: controlChunks } };
       licensedSettlementPrices(settlement, now);
     }
     // Extending the review asserts one unbroken share basis from the first

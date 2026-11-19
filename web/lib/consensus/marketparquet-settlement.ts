@@ -5,7 +5,7 @@ import type { CashDistribution } from "./corporate-adjustment.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { loadFirstRatePrices } from "./firstrate.ts";
 import { digest } from "./history.ts";
-import { KIBOT_PRICE_CITATION, parseKibotDaily } from "./kibot.ts";
+import { collectKibotSeries, KIBOT_PRICE_CITATION, MAX_KIBOT_RANGE_MS, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
 import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 
@@ -26,9 +26,14 @@ export type LicensedCapture = {
 type Issuer = { symbol: ETF; source: string; responseUrl: string; capturedAt: string; sha256: string; actionsSha256: string; cash: CashDistribution[] };
 type Ledger = { schemaVersion: number; capturedAt: string; expectedSessions: string[]; bars: MarketParquetDay[];
   distributions: Issuer[]; licensedCapture: LicensedCapture };
-export type LicensedSettlement = { schemaVersion: number; mode: string; through: string; reconciledAt: string; ledgerSha256: string;
-  ledgerText: string; earlyClosesVerified: string[]; reference: { source: string; capturedAt: string;
-    hashes: Record<string, string>; csv: Record<ETF, string> } };
+type ControlResponses = { hashes: Record<string, string>; csv: Record<ETF, string> };
+type ControlCapture = { source: string; capturedAt: string };
+export type LicensedControlChunk = ControlResponses & { from: string; through: string; capturedAt: string };
+export type LicensedSettlement = { mode: string; through: string; reconciledAt: string; ledgerSha256: string;
+  ledgerText: string; earlyClosesVerified: string[] } & (
+  { schemaVersion: 1; reference: ControlCapture & ControlResponses } |
+  { schemaVersion: 2; reference: ControlCapture & { chunks: LicensedControlChunk[] } });
+const CONTROL_CHUNK_SESSIONS = 120;
 type Pointer = { schemaVersion: number; through: string; reviewedAt: string; sha256: string };
 const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 const sha = (v: unknown): v is string => typeof v === "string" && /^[a-f0-9]{64}$/.test(v);
@@ -69,8 +74,58 @@ function issuerActionsHash(actions: CashDistribution[]) {
   return result.digest("hex");
 }
 
+export async function collectLicensedControls(dates: string[], fetcher: (url: string, init?: RequestInit) => Promise<Response> = fetch) {
+  if (!dates.length || !same(dates, exchangeSessions(dates[0], dates.at(-1)!)))
+    throw new Error("Independent controls require the complete reviewed calendar");
+  const chunks: LicensedControlChunk[] = [], reference = {} as ReferenceBars;
+  for (const symbol of ETF_SYMBOLS) reference[symbol] = [];
+  for (let start = 0; start < dates.length; start += CONTROL_CHUNK_SESSIONS) {
+    const sessions = dates.slice(start, start + CONTROL_CHUNK_SESSIONS);
+    const hashes: Record<string, string> = {}, csv = {} as Record<ETF, string>;
+    for (const symbol of ETF_SYMBOLS) {
+      const response = await collectKibotSeries(symbol, sessions, { unadjusted: true, fetcher,
+        onVerifiedResponse: body => { csv[symbol] = body; } });
+      reference[symbol].push(...response.sessions);
+      hashes[symbol] = response.sha256;
+    }
+    chunks.push({ from: sessions[0], through: sessions.at(-1)!, capturedAt: new Date().toISOString(), hashes, csv });
+  }
+  return { chunks, reference };
+}
+
+function replayLicensedControls(review: LicensedSettlement, dates: string[], ledgerCapturedAt: string) {
+  const control = review.reference;
+  if (control.source !== KIBOT_PRICE_CITATION || !ordered(ledgerCapturedAt, control.capturedAt, review.reconciledAt))
+    throw new Error("Invalid independent as-traded reference");
+  const chunks = review.schemaVersion === 1
+    ? [{ ...review.reference, from: dates[0], through: dates.at(-1)! }]
+    : review.reference.chunks;
+  if (!Array.isArray(chunks) || !chunks.length || chunks.length > dates.length) throw new Error("Missing independent control chunks");
+  const reference = {} as ReferenceBars;
+  for (const symbol of ETF_SYMBOLS) reference[symbol] = [];
+  let start = 0, precedingCapture = ledgerCapturedAt;
+  for (const chunk of chunks) {
+    const end = dates.indexOf(chunk.through, start);
+    if (dates[start] !== chunk.from || end < start || Date.parse(chunk.through) - Date.parse(chunk.from) > MAX_KIBOT_RANGE_MS ||
+        (review.schemaVersion === 2 && end - start + 1 > CONTROL_CHUNK_SESSIONS) || !keys(chunk.hashes) || !keys(chunk.csv) ||
+        !ordered(precedingCapture, chunk.capturedAt, control.capturedAt))
+      throw new Error("Independent control windows or capture times do not match the reviewed calendar");
+    const sessions = dates.slice(start, end + 1);
+    for (const symbol of ETF_SYMBOLS) {
+      const csv = chunk.csv[symbol];
+      if (typeof csv !== "string" || Buffer.byteLength(csv) > MAX_KIBOT_RESPONSE_BYTES || hash(csv) !== chunk.hashes[symbol])
+        throw new Error("Independent reference differs from its capture");
+      reference[symbol].push(...parseKibotDaily(csv, sessions));
+    }
+    start = end + 1;
+    precedingCapture = chunk.capturedAt;
+  }
+  if (start !== dates.length) throw new Error("Independent control does not cover the final reviewed session");
+  return reference;
+}
+
 export function licensedSettlementPrices(review: LicensedSettlement, asOf: string) {
-  if (review.schemaVersion !== 1 || review.mode !== "licensed" || typeof review.ledgerText !== "string" ||
+  if (![1, 2].includes(review.schemaVersion) || review.mode !== "licensed" || typeof review.ledgerText !== "string" ||
       hash(review.ledgerText) !== review.ledgerSha256) throw new Error("Invalid licensed ledger fingerprint");
   const ledger: Ledger = JSON.parse(review.ledgerText);
   const dates = ledger.expectedSessions, first = dates[0], through = review.through;
@@ -107,16 +162,7 @@ export function licensedSettlementPrices(review: LicensedSettlement, asOf: strin
     throw new Error("Invalid primary issuer capture");
   const cash = Object.fromEntries(ledger.distributions.map(row =>
     [row.symbol, row.cash.filter(action => action.session >= first && action.session <= through)])) as Record<ETF, CashDistribution[]>;
-  const control = review.reference;
-  if (control.source !== KIBOT_PRICE_CITATION || !ordered(ledger.capturedAt, control.capturedAt, review.reconciledAt) ||
-      !keys(control.hashes) || !keys(control.csv)) throw new Error("Invalid independent as-traded reference");
-  const reference = {} as ReferenceBars;
-  for (const symbol of ETF_SYMBOLS) {
-    const csv = control.csv[symbol];
-    if (typeof csv !== "string" || Buffer.byteLength(csv) > 65_536 || hash(csv) !== control.hashes[symbol])
-      throw new Error("Independent reference differs from its capture");
-    reference[symbol] = parseKibotDaily(csv, dates);
-  }
+  const reference = replayLicensedControls(review, dates, ledger.capturedAt);
   const checked = reconcileMarketParquet(dates, ledger.bars, cash, reference, { openBps: 3, closeBps: 15 }, { requireDirection: true });
   if (!checked.passed || checked.verifiedThrough !== through || !same(checked.earlyClosesVerified, review.earlyClosesVerified))
     throw new Error("Licensed prices, distribution boundaries or scheduled closes did not reconcile");
