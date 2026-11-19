@@ -8,6 +8,7 @@ import { rssItems } from "../lib/consensus/collector.ts";
 import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
+import { X_POST_FIELDS, X_POST_TEXT_METHOD, xPostText } from "../lib/consensus/x-post-text.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const directory = resolve(root, ".editorial");
@@ -108,10 +109,10 @@ export async function collectX(input: unknown, cutoff: string) {
   url.search = new URLSearchParams({
     max_results: "100", start_time: new Date(Date.parse(cutoff) - dayMs).toISOString(), end_time: cutoff,
     exclude: "retweets,replies", expansions: "author_id", "user.fields": "protected",
-    "tweet.fields": "author_id,created_at,lang,referenced_tweets,withheld",
+    "tweet.fields": X_POST_FIELDS,
   }).toString();
   const page = await readXPage(url, xAuthorization(url, account), 100);
-  return { status: "ok", classifier: X_STANCE_METHOD, read: page.read, truncated: page.next !== null,
+  return { status: "ok", classifier: X_STANCE_METHOD, textMethod: X_POST_TEXT_METHOD, read: page.read, truncated: page.next !== null,
     readings: summarize(page.posts, cutoff, "x") };
 }
 
@@ -124,11 +125,12 @@ async function readXPage(url: URL, authorization: string, limit: number) {
   const users = body.includes === undefined ? [] : object(body.includes).users;
   if (!Array.isArray(users)) throw new Error("Invalid X author metadata");
   const publicUsers = new Set(users.map(object).filter(user => isId(user.id) && user.protected === false).map(user => user.id));
-  const posts = rows.map(object).flatMap(row =>
-    isId(row.author_id) && publicUsers.has(row.author_id) && row.lang === "en" &&
-      row.referenced_tweets === undefined && row.withheld === undefined &&
-      typeof row.text === "string" && typeof row.created_at === "string"
-      ? [{ author: row.author_id, at: Date.parse(row.created_at), text: row.text }] : []);
+  const posts = rows.map(object).flatMap(row => {
+    if (!isId(row.author_id) || !publicUsers.has(row.author_id) || row.lang !== "en" ||
+        row.referenced_tweets !== undefined || row.withheld !== undefined || typeof row.created_at !== "string") return [];
+    const text = xPostText(row);
+    return text === null ? [] : [{ author: row.author_id, at: Date.parse(row.created_at), text }];
+  });
   const next = typeof meta.next_token === "string" && meta.next_token.length <= 2048 ? meta.next_token : null;
   return { posts, read: rows.length, next };
 }
@@ -146,7 +148,7 @@ export async function collectXPublic(input: unknown, cutoff: string) {
       query: terms + " lang:en -is:retweet -is:reply -is:quote",
       max_results: String(xSearchPageSize), start_time: start, end_time: cutoff,
       expansions: "author_id", "user.fields": "protected",
-      "tweet.fields": "author_id,created_at,lang,referenced_tweets,withheld",
+      "tweet.fields": X_POST_FIELDS,
     }).toString();
     let next: string | null = null;
     let read = 0;
@@ -171,7 +173,7 @@ export async function collectXPublic(input: unknown, cutoff: string) {
     queries.push({ instrument, read, pages, failed, truncated: next !== null });
   }
   const failedQueries = queries.filter(query => query.failed).length;
-  return { mode: "public_search", classifier: X_STANCE_METHOD,
+  return { mode: "public_search", classifier: X_STANCE_METHOD, textMethod: X_POST_TEXT_METHOD,
     status: failedQueries === queries.length ? "unavailable" : failedQueries ? "partial" : "ok",
     read: queries.reduce((total, query) => total + query.read, 0), queries, readings: summarize(posts, cutoff, "x") };
 }
@@ -199,7 +201,7 @@ export async function collectInstagram(input: unknown, cutoff: string) {
       if (!Array.isArray(media.data) || media.data.length > 10) throw new Error("Invalid Instagram media page");
       truncated ||= media.paging !== undefined && typeof object(media.paging).next === "string";
       for (const row of media.data.map(object)) {
-        if (typeof row.caption === "string" && typeof row.timestamp === "string")
+        if (typeof row.caption === "string" && row.caption.length <= 12_000 && typeof row.timestamp === "string")
           posts.push({ author: profile.id, at: Date.parse(row.timestamp),
             text: row.caption.replace(/(^|\s)#(SPY|QQQ|IWM|DIA|TLT)\b/gi, (_match, space, symbol) => space + "$" + symbol) });
       }
@@ -212,7 +214,7 @@ export async function collectInstagram(input: unknown, cutoff: string) {
 function summarize(posts: Post[], cutoff: string, source?: "x") {
   const end = Date.parse(cutoff);
   const latest = new Map<Instrument, Map<string, LanguageCue>>(INSTRUMENTS.map(symbol => [symbol, new Map()]));
-  for (const post of posts.filter(post => post.at <= end && post.at > end - dayMs && post.text.length <= 12_000)
+  for (const post of posts.filter(post => post.at <= end && post.at > end - dayMs)
     .sort((a, b) => b.at - a.at)) {
     const cues = marketStances(post.text, source);
     for (const symbol of marketInstruments(post.text)) {
