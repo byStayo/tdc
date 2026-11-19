@@ -95,7 +95,7 @@ The original request inventory was compiled on November 10. Current completion f
 - [ ] International. Expand approved equity and policy evidence beyond the Taiwan and central-bank context already connected. Test incremental directional value after FX.
 - [ ] Capital. Add permitted private-equity cash flows and validate distinct incremental evidence. Existing ETFIQ computed flows, Treasury cross-border flows, Fed private credit and SEC asset stocks are separate measures.
 
-The later capital, earnings and events screens used 148 Federal Reserve releases, 163 distinct SEC earnings dates and 149 EIA inventory dates. Their chronological tests missed the predeclared comparisons. No directional vote advanced. [Methods and scores](../../FREE_FEED_PATH.md#november-18-late--independent-price-checks-and-three-directional-tests)
+The later capital, earnings and events screens used 148 Federal Reserve releases, 163 distinct SEC earnings dates and 149 EIA inventory dates. Their chronological tests missed the predeclared comparisons. Further retail, dealer and Taiwan flow source checks did not supply enough properly dated, permitted releases to inspect returns. [Historical tests](../../FREE_FEED_PATH.md#november-18-late--independent-price-checks-and-three-directional-tests) · [November 19 source evidence](../../FREE_FEED_PATH.md#november-19-before-the-open--pricing-options-and-social-evidence)
 
 The November 18 late edition verified all 18 public views against the archive and reran the evaluator. Editors can now cite each original proposed-sale filing in the daily evidence packet. [Edition, validation and remaining gaps](../../../../HANDOFF.md#november-18--tlt-closing-trends-live-and-original-insider-notices-available-to-editors)
 

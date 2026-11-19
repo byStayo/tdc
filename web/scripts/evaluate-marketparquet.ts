@@ -154,7 +154,7 @@ try {
   const { selected, policy } = selectScoredOutcomes(outcomes);
   const reservations = await readReservations(root);
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
-  const savedHoldout = licensed ? await marketParquetHoldouts(root, snapshots, reservations) : null;
+  const savedHoldout = licensed && reservations.length ? await marketParquetHoldouts(root, snapshots, reservations) : null;
   const cohorts = [];
   // Only evaluate-consensus owns new reservations, tests and model activation.
   const trainingPerformed = false;
