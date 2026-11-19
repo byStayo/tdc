@@ -1,4 +1,22 @@
 import type { SessionPrice } from "./evaluation.ts";
+import type { Instrument } from "./types.ts";
+
+const ssga = "https://www.ssga.com/bin/v1/ssmp/fund/dividend-distribution?country=us&language=en&role=intermediary&product=etfs&ticker=";
+export const ETF_CASH_SOURCES: Record<Exclude<Instrument, "MARKET">, string> = {
+  SPY: ssga + "SPY", DIA: ssga + "DIA",
+  QQQ: "https://dng-api.invesco.com/cache/v1/accounts/en_US/shareclasses/46090E103/distribution?idType=cusip&productType=ETF",
+  IWM: "https://www.ishares.com/us/products/239710/ishare",
+  TLT: "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf?cid=synd",
+};
+
+export function officialCashLocation(symbol: Exclude<Instrument, "MARKET">, source: string, responseUrl: string) {
+  if (source !== ETF_CASH_SOURCES[symbol]) return false;
+  if (source === responseUrl) return true;
+  if (symbol !== "IWM" && symbol !== "TLT") return false;
+  const final = new URL(responseUrl);
+  const id = symbol === "IWM" ? "239710" : "239454";
+  return final.origin === "https://www.ishares.com" && !final.username && !final.password && final.pathname.startsWith(`/us/products/${id}/`);
+}
 
 export interface CashDistribution { session: string; amount: number }
 export interface ShareSplit { session: string; ratio: number }

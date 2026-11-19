@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
-import type { CashDistribution } from "./corporate-adjustment.ts";
+import { officialCashLocation, type CashDistribution } from "./corporate-adjustment.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { loadFirstRatePrices } from "./firstrate.ts";
 import { digest } from "./history.ts";
@@ -11,13 +11,6 @@ import { readResearchReceipt } from "./research-price-capture.ts";
 
 type ETF = typeof ETF_SYMBOLS[number];
 const origin = "https://marketparquet.com";
-const ssga = "https://www.ssga.com/bin/v1/ssmp/fund/dividend-distribution?country=us&language=en&role=intermediary&product=etfs&ticker=";
-const issuerUrls: Record<ETF, string> = {
-  SPY: ssga + "SPY", DIA: ssga + "DIA",
-  QQQ: "https://dng-api.invesco.com/cache/v1/accounts/en_US/shareclasses/46090E103/distribution?idType=cusip&productType=ETF",
-  IWM: "https://www.ishares.com/us/products/239710/ishare",
-  TLT: "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf?cid=synd",
-};
 export type LicensedCapture = {
   entitlement: { source: string; capturedAt: string; document: string; sha256: string };
   downloads: { session: string; source: string; objectHost: string; authorizedAt: string; retrievedAt: string;
@@ -53,15 +46,6 @@ function extractedPrices(file: MarketParquetDay) {
     bytes.writeDoubleBE(bar.close, 16 * i + 8);
   });
   return hash(bytes);
-}
-
-function issuerLocation(issuer: Issuer) {
-  if (issuer.source !== issuerUrls[issuer.symbol]) return false;
-  if (issuer.responseUrl === issuer.source) return true;
-  if (issuer.symbol !== "IWM" && issuer.symbol !== "TLT") return false;
-  const final = new URL(issuer.responseUrl);
-  const id = issuer.symbol === "IWM" ? "239710" : "239454";
-  return final.origin === "https://www.ishares.com" && !final.username && !final.password && final.pathname.startsWith(`/us/products/${id}/`);
 }
 
 function issuerActionsHash(actions: CashDistribution[]) {
@@ -154,7 +138,7 @@ export function licensedSettlementPrices(review: LicensedSettlement, asOf: strin
       throw new Error("Licensed download differs from its authorized capture");
   }
   if (!same(ledger.distributions.map(row => row.symbol).sort(), [...ETF_SYMBOLS].sort()) ||
-      ledger.distributions.some(row => !sha(row.sha256) || !issuerLocation(row) ||
+      ledger.distributions.some(row => !sha(row.sha256) || !officialCashLocation(row.symbol, row.source, row.responseUrl) ||
         !ordered(entitlement.capturedAt, row.capturedAt, ledger.capturedAt) || !Array.isArray(row.cash) ||
         new Set(row.cash.map(action => action.session)).size !== row.cash.length ||
         row.cash.some(action => !/^\d{4}-\d\d-\d\d$/.test(action.session) || !Number.isFinite(action.amount) || action.amount <= 0) ||

@@ -16,11 +16,37 @@ import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
 import type { Outcome } from "../lib/consensus/types.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const directory = resolve(root, ".consensus/private-kibot");
-const path = resolve(directory, "evaluation.json");
+const args = process.argv.slice(2);
+const usage = "Usage: evaluate-kibot-private.ts [--after-close YYYY-MM-DD [--sources /private/sources [--collect] | --collect | --proof /private/content-addressed-proof.json]]";
+const [mode, day, flag, pathOrCollect, tail] = args;
+const withProof = flag === "--proof" && args.length === 4;
+const withSources = flag === "--sources" && ((args.length === 4) || (args.length === 5 && tail === "--collect"));
+if (args.length && (mode !== "--after-close" || !day ||
+    !(args.length === 2 || (args.length === 3 && flag === "--collect") || withProof || withSources)))
+  throw new Error(usage);
 const release = await acquirePublicationLock(root, "private-kibot-evaluation");
 let failure: { error: unknown } | undefined;
 try {
+  if (args.length) {
+    const { evaluatePrivateAfterClose } = await import("../lib/consensus/kibot-after-close.ts");
+    const input = withProof ? resolve(pathOrCollect) : {
+      sources: withSources ? resolve(pathOrCollect) : resolve(root, ".consensus/private-kibot/sources"),
+      collect: flag === "--collect" || tail === "--collect",
+    };
+    const summary = await evaluatePrivateAfterClose(root, day, input);
+    console.log(JSON.stringify(summary));
+    if (summary.pending.length) process.exitCode = 2;
+  } else await evaluateBulk();
+} catch (error) {
+  failure = { error };
+  throw error;
+} finally {
+  await finishPublicationLock(release, failure);
+}
+
+async function evaluateBulk() {
+  const directory = resolve(root, ".consensus/private-kibot");
+  const path = resolve(directory, "evaluation.json");
   const now = new Date().toISOString();
   const { snapshots } = await verifyPublicationTree(root);
   const reservations = await readReservations(root);
@@ -100,9 +126,4 @@ try {
     await rename(temporary, path);
   } finally { await unlink(temporary).catch(() => undefined); }
   console.log(JSON.stringify(summary));
-} catch (error) {
-  failure = { error };
-  throw error;
-} finally {
-  await finishPublicationLock(release, failure);
 }
