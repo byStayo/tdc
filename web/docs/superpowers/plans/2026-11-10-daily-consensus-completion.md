@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. Verified both historical Nasdaq auctions for QQQ and TLT through the final exchange message. The controls matched all four auction volumes and four independent filed closing marks. Recurring Tape C prices and source rights remain open. Issuer share changes independently confirmed 209 ETFIQ flow signs for each of SPY and DIA. Both existing 42-session tests fell short of the forecast baseline. [Qualification evidence](../../FREE_FEED_PATH.md#november-18--complete-nasdaq-early-close-sample)
+
 - November 18 follow-up. Verified the linked Form 144 and its later Form 4 from original EDGAR filings. Connected a bounded private Form 144 stage to the weekday preparation. The real public-only rehearsal returned nine notices. The 699-session screen for each of four equity ETFs missed the 0.01 Brier margin, preserving the institutional vote gate. [Original filings and benchmark](../../FREE_FEED_PATH.md#november-18--original-form-144-proposed-sale-notices)
 
 - November 18 follow-up. Reconciled 65 dated NineQuantAI ETF price pairs and the historical shortened session for all five. DIA November 3 disagreed on direction and TLT omitted its issuer distribution. The personal research scope keeps these outputs private. The new SEC Form D benchmark paired 5,780 real prelaunch ETF outcomes with dated fundraising evidence. Every candidate missed the 0.01 required margin. [Price reconciliation](../../FREE_FEED_PATH.md#november-18--ninequantai-etf-price-reconciliation) · [Capital benchmark](../../FREE_FEED_PATH.md#november-18--original-sec-form-d-fundraising-benchmark)

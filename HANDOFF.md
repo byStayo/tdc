@@ -1,3 +1,11 @@
+## November 18 — QQQ and TLT early-close auctions verified
+
+The repeatable private verifier read the complete Nasdaq November 28, 2025 archive in bounded ranges and checked its gzip integrity, pinned hash and ITCH End of Messages. The QQQ and TLT closing crosses were 215 and 296 milliseconds after the reviewed 1 p.m. New York boundary. All four share counts matched Nasdaq's independently published volume file. Both closing prices matched the SEC holding marks, and both pairs and directions passed the existing as-traded tolerances. Issuer histories show no cash ex-date on the session for either ETF. The 4.7 GB source file was streamed without a disk copy. [Source and comparison evidence](web/docs/FREE_FEED_PATH.md#november-18--complete-nasdaq-early-close-sample)
+
+The mode-0600 receipts are under `web/.consensus/private-nasdaq-crosses/`, outside Git. The sample covers one prelaunch session. Production TLT coverage and ongoing Tape C short-session evidence still need a feed with verified rights. A separate issuer check confirmed ETFIQ's creation and redemption signs for all 209 SPY and DIA comparisons per fund. Both funds' existing 42-session forecast tests fell short of the baseline. [Flow and access checks](web/docs/FREE_FEED_PATH.md#november-18--minute-access-and-issuer-flow-controls)
+
+The live health check returned ready for the current edition and all five ETFs. TypeScript and the independent receipt check passed. The strict completion audit returned 2 with 37 editions, 252 resolved targets, three voting families and zero active models.
+
 ## November 18 — Direct SEC Form 144 collection
 
 Verified the linked Palantir example against EDGAR. The November 10 notice proposed 300,000 shares at a $50.76 million market value and disclosed an August 10 trading plan. EDGAR accepted the notice at 4:26 p.m. New York time, after the close on the proposed sale date and 75 hours and 34 minutes before the Form 4. The latter reports the actual November 10 sale of 300,000 shares. The second notice was accepted November 12 for sales dated November 11, with the EDGAR holiday explained in the form. [Form 144](https://www.sec.gov/Archives/edgar/data/1321655/000195004726010948/0001950047-26-010948-index.htm) · [Form 4](https://www.sec.gov/Archives/edgar/data/1321655/000182415926000017/0001824159-26-000017-index.htm)
