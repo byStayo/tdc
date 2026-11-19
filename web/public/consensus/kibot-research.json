@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-18",
@@ -7,26 +7,31 @@
     {
       "instrument": "SPY",
       "sessions": 9,
+      "eligibleSessions": 0,
       "calls": 0
     },
     {
       "instrument": "QQQ",
       "sessions": 9,
+      "eligibleSessions": 0,
       "calls": 0
     },
     {
       "instrument": "IWM",
       "sessions": 9,
+      "eligibleSessions": 0,
       "calls": 0
     },
     {
       "instrument": "DIA",
       "sessions": 9,
+      "eligibleSessions": 0,
       "calls": 0
     },
     {
       "instrument": "TLT",
       "sessions": 9,
+      "eligibleSessions": 0,
       "calls": 0
     }
   ],

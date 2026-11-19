@@ -18,11 +18,11 @@ export const KIBOT_RESEARCH_STUDIES = [
 
 type Symbol = typeof KIBOT_RESEARCH_SYMBOLS[number];
 export interface KibotResearch {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
-  daily: { instrument: Symbol; sessions: number; calls: number }[];
+  daily: { instrument: Symbol; sessions: number; calls: number; eligibleSessions?: number }[];
   studies: {
     family: typeof KIBOT_RESEARCH_STUDIES[number]["family"];
     instrument: Symbol;
@@ -47,7 +47,7 @@ const brier = (value: unknown): value is number =>
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      value.schemaVersion !== 1 || value.source !== KIBOT_RESEARCH_LICENSE ||
+      (value.schemaVersion !== 1 && value.schemaVersion !== 2) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -55,9 +55,12 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
       !Array.isArray(value.studies) || value.studies.length !== KIBOT_RESEARCH_STUDIES.reduce((sum, study) => sum + study.size, 0))
     return fail();
 
+  const dailyKeys = ["instrument", "sessions", "calls"];
+  if (value.schemaVersion === 2) dailyKeys.push("eligibleSessions");
   for (const [index, row] of value.daily.entries()) {
-    if (!exact(row, ["instrument", "sessions", "calls"]) || row.instrument !== KIBOT_RESEARCH_SYMBOLS[index] ||
+    if (!exact(row, dailyKeys) || row.instrument !== KIBOT_RESEARCH_SYMBOLS[index] ||
         !count(row.sessions) || !count(row.calls) || row.calls > row.sessions) return fail();
+    if (value.schemaVersion === 2 && (!count(row.eligibleSessions) || row.eligibleSessions > row.sessions)) return fail();
   }
   for (const study of KIBOT_RESEARCH_STUDIES) {
     const symbols = study.family === "rates" ? ["TLT"] : KIBOT_RESEARCH_SYMBOLS.slice(0, study.size);

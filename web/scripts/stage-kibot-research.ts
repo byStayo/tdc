@@ -7,6 +7,7 @@ import { outcomeWindowSessions, selectScoredOutcomes } from "../lib/consensus/ev
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { isFullKibotSession, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { dailySessionOutcomes } from "../lib/consensus/outcome-coverage-audit.ts";
 import {
   KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_RESEARCH_STUDIES,
   KIBOT_RESEARCH_SYMBOLS, validateKibotResearch, type KibotResearch,
@@ -21,7 +22,7 @@ const path = resolve(root, "public/consensus", KIBOT_RESEARCH_FILE);
 const lock = await acquirePublicationLock(root, "kibot-aggregate-research");
 let failure: { error: unknown } | undefined;
 try {
-  const { history, snapshots } = await verifyPublicationTree(root);
+  const { current, history, snapshots } = await verifyPublicationTree(root);
   const ledger = JSON.parse(await readFile(resolve(root, ".consensus/private-kibot/evaluation.json"), "utf8"));
   const through = typeof ledger.summary?.through === "string" ? ledger.summary.through : "";
   const lastSession = exchangeSession(through);
@@ -46,9 +47,17 @@ try {
   const { selected } = selectScoredOutcomes(fullSessions);
   if (selected.length !== ledger.summary.selected)
     throw new Error("Private Kibot ledger differs from its selected session count");
+  const dates = new Set(selected.map(row => row.entryAt.slice(0, 10)));
+  const ledgerClock = { asOf: ledger.evaluatedAt, ledgerObservedAt: ledger.evaluatedAt };
+  const settled = [...dates].flatMap(day =>
+    dailySessionOutcomes(snapshots, selected.filter(row => row.entryAt.startsWith(day)), day, current.engineVersion, ledgerClock)
+      .funds.filter(row => row.status === "resolved"));
+  if (settled.length !== selected.length)
+    throw new Error("Private research ledger is missing the last issued edition for a settled ETF session");
   const daily = KIBOT_RESEARCH_SYMBOLS.map(instrument => {
-    const rows = selected.filter(row => row.instrument === instrument);
-    return { instrument, sessions: rows.length, calls: rows.filter(row => !row.abstained).length };
+    const rows = settled.filter(row => row.instrument === instrument);
+    return { instrument, sessions: rows.length, eligibleSessions: rows.filter(row => row.inputEligible).length,
+      calls: rows.filter(row => row.asIssuedCall !== "withheld").length };
   });
 
   const studyIds = new Set(KIBOT_RESEARCH_STUDIES.map(study => study.id));
@@ -79,7 +88,7 @@ try {
     });
   });
   const aggregate: KibotResearch = {
-    schemaVersion: 1, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+    schemaVersion: 2, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
   };
   validateKibotResearch(aggregate, history[0]);
   const next = JSON.stringify(aggregate, null, 2) + "\n";
@@ -90,7 +99,8 @@ try {
   const changed = prior !== next;
   if (args[0] === "--publish" && changed) await durableJSON(path, aggregate);
   console.log(JSON.stringify({
-    through, selected: selected.length, calls: daily.reduce((sum, row) => sum + row.calls, 0),
+    through, selected: selected.length, inputEligible: daily.reduce((sum, row) => sum + row.eligibleSessions, 0),
+    calls: daily.reduce((sum, row) => sum + row.calls, 0),
     studies: studies.length, cleared: studies.filter(row => row.clearedMargin).length,
     status: !changed ? "unchanged" : args[0] === "--publish" ? "staged" : "reviewed",
   }));

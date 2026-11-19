@@ -2360,11 +2360,12 @@ export default function MorningBoard({
                   </div>
                   <div className={styles.tableScroll}>
                     <table role="table">
-                      <caption>One edition was selected before the open for each checked ETF session. Model eligibility uses the prospective record above.</caption>
+                      <caption>Each check uses the last edition before the open. Eligible inputs meet the current model’s data requirements. A forecast can still abstain.</caption>
                       <thead role="rowgroup">
                         <tr role="row">
                           <th scope="col" role="columnheader">ETF</th>
                           <th scope="col" role="columnheader">Sessions checked</th>
+                          {kibotResearch.schemaVersion === 2 && <th scope="col" role="columnheader">Sessions with eligible inputs</th>}
                           <th scope="col" role="columnheader">Forecast calls</th>
                         </tr>
                       </thead>
@@ -2373,6 +2374,7 @@ export default function MorningBoard({
                           <tr key={row.instrument} role="row">
                             <th scope="row" role="rowheader">{row.instrument}</th>
                             <td role="cell" data-label="Sessions checked">{row.sessions}</td>
+                            {kibotResearch.schemaVersion === 2 && <td role="cell" data-label="Sessions with eligible inputs">{row.eligibleSessions}</td>}
                             <td role="cell" data-label="Forecast calls">{row.calls}</td>
                           </tr>
                         ))}
