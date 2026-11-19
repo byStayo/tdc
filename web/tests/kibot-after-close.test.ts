@@ -228,6 +228,7 @@ test("a dated raw-source directory settles with the canonical pre-open receipt a
     assert.deepEqual(settled.map(fund => [fund.instrument, fund.actualDirection, fund.returnPct]), [["QQQ", "up", row.returnPct]]);
     const counted = summarizePrivateSessions([report, structuredClone(report)], first);
     assert.equal(counted.through, target); assert.equal(counted.selected, 1);
+    assert.deepEqual(counted.selections, [{ session: target, edition: savedEdition.id, instrument: "QQQ", inputEligible: settled[0].inputEligible }]);
     assert.equal(counted.daily.find(fund => fund.instrument === "QQQ")?.sessions, 1);
     const qqq = report.funds.find(fund => fund.instrument === "QQQ")!;
     const conflicting = { ...report, funds: [{ ...qqq, actualDirection: "down" }] };
