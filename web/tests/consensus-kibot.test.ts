@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { SourceMissingError } from "../lib/consensus/source-failure.ts";
 import { collectKibotPrices, collectKibotSeries, isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot.ts";
 
 const sessions = ["2026-11-06", "2026-11-09"];
@@ -48,6 +49,10 @@ test("a delayed Kibot delivery identifies the fund, price basis and first missin
   await assert.rejects(collectKibotSeries("IWM", [sessions[1]], {
     splitAdjusted: true, fetcher: async () => new Response("No data found for the specified period for IWM."),
   }), /IWM split-only.*2026-11-09.*no completed sessions/);
+  await assert.rejects(collectKibotSeries("TLT", [sessions[1]], {
+    unadjusted: true, fetcher: async () => new Response("405 Data Not Found.\r\nNo data found for the specified period for TLT."),
+  }), (error: Error) => error instanceof SourceMissingError && /TLT as-traded.*2026-11-09.*no completed sessions/.test(error.message));
+  assert.throws(() => parseKibotDaily("405 Unrecognized response", sessions), /Invalid Kibot daily response/);
 });
 
 test("a captured short-session price remains ineligible for the private daily label", () => {

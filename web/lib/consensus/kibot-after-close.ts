@@ -12,6 +12,7 @@ import { dailySessionOutcomes } from "./outcome-coverage-audit.ts";
 import { PUBLIC_ORIGIN, verifyPreopenReceipt } from "./preopen-receipt.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
+import { SourceMissingError } from "./source-failure.ts";
 import type { Snapshot } from "./types.ts";
 import { nasdaqDaily, retainedPriorPrices, retainedSessionWitnesses, STOCKLAKE_HISTORY } from "./kibot-session-witnesses.ts";
 
@@ -227,8 +228,8 @@ export async function evaluatePrivateAfterClose(root: string, day: string, input
       if (fromFiles || joined !== fund) proof.sources[symbol] = joined;
       qualified.push(outcome);
     } catch (error) {
-      pending.push({ instrument: symbol, reason: error instanceof Error && /^[A-Za-z][A-Za-z -]{1,70}$/.test(error.message)
-        ? error.message : "Invalid or missing retained source evidence" });
+      const knownReason = error instanceof SourceMissingError || (error instanceof Error && /^[A-Za-z][A-Za-z -]{1,70}$/.test(error.message));
+      pending.push({ instrument: symbol, reason: knownReason ? error.message : "Invalid or missing retained source evidence" });
     }
   }
   const proofDigest = digest(proof), now = new Date().toISOString();

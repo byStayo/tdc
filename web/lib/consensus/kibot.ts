@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { exchangeSession, exchangeSessions, hasReviewedCalendar } from "./exchange-calendar.ts";
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
-import { sourceResponse, sourceChunk } from "./source-failure.ts";
+import { sourceResponse, sourceChunk, SourceMissingError } from "./source-failure.ts";
 import { newYorkDate } from "./time.ts";
 import { INSTRUMENTS } from "./types.ts";
 import type { Instrument } from "./types.ts";
@@ -18,8 +18,8 @@ export function isFullKibotSession(openAt: string, closeAt: string): boolean {
 }
 
 export function parseKibotDaily(csv: string, expectedSessions: string[], sessionClock: SessionClock = exchangeSession): SessionPrice[] {
-  if (/^No data found for the specified period\b/i.test(csv.trimStart()))
-    throw new Error("The provider returned no completed sessions");
+  if (/^(?:405 Data Not Found\.\r?\n)?No data found for the specified period\b/i.test(csv.trimStart()))
+    throw new SourceMissingError("The provider returned no completed sessions");
   const rows = csv.trim().split(/\r?\n/);
   const sessions = rows.map(line => {
     const fields = line.split(",");
@@ -96,7 +96,9 @@ export async function collectKibotSeries(
     return { sessions, sha256: createHash("sha256").update(bytes).digest("hex") };
   } catch (error) {
     const basis = options.unadjusted ? "as-traded" : options.splitAdjusted ? "split-only" : "provider-adjusted";
-    throw new Error(`Kibot ${instrument} ${basis} for ${from} through ${through}. ${(error as Error).message}`);
+    const message = `Kibot ${instrument} ${basis} for ${from} through ${through}. ${(error as Error).message}`;
+    if (error instanceof SourceMissingError) throw new SourceMissingError(message, { cause: error });
+    throw new Error(message, { cause: error });
   }
 }
 
