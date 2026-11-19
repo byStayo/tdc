@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-19T02-36-46-517Z",
-  "issuedAt": "2026-11-19T02:36:46.517Z",
-  "cutoff": "2026-11-19T02:36:14.991Z",
+  "id": "2026-11-19T03-34-35-238Z",
+  "issuedAt": "2026-11-19T03:34:35.238Z",
+  "cutoff": "2026-11-19T03:33:28.777Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -29097,17 +29097,17 @@
     {
       "id": "daily-prices",
       "family": "technicals",
-      "title": "Trend, Fibonacci & opening range",
-      "reason": "Independent price calculations are unavailable. Current hosted charts are displayed in the morning view and research desk, separately from the saved consensus.",
+      "title": "Regular-session open and range",
+      "reason": "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices.",
       "url": "https://thedailyconsensus.com/research-desk",
-      "shortLabel": "Trend, Fibonacci & opening range",
+      "shortLabel": "Regular-session open and range",
       "instruments": [
         "TLT"
       ],
       "status": "unavailable",
-      "summary": "Independent price calculations are unavailable. Current hosted charts are displayed in the morning view and research desk, separately from the saved consensus.",
+      "summary": "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices.",
       "methodology": "No observation or directional vote until a permitted source passes validation.",
-      "limitation": "Independent price calculations are unavailable. Current hosted charts are displayed in the morning view and research desk, separately from the saved consensus.",
+      "limitation": "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices.",
       "series": [],
       "metrics": [],
       "scores": {
@@ -29120,7 +29120,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-19T02:36:14.991Z",
+        "retrievedAt": "2026-11-19T03:33:28.777Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -32368,6 +32368,64 @@
       }
     },
     {
+      "id": "market-history-tlt-closes",
+      "family": "technicals",
+      "instruments": [
+        "TLT"
+      ],
+      "directionalInstruments": [],
+      "title": "TLT closing trend",
+      "shortLabel": "TLT closing trend",
+      "status": "available",
+      "staleAfterDays": 5,
+      "unit": "%",
+      "summary": "TLT’s dividend-adjusted closing-hour price changed 0% from the previous session through 2026-11-16.",
+      "methodology": "Use the last trade in the consolidated hourly bar ending at the scheduled regular close. Compare consecutive verified closes over one, five and twenty exchange sessions. Apply issuer cash on its ex-dividend date and round the changes to one decimal.",
+      "limitation": "The free feed is delayed. Its morning bucket starts before 9:30 a.m. The calculation measures closing trends only. The official Nasdaq closing auction can differ from the last trade in the hour.",
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "metrics": [
+        {
+          "label": "One-session close change",
+          "value": 0,
+          "unit": "%",
+          "date": "2026-11-16"
+        },
+        {
+          "label": "Five-session close change",
+          "value": -3.1,
+          "unit": "%",
+          "date": "2026-11-16"
+        },
+        {
+          "label": "Twenty-session close change",
+          "value": 0.3,
+          "unit": "%",
+          "date": "2026-11-16"
+        }
+      ],
+      "series": [
+        {
+          "date": "2026-11-16",
+          "value": 0
+        }
+      ],
+      "source": {
+        "name": "Market History and iShares",
+        "url": "https://getmarkethistory.com/docs/bars/",
+        "attribution": "Market History consolidated hourly bars and iShares TLT distributions. Calculations by The Daily Consensus.",
+        "usage": "Market History permits distribution of derived research. The underlying hourly prices stay private.",
+        "frequency": "completed regular-session closing hours",
+        "observedAt": "2026-11-16T21:00:00.000Z",
+        "releasedAt": null,
+        "retrievedAt": "2026-11-19T03:28:16.783Z",
+        "sha256": "a677463f7ca1c57bc3d3f4809d357f251472dcdcad307539aa7e2206ca55ca81"
+      }
+    },
+    {
       "id": "review-boe-november-bank-rate",
       "family": "news",
       "title": "Bank of England raises Bank Rate to 4%",
@@ -32703,7 +32761,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-19T02:36:14.991Z",
+        "retrievedAt": "2026-11-19T03:33:28.777Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -33848,7 +33906,7 @@
       }
     }
   ],
-  "sourcesAttempted": 1,
+  "sourcesAttempted": 2,
   "collectionErrors": [
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
@@ -33860,7 +33918,7 @@
     "earnings-expectations: Reported filings and analyst expectations must be matched to the same period. A verified expectations feed is not connected.",
     "private-capital: Private-equity capital calls, distributions and investment flows are not integrated. SEC assets and Treasury cross-border transactions are separate lagged context.",
     "quantisnow-monthly-ratings: No verified monthly analyst aggregate returned.",
-    "daily-prices: TLT. Independent price calculations are unavailable. Current hosted charts are displayed in the morning view and research desk, separately from the saved consensus."
+    "daily-prices: TLT. TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices."
   ],
   "consensus": [
     {
@@ -36212,7 +36270,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "score": 0.050000000000001155,
-      "coverage": 0.4865873015873016,
+      "coverage": 0.5088095238095238,
       "directionalCoverage": 0.06666666666666667,
       "agreement": null,
       "bullish": 0,
@@ -36267,10 +36325,10 @@
           "id": "technicals",
           "label": "Price & mathematics",
           "weight": 1,
-          "expected": 2,
-          "available": 0,
+          "expected": 3,
+          "available": 1,
           "score": null,
-          "status": "stale"
+          "status": "available"
         },
         {
           "id": "premarket",
@@ -36369,7 +36427,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "score": -0.5140535732101349,
-      "coverage": 0.4865873015873016,
+      "coverage": 0.5088095238095238,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 0,
@@ -36424,10 +36482,10 @@
           "id": "technicals",
           "label": "Price & mathematics",
           "weight": 1,
-          "expected": 2,
-          "available": 0,
+          "expected": 3,
+          "available": 1,
           "score": null,
-          "status": "stale"
+          "status": "available"
         },
         {
           "id": "premarket",
@@ -36526,7 +36584,7 @@
       "instrument": "TLT",
       "horizon": "monthly",
       "score": -0.05826132659473928,
-      "coverage": 0.4865873015873016,
+      "coverage": 0.5088095238095238,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 0,
@@ -36581,10 +36639,10 @@
           "id": "technicals",
           "label": "Price & mathematics",
           "weight": 1,
-          "expected": 2,
-          "available": 0,
+          "expected": 3,
+          "available": 1,
           "score": null,
-          "status": "stale"
+          "status": "available"
         },
         {
           "id": "premarket",
