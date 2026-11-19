@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "transactionId": "f0ac91c7-67f5-4a9b-b99e-83c3c5810633",
+  "transactionId": "b4ef6d63-ebeb-48be-b318-45ce9a211649",
   "status": "complete",
   "hashes": {
     "public/consensus/outcomes.json": "17a50bf0f1e0157f83123c40b8bd1b28878a8c408c1f3a700518178adc5be44a",
     "public/consensus/outcome-selection.json": "26783fd6f11353ce32431d83029ae1881e4dbc023428766d02bf4bc2fada31d5",
     "lib/consensus/models.json": "448bba0a144f2fa440af9a5cc014f48da830b4eb11516466ab0cc392435548a9",
-    "lib/consensus/performance.json": "7697e37ae49fac9b42440fb37765c7be674c976a31e69f0c2aa1a1dbb615e6c2"
+    "lib/consensus/performance.json": "c52b6943595e2c0d2feb06c7ffdf9de191277c96a69c1a7227ca5b974ae8e98e"
   },
   "artifacts": {
     "public/consensus/models/DIA-daily-4f53cda18c2baa0c.json": "013b470a63b7ffd6d63cfab9ac826f1883380af50a41bcc8af5c7160e8f9f18d",
@@ -85,5 +85,5 @@
     "public/consensus/models/TLT-weekly-wf2-7d1732a019e92394.json": "b08d99fabbc43125cdb15110082e0113edda25a0fa63769495249445e587ce3a",
     "public/consensus/models/TLT-weekly-wf2-ff737c0fe085b529.json": "fc8ce143d691e9971445cff94010e6b2b9ad229aefb020d9ac60d3f320294b39"
   },
-  "outcomeLedgerTransactionId": "f0ac91c7-67f5-4a9b-b99e-83c3c5810633"
+  "outcomeLedgerTransactionId": "b4ef6d63-ebeb-48be-b318-45ce9a211649"
 }
