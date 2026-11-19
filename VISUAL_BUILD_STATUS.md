@@ -1,5 +1,7 @@
 # Visual Daily Consensus — active build
 
+The November 18 9:36 p.m. New York edition shows four real ETF momentum readings and a four-fund breadth count. Dated technical observations are live for SPY, QQQ, IWM and DIA. TLT needs an approved current price source. Market observation coverage is 60.66%, with three of fifteen families voting. The evaluator selected 52 resolved outcomes on the current engine. Production commit `e7a5d9de9c3c12791787085c5827a237afa24de4` serves all 18 forecast views exactly as archived. Verification included all five mobile source panels and the desktop breadth calculation. [Release receipt](HANDOFF.md#november-18--etf-technicals-live-in-the-daily-publisher)
+
 The user rejected the earlier research-desk definition of completion on November3,2026. The active goal is the complete visual morning consensus product described in web/docs/VISUAL_PRODUCT.md. Prior goal closure is superseded. Never call an unavailable tile or untested adapter a completed integration.
 
 The November 18 source release is live from `8336b58f079744c07d094b3017e25f7c79ad53d2` on deployment `dpl_8oH2j8c85HgLZWBMnm7TKbbx8V6w`. The new household and Japan equity-flow source drawers were verified at 390 pixels with their attribution visible. Public health, both archive checks and the current directional and model gaps are recorded in [HANDOFF.md](HANDOFF.md).

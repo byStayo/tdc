@@ -12,21 +12,21 @@
 
 ## Checklist from the chat
 
-The audit read the original chat request, all ten accessible non-heartbeat user messages and the standing publication instructions. It covers The Daily Consensus only. Evidence below reflects November 10, 2026.
+The original request inventory was compiled on November 10. Current completion figures below use the November 18, 9:36 p.m. New York edition. The dated execution receipts retain earlier results.
 
 | Status | Request | Evidence or remaining work |
 | --- | --- | --- |
-| Done | Keep the project scoped to The Daily Consensus. Preserve the original content, archives and hosted attribution. | Original domain is live. Twenty-eight hashed consensus editions verify. The relaunch worktree stays outside iCloud. The other site is outside scope. |
+| Done | Keep the project scoped to The Daily Consensus. Preserve the original content, archives and hosted attribution. | The original domain serves 38 hashed consensus editions. All 37 earlier archives matched their prior bytes after the latest publication. |
 | Done | Fix incomplete images, discontinuous formatting between pages, sluggish initial Research Desk loading and scroll-driven zoom. Polish desktop and mobile. | Shared shell, heading and footer styles. Initial brief rendered server-side. All 103 original image files previously decoded. Chart interaction is opt-in. Current production spot checks below supplement that release evidence. |
 | Done | Restore the existing publisher and keep its weekday loop running at 8 a.m. New York time. | Active automation. First scheduled production release verified with separate market, SPY, QQQ, IWM, DIA and TLT reports. |
 | Done | Script free-source collection, checks and release artifacts. Reserve AI for semantic editorial work. | Preparation, pinned-draft publication, evaluation, archive checks and build have existing CLI entry points. The existing Codex loop invokes them and handles release orchestration. No per-request AI or paid API. |
 | Done | Restore the financial news sample. | Bounded GDELT index fallback deployed. Published sample contains 32 stories across 22 publishers. News remains contextual. |
-| Done | Ask the DoltHub maintainer about price origin, open and close definitions, adjusted publication and model-use rights. | Sent. No reply as of this audit. The existing weekday loop checks the specific reply thread. |
+| Done | Ask the DoltHub maintainer about price origin, open and close definitions, adjusted publication and model-use rights. | Inquiry sent. The owner subsequently closed the DoltHub and Finazon vendor tracks. |
 | Done | Verify the DoltHub dividend adjustment inputs for all five ETFs. | Each most recent ex-date and amount matched issuer evidence within USD 0.00001 per share. The test applies cash and split factors before the ex-date to both open and close. |
-| Open | Integrate an ongoing free EOD feed for all five ETFs with verified public reuse, regular-session prices and total-return adjustments. | Kibot resolves internal same-session outcomes. DoltHub is staged privately. Its upstream price rights and precise session semantics remain unverified. Its latest corporate-action checkpoints also lag price delivery. |
-| Open | Score genuine daily, weekly and monthly outcomes and qualify models prospectively. | Public run has zero outcomes and 420 pending targets. Private Kibot produced 25 selected daily labels across five ETFs and the DoltHub probe produced 20 on its own sample. These are separate runs with overlapping dates. No candidate qualifies. |
-| Open | Complete the required signal feeds and reach 100% directional coverage. | Live market daily has three of fifteen directional families, 54.98% observation coverage and 18 abstentions across all views. See the family checklist below. |
-| Open | Verify the complete product live after all remaining integrations. | Current live release is healthy. Final full-product acceptance depends on the open feed and model items. |
+| Open | Integrate an ongoing free EOD feed for all five ETFs with verified public reuse, regular-session prices and total-return adjustments. | FirstRate and issuer records qualify SPY, QQQ, IWM and DIA through November 17. The free TLT source and recurring Nasdaq short-session coverage are outstanding. MarketParquet's archive entitlement is inactive. |
+| Open | Score genuine daily, weekly and monthly outcomes and qualify models prospectively. | The public ledger has 252 resolved targets and 52 selected outcomes on the current engine. Another 83 completed targets await approved prices and 235 await their exits. All 15 prospective model cohorts remain below eligibility. |
+| Open | Complete the required signal feeds and reach 100% directional coverage. | Three of fifteen families vote on the daily market view. Weighted observation coverage is 60.66%. |
+| Open | Verify the complete product live after all remaining integrations. | Six reports are healthy and all 18 API views match the saved edition exactly. The strict completion audit returns 2 with price and model eligibility gaps. |
 
 ## Directional family checklist
 
@@ -37,7 +37,7 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 - [ ] Retail. Add permitted representative positioning or a clearly scoped consented sample. The hosted FX panel supplies reader context.
 - [ ] Institutions. Preserve CFTC positioning and SEC filing provenance. Refresh FINRA on the authorized host when its existing private state is available. Validate a directional relationship on prospective labels.
 - [ ] Options. Obtain a permitted ETF chain for OI, volume, IV, term structure and skew. Keep gamma assumptions explicit. Existing CFTC futures-options readings and OPEX dates provide context.
-- [ ] Technicals. Compute regular-session trend, momentum, levels, breadth and volatility from approved source bars. Verify dated and missing bars before any vote.
+- [ ] Technicals. The daily publisher supplies four ETF momentum readings and a same-date four-ETF breadth count. Twenty-session momentum and volatility require 21 consecutive approved closes. TLT price coverage, intraday levels and validated forecast value remain open.
 - [ ] Premarket. Obtain usable early-session data to compute gaps and ranges. Yesterday's completed data can support the morning forecast but cannot supply today's missing premarket measurement.
 - [ ] Events. Add permitted probability, wording, volume and liquidity evidence. Official catalysts and expiries already populate the calendar.
 - [ ] Analysts. Obtain named estimate, target or revision history with rights and timestamps. Existing ratings actions have limited coverage.
