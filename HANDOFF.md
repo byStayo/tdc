@@ -1,3 +1,7 @@
+## November 18 — Marilux regular-session TLT preview
+
+The public Marilux download page opened in the browser with regular hours and unadjusted prices selected. Its November 17 preview reports 390 core minutes and displays the first and last core bars. The open was 1.26 basis points from the saved as-traded comparison and the close matched exactly. Both show the same direction. The full free export requires a verified account. Two standard HTTPS clients on the publishing host failed before receiving a response. One browser preview supports further review. A recurring export, all required dates and the early-close basis still need verification. [Download, terms and next checks](web/docs/FREE_FEED_PATH.md#november-18--tlt-source-checks-and-cftc-options-benchmark)
+
 ## November 18 — Original Philadelphia Fed business-conditions benchmark
 
 The new repeatable research command extracted 409 consecutive revision comparisons from 410 selected original Philadelphia Fed ADS vintages. It paired the archived release dates and original Treasury curve with 386 distinct full sessions per ETF before the first published forecast. The same 78 dates formed each chronological test. SPY improved by 0.0030 Brier points over the strongest comparison. All five fell short of the required 0.01 improvement. The evidence and frozen result are owner-only under `.consensus/private-ads/`. [Methods and all five results](web/docs/FREE_FEED_PATH.md#november-18--original-philadelphia-fed-ads-vintages)
