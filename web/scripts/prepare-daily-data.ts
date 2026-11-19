@@ -45,6 +45,11 @@ try {
       error: error.killed ? "SEC Form 144 check exceeded 60 seconds"
         : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC Form 144 check did not complete",
     }));
+  const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
+    status: "unavailable",
+    error: error.killed ? "FirstRate source capture exceeded 105 seconds"
+      : error.stderr?.trim().slice(0, 200) || error.message || "FirstRate preparation did not complete",
+  }));
   const consensus = await collect("publish-consensus.ts");
   const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
@@ -52,11 +57,6 @@ try {
       error: error.killed ? "SEC earnings check exceeded 60 seconds"
         : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC earnings check did not complete",
     }));
-  const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
-    status: "unavailable",
-    error: error.killed ? "FirstRate source capture exceeded 105 seconds"
-      : error.stderr?.trim().slice(0, 200) || error.message || "FirstRate preparation did not complete",
-  }));
   const receipt = {
     schemaVersion: 1,
     preparedAt: new Date().toISOString(),

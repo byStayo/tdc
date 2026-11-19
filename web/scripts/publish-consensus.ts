@@ -6,6 +6,7 @@ import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
 import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
+import { loadFirstRateTechnicals, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
 import { digest, publishCollectedSnapshot, publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot, permitsModelInputs } from "../lib/consensus/model.ts";
@@ -41,18 +42,31 @@ const reviewOnly = process.argv.includes("--review-only"),
   analystOnly = process.argv.includes("--analysts-only"),
   taiwanOnly = process.argv.includes("--taiwan-only"),
   etfFlowsOnly = process.argv.includes("--etf-flows-only"),
+  technicalsOnly = process.argv.includes("--technicals-only"),
   now = new Date().toISOString();
-if ([reviewOnly, privateCreditOnly, taiwanOnly, analystOnly, etfFlowsOnly].filter(Boolean).length > 1) throw new Error("Select only one scoped publication mode");
-if ((reviewOnly || privateCreditOnly || taiwanOnly || analystOnly || etfFlowsOnly) && !previous)
+const scoped = [reviewOnly, privateCreditOnly, taiwanOnly, analystOnly, etfFlowsOnly, technicalsOnly].filter(Boolean).length;
+if (scoped > 1) throw new Error("Select only one scoped publication mode");
+if (scoped && !previous)
   throw new Error(
     "A scoped publication requires an existing source snapshot",
   );
-let snapshot: Snapshot = reviewOnly
+let snapshot: Snapshot = reviewOnly || technicalsOnly
   ? { ...previous!, id: now.replace(/[:.]/g, "-"), issuedAt: now, cutoff: now }
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
   : taiwanOnly ? await refreshTaiwan(previous!, publicText)
   : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText)
   : analystOnly ? await refreshAnalystRatings(previous!, publicText) : await collectSnapshot(fetch, previous ?? undefined);
+if (!scoped || technicalsOnly) {
+  const readings = await loadFirstRateTechnicals(root, snapshot.cutoff).catch((error: Error) => {
+    console.error(`FirstRate technical observations unavailable: ${error.message}`);
+    return [];
+  });
+  const signals = replaceTechnicalSignals(snapshot.signals, readings, snapshot.cutoff);
+  const missing = signals.find(s => s.id === "daily-prices");
+  snapshot = { ...snapshot, signals, sourcesAttempted: technicalsOnly ? 1 : snapshot.sourcesAttempted + 1,
+    collectionErrors: [...snapshot.collectionErrors.filter(msg => !msg.startsWith("daily-prices:")),
+      ...(missing ? [`daily-prices: ${missing.instruments.join(", ")}. ${missing.summary}`] : [])] };
+}
 if (!reviewOnly && previous) snapshot = retainLastKnown(snapshot, previous);
 const review = JSON.parse(
   await readFile(

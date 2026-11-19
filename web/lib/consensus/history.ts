@@ -19,6 +19,7 @@ import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
+import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
 import { validateTaiwan } from "./taiwan.ts";
@@ -68,6 +69,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validatePrivateCredit(signal);
     validateAnalystRatings(signal);
     validateEtfFlows(signal);
+    validateFirstRateTechnical(signal);
     validateOrderActivity(signal);
     validateFuturesOptions(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
@@ -142,6 +144,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     )
       throw new Error("Invalid metric");
   }
+  validateFirstRateBreadth(snapshot.signals);
   for (const catalyst of snapshot.catalysts) {
     validateSourceCitation(catalyst.url);
     if (

@@ -1,5 +1,20 @@
 # Free feed access and alternatives
 
+## November 18 — Verified ETF technical observations
+
+The publisher now uses its approved FirstRate history for SPY, QQQ, IWM and DIA. The November 17 source ZIPs independently reproduced the following percentage changes. The consecutive close comparison uses the issuer's cash ex-dates. The breadth count uses each unrounded adjusted move. [FirstRate samples](https://firstratedata.com/stock-data) · [FirstRate licence](https://firstratedata.com/about/license)
+
+| ETF | Regular open to close | One-session close change | Five-session close change |
+| --- | ---: | ---: | ---: |
+| SPY | −0.8% | −1.0% | −2.3% |
+| QQQ | −0.9% | −0.7% | −2.6% |
+| IWM | −1.1% | −1.4% | −4.1% |
+| DIA | −0.7% | −1.6% | −2.8% |
+
+All four equity benchmarks declined. Results for twenty-session momentum and volatility require 21 consecutive approved closes. TLT still lacks an approved current source. The private prelaunch momentum benchmark fell short of the required forecast improvement. [Historical test](#november-18--technical-trend-and-volatility-benchmark)
+
+The nightly GitHub project `Johnbrick123/sp500-data` explicitly lists all five ETFs. Its live-symbol collector downloads from Yahoo Finance using yfinance with a Tiingo fallback and rebuilds the historical series nightly. The upstream yfinance documentation describes personal use and refers users to Yahoo's data terms. The repository supplied no additional grant covering this product's recurring public use. [ETF universe](https://github.com/Johnbrick123/sp500-data/blob/main/build_universe.py) · [Collector](https://github.com/Johnbrick123/sp500-data/blob/main/fetch_prices.py) · [Upstream usage](https://github.com/ranaroussi/yfinance)
+
 ## November 18 — Complete Nasdaq early-close sample
 
 The pinned November 28, 2025 Nasdaq TotalView-ITCH object streamed through the verifier in bounded byte ranges. It verified 4,735,308,661 compressed bytes, gzip integrity and 353,357,889 messages. The last ITCH record marked End of Messages at 5:05 p.m. New York. The verified object contains no separate zero-length BinaryFILE terminator. The scan found zero Broken Trade messages. [Nasdaq sample](https://emi.nasdaq.com/ITCH/Nasdaq%20ITCH/S112825-v50.txt.gz) · [ITCH specification](https://www.nasdaqtrader.com/content/technicalsupport/specifications/dataproducts/NQTVITCHspecification.pdf) · [BinaryFILE specification](https://nasdaqtrader.com/content/technicalSupport/specifications/dataproducts/binaryfile.pdf)

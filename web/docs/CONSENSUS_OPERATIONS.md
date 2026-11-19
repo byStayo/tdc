@@ -153,6 +153,10 @@ The independent private head protects against an ordinary Git reset of a pending
 
 ### Completed-bar calculation contracts
 
+Weekday preparation verifies the FirstRate samples before collecting the consensus draft. The draft reads the current private approval once. SPY, QQQ, IWM and DIA can each report rounded regular-session performance and one-, five- and twenty-session close changes. Twenty consecutive changes also support daily realized volatility. Each lookback stops at the first missing exchange session. The market breadth count requires the same pair of consecutive closes for all four equity ETFs. TLT stays on the missing-price list until it has approved evidence. The figures use split-reconciled bars and issuer cash adjustments. Observation, source-file modification and retrieval times are retained independently. The technical readings expire after five days and carry zero forecast votes.
+
+For a technical-only release, run `npm run consensus:collect -- --technicals-only` from `web`. Review the printed draft hash, base edition, ETF metrics and market counts. Publish with `npm run consensus:publish-collected -- REVIEWED_DRAFT_SHA256 BASE_EDITION`. A price retry after a draft is pinned can update outcome evaluation. A later draft can use those newly verified inputs. [FirstRate data](https://firstratedata.com/stock-data) · [Licence](https://firstratedata.com/about/license)
+
 Fibonacci and pivot inputs include an explicit interval end and cutoff. Bars still in progress or without a valid end are excluded. Opening range still needs all15 completed one-minute bars. Premarket requires at least50% of the330 expected minutes to show an explicitly partial *observed-bar range*, with observed/expected minutes and coverage; below that threshold it stays unavailable. Missing minutes are never synthesized as flat trading. The50% threshold is a display policy, not validated range accuracy or a trading signal. These tested helpers remain unconnected to live US prices until permitted, verified inputs are available.
 
 

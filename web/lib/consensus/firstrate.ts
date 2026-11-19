@@ -12,9 +12,9 @@ import { ETF_SYMBOLS } from "./marketparquet.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { collectResearchPrices, readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
+import { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, technicalSignals } from "./firstrate-technicals.ts";
 
-export const FIRST_RATE_SOURCE = "https://firstratedata.com/stock-data";
-export const FIRST_RATE_SYMBOLS = ["SPY", "QQQ", "IWM", "DIA"] as const;
+export { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, replaceTechnicalSignals } from "./firstrate-technicals.ts";
 const FIRST_RATE_SAMPLE_HOST = "https://frd001.s3.us-east-2.amazonaws.com/";
 const FIRST_EDITION_DAY = "2026-11-03";
 const BASIS_POINTS = 10_000;
@@ -222,6 +222,29 @@ async function readApproval(root: string) {
 export async function loadFirstRatePrices(root: string) {
   const approval = await readApproval(root);
   return approval ? firstRatePriceEvidence(approval) : [];
+}
+
+export function firstRateTechnicalSignals(approval: Approval, cutoff: string) {
+  if (approval.approvedAt > cutoff) return [];
+  const evidence = firstRatePriceEvidence(approval);
+  return technicalSignals(approval.symbols.map(({ symbol, proof, reviewedThrough }, i) => {
+    const { source } = proof;
+    const issuer = approval.issuers.find(row => row.symbol === symbol)!;
+    if (source.symbol !== symbol || source.url !== sourceURL(symbol) || source.basis !== "split-adjusted" ||
+        !SHA256.test(source.sha256) || !Number.isFinite(Date.parse(source.capturedAt)) ||
+        new Date(source.capturedAt).toISOString() !== source.capturedAt || source.capturedAt > approval.approvedAt ||
+        source.capturedAt < source.modifiedAt)
+      throw new Error(`Invalid ${symbol} technical input receipt`);
+    return { symbol, sessions: evidence[i].sessions, expectedSessions: evidence[i].expectedSessions,
+      reviewedThrough: reviewedThrough ?? approval.through, vintageAt: source.modifiedAt,
+      retrievedAt: [source.capturedAt, issuer.capturedAt].sort().at(-1)!,
+      sha256: digest({ symbol, source: source.sha256, issuer: issuer.sha256, proof, adjusted: evidence[i].sessions }) };
+  }), cutoff);
+}
+
+export async function loadFirstRateTechnicals(root: string, cutoff: string) {
+  const approval = await readApproval(root);
+  return approval ? firstRateTechnicalSignals(approval, cutoff) : [];
 }
 
 async function reviewSample(directory: string, sample: Sample, through: string, from: string,
