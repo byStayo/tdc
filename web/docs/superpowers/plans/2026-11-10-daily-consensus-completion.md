@@ -77,6 +77,8 @@ The original request inventory was compiled on November 10. Current completion f
 | Open | Complete the required signal feeds and reach 100% directional coverage. | Three of fifteen families vote on the daily market view. Weighted observation coverage is 60.66%. |
 | Open | Verify the complete product live after all remaining integrations. | Six reports are healthy and all 18 API views match the saved edition exactly. The strict completion audit returns 2 with price and model eligibility gaps. |
 
+On November 19 the last pre-open public read at 9:29:48.206 a.m. New York matched the as-issued archive and all five eligible inputs. CFTC original publication times, Canadian cross-border purchases and the TreasuryDirect customer channel each completed a fresh historical screen. All three left their families outside the vote. The [morning handoff](../../../../HANDOFF.md#november-19-at-800-am-new-york--morning-edition) records the out-of-sample results.
+
 ## Directional family checklist
 
 - [x] Liquidity. The market daily verdict uses the current government-source liquidity calculation.
