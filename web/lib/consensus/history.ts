@@ -19,6 +19,7 @@ import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateOperfCapital } from "./operf-capital.ts";
+import { validateHouseholdEquity } from "./household-equity.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
 import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
@@ -72,6 +73,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
   for (const signal of snapshot.signals) {
     validatePrivateCredit(signal);
     validateOperfCapital(signal, snapshot.cutoff);
+    validateHouseholdEquity(signal);
     validateAnalystRatings(signal);
     validateEtfFlows(signal);
     validateFirstRateTechnical(signal);

@@ -79,6 +79,17 @@ export interface Signal {
     inputThrough: string;
     documentation: { url: string; sha256: string };
   };
+  householdEquity?: {
+    reviewVersion: "fed-household-equity-v1";
+    seriesId: "FA153064105.Q";
+    quarter: "2026:Q2";
+    publicationClock: "date-only";
+    /** Earliest verified site capture of this observation, never the quarter end. */
+    firstObservedAt: string;
+    firstObservedSHA256: string;
+    methodBreakRelease: "2026-09-11";
+    revisedDefinitionFrom: "2012-10-01";
+  };
 }
 export interface Catalyst {
   id: string;

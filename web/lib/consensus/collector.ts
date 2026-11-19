@@ -6,6 +6,7 @@ import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
 import { collectOperfCapital } from "./operf-capital-source.ts";
+import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.ts";
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
@@ -916,6 +917,7 @@ export async function collectSnapshot(
     privateFunds,
     privateCredit,
     operfCapital,
+    householdEquity,
     policyRates,
     bocSurvey,
     householdOutlook,
@@ -940,6 +942,7 @@ export async function collectSnapshot(
     collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
     collectPrivateCredit((url) => publicText(url, fetcher)),
     collectOperfCapital((url) => publicBytes(url, fetcher, 2_000_000, "text/html,application/pdf"), operfReceiptDirectory),
+    collectHouseholdEquity((url) => publicText(url, fetcher), () => new Date().toISOString(), previous?.signals.find(s => s.id === HOUSEHOLD_EQUITY_ID)),
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectBocSurvey((url) => publicText(url, fetcher)),
     collectNyFedStockOutlook((url) => publicText(url, fetcher)),
@@ -980,6 +983,8 @@ export async function collectSnapshot(
       privateCredit,
       ...retailOrders,
       ...exchangeOrders,
+      // Preserve the insertion anchors used by existing scoped refreshes.
+      householdEquity,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
   return applyScoringPolicy({
@@ -997,7 +1002,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 50,
+    sourcesAttempted: MACRO_SERIES.length + 52,
     collectionErrors: signals
       .filter(
         (signal) =>
