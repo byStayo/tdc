@@ -26,7 +26,7 @@ export interface CtaReference {
   rows: (SessionPrice & { symbol: ReferenceSymbol; summaryAt: string })[];
 }
 
-function archiveUrl(session: string): string {
+export function ctaReferenceUrl(session: string): string {
   return ARCHIVE + "CTA.Summary.EODSUM." + session.replaceAll("-", "") + ".csv";
 }
 
@@ -203,7 +203,7 @@ export function parseCtaReference(bytes: Uint8Array, bounds: Session): CtaRefere
   return {
     scope: "private-price-reconciliation",
     basis: "as-traded-primary-listing-participant-eod-summary",
-    source: archiveUrl(bounds.session),
+    source: ctaReferenceUrl(bounds.session),
     sha256: createHash("sha256").update(bytes).digest("hex"),
     rows,
   };
@@ -221,7 +221,7 @@ export async function collectCtaReference(
   }
   if (Date.now() < Date.parse(bounds.closeAt) + 240 * MINUTE)
     throw new Error("CTA final summary is not due yet");
-  const bytes = await fetchCtaArchive(archiveUrl(day), MAX_BYTES, options.fetcher);
+  const bytes = await fetchCtaArchive(ctaReferenceUrl(day), MAX_BYTES, options.fetcher);
   return { reference: parseCtaReference(bytes, bounds), bytes };
 }
 

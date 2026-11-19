@@ -21,14 +21,24 @@ test("FirstRate withholds a directional disagreement and a short session while k
   assert.throws(() => reconcileFirstRateRows("DIA", candidate, raw, [price("2026-11-25", 50, 50), ...raw.slice(1)]), /split-basis/);
 
   const listing = [price("2026-11-25", 100.02, 99.99)];
-  const repaired = reconcileFirstRateRows("DIA", candidate, raw, raw, listing, raw);
+  const minutes = raw.map(row => ({ ...row, minutes: 390 }));
+  const repaired = reconcileFirstRateRows("DIA", candidate, raw, raw, listing, minutes);
   assert.deepEqual(repaired.rows, [raw[0], raw[2]]);
   assert.deepEqual(repaired.regularMinuteSessions, [raw[0].session]);
-  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [], raw), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [], minutes), result);
   assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, listing,
-    [price("2026-11-25", 100, 99.98), ...raw.slice(1)]), result);
-  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-25", 100.01, 100.01)], raw), result);
-  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-25", 100.05, 99.99)], raw), result);
+    [{ ...price("2026-11-25", 100, 99.98), minutes: 390 }, ...minutes.slice(1)]), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-25", 100.01, 100.01)], minutes), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-25", 100.05, 99.99)], minutes), result);
+
+  const shortListing = [price("2026-11-27", 100, 101.05)];
+  const shortMinutes = [{ ...raw[1], minutes: 210 }];
+  const short = reconcileFirstRateRows("DIA", candidate, raw, raw, shortListing, shortMinutes);
+  assert.deepEqual(short.rows, [raw[1], raw[2]]);
+  assert.deepEqual(short.regularMinuteSessions, ["2026-11-27"]);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, shortListing, minutes), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [], shortMinutes), result);
+  assert.deepEqual(reconcileFirstRateRows("DIA", candidate, raw, raw, [price("2026-11-27", 100, 101.26)], shortMinutes), result);
 });
 
 test("FirstRate cash adjustment uses the prior regular close and preserves missing calendar dates", () => {
@@ -69,4 +79,16 @@ test("FirstRate cash adjustment uses the prior regular close and preserves missi
   assert.deepEqual(partial[1].sessions.map(row => row.session), ["2026-11-23", "2026-11-24"]);
   assert.throws(() => firstRatePriceEvidence({ ...approval, symbols: [spy, { ...retained, rows }] }),
     /invalid sessions for QQQ/);
+
+  const shortDay = "2026-11-27";
+  const early = { ...spy, rows: [...rows.slice(0, 2), price(shortDay, 104, 106), rows[2]],
+    proof: { ...spy.proof, minuteRepairs: [{ session: shortDay, captureSession: "2026-11-30", minutes: 210,
+      source: { ...spy.proof.source, url: "https://frd001.s3.us-east-2.amazonaws.com/frd_sample_etf_SPY.zip" },
+      rawSha256: "b".repeat(64), splitSha256: "c".repeat(64),
+      listing: { session: shortDay, source: "https://ftp.nyse.com/cts_summary_files/CTA.Summary.EODSUM.20261127.csv",
+        sha256: "d".repeat(64) } }] } };
+  const [earlyEvidence] = firstRatePriceEvidence({ ...approval, symbols: [early] });
+  assert.deepEqual(earlyEvidence.sessions.find(row => row.session === shortDay), price(shortDay, 104, 106));
+  assert.throws(() => firstRatePriceEvidence({ ...approval, symbols: [{ ...early, proof: spy.proof }] }),
+    /invalid sessions for SPY/);
 });

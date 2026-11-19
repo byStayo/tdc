@@ -126,9 +126,10 @@ def read_daily(symbol, raw):
     return rows
 
 
-def read_regular_minutes(symbol, raw, daily):
-    """Verify the first and last trade prices from a full Eastern core session."""
+def read_regular_minutes(symbol, raw, daily, short_days):
+    """Verify every minute between the independently reviewed core-session bounds."""
     by_day = {row["session"]: [] for row in daily}
+    cutoff = {day: "13:00:00" if day in short_days else "16:00:00" for day in by_day}
     with ZipFile(BytesIO(raw)) as archive:
         member = archive.getinfo(f"{symbol}_1min_sample.csv")
         if member.file_size > 3_000_000:
@@ -142,16 +143,17 @@ def read_regular_minutes(symbol, raw, daily):
         for row in table:
             stamp = row["timestamp"]
             day = stamp[:10]
-            if day in by_day and "09:30:00" <= stamp[11:] < "16:00:00":
+            if day in by_day and "09:30:00" <= stamp[11:] < cutoff[day]:
                 by_day[day].append(row)
     result = []
     for day, rows in by_day.items():
         start = dt.datetime.fromisoformat(day + "T09:30:00")
-        if len(rows) != 390 or any(row["timestamp"] != (start + dt.timedelta(minutes=index)).isoformat(sep=" ") or
+        count = 210 if day in short_days else 390
+        if len(rows) != count or any(row["timestamp"] != (start + dt.timedelta(minutes=index)).isoformat(sep=" ") or
                                    len(row) != len(HEADERS) for index, row in enumerate(rows)):
             continue
         pairs = [read_ohlcv(symbol, row) for row in rows]
-        result.append({"session": day, "open": pairs[0][0], "close": pairs[-1][1]})
+        result.append({"session": day, "open": pairs[0][0], "close": pairs[-1][1], "minutes": count})
     return result
 
 
@@ -162,6 +164,7 @@ def main():
     parser.add_argument("--independent-samples", action="store_true",
                         help="Report unverified sample files separately from verified captures")
     parser.add_argument("--expected-close", type=dt.datetime.fromisoformat)
+    parser.add_argument("--short-session", type=dt.date.fromisoformat, action="append", default=[])
     parser.add_argument("--cached-issuer-history-from", type=dt.date.fromisoformat,
                         help="Read only issuer histories from an existing capture")
     args = parser.parse_args()
@@ -173,6 +176,7 @@ def main():
     if args.expected_close and args.expected_close.tzinfo is None:
         parser.error("The expected core close requires a timezone")
     start = issuer_history.isoformat() if issuer_history else "2026-01-01"
+    short_days = {day.isoformat() for day in args.short_session}
     os.umask(0o077)
     try:
         if not cached_only:
@@ -190,7 +194,7 @@ def main():
                           "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows}
                 if args.independent_samples:
                     try:
-                        sample["regularMinutes"] = read_regular_minutes(symbol, raw, rows)
+                        sample["regularMinutes"] = read_regular_minutes(symbol, raw, rows, short_days)
                     except (ValueError, KeyError, TypeError, BadZipFile):
                         sample["regularMinutes"] = []
                 samples.append(sample)

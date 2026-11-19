@@ -1,3 +1,11 @@
+## November 18 — Early-close qualification for Arca funds
+
+The weekday FirstRate collector is ready to review shortened SPY, IWM and DIA sessions. It verifies all 210 consecutive core minutes, exact agreement with as-traded and split-only references, and the existing direction and price tolerances against the final Arca participant summary. The short proof and its original source survive rolling captures. The current archive has 185 targets whose windows include the November 27 early close, including 111 for the three covered Arca funds. The actual shortened session and its vendor files are still due. [Proof and access checks](web/docs/FREE_FEED_PATH.md#november-18--early-close-qualification-and-tape-c-access-checks)
+
+The original November 28, 2025 CTA summary matched three independently filed closes. SPY and IWM passed the historical comparison. DIA's comparison close differed from the listing value by 25.57 basis points, above the 15-point limit. The parser honored the 13:00 boundary and withheld an incomplete minute control. Nasdaq's two checked public cross-statistics files contain share counts. The separate Cboe price file remains subscription-based. IEX direct historical downloads are unavailable, MarketParquet's current license starts with an archive purchase and FirstRate's MCP requires the Fundamentals bundle. The primary Tape C price and session evidence remains open. [Source checks](web/docs/FREE_FEED_PATH.md#november-18--early-close-qualification-and-tape-c-access-checks)
+
+TypeScript, 398 tests and prebuild integrity passed. All six live reports returned healthy and the public outcome bytes matched the 252-target release. There are 83 elapsed targets awaiting prices, of which 67 are TLT. Three of 15 families vote and the model gates remain open.
+
 ## November 18 — DIA November 3 price repair live
 
 The DIA November 3 price pair qualified from all 390 FirstRate core-session minute bars. It matched both independent as-traded and split-only daily comparisons exactly. The final Arca participant record independently confirmed the direction and both price tolerances. The private receipt pins the source, two comparison hashes and original listing reference through future sample rotations. [Price proof and scope](web/docs/FREE_FEED_PATH.md#november-18--dia-regular-session-price-repair)

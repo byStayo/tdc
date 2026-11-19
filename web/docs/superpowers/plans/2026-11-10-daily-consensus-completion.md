@@ -56,6 +56,8 @@ The audit read the original chat request, all ten accessible non-heartbeat user 
 
 ## Execution receipt
 
+- November 18 follow-up. The FirstRate pipeline can now qualify Arca's SPY, IWM and DIA early closes from 210 complete minutes, the independent split and raw pairs and one final listing report. In the historical November 28 reference comparison SPY and IWM met the limits and DIA's closing difference failed. The upcoming November 27 session spans 185 pending targets. Nasdaq's free share-count files lack the required prices, and the comparable Cboe sample was inaccessible. [Early-close proof and open sources](../../FREE_FEED_PATH.md#november-18--early-close-qualification-and-tape-c-access-checks)
+
 - November 18 follow-up. Reconciled the withheld November 3 DIA session from the complete licensed core-minute pair, independent raw and split-only pairs and final Arca evidence. The source replay found eight additional daily and eight weekly archive targets with the existing gates. The monthly windows include the November 27 early close, which needs its own verified prices. [DIA repair and proof](../../FREE_FEED_PATH.md#november-18--dia-regular-session-price-repair)
 
 - November 18 follow-up. The FirstRate collector now advances each independently verified ETF even when a different sample is stale. A replay using saved production evidence resolved 173 targets during the simulated QQQ outage and the remaining 63 when QQQ returned, without changing either prior prices or the earlier receipt. The longer Stocklake TLT sample failed the official short-session and historical price-basis checks. [Replay and source evidence](../../FREE_FEED_PATH.md#november-18--independent-firstrate-refresh-and-tlt-price-reconciliation)

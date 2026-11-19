@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
-import { CTA_REFERENCE_SYMBOLS, type CtaReference } from "./cta-reference.ts";
+import { collectCtaReference, ctaReferenceUrl, CTA_REFERENCE_SYMBOLS, type CtaReference } from "./cta-reference.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
 import { digest } from "./history.ts";
@@ -21,16 +21,17 @@ const BASIS_POINTS = 10_000;
 const SHA256 = /^[a-f0-9]{64}$/;
 type Symbol = (typeof FIRST_RATE_SYMBOLS)[number];
 type Bar = Pick<SessionPrice, "session" | "open" | "close">;
+type CoreBar = Bar & { minutes: number };
 type PriceSource = { symbol: Symbol; url: string; sha256: string; basis: "split-adjusted";
   capturedAt: string; modifiedAt: string; rows: Bar[] };
-type Sample = PriceSource & { regularMinutes: Bar[] };
+type Sample = PriceSource & { regularMinutes: CoreBar[] };
 type Issuer = { symbol: typeof ETF_SYMBOLS[number]; source: string; sha256: string;
   capturedAt: string; cash: CashDistribution[] };
 type SampleFailure = { symbol: Symbol; reason: string };
 type ListingProof = { session: string; source: string; sha256: string };
 type MinuteRepair = {
   session: string; captureSession: string; source: Omit<PriceSource, "rows">;
-  rawSha256: string; splitSha256: string; listing: ListingProof;
+  rawSha256: string; splitSha256: string; listing: ListingProof; minutes?: number;
 };
 type ApprovedSymbol = {
   symbol: Symbol;
@@ -67,15 +68,26 @@ function fullSession(day: string) {
   return session !== null && isFullKibotSession(session.openAt, session.closeAt);
 }
 
+function sessionMinutes(clock: Pick<SessionPrice, "openAt" | "closeAt">) {
+  return (Date.parse(clock.closeAt) - Date.parse(clock.openAt)) / 60_000;
+}
+
 function withinPriceLimits(row: Bar, reference: Bar) {
   return [row.open, row.close, reference.open, reference.close].every(price => Number.isFinite(price) && price > 0) &&
     Math.abs(row.open / reference.open - 1) * BASIS_POINTS <= 3 &&
     Math.abs(row.close / reference.close - 1) * BASIS_POINTS <= 15;
 }
 
-/** Require one intact, independently compared price basis for each confirmed full session. */
+export function verifiedCorePair(pair: CoreBar | undefined, expected: Bar, listed: Bar | undefined, minutes: number) {
+  return pair !== undefined && listed !== undefined && pair.minutes === minutes &&
+    pair.session === expected.session && listed.session === expected.session &&
+    pair.open === expected.open && pair.close === expected.close && withinPriceLimits(pair, listed) &&
+    Math.sign(pair.close - pair.open) === Math.sign(listed.close - listed.open);
+}
+
+/** Use independent references to qualify regular-session prices and clocked minute pairs. */
 export function reconcileFirstRateRows(
-  symbol: Symbol, candidate: Bar[], raw: SessionPrice[], splitOnly: SessionPrice[], listing: Bar[] = [], regularMinutes: Bar[] = [],
+  symbol: Symbol, candidate: Bar[], raw: SessionPrice[], splitOnly: SessionPrice[], listing: Bar[] = [], regularMinutes: CoreBar[] = [],
 ) {
   if (candidate.length !== raw.length || candidate.length !== splitOnly.length)
     throw new Error(`${symbol} FirstRate comparison has missing sessions`);
@@ -90,20 +102,20 @@ export function reconcileFirstRateRows(
       throw new Error(`${symbol} has a split-basis difference on ${row.session}`);
     const listed = listing.find(mark => mark.session === row.session);
     const listedMatch = listed?.open === row.open && listed.close === row.close;
+    const duration = sessionMinutes(clock);
+    const minutes = regularMinutes.find(bar => bar.session === row.session);
+    const priceChecked = withinPriceLimits(row, expected);
+    const directionDisagrees = Math.sign(row.close - row.open) !== Math.sign(expected.close - expected.open) && !listedMatch;
     let reason: ApprovedSymbol["withheld"][number]["reason"] | undefined;
-    if (!fullSession(row.session)) reason = "short-session";
-    else if (!withinPriceLimits(row, expected)) reason = "price";
-    else if (Math.sign(row.close - row.open) !== Math.sign(expected.close - expected.open) && !listedMatch) {
-      const minutes = regularMinutes.find(bar => bar.session === row.session);
-      // The same licensed ZIP must exactly match an independent regular-session pair.
-      // The listing market corroborates the direction and both price tolerances.
-      if (minutes && listed && minutes.open === expected.open && minutes.close === expected.close &&
-          withinPriceLimits(minutes, listed) && Math.sign(minutes.close - minutes.open) === Math.sign(listed.close - listed.open)) {
+    if (duration === 210 || (duration === 390 && directionDisagrees && priceChecked)) {
+      if (minutes && verifiedCorePair(minutes, expected, listed, duration)) {
         regularMinuteSessions.push(row.session);
         return [{ ...clock, open: minutes.open, close: minutes.close }];
       }
-      reason = "direction";
     }
+    if (duration !== 390) reason = "short-session";
+    else if (!priceChecked) reason = "price";
+    else if (directionDisagrees) reason = "direction";
     if (reason) {
       withheld.push({ session: row.session, reason });
       return [];
@@ -120,13 +132,30 @@ async function listingReferences(directory: string, symbol: Symbol, dates: strin
     const record = await readResearchReceipt<CtaReference>(resolve(directory, `cta-${session}.json`));
     if (!record) continue;
     const mark = record.rows.find(row => row.symbol === symbol && row.session === session);
-    const url = `https://ftp.nyse.com/cts_summary_files/CTA.Summary.EODSUM.${session.replaceAll("-", "")}.csv`;
+    const clock = exchangeSession(session)!;
+    const url = ctaReferenceUrl(session);
     if (!mark || record.scope !== "private-price-reconciliation" || record.source !== url ||
-        record.basis !== "as-traded-primary-listing-participant-eod-summary" || !SHA256.test(record.sha256))
+        record.basis !== "as-traded-primary-listing-participant-eod-summary" || !SHA256.test(record.sha256) ||
+        mark.openAt !== clock.openAt || mark.closeAt !== clock.closeAt ||
+        !Number.isFinite(Date.parse(mark.summaryAt)) || Date.parse(mark.summaryAt) < Date.parse(clock.closeAt) + 240 * 60_000)
       throw new Error(`Unverified exact listing reference for ${symbol} ${session}`);
     references.push({ mark, session, source: url, sha256: record.sha256 });
   }
   return references;
+}
+
+async function captureShortListing(directory: string, samples: Sample[]) {
+  const day = samples.filter(sample => CTA_REFERENCE_SYMBOLS.some(symbol => symbol === sample.symbol))
+    .flatMap(sample => sample.regularMinutes.filter(row => row.minutes === 210).map(row => row.session)).sort().at(-1);
+  if (!day) return;
+  const destination = resolve(directory, `cta-${day}.json`);
+  if (await readResearchReceipt<CtaReference>(destination)) return;
+  try {
+    const { reference } = await collectCtaReference(day);
+    await durableJSON(destination, reference, true);
+  } catch (error) {
+    return { session: day, reason: error instanceof Error ? error.message.slice(0, 240) : "Short-session listing reference unavailable" };
+  }
 }
 
 function verifyIssuers(issuers: Issuer[], through: string, now: string) {
@@ -151,16 +180,19 @@ export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
   verifyIssuers(approval.issuers, approval.through, approval.approvedAt);
   return approval.symbols.map(({ symbol, rows, proof, reviewedThrough = approval.through }) => {
     const byDate = new Map(rows.map(row => [row.session, row]));
+    const repairs = proof.minuteRepairs ?? [];
+    const early = new Set(repairs.filter(repair => repair.minutes === 210).map(repair => repair.session));
     if (!dates.includes(reviewedThrough) || byDate.size !== rows.length ||
         rows.some(row => row.session < approval.from || row.session > reviewedThrough ||
-        !fullSession(row.session) || row.openAt !== exchangeSession(row.session)!.openAt ||
+        (!fullSession(row.session) && (!early.has(row.session) || sessionMinutes(row) !== 210 ||
+          !CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol))) || row.openAt !== exchangeSession(row.session)!.openAt ||
         row.closeAt !== exchangeSession(row.session)!.closeAt))
       throw new Error(`FirstRate approval has invalid sessions for ${symbol}`);
-    const repairs = proof.minuteRepairs ?? [];
     if (new Set(repairs.map(repair => repair.session)).size !== repairs.length || repairs.some(repair =>
       !byDate.has(repair.session) || repair.captureSession < repair.session || repair.captureSession > reviewedThrough ||
       repair.source.symbol !== symbol || repair.source.url !== sourceURL(symbol) ||
-      repair.listing.session !== repair.session ||
+      repair.listing.session !== repair.session || repair.listing.source !== ctaReferenceUrl(repair.session) ||
+      (repair.minutes !== undefined && repair.minutes !== sessionMinutes(byDate.get(repair.session)!)) ||
       ![repair.source.sha256, repair.rawSha256, repair.splitSha256, repair.listing.sha256].every(hash => SHA256.test(hash))))
       throw new Error(`FirstRate ${symbol} minute repair lacks its pinned independent evidence`);
     const blocks: SessionPrice[][] = [];
@@ -210,11 +242,14 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
   const repairs = new Map(old?.proof.minuteRepairs?.map(repair => [repair.session, repair]));
   const priorRows = new Map(old?.rows.map(row => [row.session, row]));
   const candidates = rows.map(row => repairs.has(row.session) ? priorRows.get(row.session)! : row);
+  const shortReplays = candidates.flatMap(row => repairs.get(row.session)?.minutes === 210 ? [{ ...row, minutes: 210 }] : []);
+  const minutesToReview = [...shortReplays, ...regularMinutes.filter(row => !repairs.has(row.session))];
   const check = reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly);
   const listing = await listingReferences(directory, symbol,
-    check.withheld.filter(row => row.reason === "direction").map(row => row.session));
+    check.withheld.filter(row => row.reason === "direction" || (row.reason === "short-session" &&
+      minutesToReview.some(bar => bar.session === row.session && bar.minutes === 210))).map(row => row.session));
   const normalized = listing.length
-    ? reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly, listing.map(row => row.mark), regularMinutes)
+    ? reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly, listing.map(row => row.mark), minutesToReview)
     : check;
   const merged = new Map(priorRows);
   const priorLast = old?.rows.at(-1)?.session;
@@ -235,9 +270,11 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
   if (!merged.size) throw new Error(`${symbol} has no independently verified price sessions`);
   const references = listing.map(({ session, source, sha256 }) => ({ session, source, sha256 }));
   for (const session of normalized.regularMinuteSessions) {
+    if (repairs.has(session)) continue;
     const rawReference = raw.find(receipt => receipt.from <= session && receipt.through >= session)!;
     const splitReference = splits.find(receipt => receipt.from <= session && receipt.through >= session)!;
-    repairs.set(session, { session, captureSession: through, source, rawSha256: rawReference.sha256,
+    repairs.set(session, { session, captureSession: through, source, minutes: minutesToReview.find(bar => bar.session === session)!.minutes,
+      rawSha256: rawReference.sha256,
       splitSha256: splitReference.sha256, listing: references.find(reference => reference.session === session)! });
   }
   return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
@@ -262,16 +299,20 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   const pending = FIRST_RATE_SYMBOLS.filter(symbol => {
     const old = approved.get(symbol);
     return reviewWithheld
-      ? old?.reviewedThrough === through && old.withheld.some(row => row.reason === "direction")
+      ? old?.reviewedThrough === through && CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol) &&
+        old.withheld.some(row => row.reason !== "price")
       : (old?.reviewedThrough ?? "") < through;
   });
   if (previous && (previous.through > through || !pending.length))
     return { status: "reused", through: previous.through, approved: approvedCounts(previous) };
   const pinned = cachedOnly || reviewWithheld;
+  const shortArgs = exchangeSessions(EXCHANGE_CALENDAR.from, through).slice(-16)
+    .flatMap(day => sessionMinutes(exchangeSession(day)!) === 210 ? ["--short-session", day] : []);
   await durableDirectory(directory, 0o700);
   const { stdout } = await promisify(execFile)("python3",
     ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"), through, "--independent-samples",
       "--expected-close", exchangeSession(through)!.closeAt.replace(/Z$/, "+00:00"),
+      ...shortArgs,
       ...(pinned ? ["--cached-only"] : [])],
     { timeout: 105_000, maxBuffer: 256_000 });
   const { samples, sampleFailures, issuers } = JSON.parse(stdout) as {
@@ -291,13 +332,21 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
     }
   }
   const failures = sampleFailures.filter(row => pending.includes(row.symbol));
+  const availableSamples = samples.filter(row => pending.includes(row.symbol));
+  const listingFailure = pinned ? undefined : await captureShortListing(directory, availableSamples);
   const reviewed: Symbol[] = [];
-  for (const sample of samples.filter(row => pending.includes(row.symbol))) {
+  for (const sample of availableSamples) {
     try {
       const old = approved.get(sample.symbol);
       const match = await reviewSample(directory, sample, through, from, pinned, observed, old);
-      if (reviewWithheld && !old!.withheld.some(row => row.reason === "direction" &&
+      if (reviewWithheld && !old!.withheld.some(row => row.reason !== "price" &&
           match.rows.some(bar => bar.session === row.session))) continue;
+      if (listingFailure?.session === through && CTA_REFERENCE_SYMBOLS.some(symbol => symbol === sample.symbol) &&
+          sample.regularMinutes.some(bar => bar.session === through && bar.minutes === 210) &&
+          match.withheld.some(row => row.session === through && row.reason === "short-session")) {
+        match.reviewedThrough = match.rows.at(-1)!.session;
+        failures.push({ symbol: sample.symbol, reason: listingFailure.reason });
+      }
       approved.set(sample.symbol, match);
       reviewed.push(sample.symbol);
     } catch (error) {
@@ -324,5 +373,6 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   if (!replay) await durableJSON(captured, stored, true);
   await durableJSON(resolve(directory, "approved.json"), replay ?? stored);
   return { status: "qualified", from, through: approval.through, reviewed, approved: counts, failures,
+    ...(listingFailure ? { listingFailure } : {}),
     withheld: symbols.flatMap(({ symbol, withheld }) => withheld.map(row => ({ symbol, ...row }))) };
 }
