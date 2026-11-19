@@ -1223,6 +1223,7 @@ export default function MorningBoard({
   const available = current.filter(
     (signal) => effectiveStatus(signal, reference) === "available",
   );
+  const householdEquity = current.find(signal => signal.householdEquity && signal.series.length && signal.source.releasedAt);
   const agedSincePublication = historical
     ? 0
     : current.filter(
@@ -2030,7 +2031,17 @@ export default function MorningBoard({
                   historical={historical}
                 />
               </ResearchSection>
-              <ResearchSection number="04" title="Community & retail" description="FX-community positioning · current hosted context">
+              <ResearchSection number="04" title="Community & retail" description={householdEquity ? "US household equity transactions and FX-community positioning" : "FX-community positioning · current hosted context"}>
+                {householdEquity?.householdEquity && (
+                  <details className={styles.olderCapital}>
+                    <summary>Household and nonprofit equity transactions · {datedYear(householdEquity.series[0].date)}
+                      {effectiveStatus(householdEquity, reference) === "stale" ? " · stale" : ""}
+                    </summary>
+                    <p>The Fed estimated {householdEquity.series[0].value < 0 ? "net sales" : "net purchases"} of corporate equities at a seasonally adjusted annual rate of ${number(Math.abs(householdEquity.series[0].value), 1)} billion.</p>
+                    <p>The Fed estimates this sector by subtracting other sectors from the national total. It includes households, nonprofits, private-equity funds and personal trusts.</p>
+                    <a href={householdEquity.source.url}>Federal Reserve release, {datedYear(householdEquity.source.releasedAt!)}</a>
+                  </details>
+                )}
                 <RetailOutlook historical={historical} />
                 {communityEnabled && <CommunityPanel instrument={instrument} historical={historical} />}
               </ResearchSection>
