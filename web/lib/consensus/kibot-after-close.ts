@@ -67,7 +67,7 @@ export function reviewedFund(row: SessionFundProof, symbol: ETF, day: string, pr
       throw new Error("Invalid final CTA participant report");
   } else if (sources.historical) {
     if (!["QQQ", "TLT"].includes(symbol) ||
-        ![nasdaqDaily(symbol, day), `https://www.nasdaq.com/market-activity/etf/${symbol.toLowerCase()}/historical`].includes(control.source) ||
+        ![nasdaqDaily(symbol, day), nasdaqDaily(symbol, day, day), `https://www.nasdaq.com/market-activity/etf/${symbol.toLowerCase()}/historical`].includes(control.source) ||
         !["Nasdaq historical Open and Close/Last", "Nasdaq published historical Open and Close/Last"].includes(control.basis))
       throw new Error("Invalid dated Nasdaq historical control");
   } else if (control.source !== STOCKLAKE_HISTORY ||

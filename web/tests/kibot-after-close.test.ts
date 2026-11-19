@@ -164,7 +164,7 @@ test("the live receipt format replays the final CTA participant file and Nasdaq 
     const at = qqq.sources.kibot.capturedAt;
     const table = { headers: { date: "Date", open: "Open", close: "Close/Last", high: "High", low: "Low" },
       rows: [{ date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" }] };
-    const url = nasdaqDaily("QQQ", target);
+    const url = nasdaqDaily("QQQ", target, target); // A saved proof may use the earlier single-date request.
     async function nasdaq() {
       const bytes = Buffer.from(JSON.stringify({ status: { rCode: 200 }, data: { symbol: "QQQ", tradesTable: table } }));
       qqq.sources.historical = { source: url, basis: "Nasdaq historical Open and Close/Last", capturedAt: at, sha256: hash(bytes) };
@@ -345,18 +345,23 @@ test("an early secondary close cannot suppress a later exchange price or mask an
       assert.equal(String(url), nasdaqDaily("QQQ", target));
       requests++;
       const headers = { date: "Date", open: "Open", close: requests === 2 ? "Unknown" : "Close/Last", low: "Low", high: "High" };
-      const rows = requests === 1 ? [] : [{ date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" }];
+      const query = new URL(String(url));
+      assert.equal(query.searchParams.get("fromdate"), first); assert.equal(query.searchParams.get("todate"), target);
+      const prior = { date: "11/16/2026", open: "$99", close: "$98", low: "$97", high: "$100" };
+      const today = { date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" };
+      const rows = requests === 1 ? [prior] : requests === 3 ? [today, today] : [prior, today];
       return Response.json({ status: { rCode: 200 }, data: { symbol: "QQQ", tradesTable: { headers, rows } } });
     });
     const interim = await read("QQQ");
     assert.ok(interim.sources.secondary); assert.equal(interim.selectedBars[0].close, 99);
     assert.throws(() => reviewedFund(interim, "QQQ", target, first, edition(target), new Date().toISOString()), /prices or directions disagree/);
     await assert.rejects(read("QQQ"), /price definition differs/);
+    await assert.rejects(read("QQQ"), /Duplicate or out-of-range/);
     const final = await read("QQQ");
     assert.ok(final.sources.historical); assert.equal(final.selectedBars[0].close, 101);
     assert.equal(reviewedFund(final, "QQQ", target, first, edition(target), new Date().toISOString()).directionCorrect, null);
     assert.deepEqual(await read("QQQ"), final);
-    assert.equal(requests, 3); assert.deepEqual(await readFile(path), before);
+    assert.equal(requests, 4); assert.deepEqual(await readFile(path), before);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 

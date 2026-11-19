@@ -18,9 +18,9 @@ import type { SessionPrice } from "./evaluation.ts";
 const hash = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
 type ETF = SessionFundProof["symbol"];
 export const STOCKLAKE_HISTORY = "https://api.stocklake.dev/mcp";
-export function nasdaqDaily(symbol: ETF, day: string) {
+export function nasdaqDaily(symbol: ETF, day: string, fromdate = new Date(Date.parse(day + "T00:00:00Z") - 86_400_000).toISOString().slice(0, 10)) {
   const url = new URL(`https://api.nasdaq.com/api/quote/${symbol}/historical`);
-  url.search = new URLSearchParams({ assetclass: "etf", fromdate: day, todate: day, limit: "10" }).toString();
+  url.search = new URLSearchParams({ assetclass: "etf", fromdate, todate: day, limit: "10" }).toString();
   return url.href;
 }
 type RawMeta = { url: string; sha256: string; capturedAt: string; responseUrl?: string };
@@ -114,7 +114,7 @@ async function ctaReport(directory: string, day: string, collect: boolean, fetch
 
 function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) {
   if (!meta || meta.status !== 200 || meta.kind !== "daily" || meta.symbol !== symbol ||
-      meta.url !== nasdaqDaily(symbol, day) || !Number.isFinite(Date.parse(meta.requestedAt)) ||
+      ![nasdaqDaily(symbol, day), nasdaqDaily(symbol, day, day)].includes(meta.url) || !Number.isFinite(Date.parse(meta.requestedAt)) ||
       new Date(meta.requestedAt).toISOString() !== meta.requestedAt ||
       meta.requestedAt < exchangeSession(day)!.closeAt || meta.requestedAt > meta.capturedAt)
     throw new Error("Missing dated Nasdaq ETF historical response");
@@ -126,13 +126,24 @@ function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) 
   const table = data?.tradesTable;
   if (status?.rCode === 200 && (data === null || (data?.symbol === symbol && (table?.rows === null || (Array.isArray(table?.rows) && table.rows.length === 0)))))
     throw new SourceMissingError("Nasdaq has no historical ETF row for this date yet");
-  const date = day.slice(5, 7) + "/" + day.slice(8) + "/" + day.slice(0, 4);
   if (status?.rCode !== 200 || data?.symbol !== symbol || table?.headers?.date !== "Date" ||
       table.headers.open !== "Open" || table.headers.close !== "Close/Last" || table.headers.low !== "Low" ||
-      table.headers.high !== "High" || table.rows?.length !== 1 || table.rows[0].date !== date)
+      table.headers.high !== "High" || !Array.isArray(table.rows) || table.rows.length > 2)
     throw new Error("Nasdaq historical date, fund or price definition differs");
+  const from = new URL(meta.url).searchParams.get("fromdate")!;
+  const byDay = new Map<string, Record<string, unknown>>();
+  for (const row of table.rows) {
+    const parts = typeof row?.date === "string" && /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(row.date);
+    if (!parts) throw new Error("Invalid Nasdaq historical row date");
+    const session = `${parts[3]}-${parts[1]}-${parts[2]}`;
+    if ((session !== from && session !== day) || !exchangeSession(session) || byDay.has(session))
+      throw new Error("Duplicate or out-of-range Nasdaq historical row");
+    byDay.set(session, row);
+  }
+  const target = byDay.get(day);
+  if (!target) throw new SourceMissingError("Nasdaq has no historical ETF row for this date yet");
   const price = (field: string) => {
-    const value = table.rows[0][field];
+    const value = target[field];
     if (typeof value !== "string" || !/^\$?\d+(?:,\d{3})*(?:\.\d+)?$/.test(value))
       throw new Error("Invalid Nasdaq ETF price");
     return Number(value.replace(/[$,]/g, ""));
@@ -149,7 +160,7 @@ async function nasdaqControl(directory: string, symbol: ETF, day: string, collec
   if (!meta && collect) {
     const requestedAt = new Date().toISOString();
     const response = await sourceResponse(fetcher, url, { redirect: "error", signal: AbortSignal.timeout(12000),
-      headers: { Accept: "application/json", "User-Agent": "DailyConsensusResearch/1.0 (+https://thedailyconsensus.com)" } });
+      headers: { Accept: "application/json", "User-Agent": "DailyConsensus ETF historical verification" } });
     const reader = response.body!.getReader(), parts: Uint8Array[] = [];
     let length = 0;
     try {
@@ -169,7 +180,7 @@ async function nasdaqControl(directory: string, symbol: ETF, day: string, collec
     await durableJSON(path, meta, true);
   }
   if (!meta) throw new Error("Missing dated Nasdaq ETF historical response");
-  const stamp = { source: url, capturedAt: meta.capturedAt, sha256: meta.sha256, basis: "Nasdaq historical Open and Close/Last" };
+  const stamp = { source: meta.url, capturedAt: meta.capturedAt, sha256: meta.sha256, basis: "Nasdaq historical Open and Close/Last" };
   return { stamp, prices: decodeNasdaq(meta, symbol, day, stamp) };
 }
 
