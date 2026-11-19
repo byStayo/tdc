@@ -71,6 +71,8 @@ export interface Signal {
   scores: Record<Horizon, number | null>;
   staleAfterDays: number;
   unit: string;
+  /** Aggregate coverage for two adjacent Oregon public pension schedules. */
+  operfCapital?: import("./operf-capital.ts").OperfEvidence;
   /** Reviewed Fed release metadata; stored with the edition, never inferred from today's release. */
   privateCredit?: {
     reviewVersion: "fed-private-credit-v1";

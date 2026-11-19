@@ -634,8 +634,9 @@ function CapitalPanels({
   const inward = signals.find((s) => s.id === "tic-for_lt_total"),
     outward = signals.find((s) => s.id === "tic-us_lt_total"),
     privateEquity = signals.find((s) => s.id === "sec-private-equity-assets"),
-    privateCredit = signals.find((s) => s.id === "fed-private-credit-loans");
-  if (!inward && !privateEquity && !privateCredit) return null;
+    privateCredit = signals.find((s) => s.id === "fed-private-credit-loans"),
+    oregon = signals.find((s) => s.operfCapital);
+  if (!inward && !privateEquity && !privateCredit && !oregon) return null;
   const latest = inward?.series.at(-1),
     out = outward?.series.find((p) => p.date === latest?.date),
     net = latest && out ? latest.value - out.value : null,
@@ -802,6 +803,18 @@ function CapitalPanels({
             </details>
           </>
         ) : privateEquityAssets}
+        {oregon?.operfCapital && (
+          <details className={styles.olderCapital}>
+            <summary>Oregon pension contributions and distributions · {datedYear(oregon.operfCapital.current.period)}
+              {effectiveStatus(oregon, now) === "stale" ? " · stale" : ""}
+            </summary>
+            <p>{oregon.summary}</p>
+            <p>{oregon.limitation}</p>
+            <a href={oregon.operfCapital.previous.url}>Previous Oregon Treasury schedule</a>
+            {" · "}
+            <a href={oregon.operfCapital.current.url}>Current Oregon Treasury schedule</a>
+          </details>
+        )}
       </section>
     </div>
   );

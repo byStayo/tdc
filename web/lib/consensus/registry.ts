@@ -332,9 +332,9 @@ const REQUIRED_FEEDS: {
   {
     id: "private-capital",
     family: "capital",
-    title: "Private-equity investment flows",
+    title: "Market-wide private-equity investment flows",
     reason:
-      "Private-equity capital calls, distributions and investment flows are not integrated. SEC assets and Treasury cross-border transactions are separate lagged context.",
+      "Market-wide private-equity calls and distributions await a verified source. Oregon pension schedules cover one limited partner.",
     url: "https://www.sec.gov/data-research/investment-management-data/division-investment-management-private-fund-statistics",
   },
 ];

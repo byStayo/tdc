@@ -5,6 +5,7 @@ import { collectMarketCalendars } from "./calendars.ts";
 import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
+import { collectOperfCapital } from "./operf-capital-source.ts";
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
@@ -49,6 +50,7 @@ const HOSTS = new Set([
   "markets.newyorkfed.org",
   "home.treasury.gov",
   "www.mof.go.jp",
+  "www.oregon.gov",
   "www.boj.or.jp",
   "www.bankofengland.co.uk",
   "www.bankofcanada.ca",
@@ -81,6 +83,7 @@ export async function publicBytes(
   url: string,
   fetcher: Fetcher = fetch,
   maxBytes = 2_000_000,
+  accept = "application/json,text/csv,application/xml,text/xml,text/html",
 ): Promise<{ bytes: Buffer; sha256: string; retrievedAt: string }> {
   safeURL(url);
   const response = await sourceResponse(fetcher, url, {
@@ -89,7 +92,7 @@ export async function publicBytes(
     headers: {
       "User-Agent":
         "The Daily Consensus public research https://thedailyconsensus.com",
-      Accept: "application/json,text/csv,application/xml,text/xml,text/html",
+      Accept: accept,
     },
   });
   const reader = response.body!.getReader(),
@@ -897,6 +900,7 @@ export async function earnings(fetcher: Fetcher): Promise<Signal[]> {
 export async function collectSnapshot(
   fetcher: Fetcher = fetch,
   previous?: Snapshot,
+  operfReceiptDirectory?: string,
 ): Promise<Snapshot> {
   // Small independent source batches; each failed source is retained as unavailable.
   const [
@@ -911,6 +915,7 @@ export async function collectSnapshot(
     capital,
     privateFunds,
     privateCredit,
+    operfCapital,
     policyRates,
     bocSurvey,
     householdOutlook,
@@ -934,6 +939,7 @@ export async function collectSnapshot(
     collectCapital((url) => publicText(url, fetcher)),
     collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
     collectPrivateCredit((url) => publicText(url, fetcher)),
+    collectOperfCapital((url) => publicBytes(url, fetcher, 2_000_000, "text/html,application/pdf"), operfReceiptDirectory),
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectBocSurvey((url) => publicText(url, fetcher)),
     collectNyFedStockOutlook((url) => publicText(url, fetcher)),
@@ -958,6 +964,7 @@ export async function collectSnapshot(
       news.signal,
       ...capital,
       privateFunds,
+      operfCapital,
       ...policyRates,
       bocSurvey,
       householdOutlook,
@@ -990,7 +997,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 47,
+    sourcesAttempted: MACRO_SERIES.length + 50,
     collectionErrors: signals
       .filter(
         (signal) =>
