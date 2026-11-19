@@ -155,6 +155,17 @@ async function verifiedPriorCashBoundary(root: string, sourceRoot: string, symbo
     selectedBars: [independent, fund.selectedBars.at(-1)!] };
 }
 
+/** Reconstruct the issuer boundary from the hashed proof or the independently retained previous-session sources. */
+export async function replayRecordedFund(root: string, symbol: ETF, fund: SessionFundProof, day: string, previous: string,
+  edition: Snapshot, now: string, sourceRoot = resolve(root, ".consensus/private-kibot/sources")) {
+  if (fund.sources.issuer.targetExDates.length) {
+    if (!fund.cashBoundary) fund = await verifiedPriorCashBoundary(root, sourceRoot, symbol, fund, previous, false);
+    if (!fund.cashBoundary || fund.asTraded.length !== 2 || fund.selectedBars.length !== 2)
+      throw new Error("Missing independently verified prior prices at the issuer boundary");
+  }
+  return reviewedFund(fund, symbol, day, previous, edition, now);
+}
+
 export type AfterCloseInput = string | { sources: string; collect?: boolean };
 export async function evaluatePrivateAfterClose(root: string, day: string, input: AfterCloseInput) {
   const startedAt = new Date().toISOString();
@@ -213,7 +224,7 @@ export async function evaluatePrivateAfterClose(root: string, day: string, input
       const original = reviewedFund(fund, symbol, day, previous, edition, new Date().toISOString());
       const joined = await verifiedPriorCashBoundary(root, sourceRoot, symbol, fund, previous, collect);
       const outcome = joined === fund ? original : reviewedFund(joined, symbol, day, previous, edition, new Date().toISOString());
-      if (fromFiles) proof.sources[symbol] = joined;
+      if (fromFiles || joined !== fund) proof.sources[symbol] = joined;
       qualified.push(outcome);
     } catch (error) {
       pending.push({ instrument: symbol, reason: error instanceof Error && /^[A-Za-z][A-Za-z -]{1,70}$/.test(error.message)
@@ -244,7 +255,7 @@ export async function evaluatePrivateAfterClose(root: string, day: string, input
             prior.archiveSha256 !== archiveSha256 || prior.key !== row.key || prior.returnPct !== row.returnPct ||
             digest(prior) !== digest({ schemaVersion: 1, recordedAt: prior.recordedAt, archiveSha256, proofDigest: prior.proofDigest,
               retrospective: false,
-              ...reviewedFund(prior.cashBoundary ? { ...oldFund, cashBoundary: prior.cashBoundary } : oldFund, row.instrument, day, previous, edition, now) }))
+              ...await replayRecordedFund(root, row.instrument, oldFund, day, previous, edition, now, sourceRoot) }))
           throw new Error("Retained private daily identity or outcome changed");
       } else {
         await durableJSON(path, record, true);

@@ -12,6 +12,7 @@ import { exchangeSession } from "../lib/consensus/exchange-calendar.ts";
 import { digest, publishSnapshot } from "../lib/consensus/history.ts";
 import { completedRegularSession, evaluatePrivateAfterClose, reviewedFund, type CloseProof, type SessionFundProof } from "../lib/consensus/kibot-after-close.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { summarizePrivateSessions, verifiedPrivateSession, verifyPreviousResearchSessions } from "../lib/consensus/kibot-verified-session.ts";
 import { nasdaqDaily, retainedSessionWitnesses, STOCKLAKE_HISTORY } from "../lib/consensus/kibot-session-witnesses.ts";
 import { recordPreopenReceipt } from "../lib/consensus/preopen-receipt.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
@@ -221,7 +222,35 @@ test("a dated raw-source directory settles with the canonical pre-open receipt a
     assert.ok(!artifact.pin);
     assert.equal(result.preopenObservedAt, proof.pin?.publiclyObservedAt);
     assert.equal((await evaluatePrivateAfterClose(root, target, { sources: ownerDir })).added, 0);
+    const savedEdition = edition(target), at = new Date().toISOString();
+    const report = await verifiedPrivateSession(root, [savedEdition], target, savedEdition.engineVersion, at);
+    const settled = report.funds.filter(fund => fund.status === "resolved");
+    assert.deepEqual(settled.map(fund => [fund.instrument, fund.actualDirection, fund.returnPct]), [["QQQ", "up", row.returnPct]]);
+    const counted = summarizePrivateSessions([report, structuredClone(report)], first);
+    assert.equal(counted.through, target); assert.equal(counted.selected, 1);
+    assert.equal(counted.daily.find(fund => fund.instrument === "QQQ")?.sessions, 1);
+    const qqq = report.funds.find(fund => fund.instrument === "QQQ")!;
+    const conflicting = { ...report, funds: [{ ...qqq, actualDirection: "down" }] };
+    assert.throws(() => summarizePrivateSessions([report, conflicting], first), /disagree/);
+    const template = JSON.parse(await readFile(new URL("../public/consensus/kibot-research.json", import.meta.url), "utf8"));
+    const previous = { ...template, through: target, daily: counted.daily };
+    const identity = { aggregateSha256: digest(previous), identitiesSha256: digest(counted.identities), identities: counted.identities };
+    verifyPreviousResearchSessions(previous, identity, [report], counted);
+    for (const [replacement, requiredReceipt, reason] of [
+      ["2026-11-18", null, /previously published/], [first, identity, /previously counted/],
+    ] as const) {
+      const different = [{ ...report, session: replacement }];
+      assert.throws(() => verifyPreviousResearchSessions(previous, requiredReceipt, different, summarizePrivateSessions(different, target)), reason);
+    }
+    const filename = join(dir, "QQQ.json");
+    await durableJSON(filename, { ...row, returnPct: -3 });
+    await assert.rejects(verifiedPrivateSession(root, [savedEdition], target, savedEdition.engineVersion, at), /reviewed prices/);
+    await durableJSON(filename, { ...row, retrospective: true });
+    const historical = await verifiedPrivateSession(root, [savedEdition], target, savedEdition.engineVersion, at);
+    assert.equal(summarizePrivateSessions([historical], first).selected, 0);
+    await durableJSON(filename, row);
     await rename(join(root, ".consensus/private-preopen", target), join(root, ".consensus/private-preopen", "unavailable"));
+    await assert.rejects(verifiedPrivateSession(root, [savedEdition], target, savedEdition.engineVersion, at), /No pre-open/);
     await assert.rejects(evaluatePrivateAfterClose(root, target, { sources: ownerDir }), /No pre-open/);
     await assert.rejects(evaluatePrivateAfterClose(root, target, await store(sourceRoot, proof)), /No pre-open/);
   } finally { await rm(root, { recursive: true, force: true }); }
@@ -243,6 +272,23 @@ test("an ex-date return records the actual arrival time of the independent prior
     assert.equal(record.observedAt, late);
     assert.equal(record.cashBoundary.native.capturedAt, late);
     assert.equal(record.cashBoundary.native.sha256, original.sha256);
+    const at = new Date().toISOString(), issued = edition(target);
+    const read = () => verifiedPrivateSession(root, [issued], target, issued.engineVersion, at);
+    assert.equal((await read()).funds.filter(fund => fund.status === "resolved").length, 1);
+    const outcomeDir = join(root, ".consensus/private-kibot/after-close", target), filename = join(outcomeDir, "QQQ.json");
+    const altered = structuredClone(record);
+    altered.cashBoundary.native.sha256 = "b".repeat(64);
+    await durableJSON(filename, altered);
+    await assert.rejects(read(), /reviewed prices/);
+    // Older external proofs did not always contain prior-session hashes. Recover them independently from the original files.
+    const legacy = JSON.parse(await readFile(join(outcomeDir, target + "-" + record.proofDigest + ".json"), "utf8"));
+    delete legacy.sources.QQQ.cashBoundary;
+    await durableJSON(join(outcomeDir, target + "-" + digest(legacy) + ".json"), legacy, true);
+    await durableJSON(filename, { ...record, proofDigest: digest(legacy) });
+    await symlink(join(sourceRoot, "sources"), join(root, ".consensus/private-kibot/sources"));
+    assert.equal((await read()).funds.filter(fund => fund.status === "resolved").length, 1);
+    await durableJSON(filename, { ...altered, proofDigest: digest(legacy) });
+    await assert.rejects(read(), /reviewed prices/);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 

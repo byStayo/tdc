@@ -1,13 +1,15 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
-import { durableJSON } from "../lib/publication-storage.ts";
+import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { outcomeWindowSessions, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
-import { verifyPublicationTree } from "../lib/consensus/history.ts";
+import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { isFullKibotSession, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { dailySessionOutcomes } from "../lib/consensus/outcome-coverage-audit.ts";
+import { summarizePrivateSessions, verifiedPrivateSession, verifyPreviousResearchSessions, type ResearchSessionReceipt } from "../lib/consensus/kibot-verified-session.ts";
+import { readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
 import {
   KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_RESEARCH_STUDIES,
   KIBOT_RESEARCH_SYMBOLS, validateKibotResearch, type KibotResearch,
@@ -24,8 +26,8 @@ let failure: { error: unknown } | undefined;
 try {
   const { current, history, snapshots } = await verifyPublicationTree(root);
   const ledger = JSON.parse(await readFile(resolve(root, ".consensus/private-kibot/evaluation.json"), "utf8"));
-  const through = typeof ledger.summary?.through === "string" ? ledger.summary.through : "";
-  const lastSession = exchangeSession(through);
+  const bulkThrough = typeof ledger.summary?.through === "string" ? ledger.summary.through : "";
+  const lastSession = exchangeSession(bulkThrough);
   if (ledger.schemaVersion !== 2 || !lastSession || !Array.isArray(ledger.outcomes) ||
       !(lastSession.closeAt < ledger.evaluatedAt && ledger.evaluatedAt <= new Date().toISOString()))
     throw new Error("Private Kibot ledger must cover a completed, reviewed session");
@@ -36,7 +38,7 @@ try {
     const snapshot = byId.get(row.snapshotId);
     const target = snapshot && outcomeWindowSessions(snapshot.issuedAt, "daily", calendar)[0];
     const clock = target && exchangeSession(target);
-    if (!snapshot || !clock || target > through || row.source !== KIBOT_PRICE_CITATION ||
+    if (!snapshot || !clock || target > bulkThrough || row.source !== KIBOT_PRICE_CITATION ||
         row.engineVersion !== snapshot.engineVersion || row.issuedAt !== snapshot.issuedAt ||
         !KIBOT_RESEARCH_SYMBOLS.includes(row.instrument as typeof KIBOT_RESEARCH_SYMBOLS[number]) ||
         row.horizon !== "daily" || row.entryAt !== clock.openAt || row.exitAt !== clock.closeAt ||
@@ -49,16 +51,22 @@ try {
     throw new Error("Private Kibot ledger differs from its selected session count");
   const dates = new Set(selected.map(row => row.entryAt.slice(0, 10)));
   const ledgerClock = { asOf: ledger.evaluatedAt, ledgerObservedAt: ledger.evaluatedAt };
-  const settled = [...dates].flatMap(day =>
-    dailySessionOutcomes(snapshots, selected.filter(row => row.entryAt.startsWith(day)), day, current.engineVersion, ledgerClock)
-      .funds.filter(row => row.status === "resolved"));
-  if (settled.length !== selected.length)
+  const sessions = [...dates].map(day =>
+    dailySessionOutcomes(snapshots, selected.filter(row => row.entryAt.startsWith(day)), day, current.engineVersion, ledgerClock));
+  if (sessions.reduce((n, report) => n + report.funds.filter(row => row.status === "resolved").length, 0) !== selected.length)
     throw new Error("Private research ledger is missing the last issued edition for a settled ETF session");
-  const daily = KIBOT_RESEARCH_SYMBOLS.map(instrument => {
-    const rows = settled.filter(row => row.instrument === instrument);
-    return { instrument, sessions: rows.length, eligibleSessions: rows.filter(row => row.inputEligible).length,
-      calls: rows.filter(row => row.asIssuedCall !== "withheld").length };
+  const directory = resolve(root, ".consensus/private-kibot/after-close");
+  const entries = await readdir(directory, { withFileTypes: true }).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return [];
+    throw error;
   });
+  const asOf = new Date().toISOString();
+  for (const entry of entries) {
+    if (entry.isDirectory() && /^\d{4}-\d{2}-\d{2}$/.test(entry.name))
+      sessions.push(await verifiedPrivateSession(root, snapshots, entry.name, current.engineVersion, asOf));
+  }
+  const checked = summarizePrivateSessions(sessions, bulkThrough);
+  const { through, daily } = checked;
 
   const studyIds = new Set(KIBOT_RESEARCH_STUDIES.map(study => study.id));
   const reports = new Map(await Promise.all([...studyIds].map(async id => {
@@ -96,10 +104,26 @@ try {
     if (error.code !== "ENOENT") throw error;
     return null;
   });
+  const attribution = resolve(root, ".consensus/private-kibot/aggregate-history");
+  if (prior) {
+    const previous = JSON.parse(prior);
+    validateKibotResearch(previous, history[0]);
+    const receipt = await readResearchReceipt<ResearchSessionReceipt>(resolve(attribution, digest(previous) + ".json"));
+    verifyPreviousResearchSessions(previous, receipt, sessions, checked);
+  }
   const changed = prior !== next;
-  if (args[0] === "--publish" && changed) await durableJSON(path, aggregate);
+  if (args[0] === "--publish") {
+    await durableDirectory(attribution, 0o700);
+    const aggregateSha256 = digest(aggregate);
+    const filename = resolve(attribution, aggregateSha256 + ".json");
+    const receipt = { aggregateSha256, identitiesSha256: digest(checked.identities), identities: checked.identities };
+    const saved = await readResearchReceipt<ResearchSessionReceipt>(filename);
+    if (saved && digest(saved) !== digest(receipt)) throw new Error("Private identities for this aggregate have changed");
+    if (!saved) await durableJSON(filename, receipt, true);
+    if (changed) await durableJSON(path, aggregate);
+  }
   console.log(JSON.stringify({
-    through, selected: selected.length, inputEligible: daily.reduce((sum, row) => sum + row.eligibleSessions, 0),
+    through, selected: checked.selected, inputEligible: daily.reduce((sum, row) => sum + row.eligibleSessions, 0),
     calls: daily.reduce((sum, row) => sum + row.calls, 0),
     studies: studies.length, cleared: studies.filter(row => row.clearedMargin).length,
     status: !changed ? "unchanged" : args[0] === "--publish" ? "staged" : "reviewed",
