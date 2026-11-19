@@ -39,6 +39,12 @@ try {
   const following = publicOnly
     ? { status: "skipped_public_only" }
     : await collect("collect-following-feeds.ts", ["--scheduled"]);
+  const form144 = await collect("research-sec-form144.ts", ["--collect-only"], 60_000)
+    .catch((error: { killed?: boolean; stderr?: string }) => ({
+      status: "unavailable",
+      error: error.killed ? "SEC Form 144 check exceeded 60 seconds"
+        : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC Form 144 check did not complete",
+    }));
   const consensus = await collect("publish-consensus.ts");
   const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
@@ -58,6 +64,7 @@ try {
     following,
     consensus,
     issuerRevenue,
+    form144,
     firstRate,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);

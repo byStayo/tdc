@@ -79,6 +79,7 @@ export function safeURL(input: string): string {
 export async function publicBytes(
   url: string,
   fetcher: Fetcher = fetch,
+  maxBytes = 2_000_000,
 ): Promise<{ bytes: Buffer; sha256: string; retrievedAt: string }> {
   safeURL(url);
   const response = await sourceResponse(fetcher, url, {
@@ -98,7 +99,7 @@ export async function publicBytes(
       const chunk = await sourceChunk(reader);
       if (chunk.done) break;
       size += chunk.value.byteLength;
-      if (size > 2_000_000) throw new Error("Source exceeds 2 MB limit");
+      if (size > maxBytes) throw new Error(`Source exceeds ${maxBytes / 1_000_000} MB limit`);
       chunks.push(chunk.value);
     }
   } catch (error) {

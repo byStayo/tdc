@@ -1,5 +1,20 @@
 # Free feed access and alternatives
 
+## November 18 — Original Form 144 proposed-sale notices
+
+Rule 144 requires certain affiliated sellers to file concurrently with placing a qualifying order or executing directly with a market maker. The proposed value and approximate sale date come from the notice. Execution data comes from the later transaction disclosure. The Palantir notice proposed 300,000 shares and a $50.76 million market value. It was accepted November 10 at 4:26:32 p.m. New York time and reported an August 10 plan adoption. The Form 4, accepted November 13 at 8:00:09 p.m., reports 300,000 executed shares for November 10. A second notice for November 11 was accepted November 12 after the federal holiday. [Research lead](https://x.com/virattt/status/2123115910571741478) · [SEC rule](https://www.sec.gov/files/rules/final/2023/33-11159.pdf) · [Original notice](https://www.sec.gov/Archives/edgar/data/1321655/000195004726010948/0001950047-26-010948-index.htm) · [Later transaction report](https://www.sec.gov/Archives/edgar/data/1321655/000182415926000017/0001824159-26-000017-index.htm) · [Holiday notice](https://www.sec.gov/Archives/edgar/data/1321655/000195004726010983/xsl144X01/primary_doc.xml)
+
+The preparation collector reads the official submissions catalogs for AAPL, MSFT, NVDA, AMD, QCOM, PLTR, JPM and WMT. It verifies original Form 144 XML from ten calendar days before the cutoff date through the precise cutoff. The evidence keeps exact EDGAR acceptance, retrieval, filing, notice and proposed-sale dates, along with reported shares and market value. Plan dates and amended filing counts are recorded separately. The November 18 public-only run captured nine original notices, seven with plan dates. It saved Form 144 before producing the consensus draft and kept seller details out of the normalized receipt. [SEC submissions API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)
+
+The bench uses the same fixed issuer panel as an equity-market feature. It counts distinct issuers with Form 144 acceptance between consecutive 8 a.m. New York cutoffs and controls for Form 4 issuer breadth and the preceding regular-session open-to-close log return. It found 912 original notices and 2,425 Form 4 disclosures. Form 144 breadth was nonzero on 432 of the 699 matched sessions. The four comparisons share 140 chronological test dates starting April 15, 2026. IWM's gain over its strongest baseline was 0.00450 Brier points. The daily evidence is private context while prospective validation remains open.
+
+| ETF | Form 4 and price baseline Brier | With Form 144 breadth | Clears 0.01 improvement |
+| --- | ---: | ---: | --- |
+| SPY | 0.262799 | 0.260357 | No |
+| QQQ | 0.259527 | 0.255141 | No |
+| IWM | 0.249652 | 0.244193 | No |
+| DIA | 0.253268 | 0.246829 | No |
+
 ## November 18 — NineQuantAI ETF price reconciliation
 
 Eleven bounded guest candle requests returned all five regular-session date sequences from October 30 through November 17, a TLT adjusted series and one historical shortened session per ETF. The daily series labels its dates, T+1 availability and consolidated basis. Its candle fields contain no execution timestamps. The comparison used the saved independent as-traded prices and SEC filing marks. [Candle endpoint](https://ninequantai.com/en/api) · [SEC closing marks](#november-18--regulatory-short-session-closes-and-sec-form-4)
