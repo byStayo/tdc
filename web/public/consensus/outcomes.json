@@ -1414,5 +1414,101 @@
     "instrument": "DIA",
     "horizon": "daily",
     "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-28-30-460Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.0.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T06-49-15-231Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-11-18-623Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-38-08-394Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T07-53-00-486Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-12-07-599Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-30-55-634Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-1.1.0"
+  },
+  {
+    "snapshotId": "2026-11-03T08-48-02-469Z",
+    "instrument": "DIA",
+    "horizon": "weekly",
+    "engineVersion": "consensus-rules-1.1.0"
   }
 ]
