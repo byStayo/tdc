@@ -1,11 +1,58 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import test from "node:test";
 import { exchangeSession } from "../lib/consensus/exchange-calendar.ts";
 import {
-  firstRatePriceEvidence, FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, reconcileFirstRateRows,
+  firstRateCaptureDates, firstRatePriceEvidence, FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, latestFirstRateSession, reconcileFirstRateRows,
 } from "../lib/consensus/firstrate.ts";
 
 const price = (day: string, open: number, close: number) => ({ ...exchangeSession(day)!, open, close });
+
+test("FirstRate can review a completed core session immediately and never uses the open session", () => {
+  for (const [now, expected] of [
+    ["2026-11-19T13:00:00.000Z", "2026-11-18"],
+    ["2026-11-19T20:59:59.999Z", "2026-11-18"],
+    ["2026-11-19T21:00:00.000Z", "2026-11-19"],
+    ["2026-11-20T03:00:00.000Z", "2026-11-19"],
+    ["2026-11-26T22:30:00.000Z", "2026-11-25"],
+    ["2026-11-27T17:59:59.999Z", "2026-11-25"],
+    ["2026-11-27T18:00:00.000Z", "2026-11-27"],
+    ["2026-11-29T22:30:00.000Z", "2026-11-27"],
+    ["2026-07-02T20:00:00.000Z", "2026-07-02"],
+  ]) assert.equal(latestFirstRateSession(now), expected, now);
+  assert.throws(() => latestFirstRateSession("2026-01-01T22:00:00.000Z"), /No reviewed/);
+  assert.throws(() => latestFirstRateSession("2027-11-29T22:00:00.000Z"), /no reviewed coverage/);
+});
+
+test("a post-close refresh gives a lagging fund a bounded opportunity to catch up", () => {
+  const afterClose = "2026-11-19T21:01:00.000Z";
+  assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-18", "2026-11-17"]), ["2026-11-18", "2026-11-19"]);
+  assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-19", "2026-11-17"]), ["2026-11-18", "2026-11-19"]);
+  assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-18", "2026-11-19"]), ["2026-11-19"]);
+  assert.deepEqual(firstRateCaptureDates("2026-11-19T13:00:00.000Z", ["2026-11-17"]), ["2026-11-18"]);
+});
+
+test("a stale evening price file does not pin issuer evidence for tomorrow's retry", () => {
+  const code = `
+import contextlib, importlib.util, io, json, pathlib, sys, tempfile
+from unittest.mock import patch
+scripts = pathlib.Path("scripts").resolve()
+sys.path.insert(0, str(scripts))
+spec = importlib.util.spec_from_file_location("first_rate_inputs", scripts/"collect-firstrate-inputs.py")
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+def stale(folder, name, *args):
+    assert name.startswith("sample-"), "issuer captured before any finalized file"
+    raise ValueError("sample still ends on previous date")
+with tempfile.TemporaryDirectory() as tmp, patch.object(module, "ROOT", pathlib.Path(tmp)), patch.object(module, "capture", stale):
+    sys.argv = ["collect", "2026-11-19", "--independent-samples"]
+    with contextlib.redirect_stdout(io.StringIO()) as output:
+        assert module.main() == 0
+    result = json.loads(output.getvalue())
+    assert result["issuers"] == [] and len(result["sampleFailures"]) == 4
+`;
+  execFileSync("python3", ["-B", "-c", code]);
+});
 
 test("FirstRate withholds a directional disagreement and a short session while keeping verified full dates", () => {
   const raw = [price("2026-11-25", 100, 99.99), price("2026-11-27", 100, 101), price("2026-11-30", 100, 102)];

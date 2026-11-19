@@ -56,11 +56,22 @@ type StoredApproval = { approval: Approval; sha256: string };
 const directoryName = ".consensus/private-firstrate";
 const sourceURL = (symbol: Symbol) => `${FIRST_RATE_SAMPLE_HOST}frd_sample_etf_${symbol}.zip`;
 
-function priorSession(now: string) {
-  const yesterday = new Date(Date.parse(newYorkDate(now)) - 86_400_000).toISOString().slice(0, 10);
-  const through = exchangeSessions(EXCHANGE_CALENDAR.from, yesterday).at(-1);
-  if (!through) throw new Error("No reviewed prior session for FirstRate");
-  return through;
+export function latestFirstRateSession(now: string): string {
+  const observed = Date.parse(now);
+  let day = newYorkDate(now);
+  while (day >= EXCHANGE_CALENDAR.from) {
+    const session = exchangeSession(day);
+    if (session && Date.parse(session.closeAt) <= observed) return day;
+    day = new Date(Date.parse(day) - 86_400_000).toISOString().slice(0, 10);
+  }
+  throw new Error("No reviewed completed session for FirstRate");
+}
+
+export function firstRateCaptureDates(now: string, approvedThrough: string[]) {
+  const latest = latestFirstRateSession(now);
+  if (latest !== newYorkDate(now) || latest <= FIRST_EDITION_DAY) return [latest];
+  const prior = latestFirstRateSession(exchangeSession(latest)!.openAt);
+  return approvedThrough.some(through => through < prior) ? [prior, latest] : [latest];
 }
 
 function fullSession(day: string) {
@@ -320,12 +331,12 @@ function approvedCounts(approval: Approval) {
   return firstRatePriceEvidence(approval).map(({ instrument, sessions }) => ({ instrument, sessions: sessions.length }));
 }
 
-/** Caller holds the existing publication lock. The only committed output is an owner-local receipt. */
-export async function prepareFirstRate(root: string, cachedOnly = false, now = new Date().toISOString(), reviewWithheld = false) {
+class NoVerifiedSample extends Error {}
+
+async function reviewFirstRateSession(root: string, through: string, cachedOnly: boolean, reviewWithheld: boolean) {
   const directory = resolve(root, directoryName);
   const previous = await readApproval(root);
   if (reviewWithheld && !previous) throw new Error("FirstRate replay needs a verified capture");
-  const through = reviewWithheld ? previous!.through : priorSession(now);
   if (through < FIRST_EDITION_DAY) return { status: "no_issued_targets", through };
   const approved = new Map(previous?.symbols.map(row =>
     [row.symbol, { ...row, reviewedThrough: row.reviewedThrough ?? previous.through }]));
@@ -336,7 +347,7 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
         old.withheld.some(row => row.reason !== "price")
       : (old?.reviewedThrough ?? "") < through;
   });
-  if (previous && (previous.through > through || !pending.length))
+  if (previous && !pending.length)
     return { status: "reused", through: previous.through, approved: approvedCounts(previous) };
   const pinned = cachedOnly || reviewWithheld;
   const shortArgs = exchangeSessions(EXCHANGE_CALENDAR.from, through).slice(-16)
@@ -354,18 +365,27 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   if (inventory.length !== FIRST_RATE_SYMBOLS.length || FIRST_RATE_SYMBOLS.some(symbol => !inventory.includes(symbol)))
     throw new Error("FirstRate did not account for each documented sample");
   const observed = new Date().toISOString();
+  const failures = sampleFailures.filter(row => pending.includes(row.symbol));
+  const availableSamples = samples.filter(row => pending.includes(row.symbol));
+  if (!availableSamples.length) {
+    if (reviewWithheld)
+      return { status: "no_verified_disputes", through, approved: approvedCounts(previous!), failures };
+    throw new NoVerifiedSample(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
+  }
   verifyIssuers(issuers, through, observed);
   const from = previous?.from ?? FIRST_EDITION_DAY;
   if (previous) {
-    for (const { symbol, reviewedThrough } of approved.values()) {
+    for (const symbol of ETF_SYMBOLS) {
+      const old = approved.get(symbol as Symbol);
+      if (!old && previous.through <= through) continue;
+      // A lagging ETF may catch up using older source files after another fund has advanced.
+      const end = previous.through > through ? through : old!.reviewedThrough;
       const history = (source: Issuer[]) => source.find(row => row.symbol === symbol)!.cash.filter(row =>
-        row.session >= from && row.session <= reviewedThrough);
+        row.session >= from && row.session <= end);
       if (digest(history(previous.issuers)) !== digest(history(issuers)))
         throw new Error(`Issuer history changed for previously checked ${symbol} sessions`);
     }
   }
-  const failures = sampleFailures.filter(row => pending.includes(row.symbol));
-  const availableSamples = samples.filter(row => pending.includes(row.symbol));
   const listingFailure = pinned ? undefined : await captureShortListing(directory, availableSamples);
   const reviewed: Symbol[] = [];
   for (const sample of availableSamples) {
@@ -389,11 +409,13 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   if (reviewWithheld && !reviewed.length)
     return { status: "no_verified_disputes", through, approved: approvedCounts(previous!), failures };
   if (!reviewed.length)
-    throw new Error(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
+    throw new NoVerifiedSample(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
 
   const symbols = FIRST_RATE_SYMBOLS.flatMap(symbol => approved.has(symbol) ? [approved.get(symbol)!] : []);
+  const preserveNewer = previous && previous.through > through;
   const approval: Approval = { schemaVersion: 1, source: FIRST_RATE_SOURCE, from,
-    through, approvedAt: new Date().toISOString(), issuers, symbols };
+    through: preserveNewer ? previous.through : through, approvedAt: new Date().toISOString(),
+    issuers: preserveNewer ? previous.issuers : issuers, symbols };
   const counts = approvedCounts(approval);
   // Archive each accepted capture before advancing the current receipt.
   const stored = { approval, sha256: digest(approval) };
@@ -408,4 +430,33 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   return { status: "qualified", from, through: approval.through, reviewed, approved: counts, failures,
     ...(listingFailure ? { listingFailure } : {}),
     withheld: symbols.flatMap(({ symbol, withheld }) => withheld.map(row => ({ symbol, ...row }))) };
+}
+
+/** Caller holds the publication lock. Retain an accepted catch-up even when tonight's new sample is late. */
+export async function prepareFirstRate(root: string, cachedOnly = false, now = new Date().toISOString(), reviewWithheld = false) {
+  const previous = await readApproval(root);
+  if (reviewWithheld) {
+    if (!previous) throw new Error("FirstRate replay needs a verified capture");
+    return reviewFirstRateSession(root, previous.through, true, true);
+  }
+  const approvedThrough = FIRST_RATE_SYMBOLS.map(symbol => {
+    const entry = previous?.symbols.find(row => row.symbol === symbol);
+    return entry ? entry.reviewedThrough ?? previous!.through : "";
+  });
+  const dates = cachedOnly ? [latestFirstRateSession(now)] : firstRateCaptureDates(now, approvedThrough);
+  const latest = dates.at(-1)!;
+  let caughtUp;
+  if (dates.length > 1) {
+    try {
+      const earlier = await reviewFirstRateSession(root, dates[0], cachedOnly, false);
+      if (earlier.status === "qualified") caughtUp = { session: dates[0], result: earlier };
+    } catch (error) { if (!(error instanceof NoVerifiedSample)) throw error; }
+  }
+  try {
+    const result = await reviewFirstRateSession(root, latest, cachedOnly, false);
+    return caughtUp ? { ...result, caughtUp } : result;
+  } catch (error) {
+    if (!caughtUp || !(error instanceof NoVerifiedSample)) throw error;
+    return { ...caughtUp.result, caughtUpSession: caughtUp.session, awaitingSession: latest, latestFailure: error.message };
+  }
 }

@@ -10,6 +10,16 @@ import type { TrainingRow } from "./learning.ts";
 export const outcomeKey = (row: Pick<Outcome, "snapshotId" | "instrument" | "horizon">) =>
   `${row.snapshotId}:${row.instrument}:${row.horizon}`;
 
+/** Read the decision exactly as issued, including a frozen model forecast if present. */
+export function asIssuedOutcomeCall(snapshot: Snapshot, instrument: Instrument, horizon: Horizon) {
+  const consensus = asIssuedConsensus(snapshot, instrument, horizon);
+  const forecast = snapshot.forecasts?.find(item => item.instrument === instrument && item.horizon === horizon);
+  const score = forecast ? forecast.probabilityUp * 2 - 1 : consensus.score;
+  const called = !consensus.abstain && score !== null && Math.abs(score) > 0.1;
+  const call = !called ? "withheld" : score! > 0 ? "up" : "down";
+  return { forecast, score, called, call };
+}
+
 export function outcomeTrainingRow(row: Outcome, snapshot: Snapshot): TrainingRow {
   if (snapshot.id !== row.snapshotId || snapshot.engineVersion !== row.engineVersion)
     throw new Error("Outcome differs from its immutable edition");
@@ -124,18 +134,8 @@ export function evaluateOutcome(
   const exit = rows.at(-1)!;
   if (!exit || exit.closeAt > now || start.openAt <= snapshot.issuedAt)
     return null;
-  const consensus = asIssuedConsensus(
-      snapshot,
-      prices.instrument,
-      horizon,
-    ),
-    returnPct = (exit.close / start.open - 1) * 100;
-  const forecast = snapshot.forecasts?.find(
-      (item) =>
-        item.instrument === prices.instrument && item.horizon === horizon,
-    ),
-    score = forecast ? forecast.probabilityUp * 2 - 1 : consensus.score;
-  const called = !consensus.abstain && score !== null && Math.abs(score) > 0.1;
+  const { forecast, score, called } = asIssuedOutcomeCall(snapshot, prices.instrument, horizon);
+  const returnPct = (exit.close / start.open - 1) * 100;
   if (forecast && (forecast.priceAdjustment !== prices.adjustment || forecast.engineVersion !== snapshot.engineVersion))
       throw new Error("Forecast and outcome price basis or engine version differ");
   return {

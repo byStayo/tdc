@@ -58,6 +58,8 @@ const brier = (
 ) =>
   rows.reduce((sum, row) => sum + (probability(row) - row.up) ** 2, 0) /
   rows.length;
+export { fit as fitLogisticModel, brier as brierScore };
+
 export function chronologicalSplit(rows: TrainingRow[]) {
   const sorted = [...rows].sort((a, b) => a.issuedAt.localeCompare(b.issuedAt));
   const validationAt = sorted[Math.floor(sorted.length * 0.6)]?.issuedAt,

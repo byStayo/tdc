@@ -10,21 +10,67 @@
 
 **Spec:** [Visual product acceptance matrix](../../VISUAL_PRODUCT.md), [publisher and validation contract](../../CONSENSUS_OPERATIONS.md) and [verified handoff](../../../../HANDOFF.md).
 
+## Work backward from a verified morning edition
+
+**The first end-to-end milestone is one real session with five model-eligible daily outcomes.** The last edition readers could see before the opening bell must use inputs permitted for training for SPY, QQQ, IWM, DIA and TLT. After the regular close, five privately verified total-return price histories must settle that edition's targets. A session passes when the audit reports `evaluation.eligibleFiveEtfDaily.completedSessions >= 1` and `firstCompleted.resolved` contains all five ETFs for the same edition. This establishes that the forecast-to-outcome pipeline works. Forecast quality has a separate test.
+
+| Working backward | Required evidence | November 18 checkpoint |
+| --- | --- | --- |
+| A reader gets the complete weekday edition | The usual 8 a.m. New York publisher issues a material, reviewed release. The pinned production commit serves the expected archive, six healthy reports and all 18 instrument/horizon views. Required feed checks and the desktop and phone walkthrough pass. | The live check matched four public files, six reports and all 18 views. The November 18 evening technical release has its own issue time. |
+| The edition earns the 100% directional claim | All 15 market-daily families have independent, current, attributable directional scores. The five ETFs each have a validated daily, weekly and monthly model. Every issued target is accounted for, with zero past-due price or calendar gaps. Both release commands below pass. | Three families vote. Twelve need qualifying evidence. There are zero active models. |
+| An additional family earns a vote | Name the source, instrument, target and cutoff. Freeze one directional rule and its comparison before testing. Reproduce the measurements from dated inputs and show improvement on the reserved test under the applicable policy. For X and Instagram, also pass the independent semantic benchmark for real, permitted samples. | The TLT closing-trend test scored 0.25029 against 0.25000 for a 50/50 forecast. Its data contributes an observation. The 12 outstanding families and their specific missing inputs are listed below. |
+| A model can enter its first prospective test | For each ETF and horizon, accumulate selected, source-permitted outcomes under one engine. Reserve 100 fresh, non-overlapping test windows, beat all applicable baselines by more than 0.01 Brier and pass the uncertainty test. | There are 52 selected current-engine outcomes. All 52 came from editions with a scored source excluded by the training policy. The current edition passes the source-rights check in all 15 ETF/horizon combinations. |
+| Five daily forecasts settle together | Freeze the pre-open edition. Obtain actual regular-session opens and closes and verify split and cash-distribution treatment. Run the existing evaluator after those prices become available. Check the five public outcome identities and confirm the eligible-session counter advances. | The earliest eligible entry currently on file is November 19. The daily, weekly and monthly windows first close November 19, November 25 and December 18, respectively, at 4 p.m. New York. A newer pre-open edition can become the selected edition. |
+
+The archive contains **585 targets**. All 252 resolved targets are present in the public outcome index. Another 83 are due for price evidence and 250 are still inside their forecast horizons. The audit derives every expected identity from the immutable editions and reports any target missing from both ledgers.
+
+| Historical price repair | Price records to qualify | Archived targets those records can settle |
+| --- | --- | --- |
+| TLT | The 12 trading sessions from November 3 through November 18 inclusive. Verify each regular-session open and close, the split basis and the issuer distribution history. | 35 daily and 32 weekly |
+| SPY, QQQ, IWM and DIA | November 18 for each ETF. The existing approved history reaches November 17. | Three daily and one weekly per fund, 16 total |
+
+The 83 overdue archive entries represent 25 distinct ETF/horizon/entry windows. Every winning edition for those windows had a source excluded by the training policy. Filling all 16 missing ETF/session records can bring this frozen edition's resolved count from 252 to 335. New model-eligible observations start with the later editions. A delayed feed can settle a historical forecast once the data arrives. A feature used in the morning edition must have been available by its cutoff.
+
+- [x] Obtain all 16 prices privately, verify the twelve TLT pairs against the dated Nasdaq historical fields, and reconcile the November 2 dividend with iShares. Through November 18 the issuer reported zero further ex-dates.
+- [x] Replay the fifteen independently checked pairs against the frozen archive. They produced 79 calculated outcomes in 23 distinct windows, including all 67 previously missing TLT daily and weekly targets. These private research results have a separate scope from the public ledger.
+- [x] Obtain a second November 18 QQQ pair. Stocklake and SentiSense agreed on the close and direction with a 0.151281 basis-point opening difference. A second private replay calculated all 83 overdue targets across 25 distinct windows. The source omits the listing venue.
+- [ ] Reconcile QQQ with a regular-session reference of known definition, admit the four new FirstRate rows when the dated files arrive, and qualify an ongoing TLT source for model use and public derived output.
+- [ ] After the November 19 close, run `npm run consensus:evaluate` on approved evidence and `npm run --silent consensus:session-outcomes -- 2026-11-19`. The latter must exit zero with five eligible outcomes from the final pre-open edition. Its pre-open check showed five eligible input sets.
+
+### The time required by the existing validation policy
+
+The planner reserves the final 20% of eligible rows for testing and skips any test window that overlaps a preceding test outcome. The following first-test thresholds were verified against the actual planner with clock-only fixtures. The calculation assumes one eligible issue per trading session, both outcome classes in training, one unchanged engine and no previously consumed windows.
+
+| Horizon | Trading sessions per forecast | Completed rows per ETF before the first 100-window test can run |
+| --- | ---: | ---: |
+| Daily | 1 | 500 |
+| Weekly | 5 | 2,476 |
+| Monthly | 21 | 10,396 |
+
+For a horizon of `H` sessions, the final test segment must contain at least `1 + 99 × H` successive daily rows. The overall 500-row minimum also applies. The regression test checks the last failing count and the first passing count for each horizon. These are eligibility thresholds. Accuracy and the uncertainty gate depend on actual results. [Scheduling and audit tests](../../../tests/outcome-coverage-audit.test.ts)
+
+Run the following commands from `web`. The strict audit reports target accounting, missing family votes, missing models and the first five-ETF session. The live verifier checks the actual deployment against that checkout.
+
+```sh
+npm run consensus:audit -- --require-complete
+npm run consensus:verify-live
+```
+
 ## Checklist from the chat
 
-The original request inventory was compiled on November 10. Current completion figures below use the November 18, 9:36 p.m. New York edition. The dated execution receipts retain earlier results.
+The original request inventory was compiled on November 10. Current completion figures below use the November 18, 10:34 p.m. New York edition. The dated execution receipts retain earlier results.
 
 | Status | Request | Evidence or remaining work |
 | --- | --- | --- |
-| Done | Keep the project scoped to The Daily Consensus. Preserve the original content, archives and hosted attribution. | The original domain serves 38 hashed consensus editions. All 37 earlier archives matched their prior bytes after the latest publication. |
+| Done | Keep the project scoped to The Daily Consensus. Preserve the original content, archives and hosted attribution. | The original domain serves 39 hashed consensus editions. All 38 earlier archives matched their prior bytes after the latest publication. |
 | Done | Fix incomplete images, discontinuous formatting between pages, sluggish initial Research Desk loading and scroll-driven zoom. Polish desktop and mobile. | Shared shell, heading and footer styles. Initial brief rendered server-side. All 103 original image files previously decoded. Chart interaction is opt-in. Current production spot checks below supplement that release evidence. |
 | Done | Restore the existing publisher and keep its weekday loop running at 8 a.m. New York time. | Active automation. First scheduled production release verified with separate market, SPY, QQQ, IWM, DIA and TLT reports. |
 | Done | Script free-source collection, checks and release artifacts. Reserve AI for semantic editorial work. | Preparation, pinned-draft publication, evaluation, archive checks and build have existing CLI entry points. The existing Codex loop invokes them and handles release orchestration. No per-request AI or paid API. |
 | Done | Restore the financial news sample. | Bounded GDELT index fallback deployed. Published sample contains 32 stories across 22 publishers. News remains contextual. |
 | Done | Ask the DoltHub maintainer about price origin, open and close definitions, adjusted publication and model-use rights. | Inquiry sent. The owner subsequently closed the DoltHub and Finazon vendor tracks. |
 | Done | Verify the DoltHub dividend adjustment inputs for all five ETFs. | Each most recent ex-date and amount matched issuer evidence within USD 0.00001 per share. The test applies cash and split factors before the ex-date to both open and close. |
-| Open | Integrate an ongoing free EOD feed for all five ETFs with verified public reuse, regular-session prices and total-return adjustments. | FirstRate and issuer records qualify SPY, QQQ, IWM and DIA through November 17. The free TLT source and recurring Nasdaq short-session coverage are outstanding. MarketParquet's archive entitlement is inactive. |
-| Open | Score genuine daily, weekly and monthly outcomes and qualify models prospectively. | The public ledger has 252 resolved targets and 52 selected outcomes on the current engine. Another 83 completed targets await approved prices and 235 await their exits. All 15 prospective model cohorts remain below eligibility. |
+| Open | Integrate an ongoing free EOD feed for all five ETFs with verified public reuse, regular-session prices and total-return adjustments. | FirstRate and issuer records qualify SPY, QQQ, IWM and DIA through November 17. The free Market History connection supplies dividend-adjusted TLT closing trends through November 16. TLT forecast entries and exits and recurring Nasdaq short sessions still need approved evidence. MarketParquet's archive entitlement is inactive. |
+| Open | Score genuine daily, weekly and monthly outcomes and qualify models prospectively. | The public ledger has 252 resolved targets and 52 selected outcomes on the current engine. Another 83 completed targets await approved prices and 250 await their exits. All 15 prospective model cohorts remain below eligibility. |
 | Open | Complete the required signal feeds and reach 100% directional coverage. | Three of fifteen families vote on the daily market view. Weighted observation coverage is 60.66%. |
 | Open | Verify the complete product live after all remaining integrations. | Six reports are healthy and all 18 API views match the saved edition exactly. The strict completion audit returns 2 with price and model eligibility gaps. |
 
@@ -37,7 +83,7 @@ The original request inventory was compiled on November 10. Current completion f
 - [ ] Retail. Add permitted representative positioning or a clearly scoped consented sample. The hosted FX panel supplies reader context.
 - [ ] Institutions. Preserve CFTC positioning and SEC filing provenance. Refresh FINRA on the authorized host when its existing private state is available. Validate a directional relationship on prospective labels.
 - [ ] Options. Obtain a permitted ETF chain for OI, volume, IV, term structure and skew. Keep gamma assumptions explicit. Existing CFTC futures-options readings and OPEX dates provide context.
-- [ ] Technicals. The daily publisher supplies four ETF momentum readings and a same-date four-ETF breadth count. Twenty-session momentum and volatility require 21 consecutive approved closes. TLT price coverage, intraday levels and validated forecast value remain open.
+- [ ] Technicals. The publisher supplies four FirstRate momentum readings, same-date four-ETF breadth and TLT one-, five- and twenty-session closing changes. All 25 recent TLT closing-hour values matched both independent controls. Its 176-target historical closing-trend test scored 0.25029 against a 0.25000 baseline. Opening and range evidence, full lookbacks for the other funds and demonstrated forecasting value remain open.
 - [ ] Premarket. Obtain usable early-session data to compute gaps and ranges. Yesterday's completed data can support the morning forecast but cannot supply today's missing premarket measurement.
 - [ ] Events. Add permitted probability, wording, volume and liquidity evidence. Official catalysts and expiries already populate the calendar.
 - [ ] Analysts. Obtain named estimate, target or revision history with rights and timestamps. Existing ratings actions have limited coverage.
@@ -46,9 +92,13 @@ The original request inventory was compiled on November 10. Current completion f
 - [ ] International. Expand approved equity and policy evidence beyond the Taiwan and central-bank context already connected. Test incremental directional value after FX.
 - [ ] Capital. Add permitted private-equity cash flows and validate distinct incremental evidence. Existing ETFIQ computed flows, Treasury cross-border flows, Fed private credit and SEC asset stocks are separate measures.
 
+The later capital, earnings and events screens used 148 Federal Reserve releases, 163 distinct SEC earnings dates and 149 EIA inventory dates. Their chronological tests missed the predeclared comparisons. No directional vote advanced. [Methods and scores](../../FREE_FEED_PATH.md#november-18-late--independent-price-checks-and-three-directional-tests)
+
+The November 18 late edition verified all 18 public views against the archive and reran the evaluator. Editors can now cite each original proposed-sale filing in the daily evidence packet. [Edition, validation and remaining gaps](../../../../HANDOFF.md#november-18--tlt-closing-trends-live-and-original-insider-notices-available-to-editors)
+
 ## Execution order and acceptance gates
 
-1. **Price rights and quality.** Check the existing maintainer thread. Reconcile documented upstream terms, price venue and session definitions, all five symbols, early closes and both dividend and split treatment. Compare candidate prices and actions against primary references. If the candidate fails, pursue no-key or durable free alternatives and record the exact reason each fails. Qualify owner-activated paid candidates against the same price, rights and timing requirements. Use the existing DoltHub research script and adjustment tests before adding any approved provider to the public path. Acceptance is a named approved source with complete exchange-session reconciliation and no credentials or private bars exposed.
+1. **Price rights and quality.** Track the open EODHD enquiry and the qualified free and owner-activated alternatives in the feed audit. Reconcile documented upstream terms, price venue and session definitions, all five symbols, early closes and both dividend and split treatment. Compare candidate prices and actions against primary references. If the candidate fails, pursue no-key or durable free alternatives and record the exact reason each fails. Qualify owner-activated paid candidates against the same price, rights and timing requirements. Use the existing DoltHub research script and adjustment tests before adding any approved provider to the public path. Acceptance is a named approved source with complete exchange-session reconciliation and no credentials or private bars exposed.
 2. **Publish real outcomes.** Extend the reviewed exchange calendar from official NYSE Arca and Nasdaq references before it expires. Attach approved evidence to the existing evaluator, use only completed sessions and publish the permitted outcome representation with attribution. Run integrity checks against historical editions, unchanged holdouts and the evaluation transaction. Acceptance is repeatable new labels across the five ETFs and three horizons, correct maturity behavior and no duplicate entries.
 3. **Complete the remaining families in parallel dependency order.** Price unlocks technicals and part of earnings/outcome QA. Pursue lawful social, options, events, analysts, international and capital evidence independently. For each source, validate actual fields, rights, observation dates, representative limits, freshness and transport behavior. Connect the collector, versioned scoring policy, source drawer and relevant saved-data tests. Confirm that each family contributes independent evidence with an explicit no-vote state during outages. Acceptance is fifteen of fifteen valid directional families at the declared cutoff, with historical engines and snapshots preserved.
 4. **Validate and promote models.** Run the existing prospective chronological selection and gates after real labels arrive. Require the declared minimum of 500 resolved eligible rows per cohort and 100 fresh non-overlapping test windows, a durable reservation, baseline improvement and the uncertainty gate. Publish calibration, sample size and abstentions with qualified models. Leave failed candidates in the audit trail and wait for fresh windows. Backfilled data cannot manufacture earlier as-issued forecasts.

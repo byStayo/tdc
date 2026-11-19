@@ -203,9 +203,10 @@ def main():
                     raise
                 failures.append({"symbol": symbol, "reason": str(error)[:240]})
         issuers = []
-        for symbol in SYMBOLS:
-            raw, meta, _ = capture(folder, f"issuer-{symbol}", ISSUERS[symbol], ISSUER_SIZE, cached_only)
-            issuers.append({**issuer_cash(symbol, raw, start), "capturedAt": meta["capturedAt"]})
+        if samples or issuer_history:
+            for symbol in SYMBOLS:
+                raw, meta, _ = capture(folder, f"issuer-{symbol}", ISSUERS[symbol], ISSUER_SIZE, cached_only)
+                issuers.append({**issuer_cash(symbol, raw, start), "capturedAt": meta["capturedAt"]})
         result = {"samples": samples, "issuers": issuers}
         if args.independent_samples:
             result["sampleFailures"] = failures
