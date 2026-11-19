@@ -9,7 +9,7 @@ export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const USER_AGENT = 'The Daily Consensus public editorial research https://thedailyconsensus.com';
 export interface EditorialSource {
-  id: string; kind: 'cftc' | 'fred' | 'sec' | 'methodology' | 'bls' | 'boe_mpc'; title: string;
+  id: string; kind: 'cftc' | 'fred' | 'sec' | 'sec_form144' | 'methodology' | 'bls' | 'boe_mpc'; title: string;
   url: string; retrievalUrl: string; retrievedAt: string; observationDates: string[];
   status: 'ok' | 'unavailable'; data: unknown; error?: string;
 }

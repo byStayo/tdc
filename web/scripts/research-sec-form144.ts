@@ -3,12 +3,13 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { setTimeout } from "node:timers/promises";
+import { gzipSync, gunzipSync } from "node:zlib";
 import { normalizeCik, publicDate, secDocumentUrl } from "../lib/public-normalization.ts";
-import { durableJSON } from "../lib/publication-storage.ts";
+import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { publicBytes } from "../lib/consensus/collector.ts";
 import { extendedResearchSession, extendedResearchSessions, EXTENDED_CALENDAR_IDS } from "../lib/consensus/extended-research-calendar.ts";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
-import { REVIEWED_ISSUERS } from "../lib/consensus/issuer-context.ts";
+import { FORM144_ISSUERS, form144EditorialSource } from "../lib/sec-form144-editorial.ts";
 import { isFullKibotSession, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { trainCandidate, type TrainingRow } from "../lib/consensus/learning.ts";
 import { collectResearchPrices, readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
@@ -18,7 +19,7 @@ const METHOD = "prelaunch-sec-form144-disclosure-breadth-v1";
 const FROM = "2024-01-01", FIRST_PRICE = "2024-01-02", LAST_TARGET = "2026-11-02";
 const DAY_MS = 86_400_000;
 const CATALOG = "https://data.sec.gov/submissions/";
-const ISSUERS = { ...REVIEWED_ISSUERS, PLTR: { cik: "1321655" }, JPM: { cik: "19617" }, WMT: { cik: "104169" } };
+const ISSUERS = FORM144_ISSUERS;
 const root = fileURLToPath(new URL("../", import.meta.url));
 const directory = resolve(root, ".consensus/private-form144");
 
@@ -77,8 +78,26 @@ async function sec(url: string): Promise<Proof> {
 
 const provenance = ({ url, sha256, retrievedAt }: Proof) => ({ url, sha256, retrievedAt });
 
-async function filingPanel(from: string, cutoff: string) {
+async function retainCatalog(proof: Proof) {
+  const folder = resolve(directory, "catalogs");
+  const path = resolve(folder, proof.sha256 + ".json");
+  type Stored = { sha256: string; gzipBase64: string };
+  let saved = await readResearchReceipt<Stored>(path);
+  const bytes = Buffer.from(proof.text, "utf8");
+  if (createHash("sha256").update(bytes).digest("hex") !== proof.sha256) throw new Error("SEC submissions source bytes changed");
+  if (!saved) {
+    await durableDirectory(folder, 0o700);
+    try { await durableJSON(path, { sha256: proof.sha256, gzipBase64: gzipSync(bytes).toString("base64") }, true); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
+    saved = await readResearchReceipt<Stored>(path);
+  }
+  if (!saved || saved.sha256 !== proof.sha256 || !gunzipSync(Buffer.from(saved.gzipBase64, "base64"),
+      { maxOutputLength: 8_000_000 }).equals(bytes)) throw new Error("Saved SEC submissions differ from the retrieved catalog");
+}
+
+async function filingPanel(from: string, cutoff: string, keepNoticeCatalogs = false) {
   const filings = new Map<string, Filing>(), sources = [];
+  const catalogByFiling = new Map<string, ReturnType<typeof provenance>>();
   for (const [ticker, { cik: localId }] of Object.entries(ISSUERS)) {
     const cik = normalizeCik(localId)!;
     const receipt = await sec(`${CATALOG}CIK${cik}.json`);
@@ -87,16 +106,19 @@ async function filingPanel(from: string, cutoff: string) {
       throw new Error(`Missing SEC submissions for ${ticker}`);
     sources.push({ ticker, ...provenance(receipt) });
     let coveredFrom = false;
-    const addPage = (page: Record<string, unknown>) => {
+    const addPage = async (page: Record<string, unknown>, proof: Proof) => {
       coveredFrom ||= columns(page)[1].some(date => day(date) && date <= from);
-      for (const filing of extract(ticker, cik, page, from, cutoff)) {
+      const selected = extract(ticker, cik, page, from, cutoff);
+      if (keepNoticeCatalogs && selected.some(filing => filing.kind === "144")) await retainCatalog(proof);
+      for (const filing of selected) {
         const key = `${ticker}:${filing.accession}`;
         const prior = filings.get(key);
         if (prior && digest(prior) !== digest(filing)) throw new Error(`Conflicting SEC metadata for ${filing.accession}`);
+        if (!prior) catalogByFiling.set(key, provenance(proof));
         filings.set(key, filing);
       }
     };
-    addPage(data.filings.recent);
+    await addPage(data.filings.recent, receipt);
     const history = data.filings.files.filter(file => day(file.filingFrom) && day(file.filingTo) &&
       file.filingTo >= from && file.filingFrom <= newYorkDate(cutoff));
     if (history.length > 24) throw new Error(`Unexpected history breadth for ${ticker}`);
@@ -105,12 +127,12 @@ async function filingPanel(from: string, cutoff: string) {
         throw new Error(`Unexpected SEC historical catalog for ${ticker}`);
       const older = await sec(CATALOG + file.name);
       sources.push({ ticker, ...provenance(older) });
-      addPage(JSON.parse(older.text));
+      await addPage(JSON.parse(older.text), older);
     }
     if (!coveredFrom)
       throw new Error(`Saved disclosure range is too short for ${ticker}`);
   }
-  return { sources, filings: [...filings.values()].sort((a, b) => a.acceptedAt.localeCompare(b.acceptedAt)) };
+  return { sources, catalogByFiling, filings: [...filings.values()].sort((a, b) => a.acceptedAt.localeCompare(b.acceptedAt)) };
 }
 
 async function original(filing: Filing) {
@@ -123,10 +145,10 @@ async function original(filing: Filing) {
   return { filing, path, doc, saved: Boolean(saved) };
 }
 
-async function collectCurrent() {
+async function collectCurrent(includeEditorial: boolean) {
   const cutoff = new Date().toISOString();
   const from = new Date(Date.parse(newYorkDate(cutoff)) - 10 * DAY_MS).toISOString().slice(0, 10);
-  const { filings, sources } = await filingPanel(from, cutoff);
+  const { filings, sources, catalogByFiling } = await filingPanel(from, cutoff, includeEditorial);
   const proposals = filings.filter(row => row.kind === "144");
   if (proposals.length > 80) throw new Error("Form 144 collection exceeds the reviewed recent document bound");
   const originals = [];
@@ -153,7 +175,11 @@ async function collectCurrent() {
   const amended = filings.filter(row => row.kind === "144/A");
   await durableJSON(output, { cutoff, from, sources, notices, amended }, true);
   return { status: "collected_private_context", cutoff, from, output, issuers: Object.keys(ISSUERS).length,
-    notices: notices.length, planned: notices.filter(item => item.planAdoptionDates.length).length, amendments: amended.length };
+    notices: notices.length, planned: notices.filter(item => item.planAdoptionDates.length).length, amendments: amended.length,
+    ...(includeEditorial ? { editorialSources: notices.map(notice => {
+      const catalog = catalogByFiling.get(`${notice.ticker}:${notice.accession}`)!;
+      return form144EditorialSource(notice, catalog, cutoff);
+    }) } : {}) };
 }
 
 function clock(day: string) {
@@ -214,7 +240,7 @@ async function benchmark() {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  if (args.length && !(args.length === 1 && args[0] === "--collect-only"))
-    throw new Error("Use --collect-only for the current private Form 144 check");
-  console.log(JSON.stringify(args.length ? await collectCurrent() : await benchmark()));
+  if (args.length && !(args.length === 1 && ["--collect-only", "--editorial"].includes(args[0])))
+    throw new Error("Use --collect-only for the private receipt or --editorial for verified source citations");
+  console.log(JSON.stringify(args.length ? await collectCurrent(args[0] === "--editorial") : await benchmark()));
 }

@@ -4,6 +4,8 @@ import { promisify } from "node:util";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
+import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
+import { attachForm144Sources } from "../lib/sec-form144-editorial.ts";
 import {
   collectEditorialEvidence,
   PROJECT_ROOT,
@@ -28,7 +30,14 @@ async function collect(script: string, scriptArgs: string[] = [], timeout?: numb
 const release = await acquirePublicationLock(PROJECT_ROOT, "daily-data-preparation");
 let failure: { error: unknown } | undefined;
 try {
-  const evidence = await collectEditorialEvidence();
+  const baseEvidence = await collectEditorialEvidence();
+  const { editorialSources, ...form144 } = await collect("research-sec-form144.ts", ["--editorial"], 60_000)
+    .catch((error: { killed?: boolean; stderr?: string }) => ({
+      status: "unavailable", editorialSources: null,
+      error: error.killed ? "SEC Form 144 check exceeded 60 seconds"
+        : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC Form 144 check did not complete",
+    }));
+  const evidence = attachForm144Sources(baseEvidence, editorialSources, new Date().toISOString());
   const output = await saveEditorialEvidence(evidence);
   const editorial = {
     output,
@@ -39,17 +48,13 @@ try {
   const following = publicOnly
     ? { status: "skipped_public_only" }
     : await collect("collect-following-feeds.ts", ["--scheduled"]);
-  const form144 = await collect("research-sec-form144.ts", ["--collect-only"], 60_000)
-    .catch((error: { killed?: boolean; stderr?: string }) => ({
-      status: "unavailable",
-      error: error.killed ? "SEC Form 144 check exceeded 60 seconds"
-        : error.stderr?.match(/^Error: (.+)$/m)?.[1] || "SEC Form 144 check did not complete",
-    }));
   const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
     status: "unavailable",
     error: error.killed ? "FirstRate source capture exceeded 105 seconds"
       : error.stderr?.trim().slice(0, 200) || error.message || "FirstRate preparation did not complete",
   }));
+  const tltClosingTrend = await prepareTltClosingTrend(PROJECT_ROOT).catch((error: Error) =>
+    ({ status: "unavailable", error: error.message.slice(0, 220) }));
   const consensus = await collect("publish-consensus.ts");
   const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
@@ -66,6 +71,7 @@ try {
     issuerRevenue,
     form144,
     firstRate,
+    tltClosingTrend,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));

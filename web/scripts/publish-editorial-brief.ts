@@ -8,7 +8,8 @@ import type { ResearchResponse } from '../lib/contracts.ts';
 import { validateResearch } from '../lib/research-schema.ts';
 import { publicDate } from '../lib/public-normalization.ts';
 import { instrumentReport } from '../lib/instrument-reports.ts';
-import { assertPublicURL, PROJECT_ROOT, type EditorialEvidence } from './collect-editorial-evidence.ts';
+import { assertPublicURL, PROJECT_ROOT, type EditorialEvidence, type EditorialSource } from './collect-editorial-evidence.ts';
+import { validateForm144Source } from '../lib/sec-form144-editorial.ts';
 
 const record = (value: unknown): Record<string, unknown> => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Expected a JSON object');
@@ -35,19 +36,20 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
   const evidence = record(evidenceInput);
   if (Object.keys(evidence).some(key => !['schemaVersion', 'scope', 'collectedAt', 'sources', 'limitations'].includes(key))) throw new Error('Unknown evidence manifest fields');
   if (evidence.schemaVersion !== 1 || evidence.scope !== 'market' || !Array.isArray(evidence.sources) || !evidence.sources.length || evidence.sources.length > 30) throw new Error('Invalid public evidence manifest');
-  const collectedAt = time(evidence.collectedAt, now), sources = new Map<string, { url: string; status: string; data: unknown }>();
+  const collectedAt = time(evidence.collectedAt, now), sources = new Map<string, { url: string; status: string; data: unknown; kind: string; title: string }>();
   if (!Array.isArray(evidence.limitations) || !evidence.limitations.length || evidence.limitations.length > 20) throw new Error('Evidence limitations are required');
   evidence.limitations.forEach(value => text(value, 1000));
   inspectEvidenceTree(evidence);
   for (const entry of evidence.sources) {
     const source = record(entry), id = text(source.id, 64);
     if (Object.keys(source).some(key => !['id', 'kind', 'title', 'url', 'retrievalUrl', 'retrievedAt', 'observationDates', 'status', 'data', 'error'].includes(key))) throw new Error('Unknown evidence source fields');
-    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'methodology', 'bls', 'boe_mpc'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
+    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'sec_form144', 'methodology', 'bls', 'boe_mpc'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
     text(source.title, 400); const url = assertPublicURL(source.url); assertPublicURL(source.retrievalUrl);
     const retrievedAt = time(source.retrievedAt, now); if (retrievedAt > collectedAt) throw new Error('Source retrieval occurred after the manifest collection time');
     if (!Array.isArray(source.observationDates) || source.observationDates.length > 1000 || source.observationDates.some(date => !publicDate(date) || Date.parse(`${publicDate(date)}T00:00:00Z`) > retrievedAt)) throw new Error('Invalid evidence observation dates');
     if (source.status === 'ok' && (source.data === null || source.data === undefined)) throw new Error('Available evidence must contain data');
     if (source.status === 'unavailable' && source.data !== null) throw new Error('Unavailable evidence must not contain substitute data');
+    validateForm144Source(source as unknown as EditorialSource);
     const boe = source.kind === 'boe_mpc';
     if ((new URL(url).hostname === 'www.bankofengland.co.uk') !== boe ||
         (new URL(String(source.retrievalUrl)).hostname === 'www.bankofengland.co.uk') !== boe)
@@ -84,7 +86,7 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
           Date.parse(`${data.periodEnd}T00:00:00Z`) > release || !source.observationDates.includes(data.periodEnd))
         throw new Error('BLS evidence requires its original release, observation period and document hash');
     }
-    sources.set(id, { url, status: String(source.status), data: source.data });
+    sources.set(id, { url, status: String(source.status), data: source.data, kind: String(source.kind), title: text(source.title, 400) });
   }
   const candidate = record(candidateInput);
   if (!['market', 'instrument'].includes(String(candidate.scope)) || candidate.status !== 'ok') throw new Error('Only a completed market or supported instrument brief may be published');
@@ -97,10 +99,19 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
   const citations = candidate.sources.map(entry => {
     const source = record(entry), id = text(source.id, 64), evidenceSource = sources.get(id), url = assertPublicURL(source.url);
     if (!evidenceSource || evidenceSource.status !== 'ok' || citationIds.has(id) || evidenceSource.url !== url) throw new Error('Citation does not match available collected evidence');
-    citationIds.add(id); return { id, title: text(source.title, 400), url };
+    const title = text(source.title, 400);
+    if (evidenceSource.kind === 'sec_form144' && title !== evidenceSource.title) throw new Error('Form 144 citations must identify the verified proposed sale');
+    citationIds.add(id); return { id, title, url };
   });
   const data = validateResearch(candidate.data, citationIds);
   if (!data.limitations.length || ![...data.bull, ...data.bear, ...data.watch].length) throw new Error('A published brief needs observations and limitations');
+  // Original Form 144 evidence contains proposed-sale facts. Require corroboration
+  // for explicit execution assertions even when the citation title is correct.
+  const execution = /\b(?:completed|executed) (?:the |a |an |this |that |their )?(?:sale|transaction|trade)\b|\b(?:sold|disposed of) (?:their |the |all |[\d,.]+ )*(?:shares|securities)\b|\b(?:sale|trade) (?:was|has been) (?:completed|executed)\b/i;
+  for (const claim of [...data.bull, ...data.bear, ...data.watch]) {
+    if (claim.sourceIds.every(id => sources.get(id)?.kind === 'sec_form144') && execution.test(claim.text))
+      throw new Error('A completed-sale claim requires a separately reviewed transaction source');
+  }
   if (instrument) {
     const primary = sources.get(instrument.sourceId);
     const citesPrimary = [...data.bull, ...data.bear, ...data.watch].some(claim => claim.sourceIds.includes(instrument.sourceId));

@@ -224,6 +224,16 @@ export async function loadFirstRatePrices(root: string) {
   return approval ? firstRatePriceEvidence(approval) : [];
 }
 
+export async function loadReviewedTltCash(root: string, cutoff: string) {
+  const approval = await readApproval(root);
+  if (!approval || approval.approvedAt > cutoff) return null;
+  verifyIssuers(approval.issuers, approval.through, approval.approvedAt);
+  const issuer = approval.issuers.find(row => row.symbol === "TLT")!;
+  if (issuer.source !== "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf?cid=synd")
+    throw new Error("Unrecognized TLT issuer distribution history");
+  return { through: approval.through, issuer };
+}
+
 export function firstRateTechnicalSignals(approval: Approval, cutoff: string) {
   if (approval.approvedAt > cutoff) return [];
   const evidence = firstRatePriceEvidence(approval);

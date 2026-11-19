@@ -20,6 +20,7 @@ import { validatePrivateCredit } from "./private-credit.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
 import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
+import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
 import { validateTaiwan } from "./taiwan.ts";
@@ -70,6 +71,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateAnalystRatings(signal);
     validateEtfFlows(signal);
     validateFirstRateTechnical(signal);
+    validateTltCloseSignal(signal);
     validateOrderActivity(signal);
     validateFuturesOptions(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);

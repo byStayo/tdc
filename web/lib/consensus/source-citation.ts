@@ -2,7 +2,7 @@
 // A citation allowlist does not grant collection or redistribution rights.
 const HOSTS = new Set([
   "data.ecb.europa.eu", "data.sec.gov", "developer.finra.org", "developers.facebook.com", "docs.x.com", "firstratedata.com",
-  "fred.stlouisfed.org", "home.treasury.gov", "investor.nvidia.com", "investor.qualcomm.com", "ir.amd.com",
+  "fred.stlouisfed.org", "getmarkethistory.com", "home.treasury.gov", "investor.nvidia.com", "investor.qualcomm.com", "ir.amd.com",
   "polymarket.com", "publicreporting.cftc.gov", "thedailyconsensus.com", "ticdata.treasury.gov",
   "www.apple.com", "www.bankofcanada.ca", "www.bankofengland.co.uk", "www.bls.gov", "www.boj.or.jp", "www.ecb.europa.eu",
   "www.federalreserve.gov", "www.gdeltproject.org", "www.microsoft.com", "www.optionseducation.org",

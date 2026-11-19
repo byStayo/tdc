@@ -10,7 +10,9 @@ Run from the `web` directory:
 node --experimental-strip-types scripts/collect-editorial-evidence.ts
 ```
 
-The command prints the exact output path and unavailable source IDs. The default is `.editorial/evidence-YYYY-MM-DD.json` using the UTC collection date. A second collection that day gets a timestamp and hash suffix; earlier snapshots are preserved. `.editorial/` is ignored by Git.
+The command prints the exact output path and unavailable source IDs. The default is `.editorial/evidence-YYYY-MM-DD.json` using the UTC collection date. A second collection that day gets a timestamp and hash suffix. The earlier snapshots stay in the Git-ignored `.editorial/` directory.
+
+The weekday `npm run editorial:prepare` also checks original SEC Form 144 notices for eight issuers during the preceding ten calendar days and the current day through the collection cutoff. Each eligible notice has its own filing-index citation, original XML digest, submissions-catalog digest and EDGAR acceptance timestamp. When the packet reaches its existing 30-source limit, preparation keeps the newest notices and reports the count. The original XML and content-addressed catalog bytes stay in the private evidence directory. Cite the supplied proposed-sale title. Use the filing acceptance time when describing what readers could have known, and a separately reviewed transaction disclosure for any claim that a sale took place. A plan adoption date describes when the plan was made. [SEC filings API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)
 
 The collector makes twelve bounded official reads: one CFTC dataset query, one CFTC methodology page, seven FRED series and three SEC issuer submissions. The weekday publisher runs both collectors with `npm run editorial:prepare`. No API key is required. SEC requests are serialized and spaced. Redirects and oversized responses are rejected. It collects:
 

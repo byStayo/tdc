@@ -7,6 +7,8 @@ import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
 import { loadFirstRateTechnicals, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
+import { loadTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
+import { TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
 import { digest, publishCollectedSnapshot, publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot, permitsModelInputs } from "../lib/consensus/model.ts";
@@ -61,9 +63,23 @@ if (!scoped || technicalsOnly) {
     console.error(`FirstRate technical observations unavailable: ${error.message}`);
     return [];
   });
-  const signals = replaceTechnicalSignals(snapshot.signals, readings, snapshot.cutoff);
+  const tlt = await loadTltClosingTrend(root, snapshot.cutoff).catch((error: Error) => {
+    console.error(`TLT closing trend unavailable: ${error.message}`);
+    return null;
+  });
+  const signals = replaceTechnicalSignals(snapshot.signals.filter(s => s.id !== TLT_CLOSE_ID), readings, snapshot.cutoff);
   const missing = signals.find(s => s.id === "daily-prices");
-  snapshot = { ...snapshot, signals, sourcesAttempted: technicalsOnly ? 1 : snapshot.sourcesAttempted + 1,
+  if (tlt) {
+    signals.push(tlt);
+    if (missing?.instruments.includes("TLT")) {
+      const others = missing.instruments.filter(symbol => symbol !== "TLT");
+      const reason = "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices." +
+        (others.length ? ` Full price-based technical readings are also pending for ${others.join(", ")}.` : "");
+      const title = others.length ? "Incomplete regular-session price inputs" : "Regular-session open and range";
+      Object.assign(missing, { title, shortLabel: title, summary: reason, limitation: reason, reason });
+    }
+  }
+  snapshot = { ...snapshot, signals, sourcesAttempted: technicalsOnly ? 2 : snapshot.sourcesAttempted + 2,
     collectionErrors: [...snapshot.collectionErrors.filter(msg => !msg.startsWith("daily-prices:")),
       ...(missing ? [`daily-prices: ${missing.instruments.join(", ")}. ${missing.summary}`] : [])] };
 }
