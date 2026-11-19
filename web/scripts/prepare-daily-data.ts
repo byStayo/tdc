@@ -30,7 +30,7 @@ async function collect(script: string, scriptArgs: string[] = [], timeout?: numb
 const release = await acquirePublicationLock(PROJECT_ROOT, "daily-data-preparation");
 let failure: { error: unknown } | undefined;
 try {
-  const baseEvidence = await collectEditorialEvidence();
+  const baseEvidence = await collectEditorialEvidence(fetch, { fedMinutesArchiveRoot: PROJECT_ROOT });
   const { editorialSources, ...form144 } = await collect("research-sec-form144.ts", ["--editorial"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
       status: "unavailable", editorialSources: null,
