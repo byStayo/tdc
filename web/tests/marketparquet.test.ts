@@ -104,6 +104,15 @@ test("a fully matching reference cannot approve an omitted completed session", (
   assert.equal(result.verifiedThrough, "2026-11-19");
 });
 
+test("a licensed daily settlement rejects an opposite intraday direction inside both price tolerances", () => {
+  const files = dividendCalendar.map(session => bar(session, 100, 100.001));
+  const reference = referenceFor(files);
+  reference.TLT[0] = { ...reference.TLT[0], close: 99.999 };
+  const result = reconcileMarketParquet(dividendCalendar, files, noCash, reference, strict, { requireDirection: true });
+  assert.equal(result.passed, false);
+  assert.deepEqual(result.symbols.find(row => row.symbol === "TLT")!.differing, [dividendCalendar[0]]);
+});
+
 test("binds a licensed review to its bars and the applicable issuer distributions", () => {
   const files = dividendCalendar.map(session => bar(session));
   const through = dividendCalendar.at(-1)!;

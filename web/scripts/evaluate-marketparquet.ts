@@ -16,14 +16,16 @@ import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, 
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetEvidence, marketParquetIssuerFingerprints, matchesMarketParquetReview, reviewedMarketParquetDays, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
 import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "../lib/consensus/marketparquet-aggregate.ts";
+import type { LicensedCapture } from "../lib/consensus/marketparquet-settlement.ts";
 import { ENGINE_VERSION, FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import { HORIZONS } from "../lib/consensus/types.ts";
 
 type Issuer = { symbol: typeof ETF_SYMBOLS[number]; source: string; sha256: string; cash: CashDistribution[] };
 type UnavailableDay = { session: string; httpStatus: number };
-type Capture = { sessions: (MarketParquetDay | UnavailableDay)[]; distributions: Issuer[] };
-type Ledger = { schemaVersion: 1; capturedAt?: string; expectedSessions?: string[]; bars: MarketParquetDay[]; distributions: Issuer[] };
+type Capture = { sessions: (MarketParquetDay | UnavailableDay)[]; distributions: Issuer[]; licensedCapture?: LicensedCapture };
+type Ledger = { schemaVersion: 1; capturedAt?: string; expectedSessions?: string[]; bars: MarketParquetDay[];
+  distributions: Issuer[]; licensedCapture?: LicensedCapture };
 type HoldoutSummary = { testLabels: number; candidateBrier: number; baseRateBrier: number; coinBrier: number; passed: boolean };
 
 function readHoldoutSummary(value: HoldoutSummary): HoldoutSummary {
@@ -227,7 +229,7 @@ try {
     minimumTestLabels: MINIMUM_TEST_LABELS,
     missingCompletedSessions: missingSessions.length, multiSessionReviewedThrough, cohorts, families };
   await durableJSON(ledgerPath, { schemaVersion: 1, capturedAt, expectedSessions: licensed ? completed : undefined, bars: captured,
-    distributions: incoming.distributions } satisfies Ledger);
+    distributions: incoming.distributions, ...(licensed ? { licensedCapture: incoming.licensedCapture } : {}) } satisfies Ledger);
   const evaluation = { ...report, evaluatedAt: now, missingSessions, unreviewedEarlyCloses, outcomes, trainingPerformed,
     // Inputs that reproduce this run from the private ledger.
     inputs: {

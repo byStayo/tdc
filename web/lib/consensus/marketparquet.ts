@@ -77,7 +77,7 @@ export interface ReconciliationTolerance { openBps: number; closeBps: number }
  */
 export function reconcileMarketParquet(
   calendar: string[], files: MarketParquetDay[], cash: Record<ETF, CashDistribution[]>,
-  reference: ReferenceBars, tolerance: ReconciliationTolerance,
+  reference: ReferenceBars, tolerance: ReconciliationTolerance, { requireDirection = false } = {},
 ) {
   verifyExpectedSessions(calendar);
   if (!files.length || files.some((file, index) => !calendar.includes(file.session) ||
@@ -105,7 +105,9 @@ export function reconcileMarketParquet(
       const close = Math.abs(file.bars[symbol].close / expected.close - 1) * 10000;
       maxOpenBps = Math.max(maxOpenBps, open);
       maxCloseBps = Math.max(maxCloseBps, close);
-      (open <= tolerance.openBps && close <= tolerance.closeBps ? matched : differing).push(file.session);
+      const directionMatches = !requireDirection ||
+        Math.sign(file.bars[symbol].close - file.bars[symbol].open) === Math.sign(expected.close - expected.open);
+      (open <= tolerance.openBps && close <= tolerance.closeBps && directionMatches ? matched : differing).push(file.session);
     }
     // A cash-adjusted vendor close would sit one distribution below the
     // as-traded close. Require the two closes to agree within half of it.

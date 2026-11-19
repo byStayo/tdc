@@ -14,7 +14,9 @@ import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
-import { FIRST_RATE_SOURCE, loadFirstRatePrices } from "../lib/consensus/firstrate.ts";
+import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
+import { MARKETPARQUET_SOURCE } from "../lib/consensus/marketparquet.ts";
+import { defaultEvaluationPrices } from "../lib/consensus/marketparquet-settlement.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
@@ -38,7 +40,7 @@ if (args.length && (args.length !== 2 || args[0] !== "--prices" || !isAbsolute(a
   throw new Error("Usage: consensus:evaluate [--prices /absolute/private/approved-prices.json]");
 
 async function readPrices(): Promise<PriceEvidence[]> {
-  if (!args.length) return loadFirstRatePrices(root);
+  if (!args.length) return defaultEvaluationPrices(root, now);
   const file = await lstat(args[1]);
   if (!file.isFile() || file.mode & 0o077) throw new Error("Approved prices require an owner-only regular file");
   const text = await readFile(args[1], "utf8");
@@ -79,11 +81,15 @@ try {
       for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
         for (const horizon of HORIZONS) {
           const target = { snapshotId: snapshot.id, instrument, horizon };
-          const prices = supplied.find(item => item.instrument === instrument);
-          const row = prices ? evaluateOutcome(snapshot, prices, horizon, now) : null;
+          const sources = supplied.filter(item => item.instrument === instrument);
+          let row: Outcome | null = null;
+          for (const prices of sources) {
+            row = evaluateOutcome(snapshot, prices, horizon, now);
+            if (row) break;
+          }
           if (outcomes.some(previous => outcomeKey(previous) === outcomeKey(target))) continue;
           if (row) outcomes.push(row);
-          else pending.push({ ...target, reason: prices
+          else pending.push({ ...target, reason: sources.length
             ? "Awaiting verified prices or independently reviewed calendar coverage."
             : "No verified price evidence supplied for this instrument." });
         }
@@ -229,7 +235,9 @@ try {
       learning,
       note: "The private evaluation ledger retains the original outcome values. The public outcome index records resolved edition identities. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version and training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio." +
         (outcomes.some(row => row.source === FIRST_RATE_SOURCE)
-          ? " Price source for covered equity outcomes is FirstRate Data. See the consensus attribution file." : ""),
+          ? " Price source for covered equity outcomes is FirstRate Data. See the consensus attribution file." : "") +
+        (outcomes.some(row => row.source === MARKETPARQUET_SOURCE)
+          ? " MarketParquet daily ETF prices and issuer distributions supply complete outcome windows. See the consensus attribution file." : ""),
     };
     if (outcomes.length) writes.push({ path: PRIVATE_OUTCOME_LEDGER, value: outcomes });
     writes.push(

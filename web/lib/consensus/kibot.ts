@@ -49,7 +49,8 @@ export function parseKibotDaily(csv: string, expectedSessions: string[], session
 export async function collectKibotSeries(
   instrument: Exclude<Instrument, "MARKET">,
   expectedSessions: string[],
-  options: { unadjusted?: boolean; splitAdjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock } = {},
+  options: { unadjusted?: boolean; splitAdjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock;
+    onVerifiedResponse?: (csv: string) => void } = {},
 ): Promise<{ sessions: SessionPrice[]; sha256: string }> {
   const from = expectedSessions[0];
   const through = expectedSessions.at(-1);
@@ -89,8 +90,9 @@ export async function collectKibotSeries(
   }
   const bytes = Buffer.concat(chunks);
   try {
-    return { sessions: parseKibotDaily(bytes.toString("utf8"), expectedSessions, sessionClock),
-      sha256: createHash("sha256").update(bytes).digest("hex") };
+    const csv = bytes.toString("utf8"), sessions = parseKibotDaily(csv, expectedSessions, sessionClock);
+    options.onVerifiedResponse?.(csv);
+    return { sessions, sha256: createHash("sha256").update(bytes).digest("hex") };
   } catch (error) {
     const basis = options.unadjusted ? "as-traded" : options.splitAdjusted ? "split-only" : "provider-adjusted";
     throw new Error(`Kibot ${instrument} ${basis} for ${from} through ${through}. ${(error as Error).message}`);

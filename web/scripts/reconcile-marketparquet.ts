@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
-import { collectKibotPrices } from "../lib/consensus/kibot.ts";
+import { collectKibotPrices, collectKibotSeries, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { licensedSettlementPrices, recordLicensedSettlement, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
 import { ETF_SYMBOLS, reconcileMarketParquet, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 
 // Independent check of the private vendor ledger. Prints differences, never prices.
@@ -22,7 +23,7 @@ const directory = resolve(root, ".consensus/private-marketparquet");
 const release = await acquirePublicationLock(root, "marketparquet-reconciliation");
 let failure: { error: unknown } | undefined;
 try {
-  const now = new Date().toISOString();
+  const startedAt = new Date().toISOString();
   const ledgerText = await readFile(resolve(directory, licensed ? "licensed.json" : "sample.json"), "utf8");
   const ledger = JSON.parse(ledgerText) as { schemaVersion: number; capturedAt?: string; expectedSessions?: string[]; bars: MarketParquetDay[];
     distributions: { symbol: typeof ETF_SYMBOLS[number]; sha256: string; cash: { session: string; amount: number }[] }[] };
@@ -44,6 +45,7 @@ try {
   // tolerance. The built-in guest feed uses its last regular trade, which can
   // sit several basis points from the listing venue's closing auction.
   let reference: ReferenceBars, source: string, hashes: Record<string, string>;
+  const controlCsv = {} as Record<typeof ETF_SYMBOLS[number], string>;
   let tolerance = { openBps: 3, closeBps: 15 };
   if (referencePath) {
     if (!isAbsolute(referencePath)) throw new Error("Provide an absolute private reference path");
@@ -58,15 +60,27 @@ try {
     source = supplied.source;
     hashes = { reference: createHash("sha256").update(text).digest("hex") };
     tolerance = { openBps: 0.5, closeBps: 0.5 };
+  } else if (licensed && record) {
+    reference = {} as ReferenceBars;
+    hashes = {};
+    source = KIBOT_PRICE_CITATION;
+    for (const symbol of ETF_SYMBOLS) {
+      const captured = await collectKibotSeries(symbol, calendar, { unadjusted: true,
+        onVerifiedResponse: csv => { controlCsv[symbol] = csv; } });
+      reference[symbol] = captured.sessions;
+      hashes[symbol] = captured.sha256;
+    }
   } else {
-    const collected = await collectKibotPrices(first, now, fetch, true);
+    const collected = await collectKibotPrices(first, startedAt, fetch, true);
     reference = Object.fromEntries(collected.evidence.map(series => [series.instrument,
       series.sessions.map(({ session, open, close }) => ({ session, open, close }))])) as ReferenceBars;
     source = collected.evidence[0].source;
     hashes = collected.hashes;
   }
 
-  const result = reconcileMarketParquet(calendar, files, cash, reference, tolerance);
+  const controlsAt = new Date().toISOString();
+  const result = reconcileMarketParquet(calendar, files, cash, reference, tolerance, { requireDirection: licensed });
+  const now = new Date().toISOString();
   const capturedAfterClose = !!ledger.capturedAt &&
     Date.parse(ledger.capturedAt) >= Date.parse(exchangeSession(through)!.closeAt);
   const summary = { schemaVersion: 1, reconciledAt: now, mode: licensed ? "licensed" : "sample",
@@ -80,10 +94,18 @@ try {
 
   let reviewed = false;
   if (record && result.passed && capturedAfterClose) {
+    let settlement: LicensedSettlement | undefined;
+    if (licensed && !referencePath) {
+      settlement = { schemaVersion: 1, mode: "licensed", through, reconciledAt: now,
+        ledgerText, ledgerSha256: summary.ledgerSha256, earlyClosesVerified: result.earlyClosesVerified,
+        reference: { source, capturedAt: controlsAt, csv: controlCsv, hashes } };
+      licensedSettlementPrices(settlement, now);
+    }
     // Extending the review asserts one unbroken share basis from the first
     // captured session and issuer histories read after the final close.
     await durableJSON(resolve(directory, licensed ? "licensed-actions-review.json" : "actions-review.json"), { through, issuerActionsVerified: true,
       splitBasisVerified: true, earlyClosesVerified: result.earlyClosesVerified, evidence: evidenceName, reviewedAt: now });
+    if (settlement) await recordLicensedSettlement(directory, settlement, now);
     reviewed = true;
   }
   console.log(JSON.stringify({ mode: summary.mode, sessions: result.sessions, reference: source, tolerance,
@@ -91,7 +113,7 @@ try {
     earlyClosesVerified: result.earlyClosesVerified, boundarySymbolsVerified: result.boundarySymbolsVerified,
     symbols: result.symbols.map(({ symbol, compared, unmatched, differing, maxOpenBps, maxCloseBps, boundaries }) =>
       ({ symbol, compared, unmatched, differing, maxOpenBps: +maxOpenBps.toFixed(3), maxCloseBps: +maxCloseBps.toFixed(3), boundaries })),
-    evidence: evidenceName, reviewRecorded: reviewed }, null, 2));
+    evidence: evidenceName, reviewRecorded: reviewed, journalEligible: licensed && !referencePath && reviewed }, null, 2));
   if (record && !reviewed) console.error("Review not recorded. Every session and distribution boundary must reconcile and the issuer capture must follow the final close.");
   if (!result.passed || (record && !reviewed)) process.exitCode = 2;
 } catch (error) {

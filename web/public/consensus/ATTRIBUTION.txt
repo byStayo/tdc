@@ -35,6 +35,12 @@ Source: FirstRate Data. https://firstratedata.com/stock-data
 Reuse terms: https://firstratedata.com/about/license
 Regular-session price reconciliation, issuer cash adjustments and evaluation by The Daily Consensus.
 
+MarketParquet ETF outcomes
+
+For outcomes credited to MarketParquet, The Daily Consensus uses MarketParquet daily ETF prices and distributions from the fund issuers.
+ETF data: https://marketparquet.com/data/etfs
+Archive licence: https://marketparquet.com/license
+
 Bank of Canada Market Participants Survey
 
 Source: Bank of Canada, Market Participants Survey.
