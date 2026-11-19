@@ -327,6 +327,39 @@ test("the exact-date collector saves the independent witness while Kibot is late
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
+test("an early secondary close cannot suppress a later exchange price or mask an invalid exchange response", async () => {
+  const root = await mkdtemp(join(tmpdir(), "consensus-kibot-late-control-"));
+  try {
+    await symlink(new URL("../scripts", import.meta.url), join(root, "scripts"));
+    const sourceRoot = join(root, "captures");
+    const { dir } = await syntheticSources(root, sourceRoot, target, first, false);
+    const path = join(dir, "stocklake-QQQ.json"), early = JSON.parse(await readFile(path, "utf8"));
+    const packet = JSON.parse(early.rawText), history = JSON.parse(packet.result.content[0].text);
+    history.history[0].close = 99;
+    packet.result.content[0].text = JSON.stringify(history);
+    early.rawText = JSON.stringify(packet); early.sha256 = hash(early.rawText);
+    await durableJSON(path, early);
+    const before = await readFile(path);
+    let requests = 0;
+    const read = retainedSessionWitnesses(root, join(sourceRoot, "sources"), target, true, async url => {
+      assert.equal(String(url), nasdaqDaily("QQQ", target));
+      requests++;
+      const headers = { date: "Date", open: "Open", close: requests === 2 ? "Unknown" : "Close/Last", low: "Low", high: "High" };
+      const rows = requests === 1 ? [] : [{ date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" }];
+      return Response.json({ status: { rCode: 200 }, data: { symbol: "QQQ", tradesTable: { headers, rows } } });
+    });
+    const interim = await read("QQQ");
+    assert.ok(interim.sources.secondary); assert.equal(interim.selectedBars[0].close, 99);
+    assert.throws(() => reviewedFund(interim, "QQQ", target, first, edition(target), new Date().toISOString()), /prices or directions disagree/);
+    await assert.rejects(read("QQQ"), /price definition differs/);
+    const final = await read("QQQ");
+    assert.ok(final.sources.historical); assert.equal(final.selectedBars[0].close, 101);
+    assert.equal(reviewedFund(final, "QQQ", target, first, edition(target), new Date().toISOString()).directionCorrect, null);
+    assert.deepEqual(await read("QQQ"), final);
+    assert.equal(requests, 3); assert.deepEqual(await readFile(path), before);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test("a published Nasdaq historical pair retains its field definition", () => {
   const row = fund(target, first);
   row.sources.historical = { ...row.sources.secondary!, source: nasdaqDaily("QQQ", target), basis: "Nasdaq historical Open and Close/Last" };

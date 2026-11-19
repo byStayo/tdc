@@ -11,7 +11,7 @@ import { digest } from "./history.ts";
 import { collectKibotSeries, isFullKibotSession, KIBOT_PRICE_CITATION, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
 import type { SessionFundProof, Stamp } from "./kibot-after-close.ts";
 import { durableDirectory, durableJSON, syncDirectory } from "../publication-storage.ts";
-import { sourceChunk, sourceResponse } from "./source-failure.ts";
+import { sourceChunk, SourceMissingError, sourceResponse, SourceTransportError } from "./source-failure.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import type { SessionPrice } from "./evaluation.ts";
 
@@ -124,6 +124,8 @@ function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) 
   if (meta.sha256 !== stamp.sha256) throw new Error("Nasdaq receipt hash changed");
   const { data, status } = JSON.parse(bytes.toString("utf8"));
   const table = data?.tradesTable;
+  if (status?.rCode === 200 && (data === null || (data?.symbol === symbol && (table?.rows === null || (Array.isArray(table?.rows) && table.rows.length === 0)))))
+    throw new SourceMissingError("Nasdaq has no historical ETF row for this date yet");
   const date = day.slice(5, 7) + "/" + day.slice(8) + "/" + day.slice(0, 4);
   if (status?.rCode !== 200 || data?.symbol !== symbol || table?.headers?.date !== "Date" ||
       table.headers.open !== "Open" || table.headers.close !== "Close/Last" || table.headers.low !== "Low" ||
@@ -217,15 +219,8 @@ function readSessionPrices(sourceRoot: string, day: string, collect: boolean, fe
   if (!market || !isFullKibotSession(market.openAt, market.closeAt) || (collect && Date.now() <= Date.parse(market.closeAt)))
     throw new Error("Collection requires a completed full exchange session");
   let cta: ReturnType<typeof ctaReport> | undefined;
-  async function independentPrice(symbol: ETF, declared?: SessionFundProof) {
-    const arca = CTA_REFERENCE_SYMBOLS.some(fund => fund === symbol);
-    let kind: "listing" | "historical" | "secondary";
-    if (declared) kind = declared.sources.listing ? "listing" : declared.sources.historical ? "historical" : "secondary";
-    else {
-      const primary = await readResearchReceipt(resolve(directory, arca ? "cta.json" : symbol + "-daily.json"));
-      const secondary = !primary && await readResearchReceipt(resolve(directory, "stocklake-" + symbol + ".json"));
-      kind = secondary ? "secondary" : arca ? "listing" : "historical";
-    }
+  type ControlKind = "listing" | "historical" | "secondary";
+  async function readControl(symbol: ETF, kind: ControlKind) {
     let control;
     if (kind === "listing") {
       cta ??= ctaReport(directory, day, collect, fetcher);
@@ -237,6 +232,27 @@ function readSessionPrices(sourceRoot: string, day: string, collect: boolean, fe
     } else if (kind === "historical") control = await nasdaqControl(directory, symbol, day, collect, fetcher);
     else control = await stocklakeControl(directory, symbol, day);
     return { independent: { ...market!, open: control.prices.open, close: control.prices.close }, controlSource: control.stamp, kind };
+  }
+  async function independentPrice(symbol: ETF, declared?: SessionFundProof) {
+    if (declared) {
+      const kind = declared.sources.listing ? "listing" : declared.sources.historical ? "historical" : "secondary";
+      return readControl(symbol, kind);
+    }
+    const arca = CTA_REFERENCE_SYMBOLS.some(fund => fund === symbol);
+    const primaryKind = arca ? "listing" : "historical";
+    const primary = await readResearchReceipt(resolve(directory, arca ? "cta.json" : symbol + "-daily.json"));
+    if (primary) return readControl(symbol, primaryKind);
+    const secondary = await readResearchReceipt(resolve(directory, "stocklake-" + symbol + ".json"));
+    if (!secondary) return readControl(symbol, primaryKind);
+    if (collect) {
+      // A secondary bar can be delivered before the exchange's final price.
+      // Preserve its original bytes and try the exchange again on the next collection.
+      try { return await readControl(symbol, primaryKind); }
+      catch (error) {
+        if (!(error instanceof SourceMissingError || error instanceof SourceTransportError)) throw error;
+      }
+    }
+    return readControl(symbol, "secondary");
   }
   return async (symbol: ETF, declared?: SessionFundProof) => {
     const [native, control] = await Promise.allSettled([

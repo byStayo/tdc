@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { SessionPrice } from "./evaluation.ts";
 import { exchangeSession, hasReviewedCalendar } from "./exchange-calendar.ts";
-import { sourceChunk, sourceResponse } from "./source-failure.ts";
+import { sourceChunk, SourceMissingError, sourceResponse } from "./source-failure.ts";
 import { newYorkTimestamp } from "./time.ts";
 
 export const CTA_REFERENCE_SYMBOLS = ["SPY", "IWM", "DIA"] as const;
@@ -220,7 +220,7 @@ export async function collectCtaReference(
     return { reference: parseCtaReference(options.cachedBytes, bounds), bytes: options.cachedBytes };
   }
   if (Date.now() < Date.parse(bounds.closeAt) + 240 * MINUTE)
-    throw new Error("CTA final summary is not due yet");
+    throw new SourceMissingError("CTA final summary is not due yet");
   const bytes = await fetchCtaArchive(ctaReferenceUrl(day), MAX_BYTES, options.fetcher);
   return { reference: parseCtaReference(bytes, bounds), bytes };
 }
