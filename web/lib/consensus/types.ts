@@ -80,15 +80,28 @@ export interface Signal {
     documentation: { url: string; sha256: string };
   };
   householdEquity?: {
-    reviewVersion: "fed-household-equity-v1";
     seriesId: "FA153064105.Q";
-    quarter: "2026:Q2";
     publicationClock: "date-only";
-    /** Earliest verified site capture of this observation, never the quarter end. */
+    /** v2: actual first product collection of this native vintage, never the quarter end. */
     firstObservedAt: string;
     firstObservedSHA256: string;
     methodBreakRelease: "2026-09-11";
     revisedDefinitionFrom: "2012-10-01";
+  } & ({ reviewVersion: "fed-household-equity-v1"; quarter: "2026:Q2" } | {
+    reviewVersion: "fed-household-equity-v2";
+    quarter: string;
+    /** Native row and definition identity, independent of incidental page HTML. */
+    seriesRowSHA256: string;
+    nativeSHA256: string;
+    firstEvidenceRetrievedAt: string;
+    publicationEvidence: { url: string; sha256: string; retrievedAt: string };
+    unitEvidence: { url: string; sha256: string; retrievedAt: string };
+  });
+  /** Validation guard through outages/rejected revisions; never an available observation. */
+  householdEquityCheckpoint?: {
+    source: Provenance;
+    point: Point;
+    receipt: NonNullable<Signal["householdEquity"]>;
   };
 }
 export interface Catalyst {

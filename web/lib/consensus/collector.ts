@@ -1002,7 +1002,7 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 52,
+    sourcesAttempted: MACRO_SERIES.length + 54,
     collectionErrors: signals
       .filter(
         (signal) =>
