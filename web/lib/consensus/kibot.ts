@@ -17,6 +17,8 @@ export function isFullKibotSession(openAt: string, closeAt: string): boolean {
 }
 
 export function parseKibotDaily(csv: string, expectedSessions: string[], sessionClock: SessionClock = exchangeSession): SessionPrice[] {
+  if (/^No data found for the specified period\b/i.test(csv.trimStart()))
+    throw new Error("The provider returned no completed sessions");
   const rows = csv.trim().split(/\r?\n/);
   const sessions = rows.map(line => {
     const fields = line.split(",");
@@ -35,8 +37,12 @@ export function parseKibotDaily(csv: string, expectedSessions: string[], session
     return { ...bar, open, close };
   });
   if (sessions.length !== expectedSessions.length ||
-      sessions.some((bar, index) => bar.session !== expectedSessions[index]))
-    throw new Error("Kibot response differs from the expected completed sessions");
+      sessions.some((bar, index) => bar.session !== expectedSessions[index])) {
+    const received = new Set(sessions.map(bar => bar.session));
+    const missing = expectedSessions.find(day => !received.has(day));
+    throw new Error(missing ? `Received ${sessions.length} of ${expectedSessions.length} expected rows, first missing session ${missing}`
+      : "Kibot returned an extra, duplicate or out-of-order session");
+  }
   return sessions;
 }
 
@@ -82,10 +88,13 @@ export async function collectKibotSeries(
     reader.releaseLock();
   }
   const bytes = Buffer.concat(chunks);
-  return {
-    sessions: parseKibotDaily(bytes.toString("utf8"), expectedSessions, sessionClock),
-    sha256: createHash("sha256").update(bytes).digest("hex"),
-  };
+  try {
+    return { sessions: parseKibotDaily(bytes.toString("utf8"), expectedSessions, sessionClock),
+      sha256: createHash("sha256").update(bytes).digest("hex") };
+  } catch (error) {
+    const basis = options.unadjusted ? "as-traded" : options.splitAdjusted ? "split-only" : "provider-adjusted";
+    throw new Error(`Kibot ${instrument} ${basis} for ${from} through ${through}. ${(error as Error).message}`);
+  }
 }
 
 export async function collectKibotPrices(from: string, cutoff: string, fetcher: Fetcher = fetch, unadjusted = false) {

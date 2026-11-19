@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { collectKibotPrices, isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot.ts";
+import { collectKibotPrices, collectKibotSeries, isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot.ts";
 
 const sessions = ["2026-11-06", "2026-11-09"];
 const csv = "11/06/2026,100,103,99,102,12345\r\n11/09/2026,102,104,101,103,23456\r\n";
@@ -38,6 +38,16 @@ test("the guest collector requests all five ETFs only through the prior complete
     assert.equal(new URL(evidence.source).search, "");
     assert.deepEqual(evidence.expectedSessions, sessions);
   }
+});
+
+test("a delayed Kibot delivery identifies the fund, price basis and first missing date without exposing request details", async () => {
+  const expected = /QQQ provider-adjusted.*2026-11-09.*first missing session 2026-11-09/;
+  await assert.rejects(collectKibotSeries("QQQ", sessions, {
+    fetcher: async () => new Response(csv.split("\r\n")[0]),
+  }), expected);
+  await assert.rejects(collectKibotSeries("IWM", [sessions[1]], {
+    splitAdjusted: true, fetcher: async () => new Response("No data found for the specified period for IWM."),
+  }), /IWM split-only.*2026-11-09.*no completed sessions/);
 });
 
 test("a captured short-session price remains ineligible for the private daily label", () => {
