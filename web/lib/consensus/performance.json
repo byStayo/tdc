@@ -1,14 +1,14 @@
 {
   "engineVersion": "consensus-rules-2.0.0",
-  "generatedAt": "2026-11-19T03:34:46.676Z",
+  "generatedAt": "2026-11-19T10:26:18.098Z",
   "status": "tracking",
-  "resolved": 52,
+  "resolved": 60,
   "calls": 0,
-  "abstentions": 52,
+  "abstentions": 60,
   "accuracy": null,
   "brier": null,
   "scoringPolicy": "last-edition-before-entry-open-v1",
-  "superseded": 192,
+  "superseded": 200,
   "pending": [
     {
       "snapshotId": "2026-11-03T06-28-30-460Z",
@@ -1315,19 +1315,7 @@
     {
       "snapshotId": "2026-11-12T13-01-38-859Z",
       "instrument": "SPY",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-12T13-01-38-859Z",
-      "instrument": "SPY",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-12T13-01-38-859Z",
-      "instrument": "QQQ",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1339,19 +1327,7 @@
     {
       "snapshotId": "2026-11-12T13-01-38-859Z",
       "instrument": "IWM",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-12T13-01-38-859Z",
-      "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-12T13-01-38-859Z",
-      "instrument": "DIA",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1381,12 +1357,6 @@
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1399,12 +1369,6 @@
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1417,12 +1381,6 @@
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1430,12 +1388,6 @@
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1471,12 +1423,6 @@
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1489,12 +1435,6 @@
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1507,12 +1447,6 @@
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1520,12 +1454,6 @@
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1561,12 +1489,6 @@
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1579,12 +1501,6 @@
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1597,12 +1513,6 @@
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1610,12 +1520,6 @@
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2014,6 +1918,39 @@
       "instrument": "SPY",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
+      "resolved": 8,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "daily",
+      "engineVersion": "consensus-rules-1.0.0",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "daily",
+      "engineVersion": "consensus-rules-1.1.0",
+      "resolved": 1,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "engineVersion": "consensus-rules-2.0.0",
       "resolved": 7,
       "calls": 0,
       "accuracy": null,
@@ -2023,39 +1960,6 @@
     },
     {
       "instrument": "SPY",
-      "horizon": "daily",
-      "engineVersion": "consensus-rules-1.0.0",
-      "resolved": 0,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "SPY",
-      "horizon": "daily",
-      "engineVersion": "consensus-rules-1.1.0",
-      "resolved": 1,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "SPY",
-      "horizon": "weekly",
-      "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 6,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "SPY",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-1.0.0",
       "resolved": 0,
@@ -2112,6 +2016,39 @@
     {
       "instrument": "QQQ",
       "horizon": "daily",
+      "engineVersion": "consensus-rules-2.0.0",
+      "resolved": 8,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "engineVersion": "consensus-rules-1.0.0",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "engineVersion": "consensus-rules-1.1.0",
+      "resolved": 1,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "QQQ",
+      "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
       "resolved": 7,
       "calls": 0,
@@ -2122,39 +2059,6 @@
     },
     {
       "instrument": "QQQ",
-      "horizon": "daily",
-      "engineVersion": "consensus-rules-1.0.0",
-      "resolved": 0,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "QQQ",
-      "horizon": "daily",
-      "engineVersion": "consensus-rules-1.1.0",
-      "resolved": 1,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "QQQ",
-      "horizon": "weekly",
-      "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 6,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "QQQ",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-1.0.0",
       "resolved": 0,
@@ -2211,41 +2115,41 @@
     {
       "instrument": "IWM",
       "horizon": "daily",
+      "engineVersion": "consensus-rules-2.0.0",
+      "resolved": 8,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "daily",
+      "engineVersion": "consensus-rules-1.0.0",
+      "resolved": 0,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "daily",
+      "engineVersion": "consensus-rules-1.1.0",
+      "resolved": 1,
+      "calls": 0,
+      "accuracy": null,
+      "meanSignedReturnPct": null,
+      "meanBuyHoldReturnPct": null,
+      "brier": null
+    },
+    {
+      "instrument": "IWM",
+      "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
       "resolved": 7,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "IWM",
-      "horizon": "daily",
-      "engineVersion": "consensus-rules-1.0.0",
-      "resolved": 0,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "IWM",
-      "horizon": "daily",
-      "engineVersion": "consensus-rules-1.1.0",
-      "resolved": 1,
-      "calls": 0,
-      "accuracy": null,
-      "meanSignedReturnPct": null,
-      "meanBuyHoldReturnPct": null,
-      "brier": null
-    },
-    {
-      "instrument": "IWM",
-      "horizon": "weekly",
-      "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 6,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2311,7 +2215,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 7,
+      "resolved": 8,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2344,7 +2248,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 6,
+      "resolved": 7,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
