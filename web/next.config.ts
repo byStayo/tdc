@@ -3,6 +3,11 @@ import legacyRedirects from './lib/legacy-redirects.json';
 const config: NextConfig = {
   turbopack: { root: process.cwd() },
   outputFileTracingRoot: process.cwd(),
+  outputFileTracingIncludes: {
+    '/': ['./lib/consensus/current.json'],
+    '/api/consensus': ['./lib/consensus/current.json'],
+    '/api/health': ['./lib/consensus/current.json'],
+  },
   poweredByHeader: false,
   async redirects() { return legacyRedirects; },
   async headers() {

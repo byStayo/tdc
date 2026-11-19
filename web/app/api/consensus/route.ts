@@ -1,7 +1,7 @@
-import snapshot from "@/lib/consensus/current.json";
+import { publishedSnapshot } from "@/lib/consensus/published-snapshot";
 import { asIssuedConsensus } from "@/lib/consensus/as-issued";
 import { INSTRUMENTS, HORIZONS } from "@/lib/consensus/types";
-import type { Snapshot, Instrument, Horizon } from "@/lib/consensus/types";
+import type { Instrument, Horizon } from "@/lib/consensus/types";
 export async function GET(request: Request) {
   const url = new URL(request.url),
     symbol = url.searchParams.get("symbol") ?? "MARKET",
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
       { error: "Unsupported instrument or horizon" },
       { status: 400 },
     );
-  const data = snapshot as Snapshot;
+  const data = publishedSnapshot();
   const consensus = asIssuedConsensus(data, symbol as Instrument, horizon as Horizon);
   return Response.json(
     {

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "consensus:collect": "node --experimental-strip-types scripts/publish-consensus.ts",
+    "consensus:verify-live": "node --experimental-strip-types scripts/verify-live-consensus.ts",
     "consensus:publish": "node --experimental-strip-types scripts/publish-consensus.ts --publish",
     "consensus:publish-collected": "node --experimental-strip-types scripts/publish-consensus.ts --publish-collected",
     "consensus:review": "node --experimental-strip-types scripts/publish-consensus.ts --review-only --publish",
