@@ -94,7 +94,9 @@ test('collector uses bounded official reads, retains provenance and marks failed
     const cik = url.pathname.match(/CIK(\d+)\.json/)![1];
     return Response.json({ cik, name: 'Fixture issuer', filings: { recent: { accessionNumber: ['0000320193-26-000024'], filingDate: ['2026-11-02'], reportDate: ['2026-09-30'], form: ['8-K'], primaryDocument: ['filing.htm'] } } });
   });
-  assert.equal(calls.length, 12); assert.equal(evidence.sources.length, 17);
+  assert.equal(calls.length, 13); assert.equal(evidence.sources.length, 18);
+  assert.equal(evidence.sources.find(source => source.id === 'SEC_WMT')?.retrievalUrl,
+    'https://data.sec.gov/submissions/CIK0000104169.json');
   for (const id of ['DGS2', 'DGS10', 'DGS30', 'SOFR']) {
     const source = evidence.sources.find(item => item.id === 'FRED_' + id);
     assert.equal(source?.status, 'ok');

@@ -66,7 +66,10 @@ const FRED = [
   { id: 'FRED_SOFR', series: 'SOFR', title: 'Federal Reserve / FRED · Secured Overnight Financing Rate', unit: 'percent', frequency: 'daily', editorialOnly: true },
 ] as const;
 const CFTC_IDS: Record<string, string> = { '13874A': 'CFTC_ES', '209742': 'CFTC_NQ', '239742': 'CFTC_RTY', '124603': 'CFTC_DOW', '020601': 'CFTC_BOND', '043602': 'CFTC_TENYEAR' };
-const ISSUERS = [{ ticker: 'AAPL', cik: '0000320193' }, { ticker: 'MSFT', cik: '0000789019' }, { ticker: 'NVDA', cik: '0001045810' }];
+const ISSUERS = [
+  { ticker: 'AAPL', cik: '0000320193' }, { ticker: 'MSFT', cik: '0000789019' },
+  { ticker: 'NVDA', cik: '0001045810' }, { ticker: 'WMT', cik: '0000104169' },
+];
 const CFTC_METHOD = 'https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm';
 
 function failed(source: Omit<EditorialSource, 'status' | 'data' | 'observationDates'>): EditorialSource {
@@ -120,7 +123,7 @@ async function collectCFTC(fetcher: Fetcher): Promise<EditorialSource[]> {
 }
 async function collectSEC(fetcher: Fetcher): Promise<EditorialSource[]> {
   const sources: EditorialSource[] = [];
-  // Three declared issuers only; serialize and space requests below SEC's fair-access ceiling.
+  // Serialize and space requests to the declared issuers below the SEC fair-access ceiling.
   for (const issuer of ISSUERS) {
     const url = `https://data.sec.gov/submissions/CIK${issuer.cik}.json`, base = { id: `SEC_${issuer.ticker}`, kind: 'sec' as const, title: `SEC · ${issuer.ticker} recent filings`, url, retrievalUrl: url };
     try {
@@ -149,7 +152,7 @@ export async function collectEditorialEvidence(fetcher: Fetcher = fetch): Promis
     'This is bounded public evidence, not an exhaustive market feed. Missing sources remain unavailable.',
     'CFTC data is futures-only and weekly, generally observed Tuesday and released Friday. Contract counts have different units and must not be summed across markets.',
     'FRED observations have different frequencies, publication lags and revision schedules. Null observations are missing, not zero.',
-    'SEC coverage is recent filing metadata for AAPL, MSFT and NVDA, not an index holdings file or an exhaustive issuer search.',
+    'SEC filing coverage is limited to AAPL, MSFT, NVDA and WMT.',
     'Hosted widget content, private subscription data and paid AI APIs are not collected.',
   ] };
 }
