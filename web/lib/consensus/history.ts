@@ -13,6 +13,7 @@ import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "./
 import { KIBOT_RESEARCH_FILE, validateKibotResearch } from "./kibot-research.ts";
 import { publicDate } from "../public-normalization.ts";
 import { validateSourceCitation } from "./source-citation.ts";
+import { isCftcPosition, validateCftcProvenance } from "./cftc-provenance.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
@@ -76,6 +77,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateTltCloseSignal(signal);
     validateOrderActivity(signal);
     validateFuturesOptions(signal);
+    validateCftcProvenance(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
     validateNyFedStockOutlook(signal);
     validateJapanPortfolioFlows(signal);
@@ -335,7 +337,7 @@ export function observationDigest(snapshot: Snapshot): string {
             : signal.source.observedAt,
         retrievedAt: null,
         sha256: null,
-        vintageAt: undefined,
+        vintageAt: isCftcPosition(signal.id) ? signal.source.vintageAt : undefined,
       },
     })),
     catalysts: snapshot.catalysts,

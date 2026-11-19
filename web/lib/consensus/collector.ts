@@ -14,6 +14,7 @@ import { collectAnalystRatings } from "./analyst-ratings.ts";
 import { collectEtfFlows } from "./etf-flows.ts";
 import { collectEtfiqRetailOrders, collectSecMidas } from "./order-activity.ts";
 import { collectFuturesOptions } from "./futures-options.ts";
+import { cftcTableClock, cftcReportCitation } from "./cftc-provenance.ts";
 import { collectTaiwan } from "./taiwan.ts";
 import { fedMarketProviders } from "./fed-market-data.ts";
 import { federalReserveBoardProviders } from "./board-statistics.ts";
@@ -376,13 +377,21 @@ const CONTRACTS: Record<string, { symbol: Instrument; title: string }> = {
   "043602": { symbol: "TLT", title: "10-year Treasury futures" },
 };
 export function positioningRows(raw: unknown[], code: string, cutoff: string) {
-  const rows = new Map<string, ReturnType<typeof latestPublicPositioning>[number]>();
-  for (const row of raw.flatMap(item => latestPublicPositioning([item], [code]))) {
-    if (row.reportDate > cutoff.slice(0,10)) continue;
-    const prior = rows.get(row.reportDate);
-    if (prior && JSON.stringify(prior) !== JSON.stringify(row))
-      throw new Error("Conflicting CFTC rows for one contract and report date");
-    rows.set(row.reportDate, row);
+  type Row = ReturnType<typeof latestPublicPositioning>[number] & { clock: ReturnType<typeof cftcTableClock> };
+  const rows = new Map<string, Row>();
+  for (const item of raw) {
+    const [position] = latestPublicPositioning([item], [code]);
+    if (!position || position.reportDate > cutoff.slice(0,10)) continue;
+    const clock = cftcTableClock(item as Record<string, unknown>, position.reportDate, code, cutoff);
+    const prior = rows.get(position.reportDate);
+    if (prior) {
+      const { clock: previousClock, ...previousPosition } = prior;
+      if (JSON.stringify(previousPosition) !== JSON.stringify(position) ||
+          (previousClock && clock && previousClock.createdAt !== clock.createdAt))
+        throw new Error("Conflicting CFTC rows for one contract and report date");
+      if (previousClock && (!clock || previousClock.updatedAt >= clock.updatedAt)) continue;
+    }
+    rows.set(position.reportDate, { ...position, clock });
   }
   return [...rows.values()].sort((a,b)=>a.reportDate.localeCompare(b.reportDate));
 }
@@ -398,7 +407,7 @@ export async function positioning(fetcher: Fetcher): Promise<Signal[]> {
   );
   url.searchParams.set(
     "$select",
-    "id,report_date_as_yyyy_mm_dd,contract_market_name,market_and_exchange_names,cftc_contract_market_code,contract_units,open_interest_all,asset_mgr_positions_long,asset_mgr_positions_short,lev_money_positions_long,lev_money_positions_short,dealer_positions_long_all,dealer_positions_short_all,futonly_or_combined",
+    "id,report_date_as_yyyy_mm_dd,contract_market_name,market_and_exchange_names,cftc_contract_market_code,contract_units,open_interest_all,asset_mgr_positions_long,asset_mgr_positions_short,lev_money_positions_long,lev_money_positions_short,dealer_positions_long_all,dealer_positions_short_all,futonly_or_combined,:created_at,:updated_at",
   );
   let response: Awaited<ReturnType<typeof publicText>> | null = null,
     raw: unknown[] = [];
@@ -441,6 +450,7 @@ export async function positioning(fetcher: Fetcher): Promise<Signal[]> {
           : [];
       });
       const latest = series.at(-1);
+      const clock = latest && rows.find(row => row.reportDate === latest.date)?.clock;
       return {
         ...signal,
         instruments: ["MARKET", contract.symbol] as Instrument[],
@@ -464,10 +474,11 @@ export async function positioning(fetcher: Fetcher): Promise<Signal[]> {
           : signal.summary,
         source: source({
           name: "CFTC · TFF futures only",
-          url: citation,
+          url: latest && clock ? cftcReportCitation(latest.date, code) : citation,
           retrievedAt: signal.source.retrievedAt,
           sha256: response?.sha256 ?? null,
           observedAt: latest?.date ?? null,
+          ...(clock ? { releasedAt: clock.createdAt, vintageAt: clock.updatedAt } : {}),
           frequency: "weekly",
           attribution: "US Commodity Futures Trading Commission",
         }),
@@ -478,8 +489,10 @@ export async function positioning(fetcher: Fetcher): Promise<Signal[]> {
         },
         methodology:
           "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
-        limitation:
-          "Tuesday observations generally released Friday. Futures positioning is not ETF flows, known dealer intent or dark-pool activity. Exact release timestamp unavailable; first collection establishes known availability.",
+        limitation: "These contract totals describe futures positioning. " +
+          (clock ? "The source timestamps identify the creation and latest update of the displayed report row in the CFTC public table. Other publication channels can have different release times."
+            : latest ? "The public table supplied no row clock for this observation. This capture establishes availability at collection."
+            : "The reported positions or their timing could not be verified for this category."),
       };
     });
   });

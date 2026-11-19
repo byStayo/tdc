@@ -1,5 +1,6 @@
 "use client";
 import PublicationFooter from "@/components/PublicationFooter";
+import { isCftcPosition } from "@/lib/consensus/cftc-provenance";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -429,7 +430,7 @@ function SourceDrawer({
                 </dd>
               </div>
               <div>
-                <dt>Released</dt>
+                <dt>{signal.source.releasedAt && isCftcPosition(signal.id) ? "CFTC table row created" : "Released"}</dt>
                 <dd>
                   {signal.source.releasedAt
                     ? signal.source.releasedAt.length === 10
@@ -438,10 +439,10 @@ function SourceDrawer({
                     : "Not supplied by source"}
                 </dd>
               </div>
-              {signal.source.vintageAt && (
+              {signal.source.vintageAt && (!isCftcPosition(signal.id) || signal.source.vintageAt !== signal.source.releasedAt) && (
                 <div>
-                  <dt>Provider vintage</dt>
-                  <dd>{datedYear(signal.source.vintageAt)}</dd>
+                  <dt>{isCftcPosition(signal.id) ? "CFTC table row updated" : "Provider vintage"}</dt>
+                  <dd>{datedYear(signal.source.vintageAt)}{isCftcPosition(signal.id) && ` · ${time(signal.source.vintageAt)} ET`}</dd>
                 </div>
               )}
               {signal.source.approvedAt && (

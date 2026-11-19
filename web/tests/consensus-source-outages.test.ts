@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { currencies, FX_CURRENCIES, macro, positioning, positioningRows, earnings, publicText } from '../lib/consensus/collector.ts';
+import { validateCftcProvenance } from '../lib/consensus/cftc-provenance.ts';
 import { retainLastKnown } from '../lib/consensus/last-known.ts';
 import { calculateConsensus } from '../lib/consensus/engine.ts';
 import { boeRequestDate, collectPolicyRates } from '../lib/consensus/policy.ts';
@@ -113,4 +114,62 @@ test('Bank Rate query dates use an explicit three-letter month including Septemb
   await collectPolicyRates(async url => { urls.push(url); throw new Error('fixture outage'); }, '2026-09-03T08:00:00.000Z');
   const url = new URL(urls.find(url => url.includes('bankofengland'))!);
   assert.equal(url.searchParams.get('Datefrom'), '03/Sep/2024');
+});
+
+test('daily CFTC collection reads public table clocks, dates the matching category and preserves revision provenance', async () => {
+  const base = { cftc_contract_market_code: '13874A', contract_market_name: 'S&P 500', contract_units: 'contracts',
+    open_interest_all: '100', asset_mgr_positions_long: '50', asset_mgr_positions_short: '20', lev_money_positions_long: '20',
+    lev_money_positions_short: '30', futonly_or_combined: 'FutOnly' };
+  const early = { ...base, id: '25092313874AF', report_date_as_yyyy_mm_dd: '2025-09-23T00:00:00.000',
+    ':created_at': '2025-09-26T15:30:00-04:00', ':updated_at': '2025-09-26T19:30:00.000Z' };
+  const delayed = { ...base, id: '25093013874AF', report_date_as_yyyy_mm_dd: '2025-09-30T00:00:00.000',
+    ':created_at': '2025-11-19T20:30:44.459Z', ':updated_at': '2025-11-20T14:35:02.175Z', lev_money_positions_long: null };
+  let called = 0;
+  const signals = await positioning(async url => {
+    called++;
+    const fields = new URL(String(url)).searchParams.get('$select')?.split(',');
+    assert.ok(fields?.includes(':created_at') && fields.includes(':updated_at'));
+    return new Response(JSON.stringify([early,delayed]));
+  });
+  assert.equal(called, 1);
+  const asset = signals.find(s=>s.id==='cftc-13874A-asset')!;
+  assert.equal(asset.source.observedAt,'2025-09-30');
+  assert.equal(asset.source.releasedAt,delayed[':created_at']);
+  assert.equal(asset.source.vintageAt,delayed[':updated_at']);
+  assert.ok(asset.source.retrievedAt > asset.source.vintageAt!);
+  assert.equal(new URL(asset.source.url).searchParams.get('id'),delayed.id);
+  validateCftcProvenance(asset);
+  const updated = structuredClone(asset);
+  updated.source.vintageAt = '2025-11-21T12:00:00.000Z';
+  const fixture: Snapshot = JSON.parse(await readFile(new URL('../public/consensus/2026-11-03T08-48-02-469Z.json',import.meta.url),'utf8'));
+  const one = {...fixture, signals:[asset]}, two = {...fixture, signals:[updated]};
+  assert.notEqual(observationDigest(one),observationDigest(two));
+  updated.source.vintageAt = asset.source.vintageAt;
+  updated.source.retrievedAt = '2026-11-02T20:30:00.000Z';
+  assert.equal(observationDigest(one),observationDigest(two));
+  for (const changes of [{vintageAt:'2099-11-19T20:30:00.000Z'}, {releasedAt:null}, {url:'https://publicreporting.cftc.gov/'}]) {
+    const malformed = {...updated,source:{...updated.source,...changes}};
+    assert.throws(()=>validateSnapshot({...fixture,signals:[malformed]},'archive'),/CFTC public table provenance/);
+  }
+  const duplicateVersions = positioningRows([early,{...early,':created_at':null,':updated_at':null},
+    {...early, ':updated_at':'2025-10-02T18:00:00.000Z'}], '13874A', '2025-11-03T13:00:00.000Z');
+  assert.equal(duplicateVersions.length,1);
+  assert.equal(duplicateVersions[0].clock?.updatedAt,'2025-10-02T18:00:00.000Z');
+  const leveraged = signals.find(s=>s.id==='cftc-13874A-leveraged')!;
+  assert.equal(leveraged.source.observedAt,'2025-09-23');
+  assert.equal(leveraged.source.releasedAt,early[':updated_at']);
+  assert.equal(leveraged.source.vintageAt,leveraged.source.releasedAt);
+  const noClocks = await positioning(async()=>new Response(JSON.stringify([{...early,':created_at':null,':updated_at':null}])));
+  const unknown = noClocks.find(s=>s.id===asset.id)!;
+  assert.equal(unknown.status,'available'); assert.equal(unknown.source.releasedAt,null); assert.equal(unknown.source.vintageAt,undefined);
+  const regular = await positioning(async()=>new Response(JSON.stringify([early])));
+  assert.deepEqual(unknown.scores,regular.find(s=>s.id===asset.id)?.scores);
+  const other = { ...early, id:'250923209742F', cftc_contract_market_code: '209742' };
+  for (const invalid of [{':updated_at':'2025-09-26T10:00:00.000Z'},{':created_at':null},{':updated_at':'2099-01-01T00:00:00Z'},
+      {':created_at':'2025-02-30T19:30:00Z'},{id:'250923020601F'}]) {
+    const results = await positioning(async()=>new Response(JSON.stringify([{...early,...invalid},other])));
+    const invalidPosition = results.find(s=>s.id===asset.id)!;
+    assert.equal(invalidPosition.status,'unavailable'); assert.equal(invalidPosition.failureKind,'validation');
+    assert.equal(results.find(s=>s.id==='cftc-209742-asset')?.status,'available');
+  }
 });

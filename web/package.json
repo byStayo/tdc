@@ -62,6 +62,7 @@
     "consensus:research-philly-ads": "node --experimental-strip-types scripts/research-philly-ads.ts",
     "consensus:research-form-d": "node --experimental-strip-types scripts/research-sec-form-d.ts",
     "consensus:research-form144": "node --experimental-strip-types scripts/research-sec-form144.ts",
+    "consensus:research-cftc-release-clocks": "node --experimental-strip-types scripts/research-cftc-release-clocks.ts",
     "consensus:research-cftc-options": "node --experimental-strip-types scripts/research-cftc-option-positioning.ts",
     "consensus:research-technical-momentum": "node --experimental-strip-types scripts/research-technical-momentum.ts",
     "consensus:research-nport-close": "node --experimental-strip-types scripts/research-nport-close.ts",
