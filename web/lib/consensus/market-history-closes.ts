@@ -9,8 +9,10 @@ export type MarketHistoryHour = {
 };
 export type MarketHistoryCapture = {
   source: string; text: string; sha256: string; capturedAt: string; through: string; count: number;
-  pages?: { source: string; sha256: string; count: number; headers: Record<string, string | null> }[];
+  pages?: { source: string; status?: number; sha256: string; count: number; headers: Record<string, string | null> }[];
 };
+export type DeliveredMarketHistoryHours = { source: string; status: number; headers: Record<string, string>;
+  text: string; sha256: string };
 export type CoreClock = { session: string; openAt: string; closeAt: string };
 export type CoreClose = { session: string; closeAt: string; bucketAt: string; close: number; earlyClose: boolean };
 const HOUR = 3_600_000;
@@ -18,7 +20,7 @@ const instant = (value: string) => /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z
   Number.isFinite(Date.parse(value)) &&
   new Date(value).toISOString() === (value.includes(".") ? value : value.replace("Z", ".000Z"));
 
-/** Anonymous raw consolidated 1h endpoint, bounded to 5,000 rows and 2 MB across all pages. */
+/** The legacy anonymous hourly endpoint, retained for historical research captures. */
 export async function fetchMarketHistoryHours(
   symbol: string, from: string, through: string,
   fetcher: (url: string, init?: RequestInit) => Promise<Response> = fetch,
@@ -81,15 +83,56 @@ export async function fetchMarketHistoryHours(
   return capture;
 }
 
+function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL) {
+  const query = url.searchParams, keys = [...query.keys()];
+  const page = capture.pages?.[0], headers = page?.headers;
+  const from = query.get("start"), end = query.get("end");
+  if (!from || !end || ![from, end].every(day => /^\d{4}-\d\d-\d\d$/.test(day) && instant(day + "T00:00:00Z")) ||
+      from > end || Date.parse(end) - Date.parse(from) > 370 * 86_400_000 || url.hash ||
+      keys.length !== new Set(keys).size || keys.some(key => !["start", "end", "adjust", "feed", "limit", "format", "tz"].includes(key)) ||
+      query.get("adjust") !== "raw" || query.get("feed") !== "consolidated" ||
+      ![null, "jsonl"].includes(query.get("format")) || ![null, "exchange"].includes(query.get("tz")) ||
+      (query.has("limit") && (!/^[1-9]\d*$/.test(query.get("limit")!) || Number(query.get("limit")) < capture.count)) ||
+      capture.pages?.length !== 1 || !page || !headers || page.status !== 200 || page.source !== capture.source ||
+      page.sha256 !== capture.sha256 || page.count !== capture.count || headers["x-feed"] !== "consolidated" ||
+      headers["content-type"]?.split(";")[0].trim().toLowerCase() !== "application/x-ndjson" ||
+      headers["x-session"] !== "exchange America/New_York 00:00" || headers["x-row-count"] !== String(capture.count) ||
+      headers["x-data-through"] !== capture.through || headers["x-bars-charged"] !== String(Math.ceil(capture.count / 100) * 100) ||
+      headers["x-next-cursor"] || headers["x-limit-clamped"] || /rel\s*=\s*"?next/i.test(headers.link ?? "") ||
+      !headers.date || headers.date !== new Date(capture.capturedAt).toUTCString() ||
+      Date.parse(headers.date) !== Date.parse(capture.capturedAt) || Buffer.byteLength(capture.text) > 2_000_000)
+    throw new Error("Invalid or incomplete signed-in Market History hourly delivery");
+}
+
+/** Normalize an owner's completed HTTP response. The provider's Date is the original retrieval clock. */
+export function importMarketHistoryHours(delivery: DeliveredMarketHistoryHours, symbol: string, cutoff: string): MarketHistoryCapture {
+  const source = new URL(delivery.source);
+  if (source.pathname !== `/query/v1/bars/stocks/us/${symbol}/1h` || typeof delivery.text !== "string")
+    throw new Error("Expected a delivered signed-in Market History hourly response");
+  const supplied = new Headers(delivery.headers);
+  const headers = Object.fromEntries(["content-type", "date", "x-feed", "x-session", "x-row-count", "x-data-through",
+    "x-bars-charged", "x-next-cursor", "x-limit-clamped", "link"].map(name => [name, supplied.get(name)]));
+  const served = Date.parse(headers.date ?? "");
+  if (!Number.isFinite(served) || served > Date.parse(cutoff)) throw new Error("Invalid Market History delivery date");
+  const count = Number(headers["x-row-count"]), { text, sha256 } = delivery;
+  const capture: MarketHistoryCapture = { source: delivery.source, text, sha256, count,
+    capturedAt: new Date(served).toISOString(), through: headers["x-data-through"] ?? "",
+    pages: [{ source: delivery.source, status: delivery.status, count, sha256, headers }] };
+  parseMarketHistoryHours(capture, symbol);
+  return capture;
+}
+
 export function parseMarketHistoryHours(capture: MarketHistoryCapture, symbol: string): MarketHistoryHour[] {
   const url = new URL(capture.source);
+  const delivered = url.pathname === `/query/v1/bars/stocks/us/${symbol}/1h`;
   if (url.origin !== "https://getmarkethistory.com" || url.username || url.password ||
-      url.pathname !== `/api/v1/bars/stocks/us/${symbol}/1h` ||
+      (!delivered && url.pathname !== `/api/v1/bars/stocks/us/${symbol}/1h`) ||
       ![null, "raw"].includes(url.searchParams.get("adjust")) ||
       ![null, "consolidated"].includes(url.searchParams.get("feed")) ||
       !instant(capture.capturedAt) || !instant(capture.through) || Date.parse(capture.through) > Date.parse(capture.capturedAt) ||
       !Number.isSafeInteger(capture.count) || capture.count < 1 || capture.count > 5000)
     throw new Error("Invalid Market History provenance");
+  if (delivered) verifyDeliveredPage(capture, url);
   if (createHash("sha256").update(capture.text).digest("hex") !== capture.sha256)
     throw new Error("Market History body hash differs from its receipt");
   const from = url.searchParams.get("start"), through = url.searchParams.get("end");

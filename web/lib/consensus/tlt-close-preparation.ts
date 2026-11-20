@@ -3,11 +3,10 @@ import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { loadReviewedTltCash } from "./firstrate.ts";
 import { digest } from "./history.ts";
-import { closeMomentum, coreSessionCloses, fetchMarketHistoryHours, parseMarketHistoryHours,
-  type MarketHistoryCapture } from "./market-history-closes.ts";
+import { closeMomentum, coreSessionCloses, importMarketHistoryHours, parseMarketHistoryHours,
+  type DeliveredMarketHistoryHours, type MarketHistoryCapture } from "./market-history-closes.ts";
 import { collectResearchPrices, readResearchReceipt, type ResearchPriceReceipt } from "./research-price-capture.ts";
-import { tltCloseSignal } from "./tlt-close-signal.ts";
-import { newYorkDate } from "./time.ts";
+import { TLT_CLOSE_STALE_DAYS, tltCloseSignal } from "./tlt-close-signal.ts";
 
 const DAY = 86_400_000;
 const METHOD = "tlt-consolidated-final-hour-v1";
@@ -72,30 +71,40 @@ async function controls(dir: string, dates: string[], cachedOnly: boolean) {
 
 export async function loadTltClosingTrend(root: string, cutoff: string) {
   const review = await latest(root);
-  if (!review || review.checkedAt > cutoff || Date.parse(cutoff) - Date.parse(exchangeSession(review.through)!.closeAt) > 5 * DAY) return null;
+  if (!review || review.checkedAt > cutoff || Date.parse(cutoff) - Date.parse(exchangeSession(review.through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY) return null;
   const { raw, splits } = await controls(directory(root), exchangeSessions(review.from, review.through), true);
   return verifiedCloses(review, raw, splits);
 }
 
-/** Called under the existing preparation lock. All exchange prices and controls remain owner-local. */
-export async function prepareTltClosingTrend(root: string, recheck = false) {
-  const now = new Date().toISOString();
+async function retained(root: string, now: string, status: string) {
+  const reading = await loadTltClosingTrend(root, now);
+  return { status: status === "reused" && !reading ? "withheld" : status, through: reading?.series[0]?.date ?? null,
+    retrievedAt: reading?.source.retrievedAt ?? null, metrics: reading?.metrics.length ?? 0 };
+}
+
+/** Under the preparation lock, import a completed owner-provided hourly delivery or replay the previously verified receipt. */
+export async function prepareTltClosingTrend(root: string, _recheck = false) {
+  const now = new Date().toISOString(), dir = directory(root);
+  const delivery = await readResearchReceipt<DeliveredMarketHistoryHours>(resolve(dir, "incoming-hourly.json"));
+  if (!delivery) return retained(root, now, "waiting_for_free_hourly_access");
+  const capture = importMarketHistoryHours(delivery, "TLT", now);
   const issuer = await loadReviewedTltCash(root, now);
-  if (!issuer) return { status: "waiting_for_issuer_history" };
-  const old = await latest(root);
-  if (!recheck && old && newYorkDate(old.checkedAt) === newYorkDate(now) && old.issuer.through === issuer.through &&
-      old.issuer.issuer.sha256 === issuer.issuer.sha256) {
-    const reading = await loadTltClosingTrend(root, now);
-    return { status: reading ? "reused" : "withheld", through: old.through, metrics: reading?.metrics.length ?? 0 };
-  }
+  const url = new URL(capture.source), end = url.searchParams.get("end")!;
+  if (!issuer || end > issuer.through) return retained(root, now, "waiting_for_issuer_history");
+  if (end < issuer.through) return retained(root, now, "waiting_for_free_hourly_access");
   const start = new Date(Date.parse(issuer.through) - 35 * DAY).toISOString().slice(0, 10);
   const from = start < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : start;
-  const capture = await fetchMarketHistoryHours("TLT", from, issuer.through);
+  if (url.searchParams.get("start") !== from) throw new Error("TLT hourly delivery must cover the entire reviewed range");
   const dates = exchangeSessions(from, issuer.through).filter(day =>
     Date.parse(exchangeSession(day)!.closeAt) <= Date.parse(capture.through));
   const through = dates.at(-1);
   if (!through || dates.length < 2) throw new Error("The source has too few completed TLT closing hours");
-  const dir = directory(root);
+  const old = await latest(root);
+  if (Date.parse(now) - Date.parse(exchangeSession(through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY ||
+      (old && (through < old.through || (through === old.through && capture.capturedAt < old.capture.capturedAt))))
+    return retained(root, now, "waiting_for_free_hourly_access");
+  if (old && digest(old.capture) === digest(capture) && digest(old.issuer) === digest(issuer))
+    return retained(root, now, "reused");
   await durableDirectory(dir, 0o700);
   const { raw, splits } = await controls(dir, dates, false);
   const review: Review = { method: METHOD, checkedAt: new Date().toISOString(), issuer, capture, from, through,
