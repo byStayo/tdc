@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "SPY",
+  "createdAt": "2026-11-19T12:52:40.522Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Walmart adds a consumer reading to the S&P 500 earnings picture",
+    "summary": "Walmart’s third-quarter revenue grew 5.2%, while growth in global online sales reached 17%. The release broadens this week’s issuer evidence beyond technology. The latest E-mini S&P 500 positioning report predates these earnings.",
+    "bull": [
+      {
+        "text": "Walmart raised its full-year outlook for constant-currency net sales growth to 4.9%–5.2%.",
+        "sourceIds": [
+          "SEC_WMT"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers cut their net long E-mini S&P 500 position from 928,584 contracts on November 3 to 914,130 on November 10.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Leveraged funds’ net short fell from 372,318 to 303,060 contracts over the same week. The next CFTC report will show whether the two groups continued to move differently.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "limitations": [
+      "One issuer’s results give limited evidence about the wider index. The CFTC figures describe related futures. Current SPY options exposure and dealer positioning by strike remain unverified."
+    ]
+  },
+  "sources": [
+    {
+      "id": "SEC_WMT",
+      "title": "SEC EDGAR · Walmart’s November 19 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0000104169.json"
+    },
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    }
+  ]
+}

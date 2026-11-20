@@ -1,0 +1,52 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 11px;
+  min-height: 44px;
+  color: var(--text);
+  text-decoration: none;
+}
+.mark {
+  stroke: var(--accent);
+  stroke-width: 3;
+  fill: none;
+}
+.wordmark {
+  display: grid;
+  gap: 3px;
+}
+.prefix {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 2px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+.wordmark strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 23px;
+  line-height: 1;
+  letter-spacing: -1px;
+  font-weight: 600;
+}
+.period {
+  color: var(--accent);
+}
+@media (max-width: 700px) {
+  .brand {
+    gap: 9px;
+  }
+  .mark {
+    width: 27px;
+    height: 32px;
+  }
+  .wordmark strong {
+    font-size: 21px;
+  }
+  .prefix {
+    font-size: 9px;
+    letter-spacing: 1.8px;
+  }
+}

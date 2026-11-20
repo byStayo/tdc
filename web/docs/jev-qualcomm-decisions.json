@@ -1,0 +1,30 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "layout": {
+      "type": "choice",
+      "choice": "existing_grid",
+      "confidence": 1,
+      "probabilities": {
+        "existing_grid": 1,
+        "stacked_rows": 0,
+        "compact_table": 0,
+        "expand_candidates": 0
+      }
+    },
+    "eps_comparison": {
+      "type": "choice",
+      "choice": "paired_values",
+      "confidence": 0.79,
+      "probabilities": {
+        "paired_values": 0.86,
+        "drawer_pair": 0.13,
+        "expand_candidates": 0.01
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1046,
+    "output_tokens": 94
+  }
+}

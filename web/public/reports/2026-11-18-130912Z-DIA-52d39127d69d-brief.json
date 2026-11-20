@@ -1,0 +1,52 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "DIA",
+  "createdAt": "2026-11-18T13:09:12.022Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
+  "data": {
+    "headline": "NVIDIA’s filing adds a fresh Dow earnings observation",
+    "summary": "NVIDIA’s November 17 filing arrived after the regular session. The company reported GAAP diluted earnings of $2.70 per share. In the November 10 Dow futures report, the asset-manager net long was 2,080 contracts.",
+    "bull": [
+      {
+        "text": "Leveraged funds held a November 10 Dow futures net long of 1,315 contracts, up from 820 a week earlier.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The asset-manager net long fell from 8,220 to 2,080 contracts. Contract open interest fell to 83,148.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "NVIDIA’s GAAP diluted earnings rose from $1.30 to $2.70 per share year over year. Watch whether the market response extends to other Dow components.",
+        "sourceIds": [
+          "SEC_NVDA"
+        ]
+      }
+    ],
+    "limitations": [
+      "The Dow futures snapshot precedes the filing. The issuer disclosure does not measure aggregate Dow earnings.",
+      "The evidence packet lacks a post-release DIA return, matched expectations and a full option chain."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_DOW",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+    },
+    {
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
+    }
+  ]
+}

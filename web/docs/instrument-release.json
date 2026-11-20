@@ -1,0 +1,41 @@
+{
+  "verifiedAt": "2026-11-03T04:48:19.040Z",
+  "deploymentId": "dpl_Hv6mtiiVkYDWSjud9h1mdxWp2R4Y",
+  "state": "READY",
+  "sourceCommit": "f58df645cd0ab853d5370dd3695473dea07704e8",
+  "sourceBranch": "codex/daily-consensus-relaunch",
+  "aliases": [
+    "thedailyconsensus.com",
+    "v0-the-daily-consensus.vercel.app",
+    "www.thedailyconsensus.com",
+    "v0-the-daily-consensus-bystayos-projects.vercel.app"
+  ],
+  "buildEvidence": [
+    {
+      "text": "Deployment completed",
+      "timestamp": "2026-11-03T04:42:21.175Z"
+    },
+    {
+      "text": "Build Completed in /vercel/output [8s]",
+      "timestamp": "2026-11-03T04:42:16.304Z"
+    },
+    {
+      "text": "✓ Generating static pages using 3 workers (68/68) in 767ms",
+      "timestamp": "2026-11-03T04:42:15.807Z"
+    },
+    {
+      "text": "  Finished TypeScript in 3.8s ...",
+      "timestamp": "2026-11-03T04:42:14.556Z"
+    },
+    {
+      "text": "✓ Compiled successfully in 921ms",
+      "timestamp": "2026-11-03T04:42:10.770Z"
+    }
+  ],
+  "localChecks": {
+    "testsPassed": 37,
+    "typecheck": "passed",
+    "diffCheck": "passed"
+  },
+  "productionEvidence": "instrument-production-verification.json"
+}

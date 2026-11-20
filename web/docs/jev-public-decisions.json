@@ -1,0 +1,53 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "hierarchy": {
+      "type": "choice",
+      "choice": "published_brief_first",
+      "confidence": 0.97,
+      "probabilities": {
+        "published_brief_first": 0.98,
+        "chart_first": 0.01,
+        "archive_first": 0.0,
+        "expand_candidates": 0.01
+      }
+    },
+    "positioning": {
+      "type": "choice",
+      "choice": "positioning_view",
+      "confidence": 0.73,
+      "probabilities": {
+        "positioning_view": 0.8,
+        "options_and_positioning": 0.15,
+        "separate_views": 0.05,
+        "expand_candidates": 0.0
+      }
+    },
+    "news": {
+      "type": "choice",
+      "choice": "filings_and_headlines",
+      "confidence": 0.92,
+      "probabilities": {
+        "filings_and_headlines": 0.94,
+        "filings_only": 0.02,
+        "keep_news": 0.02,
+        "expand_candidates": 0.02
+      }
+    },
+    "archive": {
+      "type": "choice",
+      "choice": "editorial_reader",
+      "confidence": 1.0,
+      "probabilities": {
+        "editorial_reader": 1.0,
+        "external_only": 0.0,
+        "modal_reader": 0.0,
+        "expand_candidates": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1456,
+    "output_tokens": 224
+  }
+}

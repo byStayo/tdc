@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-20T09:26:01.639Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Two-year Treasury yield falls to 4.76% as the curve steepens",
+    "summary": "Treasury yields fell across the curve on Thursday. The two-year benchmark dropped four basis points and the 30-year benchmark fell one. That widened the gap between them to 64 basis points, from 61 on Wednesday.",
+    "bull": [
+      {
+        "text": "The ten-year yield fell three basis points to 5.04%. That lowered the Treasury benchmark used to price many new corporate bonds.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Long-term borrowing remains relatively expensive. The 30-year Treasury yield ended Thursday at 5.40%.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The two-year yield moved more than the 30-year on Thursday. The next Treasury release will show whether that difference persists.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "The Treasury publishes estimated par yields. A business’s borrowing rate also depends on its credit spread."
+    ]
+  },
+  "sources": [
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    }
+  ]
+}

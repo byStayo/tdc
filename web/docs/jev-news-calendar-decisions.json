@@ -1,0 +1,29 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "news_visual": {
+      "type": "choice",
+      "choice": "distribution_with_sources",
+      "confidence": 1,
+      "probabilities": {
+        "distribution_with_sources": 1,
+        "mean_sparkline": 0,
+        "table_only": 0
+      }
+    },
+    "calendar_expansion": {
+      "type": "choice",
+      "choice": "inline_calendar",
+      "confidence": 1,
+      "probabilities": {
+        "inline_calendar": 1,
+        "drawer_calendar": 0,
+        "dedicated_page": 0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 845,
+    "output_tokens": 90
+  }
+}

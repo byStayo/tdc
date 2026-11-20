@@ -1,0 +1,53 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "layout": {
+      "type": "choice",
+      "choice": "research_desk",
+      "confidence": 1.0,
+      "probabilities": {
+        "research_desk": 1.0,
+        "market_terminal": 0.0,
+        "editorial_feed": 0.0,
+        "expand_candidates": 0.0
+      }
+    },
+    "hierarchy": {
+      "type": "choice",
+      "choice": "evidence_first",
+      "confidence": 0.92,
+      "probabilities": {
+        "evidence_first": 0.94,
+        "ticker_first": 0.05,
+        "news_first": 0.0,
+        "expand_candidates": 0.01
+      }
+    },
+    "density": {
+      "type": "choice",
+      "choice": "comfortable_with_detail",
+      "confidence": 1.0,
+      "probabilities": {
+        "comfortable_with_detail": 1.0,
+        "compact_all": 0.0,
+        "spacious_all": 0.0,
+        "expand_candidates": 0.0
+      }
+    },
+    "presentation": {
+      "type": "choice",
+      "choice": "navy_research",
+      "confidence": 0.83,
+      "probabilities": {
+        "ink_editorial": 0.13,
+        "navy_research": 0.87,
+        "neutral_terminal": 0.0,
+        "expand_candidates": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1509,
+    "output_tokens": 216
+  }
+}

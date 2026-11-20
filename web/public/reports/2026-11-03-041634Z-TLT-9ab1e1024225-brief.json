@@ -1,0 +1,67 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-03T04:16:34.456Z",
+  "model": "Codex editorial workflow",
+  "message": "Published TLT research using the linked public evidence. The futures reporting dates are shown in the analysis; refreshing this page does not generate a new report.",
+  "data": {
+    "headline": "TLT: separate Treasury exposure from rate policy.",
+    "summary": "Treasury bond futures show asset managers net long and leveraged funds net short in the October 27 report. The leveraged category was less net short than one week earlier, while the asset-manager net long balance slipped. These futures are related duration-market context, not a replica of TLT’s holdings or a forecast of long-term yields.",
+    "bull": [
+      {
+        "text": "Leveraged funds’ Treasury bond futures net short balance narrowed from 162,757 contracts on October 20 to 150,393 on October 27. Both gross longs and gross shorts increased, so this net change cannot be summarized as short covering.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers’ net long balance declined from 388,007 to 383,981 contracts. Gross longs grew from 1,087,469 to 1,141,449, but gross shorts grew by more, from 699,462 to 757,468.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      },
+      {
+        "text": "The effective federal funds rate averaged 3.88% in October, versus 3.75% in September. This is an observed overnight-rate average, not a long-term Treasury yield or a statement that the FOMC changed its target.",
+        "sourceIds": [
+          "FRED_RATE"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Treasury bond futures open interest rose from 1,785,457 to 1,890,568 contracts. Check new positioning and rate observations on their own calendars; these totals do not measure TLT subscriptions or identify a named investor’s intent.",
+        "sourceIds": [
+          "CFTC_BOND",
+          "CFTC_METHOD"
+        ]
+      }
+    ],
+    "limitations": [
+      "CFTC observations are for October 27 and October 20, 2026. These are weekly futures-only reports released after their observation dates, not live positions.",
+      "The related futures contract is not the ETF. Trader-category net positions are long-minus-short contract counts; they are not ETF fund flows, dollar exposure or evidence of investor intent.",
+      "No current support/resistance levels, options chain, gamma levels or dark-pool signal were collected for this report. Hosted charts remain separate from the editorial evidence.",
+      "This AI-assisted report presents supporting observations and counterpoints, without a validated price forecast or conviction score. It is general research, not a buy or sell instruction.",
+      "Treasury bond futures and TLT have different instruments and duration exposures. The federal funds series is an overnight-rate monthly average and may be revised."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    },
+    {
+      "id": "FRED_RATE",
+      "title": "Federal Reserve / FRED · Effective federal funds rate",
+      "url": "https://fred.stlouisfed.org/series/FEDFUNDS"
+    },
+    {
+      "id": "CFTC_METHOD",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+    }
+  ]
+}

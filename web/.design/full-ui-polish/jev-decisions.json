@@ -1,0 +1,59 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "reading_scale": {
+      "type": "choice",
+      "choice": "balanced_editorial",
+      "confidence": 0.97,
+      "probabilities": {
+        "balanced_editorial": 0.98,
+        "large_everywhere": 0.02,
+        "minimal_scale": 0.0
+      }
+    },
+    "publication_navigation": {
+      "type": "choice",
+      "choice": "shared_editorial_header",
+      "confidence": 1.0,
+      "probabilities": {
+        "shared_editorial_header": 1.0,
+        "separate_polished_headers": 0.0,
+        "sidebar_everywhere": 0.0
+      }
+    },
+    "methodology_layout": {
+      "type": "choice",
+      "choice": "reading_sections",
+      "confidence": 0.98,
+      "probabilities": {
+        "reading_sections": 0.99,
+        "dense_cards": 0.01,
+        "collapsed_all": 0.0
+      }
+    },
+    "hosted_view_recovery": {
+      "type": "choice",
+      "choice": "inline_recovery",
+      "confidence": 1.0,
+      "probabilities": {
+        "inline_recovery": 1.0,
+        "persistent_overlay": 0.0,
+        "external_only": 0.0
+      }
+    },
+    "research_density": {
+      "type": "choice",
+      "choice": "refine_existing_shell",
+      "confidence": 1.0,
+      "probabilities": {
+        "refine_existing_shell": 1.0,
+        "single_column_everywhere": 0.0,
+        "add_dashboard_summary": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1644,
+    "output_tokens": 243
+  }
+}

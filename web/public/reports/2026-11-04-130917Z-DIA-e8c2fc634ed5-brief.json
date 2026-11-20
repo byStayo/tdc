@@ -1,0 +1,66 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "DIA",
+  "createdAt": "2026-11-04T13:09:17.947Z",
+  "model": "Codex editorial workflow",
+  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
+  "data": {
+    "headline": "DIA: the rate mix calls for company-level distinctions.",
+    "summary": "The new curve observations can affect financing costs, financial-company margins and valuation assumptions through different channels. A Dow-wide directional claim would erase those differences. Read the older Dow futures positioning alongside the dated rate changes, without treating it as current buying.",
+    "bull": [
+      {
+        "text": "Ten- and thirty-year Treasury yields each declined 3 basis points on November 2, to 4.91% and 5.28%. Lower long benchmarks can ease some financing assumptions, but no borrowing-cost change for a Dow constituent was measured.",
+        "sourceIds": [
+          "FRED_DGS10",
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The two-year Treasury yield rose to 4.59% while the ten-year yield fell to 4.91%. Their spread narrowed by 6 basis points to 32; this cannot be translated directly into a bank-margin forecast or a uniform DIA earnings effect.",
+        "sourceIds": [
+          "FRED_DGS2",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Dow futures asset managers were net long 12,233 contracts on October 27. Leveraged funds were near balanced at net long 96, after net short 1,967 a week earlier. This related futures contract differs from DIA shares.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
+      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
+      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
+      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_DOW",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    }
+  ]
+}

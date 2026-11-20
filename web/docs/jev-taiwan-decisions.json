@@ -1,0 +1,30 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "layout": {
+      "type": "choice",
+      "choice": "paired_rows",
+      "confidence": 0.55,
+      "probabilities": {
+        "paired_rows": 0.66,
+        "paired_cards": 0.33,
+        "table": 0,
+        "expand_candidates": 0.01
+      }
+    },
+    "placement": {
+      "type": "choice",
+      "choice": "expand_candidates",
+      "confidence": 0.16,
+      "probabilities": {
+        "after_policy": 0.34,
+        "after_news": 0.22,
+        "expand_candidates": 0.44
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1100,
+    "output_tokens": 88
+  }
+}

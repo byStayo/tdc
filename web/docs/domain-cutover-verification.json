@@ -1,0 +1,119 @@
+{
+  "verifiedAt": "2026-11-03T03:28:07.346612+00:00",
+  "deploymentId": "dpl_F7waipY9ULUpxkUvPmcyWqVqMwc4",
+  "connection": "Explicit new origin IP; public HTTPS certificate validation enabled; no authentication",
+  "dns": {
+    "ns1.bluehost.com": "; <<>> DiG 9.10.6 <<>> @ns1.bluehost.com thedailyconsensus.com A +noall +answer\n; (1 server found)\n;; global options: +cmd\nthedailyconsensus.com.\t900\tIN\tA\t216.150.1.1",
+    "ns2.bluehost.com": "; <<>> DiG 9.10.6 <<>> @ns2.bluehost.com thedailyconsensus.com A +noall +answer\n; (1 server found)\n;; global options: +cmd\nthedailyconsensus.com.\t14400\tIN\tA\t162.241.216.137",
+    "8.8.8.8": "; <<>> DiG 9.10.6 <<>> @8.8.8.8 thedailyconsensus.com A +noall +answer\n; (1 server found)\n;; global options: +cmd\nthedailyconsensus.com.\t14400\tIN\tA\t162.241.216.137",
+    "1.1.1.1": "; <<>> DiG 9.10.6 <<>> @1.1.1.1 thedailyconsensus.com A +noall +answer\n; (1 server found)\n;; global options: +cmd\nthedailyconsensus.com.\t900\tIN\tA\t216.150.1.1"
+  },
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true,
+        "canonical": true
+      },
+      "error": null
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true,
+        "freePublic": true,
+        "noRuntimeGeneration": true
+      },
+      "error": null
+    },
+    {
+      "path": "/api/research",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true
+      },
+      "error": null
+    },
+    {
+      "path": "/api/workspace?symbol=SPY&range=3M",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true
+      },
+      "error": null
+    },
+    {
+      "path": "/research",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true
+      },
+      "error": null
+    },
+    {
+      "path": "/research/wordpress-491",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true
+      },
+      "error": null
+    },
+    {
+      "path": "/adapting-to-the-new-normal-how-changing-consumer-habits-are-shaking-up-the-financial-industry",
+      "status": 308,
+      "server": "Vercel",
+      "location": "/research/wordpress-491",
+      "checks": {
+        "expectedStatus": true,
+        "redirect": true
+      },
+      "error": null
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true,
+        "canonicalDomainOnly": true
+      },
+      "error": null
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "server": "Vercel",
+      "location": null,
+      "checks": {
+        "expectedStatus": true
+      },
+      "error": null
+    },
+    {
+      "path": "https://www.thedailyconsensus.com/",
+      "headers": "HTTP/2 308 \ncache-control: public, max-age=0, must-revalidate\ncontent-type: text/plain\ndate: Tue, 03 Nov 2026 03:28:07 GMT\nlocation: https://thedailyconsensus.com/\nrefresh: 0;url=https://thedailyconsensus.com/\nserver: Vercel\nstrict-transport-security: max-age=63072000\nx-vercel-id: iad1::t897p-1793676487014-ab1005d28c1a",
+      "error": null,
+      "checks": {
+        "redirect": true
+      }
+    }
+  ],
+  "newOriginChecksPassed": true,
+  "dnsPropagationPending": true,
+  "note": "New-origin route checks passed. DNS resolver/authoritative edge answers were inconsistent at verification time; completion of propagation is a separate check."
+}

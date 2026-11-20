@@ -1,0 +1,59 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "task": "Resolve actual round019 visual audit issues within owner request to polish all UI. Existing choice balanced14pxbody/12secondary/11eyebrow and sharedpublicationheader remains; bodymeta12pxandnav13px are compatible refinements.",
+    "evidence": "42 real before screenshots at1280/768/375, two themes. No screenreader or emulatedreducedmotion claim.",
+    "constraints": [
+      "No market/historyJSON changes;161protectedfilesmustmatch",
+      "No rawprovider extraction; parentcannotdetectopaque blankiframe; loading/error logic alreadyexists so alwaysavailablerecoveryis appropriate",
+      "Originalprovenanceanddatesremainaccessible",
+      "No optionalnewfeed/backlog",
+      "Codeximplements;browserverificationrequired"
+    ]
+  },
+  "questions": {
+    "phone_positioning": {
+      "type": "choice",
+      "instructions": "At375px the CFTC table is366px wide in303px: Net is hidden. Keep every real category Long,Short,Net value and accessible labels. Choose a readable phone layout.",
+      "criteria": {
+        "stacked_categories": "Each category is a full-width heading above a three-column Long/Short/Net grid; keep the desktop table and expose only one representation per viewport.",
+        "net_first_scroll": "Put Net immediately after category and retain an explicitly labelled horizontal scroll region for Long and Short.",
+        "scroll_hint_only": "Keep table order and add a visible horizontal-scroll hint."
+      }
+    },
+    "history_presentation": {
+      "type": "choice",
+      "instructions": "A prior edition is distinguished only by a tiny label;15 equal edition rows create excessive whitespace. Keep all immutable editions reachable and dates unchanged.",
+      "criteria": {
+        "banner_compact_list": "A persistent inline as-issued banner near the toolbar with Return to latest; first5edition rows and Show all control; mark latest and selected rows.",
+        "banner_full_list": "Same history banner but retain all edition rows in a single long column.",
+        "fixed_notice": "Fixed-bottom historical warning and a horizontal edition carousel."
+      }
+    },
+    "desk_mobile_brand": {
+      "type": "choice",
+      "instructions": "The desk has a useful sidebar on desktop but its375px toolbar has no brand and under44px controls. Preserve the existing shell and44px controls.",
+      "criteria": {
+        "two_rows": "Phone first row brand + menu/theme controls, second row full-width search +refresh; desktop keeps sidebar and topbar, with Morning view link in sidebar/menu.",
+        "brand_above": "Add a full extra publication header above the existing unchanged mobile toolbar.",
+        "compact_mark": "Keep one toolbar row and add only the bars icon, reducing search width."
+      }
+    },
+    "archive_title_presentation": {
+      "type": "choice",
+      "instructions": "Three recovered archive titles begin with obvious sentence fragments followed by a complete headline. Preserve original immutable JSON,title,date,URL,source andbody. No invented headline.",
+      "criteria": {
+        "exact_headline_with_original": "Use an allowlisted exact suffix of each existing title as its display headline, and provide the verbatim Original archive title disclosure on those3article pages. No global title-cleaning heuristic.",
+        "verbatim_only": "Keep fragment-led title exactly visible; resolve other UI only."
+      }
+    },
+    "polish_details": {
+      "type": "choice",
+      "instructions": "Actual audit finds bearish-looking universal effect arrow, inconsistent available/missing family titles, calendar seam, four free statements, abbreviated ticker badges, tooling prose and casing issues. No changes to market facts are allowed.",
+      "criteria": {
+        "consistent_semantics": "Use neutral right arrow, one family-title size, gap beforecalendar, one free statement, full tickerbadge,no redundant rail onWatchlist,editorial-review wording and explicit issuer displaynames; retain rawnames/source data.",
+        "critical_only": "Leave those visual issues and focus solely onP1/P2 fixes."
+      }
+    }
+  }
+}

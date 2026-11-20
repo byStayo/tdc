@@ -1,0 +1,9 @@
+# Full product UI polish · November 4, 2026
+
+The owner requested a full UI review and polish of the existing public Daily Consensus product. Preserve the restrained editorial market-research identity, Manrope/Space Grotesk fonts, sage accent, existing light/dark tokens and actual data. Improve readability, hierarchy, consistent navigation and branding, responsive layout, touch/keyboard access and loading/empty/error states across the entire product.
+
+Scope: morning overview and all its tabs/drawers/history/instrument/horizon controls; every Research Desk section (brief, reports, market, positioning, news, archive, watchlist, sources); methodology; full archive and archived article reading. Inspect 1280px desktop,768px tablet,375px phone plus both themes and keyboard/focus/reduced-motion behavior. Preserve44px essential controls, honest missing inputs, dates, historical isolation and external hosted-display boundaries. No new data source, fake observation, score change, publication-date refresh or model claim belongs in this UI pass.
+
+Live Jev chooses substantive presentation decisions from the actual component/token catalog after the visual audit. Codex implements. The existing Claude Opus5.5 Medium session provides independent actual browser evidence and review; Codex's own official browser service currently reports disabled despite an enabled setting. Record which actor/tool performed each check; inspect screenshots, do not infer visual success from source code alone.
+
+Acceptance: every scoped route/view has explicit reviewed status and traceable screenshot/interaction evidence, confirmed issues are fixed, meaningful checks pass, source/history/model data remain unchanged, and the exact clean release is verified on the original domain. No full-product completion claim without the still-missing permitted feeds and real outcomes.

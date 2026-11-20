@@ -1,0 +1,54 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-03T17:34:12.115Z",
+  "model": "Codex editorial workflow",
+  "message": "Provenance correction: the BLS citation now points to its dated November 3 archive, and the public evidence includes the cited sector and establishment-size details. Figures and interpretation are unchanged from the 12:11 PM ET edition.",
+  "data": {
+    "headline": "IWM: distinguish small workplaces from listed small caps.",
+    "summary": "BLS reports a lower layoffs-and-discharges rate at workplaces with one to nine employees, alongside little change in several other measures for that size class. That observation is relevant context but is not a Russell 2000 company sample. Small-cap finance and positioning remain separate parts of the assessment.",
+    "bull": [
+      {
+        "text": "For establishments with 1–9 employees, the layoffs-and-discharges rate decreased in September. BLS said openings, hires, quits and total-separation rates showed little or no change. Establishment size is not an equity-index classification.",
+        "sourceIds": [
+          "BLS_JOLTS"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Economy-wide quits increased to 3.4 million. This may matter for staffing conditions, but the survey does not provide Russell 2000 refinancing costs, margins or a measured price response.",
+        "sourceIds": [
+          "BLS_JOLTS"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "October 27 Russell E-mini futures asset managers were net long 19,602 contracts and leveraged funds net short 48,081. The earlier October 20 balances were net long 30,960 and net short 53,035, respectively; this is category positioning rather than IWM subscriptions.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "BLS observations describe September and were released November 3 at 10:00 AM ET; they are survey estimates subject to revision. No economist consensus or release-day price reaction was collected.",
+      "CFTC observations are October 27 futures-only category positions, released with a lag. Related futures are not ETF holdings, live fund flows or named-investor intent.",
+      "Current price levels, option chains, gamma, social sentiment and dark-pool direction are not independently measured here. Hosted TradingView displays remain separate.",
+      "This AI-assisted contextual report has no validated directional forecast or conviction score."
+    ]
+  },
+  "sources": [
+    {
+      "id": "BLS_JOLTS",
+      "title": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
+      "url": "https://www.bls.gov/news.release/archives/jolts_11032026.htm"
+    },
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    }
+  ]
+}

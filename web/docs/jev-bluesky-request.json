@@ -1,0 +1,65 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add a small, honest Bluesky market-discussion language-cue sample to the existing visual morning product without reintroducing the clutter the owner disliked.",
+    "catalog": [
+      "Collapsed numbered ResearchSection",
+      "Existing two-column research panel",
+      "Neutral horizontal bars and semantic values",
+      "Native methodology disclosure",
+      "44px source/report links",
+      "Explicit historical-mode notice",
+      "Current-only external displays already live in Price chart & technicals"
+    ],
+    "tokens": {
+      "fonts": "Manrope body, Space Grotesk headings",
+      "palette": "existing charcoal/sage dark and warm-neutral light variables --panel --text --text-secondary --text-muted --accent --border",
+      "rules": "390px responsive,44px controls,keyboard-native details,no color-only semantics,reduced motion"
+    },
+    "evidence": {
+      "source": "Free no-auth Bluesky Jetstream v2; short bounded capture of English-tagged originals containing exact supported cashtags/index names or defined broad US-market phrases. One most recent qualifying record per distinct account per instrument. Edits/deletes/account removals processed during capture; no text or identifiers saved.",
+      "data": "Per instrument distinct-account count and4simple language cue buckets:upward,downward,mixed,unclassified. Distributions suppressed below10accounts. First2min narrow capture found0matches;10min capture underway, no result assumed.",
+      "limitations": "Not X/Instagram/all Bluesky/representative retail. Word cues are not inferred emotions or validated sentiment, unclassified is not neutral. Short window not full day. No consensus vote/model training. Raw data never public. Owner report email explicitly authorized support@thedailyconsensus.com."
+    },
+    "constraints": [
+      "Keep collapsed by default, no new hero/top-levelcard",
+      "Show actual start/endwindow,samplecount and method prominently",
+      "Each instrument uses its own subset; do not relabel pooledMarket counts underSPY/QQQ/IWM/DIA/TLT",
+      "No current sample inside a selected historic edition",
+      "Source display separate from saved scoring, no fabricated full-platform feeling",
+      "Expose honest insufficient/expired status without zero tone",
+      "Keep provider name explicit"
+    ]
+  },
+  "questions": {
+    "placement": {
+      "type": "choice",
+      "instructions": "Choose a calm location that keeps this current-only community sample distinct from official news and saved scores.",
+      "criteria": {
+        "own_disclosure": "A fourth collapsed numbered research section after price/technicals, titled Community discussion. It holds the bounded sample and later optional hosted crowd context.",
+        "news_subpanel": "A compact subpanel at the end of existing News & company earnings, explicitly labelled current-only sample.",
+        "within_price": "A subpanel in Price chart & technicals as another current-only display.",
+        "expand_candidates": "No candidate fits; expand choices."
+      }
+    },
+    "visual": {
+      "type": "choice",
+      "instructions": "Choose presentation for4language-cue counts with n>=10; preserve unclassified as separate and show count, not a calibrated sentiment score.",
+      "criteria": {
+        "horizontal_lanes": "Four compact neutral horizontal tracks with direct category/count/percentage labels, minimum threshold notice when sparse.",
+        "stacked_bar": "A single4segment horizontal distribution with direct legend labels, counts/percentages and accessible description.",
+        "numbers_only": "Four simple count tiles with percentages, without chart.",
+        "expand_candidates": "No candidate fits."
+      }
+    },
+    "method": {
+      "type": "choice",
+      "instructions": "Choose concise disclosure for this limited sample.",
+      "criteria": {
+        "essential_inline": "Window,count,word-cue qualifier and distinct platform inline; exactfilters,expiry/deletionmethod andsource/reportlinks in native details.",
+        "all_inline": "Every sampling rule,limitation andsource/reportlink always visible below chart.",
+        "source_drawer": "Essential labels inline,allsource/method details in a modal drawer."
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "verifiedAt": "2026-11-03T02:53:38.672093+00:00",
+  "productionUrl": "https://v0-the-daily-consensus.vercel.app",
+  "checks": {
+    "publicWithoutLogin": true,
+    "publishedBriefAndCitations": true,
+    "TradingViewChartTechnicalProfile": true,
+    "AAPLSearch": true,
+    "themeSwitch": true,
+    "archiveReaderWithLocalMedia": true,
+    "narrowViewport": {
+      "width": 390,
+      "documentScrollWidth": 390,
+      "navigationDialog": true,
+      "positioningContractCounts": true
+    },
+    "productionBrowserErrors": 0
+  },
+  "limits": [
+    "Mobile screenshot scaling in browser tooling was unreliable; narrow layout checked with actual browser DOM dimensions and controls.",
+    "Custom domain remains on Bluehost pending authenticated DNS access."
+  ]
+}

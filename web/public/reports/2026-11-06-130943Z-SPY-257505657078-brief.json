@@ -1,0 +1,59 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "SPY",
+  "createdAt": "2026-11-06T13:09:43.944Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "SPY’s Treasury spread narrowed as both benchmarks fell",
+    "summary": "The ten-year minus two-year Treasury spread narrowed from 34 to 32 basis points between November 3 and 4. The ten-year yield fell by 5 basis points and the two-year by 3. Lower benchmarks and a narrower spread can affect borrowers and lenders differently across the S&P 500.",
+    "bull": [
+      {
+        "text": "The ten-year yield declined from 4.95% to 4.90%, and the two-year from 4.61% to 4.58%. Lower benchmark yields can ease financing or valuation assumptions when company credit spreads and expected cash flows hold fixed.",
+        "sourceIds": [
+          "FRED_DGS10",
+          "FRED_DGS2"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The long-short Treasury spread narrowed by 2 basis points to 32. Lenders’ funding costs, asset repricing and credit losses determine how this curve change affects their margins.",
+        "sourceIds": [
+          "FRED_DGS10",
+          "FRED_DGS2"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "October 27 S&P futures positions show asset managers net long 923,449 contracts and leveraged funds net short 400,604. Their differing category balances predate the November yield changes.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "limitations": [
+      "The rates are dated November 4. SPY returns, constituent earnings revisions and company credit spreads remain unmeasured.",
+      "The related S&P futures report measures weekly contract positions. SPY fund flows, current investor intent and intraday options exposure require separate evidence."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    }
+  ]
+}

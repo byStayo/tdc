@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-18T13:09:12.022Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
+  "data": {
+    "headline": "NVIDIA’s data-center sales reach $107.6 billion",
+    "summary": "NVIDIA reported data-center revenue of $107.6 billion for the quarter ended October 25, up 110% from a year earlier. Leveraged funds widened their E-mini Nasdaq-100 futures net long in the earlier November 10 report.",
+    "bull": [
+      {
+        "text": "Leveraged funds’ November 10 net long increased to 13,967 contracts from 10,073 on November 3.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The asset-manager net long slipped to 72,785 contracts. The ten-year Treasury benchmark was 5.12% on November 16.",
+        "sourceIds": [
+          "CFTC_NQ",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "NVIDIA projected $130 billion in fourth-quarter revenue, plus or minus 3%, with an extra week in the quarter and zero China data-center compute revenue assumed.",
+        "sourceIds": [
+          "SEC_NVDA"
+        ]
+      }
+    ],
+    "limitations": [
+      "The positioning figures describe Nasdaq-100 futures. The issuer outlook is forward-looking.",
+      "The evidence packet lacks matched analyst expectations, a post-release QQQ return and a full option chain."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
+    }
+  ]
+}

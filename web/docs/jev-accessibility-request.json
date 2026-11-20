@@ -1,0 +1,43 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Finish accessibility of the existing visual morning market consensus board without redesigning its content.",
+    "platform": "Next16 React19,390px phone through desktop, dark/light tokens --panel --text --text-muted --accent --border. Four-column signal family cards become two then one on narrow widths. Morning / All signals / History & learning keyboard tabs; source dialog with Escape and focus restoration.",
+    "catalog": [
+      "semantic article with heading, status, sparkline, source date and one action",
+      "44px heading button with chevron",
+      "44px footer inspect button",
+      "source links wrapping in a row",
+      "vertically stacked source-link rows",
+      "SVG gauge and bullish/bearish/neutral vote labels"
+    ],
+    "constraints": [
+      "All touch actions at least44px high and wide; preserve keyboard focus and meaningful accessible names",
+      "Card headings and chart labels must stay exposed in accessibility tree, never inside a whole-card button",
+      "Keep all data, coverage/abstention, dates, copyright attribution and public source links; no fabricated signals or accuracy",
+      "Three tabpanels must have stable associations and hidden inactive content; consensus overview belongs inside active panel",
+      "Increase tiny8-9px vote/gauge labels to at least11px; allow wrapping without390px overflow",
+      "No new data calls or new publication; preserve visual identity"
+    ]
+  },
+  "questions": {
+    "family_action": {
+      "type": "choice",
+      "instructions": "Choose family card action placement for fast morning scan and meaningful chart/heading semantics under the44px constraint.",
+      "criteria": {
+        "heading_button": "Article with real h3 containing full-width44px family-name button and chevron. Status and sparkline follow outside button. One focus target per card.",
+        "footer_button": "Article with plain family heading,status,chart,then separate full-width44px Inspect inputs footer button after dates.",
+        "none_fit": "Neither fits;expand candidates."
+      }
+    },
+    "source_links": {
+      "type": "choice",
+      "instructions": "Choose responsive layout for one to three citations inside a narrow expanded reviewed-development card or source dialog,all at least44px high.",
+      "criteria": {
+        "stacked_rows": "Full-width vertically stacked source link rows,small external-link icon,44px minimum height and wrapping long text.",
+        "wrapping_pills": "44px-high bordered source pills that wrap,longer names take a whole row.",
+        "none_fit": "Neither fits;expand candidates."
+      }
+    }
+  }
+}

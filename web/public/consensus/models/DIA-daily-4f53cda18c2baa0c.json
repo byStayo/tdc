@@ -1,0 +1,13 @@
+{
+  "status": "insufficient_data",
+  "samples": 0,
+  "minimum": 120,
+  "datasetHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "promoted": false,
+  "reason": "At least 120 resolved, source-backed prospective observations per instrument and horizon are required.",
+  "instrument": "DIA",
+  "horizon": "daily",
+  "evaluatedAt": "2026-11-03T06:24:39.644Z",
+  "activated": false,
+  "featureSchema": "family-score-plus-observation-mask-v1"
+}

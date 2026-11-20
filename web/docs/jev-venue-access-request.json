@@ -1,0 +1,50 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "product": "The Daily Consensus — an attributed, free public morning board and archived editions. Reader wants the shortest no-signup route to actual US ETF off-exchange reports.",
+    "existingDesign": [
+      "Manrope, Space Grotesk; light and dark --panel, --text, --text-secondary, --border, --accent; no return-direction colors for activity",
+      "Existing panel/panelHead, display metrics and 44px source links. The big picture has reviewed developments, rates, FX and Taiwan, then collapsed Policy, positioning & capital. MorningBoard has MARKET, SPY, QQQ, IWM, DIA, TLT and history."
+    ],
+    "semantics": [
+      "ETF-specific weekly ATS and non-ATS tables are read on a third-party publisher and linked on reader action. Separate link to the official FINRA portal; portal presents its own terms. Table data never enter this site, archives, scores or forecasts.",
+      "Two separately sourced 2026 Q3 financial filings of operating metrics compared to Q3 2025: Nasdaq reporting facility percentage of US-listed share volume and BIDS Trading average daily touched shares in millions. These are national venue context restricted to MARKET, with separate units, filings and dates; an ETF page must not inherit the market-wide numbers.",
+      "Only editions that saved these filings can show those observations; time-varying external readers are current-only. The product still lacks its own weekly ETF feed."
+    ],
+    "accessibility": [
+      "375/768/1280px; accessible names and heading; top-level links, no embeds or automatic provider requests. Current MARKET needs one-click choices for five ETFs, a selected ETF needs only its own direct report."
+    ],
+    "goal": "Give reader a visible way to reach real weekly volume while making the source/period/scope of the observed on-site numbers unambiguous."
+  },
+  "questions": {
+    "placement": {
+      "type": "choice",
+      "instructions": "Where can the reader most easily find the no-login weekly source without mistaking it for the consensus? All candidates must support a reliable shareable #off-exchange link on a fresh visit.",
+      "criteria": {
+        "before_research": "A self-contained standard width panel directly before the collapsed research sections, below the existing international panel.",
+        "after_developments": "A self-contained standard width panel immediately after reviewed developments, before the current rates and currency panels.",
+        "positioning_with_entry": "A visible weekly-report entry before collapsed research and a separate archival metric panel within Policy, positioning & capital.",
+        "expand": "Suggest a different composition."
+      }
+    },
+    "metrics": {
+      "type": "choice",
+      "instructions": "Select the clearest way for the market view to show a percent and a share count with two comparable quarters each.",
+      "criteria": {
+        "separate_rows": "Two labelled rows with the current figure, prior year figure and dated filing link on each. Rows stack naturally on phones.",
+        "paired_tiles": "Two calm side-by-side tiles, stacking on phones, each with its own unit, current number, prior-year comparator and filing link.",
+        "table": "Accessible table, with separate measure and unit text plus columns for both quarters and filing references.",
+        "expand": "None fits."
+      }
+    },
+    "weekly_access": {
+      "type": "choice",
+      "instructions": "Select the most direct link treatment across MARKET and ETF views.",
+      "criteria": {
+        "ticker_links": "One plain-language heading and five named 44px ETF report links on MARKET; selected ETF shows one fully named primary link. Official FINRA portal is the secondary link.",
+        "list": "List five full-name ETF reports with distinct link labels on MARKET; filter to one when a specific ETF is selected. Official source follows.",
+        "expand": "None fits."
+      }
+    }
+  }
+}

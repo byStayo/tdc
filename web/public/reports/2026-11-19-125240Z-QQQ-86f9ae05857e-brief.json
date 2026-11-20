@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-19T12:52:40.522Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Walmart’s global online sales grow 17% as Nasdaq futures funds hold net longs",
+    "summary": "Walmart, a Nasdaq-100 constituent, reported 17% growth in global e-commerce sales and 23% growth in U.S. e-commerce. The two figures cover different markets and give a consumer-side reading alongside the index’s technology earnings.",
+    "bull": [
+      {
+        "text": "Walmart reported 25% growth in its global advertising business and a 17% rise in membership-fee revenue. How it records advertising depends on the arrangement.",
+        "sourceIds": [
+          "SEC_WMT"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The retailer identified a shift in the timing of Flipkart’s Big Billion Days event that affected year-over-year comparisons.",
+        "sourceIds": [
+          "SEC_WMT"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "In the November 10 E-mini Nasdaq-100 futures report, leveraged funds held a net long of 13,967 contracts, up from 10,073 on November 3. Those positions were measured before Walmart’s release.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "limitations": [
+      "Company sales growth and futures balances measure different exposures. QQQ’s session return, options skew and a comparable analyst consensus remain unverified at publication."
+    ]
+  },
+  "sources": [
+    {
+      "id": "SEC_WMT",
+      "title": "SEC EDGAR · Walmart’s November 19 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0000104169.json"
+    },
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    }
+  ]
+}

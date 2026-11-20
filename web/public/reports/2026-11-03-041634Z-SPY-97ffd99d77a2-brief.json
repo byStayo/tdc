@@ -1,0 +1,55 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "SPY",
+  "createdAt": "2026-11-03T04:16:34.455Z",
+  "model": "Codex editorial workflow",
+  "message": "Published SPY research using the linked public evidence. The futures reporting dates are shown in the analysis; refreshing this page does not generate a new report.",
+  "data": {
+    "headline": "SPY: positioning pulls in different directions.",
+    "summary": "Related E-mini S&P 500 futures show a wider split between two trader categories. Asset managers increased their net long balance between October 20 and October 27, while leveraged funds became more net short. This is mixed positioning context for the S&P 500, not a vote that predicts SPY’s next move.",
+    "bull": [
+      {
+        "text": "Asset managers held a net long balance of 923,449 E-mini S&P 500 contracts on October 27, up from 901,377 on October 20. The increase was 22,072 contracts; it describes this category’s reported exposure, not ETF subscriptions.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Leveraged funds’ net short balance grew to 400,604 contracts from 371,245. Gross long positions fell from 135,034 to 102,079, while gross shorts also fell. The larger net short therefore does not establish a wave of new short selling.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Open interest rose from 1,935,470 to 1,955,711 contracts across the two reports. Compare both gross legs in the next release before interpreting another change in net positioning; more open contracts do not establish a price direction.",
+        "sourceIds": [
+          "CFTC_ES",
+          "CFTC_METHOD"
+        ]
+      }
+    ],
+    "limitations": [
+      "CFTC observations are for October 27 and October 20, 2026. These are weekly futures-only reports released after their observation dates, not live positions.",
+      "The related futures contract is not the ETF. Trader-category net positions are long-minus-short contract counts; they are not ETF fund flows, dollar exposure or evidence of investor intent.",
+      "No current support/resistance levels, options chain, gamma levels or dark-pool signal were collected for this report. Hosted charts remain separate from the editorial evidence.",
+      "This AI-assisted report presents supporting observations and counterpoints, without a validated price forecast or conviction score. It is general research, not a buy or sell instruction."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    },
+    {
+      "id": "CFTC_METHOD",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+    }
+  ]
+}

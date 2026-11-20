@@ -1,0 +1,217 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { ExternalLink as ExternalLinkIcon, RefreshCw } from "lucide-react";
+import { ExternalLink } from "./ui";
+import {
+  EMBEDS,
+  providerSymbol,
+  WIDGET_SANDBOX,
+  PROVIDER_FRAME_SANDBOX,
+  isProviderFrameURL,
+  type WidgetKind,
+  type WidgetHorizon,
+} from "@/lib/tradingview-config";
+export { providerSymbol, usesBroadMarketNews } from "@/lib/tradingview-config";
+
+export default function TradingViewWidget({
+  kind,
+  symbol,
+  theme,
+  newsScope = "symbol",
+  horizon = "daily",
+  lazy = false,
+}: {
+  kind: WidgetKind;
+  symbol: string;
+  theme: "dark" | "light";
+  newsScope?: "symbol" | "market";
+  horizon?: WidgetHorizon;
+  lazy?: boolean;
+}) {
+  const host = useRef<HTMLDivElement>(null);
+  const activateChart = useRef<HTMLButtonElement>(null);
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const [retry, setRetry] = useState(0);
+  const [chartInteractive, setChartInteractive] = useState(false);
+  const [visible, setVisible] = useState(!lazy);
+  const mappedSymbol = providerSymbol(symbol);
+  const broadNews = kind === "news" && newsScope === "market";
+  const widgetTitle = broadNews
+    ? "Broad-market headlines"
+    : `${symbol} ${EMBEDS[kind].label.toLowerCase()}`;
+  const providerLink =
+    kind === "news"
+      ? "https://www.tradingview.com/news/top-providers/tradingview/"
+      : `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(mappedSymbol)}`;
+
+  useEffect(() => {
+    if (!lazy || typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    if (visible || !host.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "250px" },
+    );
+    observer.observe(host.current);
+    return () => observer.disconnect();
+  }, [lazy, visible]);
+
+  useEffect(() => {
+    const root = host.current;
+    if (!root || !visible) return;
+    let disposed = false;
+    setState("loading");
+    setChartInteractive(false);
+    // An async script in the parent document can finish after its container is
+    // removed. An owned child document is cancelled as a unit during navigation.
+    const frame = document.createElement("iframe");
+    frame.title = `${widgetTitle} hosted by TradingView`;
+    frame.setAttribute("sandbox", WIDGET_SANDBOX);
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    frame.src = `/widgets/${kind}?${new URLSearchParams({ symbol, theme, newsScope, horizon })}`;
+    frame.style.width = "100%";
+    frame.style.height = "100%";
+    frame.style.border = "0";
+    let providerFrame: HTMLIFrameElement | undefined;
+    const ready = (event: MessageEvent) => {
+      if (!disposed && event.source === frame.contentWindow && event.origin === "null" &&
+          event.data?.type === "tdc-widget-frame" && event.data?.version === 1 &&
+          !providerFrame && isProviderFrameURL(event.data.url, kind)) {
+        providerFrame = document.createElement("iframe");
+        providerFrame.title = frame.title;
+        providerFrame.setAttribute("sandbox", PROVIDER_FRAME_SANDBOX);
+        providerFrame.referrerPolicy = frame.referrerPolicy;
+        providerFrame.style.cssText = frame.style.cssText;
+        providerFrame.addEventListener("load", () => {
+          if (!disposed) setState("ready");
+        }, { once: true });
+        providerFrame.src = event.data.url;
+        // Removing the opaque bootstrap cancels its nested document. Only the
+        // provider-origin iframe survives, with no access to our origin.
+        root.replaceChildren(providerFrame);
+      }
+    };
+    window.addEventListener("message", ready);
+    const mountTimer = window.setTimeout(() => {
+      if (disposed || !root.isConnected) return;
+      root.replaceChildren(frame);
+    }, 0);
+    const timeout = window.setTimeout(() => {
+      if (!disposed)
+        setState((current) => (current === "ready" ? current : "error"));
+    }, 15000);
+    return () => {
+      disposed = true;
+      window.clearTimeout(mountTimer);
+      window.clearTimeout(timeout);
+      window.removeEventListener("message", ready);
+      frame.remove();
+      providerFrame?.remove();
+    };
+  }, [kind, symbol, newsScope, theme, horizon, retry, widgetTitle, visible]);
+
+  useEffect(() => {
+    if (!chartInteractive) return;
+    host.current?.querySelector("iframe")?.focus({ preventScroll: true });
+    const release = (event: PointerEvent) => {
+      const widget = host.current?.closest(".provider-widget");
+      if (widget && !widget.contains(event.target as Node)) setChartInteractive(false);
+    };
+    document.addEventListener("pointerdown", release);
+    return () => document.removeEventListener("pointerdown", release);
+  }, [chartInteractive]);
+
+  return (
+    <div className={`provider-widget provider-widget-${kind}`}>
+      <div className="provider-widget-stage">
+        <div ref={host} className="provider-widget-host"
+          inert={kind === "chart" && !chartInteractive}
+          aria-hidden={kind === "chart" && !chartInteractive ? true : undefined} />
+        {kind === "chart" && state === "ready" && !chartInteractive && <button
+          ref={activateChart}
+          className="chart-interaction-shield"
+          aria-label={`Interact with ${symbol} chart`}
+          onClick={() => setChartInteractive(true)}>
+          <span>Interact with chart</span>
+        </button>}
+        {state !== "ready" && (
+          <div
+            className={`provider-widget-status ${state === "error" ? "provider-widget-error" : ""}`}
+            role="status"
+          >
+            {state === "loading" ? (
+              <>
+                <span className="spinner" />
+                <p>
+                  Loading{" "}
+                  {broadNews
+                    ? "broad-market headlines"
+                    : EMBEDS[kind].label.toLowerCase()}{" "}
+                  from TradingView…
+                </p>
+              </>
+            ) : (
+              <>
+                <ExternalLinkIcon size={22} />
+                <h3>The hosted view isn’t available.</h3>
+                <p>
+                  {kind === "news"
+                    ? "You can open TradingView’s news directly."
+                    : "You can open this instrument directly on TradingView."}
+                </p>
+                <div>
+                  <ExternalLink
+                    href={providerLink}
+                    className="button button-primary"
+                  >
+                    Open TradingView
+                  </ExternalLink>
+                  <button
+                    className="button button-secondary"
+                    onClick={() => setRetry((value) => value + 1)}
+                  >
+                    <RefreshCw size={14} />
+                    Retry
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      {kind === "chart" && <p className="chart-interaction-note">
+        {chartInteractive ? "Chart interaction is on. Finish to return to page scrolling." : "Scroll through the page freely. Select the chart to explore its controls."}
+      </p>}
+      <div className="tradingview-widget-copyright">
+        {kind === "chart" && chartInteractive && <button className="chart-interaction-done"
+          onClick={() => {
+            setChartInteractive(false);
+            requestAnimationFrame(() => activateChart.current?.focus({ preventScroll: true }));
+          }}>Finish chart interaction</button>}
+        <ExternalLink href={providerLink}>
+          {widgetTitle} by TradingView
+        </ExternalLink>
+        <button
+          className="provider-widget-reload"
+          onClick={() => setRetry((value) => value + 1)}
+          aria-label={`Reload ${widgetTitle.toLowerCase()}`}
+        >
+          <RefreshCw size={14} aria-hidden="true" />
+          Reload view
+        </button>
+      </div>
+      <p className="provider-widget-note">
+        Third-party hosted view. Availability and delays are shown by
+        TradingView. If nothing appears, reload the view or open TradingView.
+      </p>
+    </div>
+  );
+}

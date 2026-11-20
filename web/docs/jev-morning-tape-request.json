@@ -1,0 +1,35 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Show the current market price chart and provider technical summary directly in the visual morning market-prep dashboard.",
+    "existing": "Next16 React19, MorningBoard light/dark --panel --text --text-muted --accent --border, six instrument buttons and daily/weekly/monthly selectors, saved snapshot picker, gauge plus catalyst rail, reviewed developments cards, macro charts. 390px phone and 900-1400px desktop. Existing TradingViewWidget isolates official hosted chart/technical frames with attribution, delay labels and error/retry links.",
+    "catalog": [
+      "existing accessible section heading",
+      "two-column chart + technical panels",
+      "stacked chart and collapsible technical panel",
+      "single chart with technical tab",
+      "shared instrument/horizon selectors",
+      "owned TradingViewWidget"
+    ],
+    "constraints": [
+      "Use current selected ETF; MARKET shows explicitly labelled SPY benchmark, never a fabricated all-market price",
+      "The current provider display is not saved consensus evidence and must never enter model/history; hide it on past editions",
+      "Chart and technical defaults follow daily/weekly/monthly; provider controls can adjust the display and must remain available",
+      "No screenshot recreation or fake market values",
+      "Keep provider attribution/error state/delay display and keyboard navigation",
+      "Lazy load frames near viewport; stack on small screens; do not overwhelm first-screen consensus",
+      "Place after reviewed developments and before macro charts"
+    ]
+  },
+  "questions": {
+    "market_layout": {
+      "type": "choice",
+      "instructions": "Choose one layout that best fits a visual morning read while keeping a clearly separate current-provider boundary.",
+      "criteria": {
+        "paired_panels": "Large current chart beside a smaller provider technical-summary panel; shared heading explains current display and selected benchmark, stack on phones.",
+        "chart_with_disclosure": "Full-width chart with an expandable provider technical summary directly below; less initial density.",
+        "tabbed_provider": "One panel with Price / Technical tabs; requires an extra action to compare the views."
+      }
+    }
+  }
+}

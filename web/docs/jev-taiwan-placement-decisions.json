@@ -1,0 +1,20 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "placement": {
+      "type": "choice",
+      "choice": "after_currencies",
+      "confidence": 0.68,
+      "probabilities": {
+        "after_currencies": 0.76,
+        "global_disclosure": 0.14,
+        "separate_disclosure": 0.07,
+        "expand_candidates": 0.03
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1059,
+    "output_tokens": 60
+  }
+}

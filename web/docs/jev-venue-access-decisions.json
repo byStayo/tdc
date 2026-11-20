@@ -1,0 +1,41 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "placement": {
+      "type": "choice",
+      "choice": "before_research",
+      "confidence": 0.15,
+      "probabilities": {
+        "before_research": 0.36,
+        "after_developments": 0.13,
+        "positioning_with_entry": 0.3,
+        "expand": 0.21
+      }
+    },
+    "metrics": {
+      "type": "choice",
+      "choice": "paired_tiles",
+      "confidence": 0.43,
+      "probabilities": {
+        "separate_rows": 0.15,
+        "paired_tiles": 0.57,
+        "table": 0.27,
+        "expand": 0.01
+      }
+    },
+    "weekly_access": {
+      "type": "choice",
+      "choice": "ticker_links",
+      "confidence": 0.92,
+      "probabilities": {
+        "ticker_links": 0.95,
+        "list": 0.04,
+        "expand": 0.01
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1147,
+    "output_tokens": 145
+  }
+}

@@ -1,0 +1,538 @@
+{
+  "evaluatedAt": "2026-11-03T06:17:18.356Z",
+  "source": {
+    "name": "European Central Bank",
+    "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml",
+    "sha256": "e25f694c47efc95848866963b136520bc3c8e77e2589c8520ad06327dccc4696",
+    "retrievedAt": "2026-11-03T06:17:18.356Z",
+    "attribution": "Source: ECB. Cross rates, features, outcomes and models calculated by The Daily Consensus."
+  },
+  "kind": "historical_reconstruction",
+  "asIssued": false,
+  "activated": false,
+  "experiments": [
+    {
+      "id": "ecb-EUR-daily-ec8e995866711d03",
+      "instrument": "EUR/USD",
+      "horizon": "daily",
+      "samples": 2938,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 588,
+      "candidateBrier": 0.2491986380830363,
+      "baseRateBrier": 0.24910516229453702,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 9,
+          "predicted": 0.3788721398590332,
+          "actual": 0.4444444444444444
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 579,
+          "predicted": 0.488110067689576,
+          "actual": 0.46113989637305697
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1761,
+        "validation": 587,
+        "test": 588,
+        "trainEnds": "2022-03-25T23:59:59.000Z",
+        "testStarts": "2024-07-13T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-EUR-weekly-12340efff40fbe56",
+      "instrument": "EUR/USD",
+      "horizon": "weekly",
+      "samples": 2934,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 587,
+      "candidateBrier": 0.2524618313817668,
+      "baseRateBrier": 0.24975443198616737,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 26,
+          "predicted": 0.3665397822585777,
+          "actual": 0.6153846153846154
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 559,
+          "predicted": 0.48585172565724527,
+          "actual": 0.47584973166368516
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 2,
+          "predicted": 0.6179334066592873,
+          "actual": 1
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1755,
+        "validation": 582,
+        "test": 587,
+        "trainEnds": "2022-03-23T23:59:59.000Z",
+        "testStarts": "2024-07-10T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-EUR-monthly-7a401d414ee89622",
+      "instrument": "EUR/USD",
+      "horizon": "monthly",
+      "samples": 2918,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 584,
+      "candidateBrier": 0.25159832245638075,
+      "baseRateBrier": 0.25144767237901167,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 9,
+          "predicted": 0.3905873144607651,
+          "actual": 0.3333333333333333
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 562,
+          "predicted": 0.4646606160017156,
+          "actual": 0.5320284697508897
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 13,
+          "predicted": 0.6195294203506094,
+          "actual": 0.5384615384615384
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1729,
+        "validation": 563,
+        "test": 584,
+        "trainEnds": "2022-03-09T23:59:59.000Z",
+        "testStarts": "2024-06-21T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-JPY-daily-33a9bee7e0dbb4dd",
+      "instrument": "JPY/USD",
+      "horizon": "daily",
+      "samples": 2938,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 588,
+      "candidateBrier": 0.24669159957963163,
+      "baseRateBrier": 0.24818480715423077,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 588,
+          "predicted": 0.48830808375631923,
+          "actual": 0.44387755102040816
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1761,
+        "validation": 587,
+        "test": 588,
+        "trainEnds": "2022-03-25T23:59:59.000Z",
+        "testStarts": "2024-07-13T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-JPY-weekly-f1849d79bbbe07f4",
+      "instrument": "JPY/USD",
+      "horizon": "weekly",
+      "samples": 2934,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 587,
+      "candidateBrier": 0.2500641108915162,
+      "baseRateBrier": 0.24736246651242424,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 12,
+          "predicted": 0.3876759317843253,
+          "actual": 0.25
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 572,
+          "predicted": 0.4885021874340469,
+          "actual": 0.4318181818181818
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 3,
+          "predicted": 0.6036031898652782,
+          "actual": 0.3333333333333333
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1755,
+        "validation": 582,
+        "test": 587,
+        "trainEnds": "2022-03-23T23:59:59.000Z",
+        "testStarts": "2024-07-10T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-JPY-monthly-2d53ee554d0b212f",
+      "instrument": "JPY/USD",
+      "horizon": "monthly",
+      "samples": 2918,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 584,
+      "candidateBrier": 0.2520493416277713,
+      "baseRateBrier": 0.24938367033690134,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 17,
+          "predicted": 0.3732157282709756,
+          "actual": 0.5882352941176471
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 544,
+          "predicted": 0.5066190734827871,
+          "actual": 0.45036764705882354
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 23,
+          "predicted": 0.6216643060746785,
+          "actual": 0.34782608695652173
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1729,
+        "validation": 563,
+        "test": 584,
+        "trainEnds": "2022-03-09T23:59:59.000Z",
+        "testStarts": "2024-06-21T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-GBP-daily-812ec59462c86d2f",
+      "instrument": "GBP/USD",
+      "horizon": "daily",
+      "samples": 2938,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 588,
+      "candidateBrier": 0.25006103005580577,
+      "baseRateBrier": 0.2499971899562399,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 588,
+          "predicted": 0.5069335449185237,
+          "actual": 0.5017006802721088
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1761,
+        "validation": 587,
+        "test": 588,
+        "trainEnds": "2022-03-25T23:59:59.000Z",
+        "testStarts": "2024-07-13T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-GBP-weekly-08494f87ddebb69c",
+      "instrument": "GBP/USD",
+      "horizon": "weekly",
+      "samples": 2934,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 587,
+      "candidateBrier": 0.24939686478490622,
+      "baseRateBrier": 0.25004526515284325,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 587,
+          "predicted": 0.5036181143878412,
+          "actual": 0.4957410562180579
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1755,
+        "validation": 582,
+        "test": 587,
+        "trainEnds": "2022-03-23T23:59:59.000Z",
+        "testStarts": "2024-07-10T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    },
+    {
+      "id": "ecb-GBP-monthly-6d58e978c507b3f3",
+      "instrument": "GBP/USD",
+      "horizon": "monthly",
+      "samples": 2918,
+      "status": "evaluated",
+      "baselineBeaten": false,
+      "activated": false,
+      "testSamples": 584,
+      "candidateBrier": 0.25510704449011334,
+      "baseRateBrier": 0.25057587678015075,
+      "coinBrier": 0.25,
+      "calibration": [
+        {
+          "lower": 0,
+          "upper": 0.2,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.4,
+          "count": 34,
+          "predicted": 0.3823865247499063,
+          "actual": 0.47058823529411764
+        },
+        {
+          "lower": 0.4,
+          "upper": 0.6,
+          "count": 549,
+          "predicted": 0.48335276452845294,
+          "actual": 0.5537340619307832
+        },
+        {
+          "lower": 0.6,
+          "upper": 0.8,
+          "count": 1,
+          "predicted": 0.6054309944381726,
+          "actual": 1
+        },
+        {
+          "lower": 0.8,
+          "upper": 1,
+          "count": 0,
+          "predicted": null,
+          "actual": null
+        }
+      ],
+      "split": {
+        "train": 1729,
+        "validation": 563,
+        "test": 584,
+        "trainEnds": "2022-03-09T23:59:59.000Z",
+        "testStarts": "2024-06-21T00:00:00.000Z"
+      },
+      "reason": "Candidate did not improve on all declared baselines by at least 0.01 Brier."
+    }
+  ],
+  "note": "Historical currency research using ECB reference fixes. These are not as-issued predictions, executable-price returns or evidence of equity-model accuracy. No candidate is activated by this experiment."
+}

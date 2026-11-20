@@ -1,0 +1,30 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "layout": {
+      "type": "choice",
+      "choice": "quarter_bars",
+      "confidence": 0.83,
+      "probabilities": {
+        "quarter_bars": 0.87,
+        "sparkline": 0.09,
+        "table": 0.03,
+        "expand_candidates": 0.01
+      }
+    },
+    "old_assets": {
+      "type": "choice",
+      "choice": "collapsed_detail",
+      "confidence": 0.85,
+      "probabilities": {
+        "collapsed_detail": 0.9,
+        "inline_divider": 0.1,
+        "separate_card": 0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1130,
+    "output_tokens": 94
+  }
+}

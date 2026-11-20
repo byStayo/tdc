@@ -1,0 +1,52 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "SPY",
+  "createdAt": "2026-11-18T13:09:12.022Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
+  "data": {
+    "headline": "NVIDIA results add to November’s S&P 500 positioning backdrop",
+    "summary": "NVIDIA’s November 17 filing reported revenue growth of 103% year over year. In the November 10 E-mini S&P 500 futures report, leveraged funds reduced their net short and asset managers reduced their net long.",
+    "bull": [
+      {
+        "text": "Leveraged funds’ November 10 net short was 303,060 contracts, down 69,258 from November 3.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The asset-manager net long fell to 914,130 contracts even as contract open interest rose to 2,017,687.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "NVIDIA reported $115.8 billion in quarterly revenue. Watch how widely the earnings reaction spreads across large-cap stocks.",
+        "sourceIds": [
+          "SEC_NVDA"
+        ]
+      }
+    ],
+    "limitations": [
+      "The CFTC figures describe a related futures contract on November 10. The filing covers NVIDIA only.",
+      "Matched earnings expectations, post-release SPY prices and a full option-chain reading remain unavailable."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    },
+    {
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Extend the deployed visual morning market consensus with real news tone and a complete upcoming calendar.",
+    "existing": "Next16/React19. Dark/light CSS tokens, accessible source drawer, SVG charts, four/two/one grid, catalyst rail above charts. Six instrument contexts and three horizon windows. Mobile390px, keyboard access,44px targets.",
+    "realData": {
+      "news": "GDELT public English-language15-minute batch.26 deduplicated finance stories across13 publishers. Positive/negative/balanced tone counts and publisher-balanced mean. Descriptive global news tone, not ETF direction, investor positioning or profit probability. No model calls on read.",
+      "calendar": "BLS upcoming releases with actual Eastern times, Treasury auction deadlines and offering amounts, FOMC conclusion dates, OCC monthly/quarterly expiry dates. Some dates have no confirmed time; preserve date-only precision."
+    },
+    "catalog": [
+      "existing two-column chart panels",
+      "compact distribution bar with labels",
+      "source drawer",
+      "native details expansion",
+      "vertical dated event rows",
+      "compact source-linked story list"
+    ],
+    "constraints": [
+      "Preserve consensus-first hierarchy",
+      "Do not hide OPEX or FOMC behind the first3earliestevents",
+      "Do not confuse positive language with bullish market forecasts",
+      "No full article republication",
+      "Use existing design tokens and responsive behavior"
+    ]
+  },
+  "questions": {
+    "news_visual": {
+      "type": "choice",
+      "instructions": "Choose the clearest presentation of the bounded news sample within the existing visual dashboard.",
+      "criteria": {
+        "distribution_with_sources": "A panel with positive/balanced/negative distribution, actual sample and publisher counts,6source-linked headlines and a visible tone-is-not-direction explanation.",
+        "mean_sparkline": "A panel centered on average tone and a trend line; only one time batch is currently available.",
+        "table_only": "Table of each headline and tone without an aggregatevisual."
+      }
+    },
+    "calendar_expansion": {
+      "type": "choice",
+      "instructions": "Choose how to reveal all upcoming catalysts while preserving morning scan speed.",
+      "criteria": {
+        "inline_calendar": "Keep next3events in the top rail, add a labelled native Show full calendar expansion below with all sourced dates and explicit time precision.",
+        "drawer_calendar": "Keep next3events and a calendar button opening a second modal distinct from source drawers.",
+        "dedicated_page": "Keep next3events and a link to a separate calendar route."
+      }
+    }
+  }
+}
