@@ -20,7 +20,7 @@ type Read = (url: string) => Promise<PublicDocument>;
 const TREASURY_FIELDS = { DGS2: "2", DGS10: "10", DGS30: "30" } as const;
 type TreasuryId = keyof typeof TREASURY_FIELDS;
 const YIELD_ENDPOINT = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve";
-const YIELD_CITATION = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve";
+export const TREASURY_YIELD_CITATION = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve";
 const BOARD_H15 = "https://www.federalreserve.gov/releases/h15/";
 const BOARD_H15_PACKAGE = "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&series=bf17364827e38702b42a58cf8eaa3f78&lastobs=260&from=&to=&filetype=csv&label=include&layout=seriescolumn&type=package";
 const MARKET_API = "https://markets.newyorkfed.org/api";
@@ -30,6 +30,10 @@ const RATE_CITATIONS = {
   EFFR: "https://www.newyorkfed.org/markets/reference-rates/effr",
 } as const;
 type RefRate = keyof typeof RATE_CITATIONS;
+
+export function treasuryYieldFile(year: number): string {
+  return YIELD_ENDPOINT + "&field_tdr_date_value=" + year;
+}
 
 export function checkedMacroPoints(points: Point[], through: string, label: string): Point[] {
   const sorted = points.sort((a, b) => a.date.localeCompare(b.date));
@@ -146,12 +150,12 @@ export function fedMarketProviders(read: Read, now: string): Record<TreasuryId |
   let yields: Promise<{ [Id in TreasuryId]: PrimaryMacroReading }> | undefined;
 
   async function readYields() {
-    const latest = await read(YIELD_ENDPOINT + "&field_tdr_date_value=" + year);
+    const latest = await read(treasuryYieldFile(year));
     const series = treasuryYieldPoints(latest.text, year, newYorkDate(latest.retrievedAt));
     // Cross the year boundary whenever the current file cannot supply a full
     // 21-observation change. Ordinary days need just one Treasury request.
     const prior = Object.values(series).some(points => points.length < 22)
-      ? await read(YIELD_ENDPOINT + "&field_tdr_date_value=" + (year - 1)) : null;
+      ? await read(treasuryYieldFile(year - 1)) : null;
     const previous = prior ? treasuryYieldPoints(prior.text, year - 1, newYorkDate(prior.retrievedAt)) : null;
     const sha256 = prior
       ? createHash("sha256").update(prior.sha256 + "\n" + latest.sha256).digest("hex")
@@ -181,7 +185,7 @@ export function fedMarketProviders(read: Read, now: string): Record<TreasuryId |
     return {
       source: {
         name: "U.S. Department of the Treasury · Daily Treasury Par Yield Curve Rates",
-        url: YIELD_CITATION,
+        url: TREASURY_YIELD_CITATION,
         attribution: "U.S. Department of the Treasury.",
         usage: "Official published Treasury constant-maturity par yields, in percent per annum.",
       },

@@ -4,14 +4,15 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EDITORIAL_ISSUERS, latestPublicPositioning, parseSECSubmissions, publicDate, PUBLIC_CONTRACT_CODES } from '../lib/public-normalization.ts';
 import { assertFedMinutesURL, attachFedMinutesSource, collectFedMinutes, FED_MINUTES_FEED, privateFedMinutesText } from '../lib/fed-minutes-editorial.ts';
+import { assertTreasuryCurveURL, attachTreasuryCurve, collectTreasuryCurve } from '../lib/treasury-curve-editorial.ts';
 import { durableDirectory, durableJSON } from '../lib/publication-storage.ts';
 
-export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk', 'www.federalreserve.gov']);
+export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk', 'www.federalreserve.gov', 'home.treasury.gov']);
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const USER_AGENT = 'The Daily Consensus public editorial research https://thedailyconsensus.com';
 export interface EditorialSource {
-  id: string; kind: 'cftc' | 'fred' | 'sec' | 'sec_form144' | 'methodology' | 'bls' | 'boe_mpc' | 'fed_minutes'; title: string;
+  id: string; kind: 'cftc' | 'fred' | 'sec' | 'sec_form144' | 'methodology' | 'bls' | 'boe_mpc' | 'fed_minutes' | 'treasury_curve'; title: string;
   url: string; retrievalUrl: string; retrievedAt: string; observationDates: string[];
   status: 'ok' | 'unavailable'; data: unknown; error?: string;
 }
@@ -24,6 +25,7 @@ export function assertPublicURL(input: unknown): string {
   if (url.protocol !== 'https:' || !PUBLIC_HOSTS.has(url.hostname) || url.username || url.password || url.port) throw new Error('Source URL must use an allowlisted public HTTPS host');
   if (url.hostname === 'www.bankofengland.co.uk' && (url.search || url.hash ||
       !/^\/monetary-policy-summary-and-minutes\/\d{4}\/[a-z]+-\d{4}$/.test(url.pathname))) throw new Error('Only dated Bank of England MPC minutes are supported');
+  if (url.hostname === 'home.treasury.gov') assertTreasuryCurveURL(input);
   if (url.hostname === 'www.federalreserve.gov') assertFedMinutesURL(url.href);
   for (const key of url.searchParams.keys()) if (/^(?:api[_-]?key|key|token|access[_-]?token|authorization|password|secret)$/i.test(key)) throw new Error('Credential-bearing source URLs are forbidden');
   url.searchParams.sort(); return url.href;
@@ -31,7 +33,7 @@ export function assertPublicURL(input: unknown): string {
 
 export async function fetchText(url: string, fetcher: Fetcher): Promise<{ text: string; retrievedAt: string; sha256: string }> {
   assertPublicURL(url);
-  const response = await fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json,text/csv,text/html' }, redirect: 'error', signal: AbortSignal.timeout(20_000) });
+  const response = await fetcher(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json,text/csv,text/html,application/xml' }, redirect: 'error', signal: AbortSignal.timeout(20_000) });
   if (!response.ok || !response.body) throw new Error(`Public source returned HTTP ${response.status}`);
   const reader = response.body.getReader(), chunks: Uint8Array[] = []; let size = 0;
   try {
@@ -183,14 +185,16 @@ async function collectMethod(fetcher: Fetcher): Promise<EditorialSource[]> {
   } catch { return [failed({ ...base, retrievedAt: new Date().toISOString() })]; }
 }
 
-export async function collectEditorialEvidence(fetcher: Fetcher = fetch, options: { fedMinutesArchiveRoot?: string } = {}): Promise<EditorialEvidence> {
+export async function collectEditorialEvidence(fetcher: Fetcher = fetch, options: { archiveRoot?: string; fedMinutesArchiveRoot?: string } = {}): Promise<EditorialEvidence> {
   const cutoff = new Date().toISOString();
   const parts = await Promise.all([collectCFTC(fetcher), collectFRED(fetcher), collectSEC(fetcher), collectMethod(fetcher),
-    collectFedMinutesEvidence(fetcher, options.fedMinutesArchiveRoot, cutoff).then(source => [source])]);
+    collectFedMinutesEvidence(fetcher, options.archiveRoot ?? options.fedMinutesArchiveRoot, cutoff).then(source => [source]),
+    collectTreasuryCurve(url => fetchText(url, fetcher), options.archiveRoot).then(source => [source])]);
   return { schemaVersion: 1, scope: 'market', collectedAt: new Date().toISOString(), sources: parts.flat(), limitations: [
     'This is bounded public evidence, not an exhaustive market feed. Missing sources remain unavailable.',
     'CFTC data is futures-only and weekly, generally observed Tuesday and released Friday. Contract counts have different units and must not be summed across markets.',
     'FRED observations have different frequencies, publication lags and revision schedules. Null observations are missing, not zero.',
+    'Treasury par yields are dated market observations in percent per annum. The retrieval timestamp records when the official file was captured.',
     'SEC filing coverage is limited to AAPL, MSFT, NVDA and WMT.',
     'FOMC minutes are editorial context from an earlier meeting. Availability follows the original release clock, not the meeting dates; this source does not create a forecast vote.',
     'Hosted widget content, private subscription data and paid AI APIs are not collected.',
@@ -216,16 +220,21 @@ export async function saveEditorialEvidence(evidence: EditorialEvidence, root = 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const args = process.argv.slice(2);
-    if (args.length && !(args.length === 2 && args[0] === '--enrich-fed-minutes'))
-      throw new Error('Usage: node --experimental-strip-types scripts/collect-editorial-evidence.ts [--enrich-fed-minutes SAVED_EVIDENCE.json]');
+    if (args.length && !(args.length === 2 && ['--enrich-fed-minutes', '--enrich-treasury-curve'].includes(args[0])))
+      throw new Error('Usage: node --experimental-strip-types scripts/collect-editorial-evidence.ts [--enrich-fed-minutes|--enrich-treasury-curve SAVED_EVIDENCE.json]');
     let evidence: EditorialEvidence;
     if (args.length) {
       const path = resolve(args[1]);
       if ((await stat(path)).size > MAX_RESPONSE_BYTES) throw new Error('Saved editorial evidence exceeds the bounded size');
       const original = JSON.parse(await readFile(path, 'utf8')) as EditorialEvidence;
-      const source = await collectFedMinutesEvidence(fetch, PROJECT_ROOT);
-      evidence = attachFedMinutesSource(original, source, new Date().toISOString());
-    } else evidence = await collectEditorialEvidence(fetch, { fedMinutesArchiveRoot: PROJECT_ROOT });
+      if (args[0] === '--enrich-treasury-curve') {
+        const source = await collectTreasuryCurve(url => fetchText(url, fetch), PROJECT_ROOT);
+        evidence = attachTreasuryCurve(original, source, new Date().toISOString());
+      } else {
+        const source = await collectFedMinutesEvidence(fetch, PROJECT_ROOT);
+        evidence = attachFedMinutesSource(original, source, new Date().toISOString());
+      }
+    } else evidence = await collectEditorialEvidence(fetch, { archiveRoot: PROJECT_ROOT });
     const output = await saveEditorialEvidence(evidence);
     console.log(JSON.stringify({ output, collectedAt: evidence.collectedAt, available: evidence.sources.filter(source => source.status === 'ok').length, unavailable: evidence.sources.filter(source => source.status !== 'ok').map(source => source.id) }, null, 2));
   } catch (error) { console.error(`Collection failed: ${error instanceof Error ? error.message : 'Unknown failure'}`); process.exitCode = 1; }

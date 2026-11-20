@@ -82,6 +82,7 @@ test('collector uses bounded official reads, retains provenance and marks failed
     assert.equal(init?.redirect, 'error'); assert.equal(new Headers(init?.headers).has('Authorization'), false);
     if (url.hostname === 'fred.stlouisfed.org') { const id = url.searchParams.get('id'); return new Response(`observation_date,${id}\n2026-10-01,0\n`, { status: 200 }); }
     if (url.hostname === 'www.cftc.gov') return new Response(`<main>${'Official report methodology. '.repeat(20)}</main>`);
+    if (url.hostname === 'home.treasury.gov') return new Response('Treasury unavailable in this fixture', { status: 503 });
     if (url.hostname === 'www.federalreserve.gov') return new Response('Minutes unavailable in this fixture', { status: 503 });
     if (url.hostname === 'publicreporting.cftc.gov') {
       assert.equal(url.searchParams.get('$limit'), '100');
@@ -95,7 +96,7 @@ test('collector uses bounded official reads, retains provenance and marks failed
     const cik = url.pathname.match(/CIK(\d+)\.json/)![1];
     return Response.json({ cik, name: 'Fixture issuer', filings: { recent: { accessionNumber: ['0000320193-26-000024'], filingDate: ['2026-11-02'], reportDate: ['2026-09-30'], form: ['8-K'], primaryDocument: ['filing.htm'] } } });
   });
-  assert.equal(calls.length, 14); assert.equal(evidence.sources.length, 19);
+  assert.equal(calls.length, 15); assert.equal(evidence.sources.length, 20);
   assert.equal(evidence.sources.find(source => source.id === 'SEC_WMT')?.retrievalUrl,
     'https://data.sec.gov/submissions/CIK0000104169.json');
   for (const id of ['DGS2', 'DGS10', 'DGS30', 'SOFR']) {

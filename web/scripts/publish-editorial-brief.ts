@@ -11,6 +11,7 @@ import { instrumentReport } from '../lib/instrument-reports.ts';
 import { assertPublicURL, PROJECT_ROOT, type EditorialEvidence, type EditorialSource } from './collect-editorial-evidence.ts';
 import { validateForm144Source } from '../lib/sec-form144-editorial.ts';
 import { validateFedMinutesSource } from '../lib/fed-minutes-editorial.ts';
+import { validateTreasuryCurveSource } from '../lib/treasury-curve-editorial.ts';
 
 const record = (value: unknown): Record<string, unknown> => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Expected a JSON object');
@@ -44,7 +45,7 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
   for (const entry of evidence.sources) {
     const source = record(entry), id = text(source.id, 64);
     if (Object.keys(source).some(key => !['id', 'kind', 'title', 'url', 'retrievalUrl', 'retrievedAt', 'observationDates', 'status', 'data', 'error'].includes(key))) throw new Error('Unknown evidence source fields');
-    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'sec_form144', 'methodology', 'bls', 'boe_mpc', 'fed_minutes'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
+    if (!/^[A-Z][A-Z0-9_]*$/.test(id) || sources.has(id) || !['cftc', 'fred', 'sec', 'sec_form144', 'methodology', 'bls', 'boe_mpc', 'fed_minutes', 'treasury_curve'].includes(String(source.kind)) || !['ok', 'unavailable'].includes(String(source.status))) throw new Error('Invalid or duplicate evidence source');
     text(source.title, 400); const url = assertPublicURL(source.url); assertPublicURL(source.retrievalUrl);
     const retrievedAt = time(source.retrievedAt, now); if (retrievedAt > collectedAt) throw new Error('Source retrieval occurred after the manifest collection time');
     if (!Array.isArray(source.observationDates) || source.observationDates.length > 1000 || source.observationDates.some(date => !publicDate(date) || Date.parse(`${publicDate(date)}T00:00:00Z`) > retrievedAt)) throw new Error('Invalid evidence observation dates');
@@ -52,6 +53,7 @@ export function validateEditorialPublication(candidateInput: unknown, evidenceIn
     if (source.status === 'unavailable' && source.data !== null) throw new Error('Unavailable evidence must not contain substitute data');
     validateForm144Source(source as unknown as EditorialSource);
     validateFedMinutesSource(source as unknown as EditorialSource, now);
+    validateTreasuryCurveSource(source as unknown as EditorialSource);
     const boe = source.kind === 'boe_mpc';
     if ((new URL(url).hostname === 'www.bankofengland.co.uk') !== boe ||
         (new URL(String(source.retrievalUrl)).hostname === 'www.bankofengland.co.uk') !== boe)
