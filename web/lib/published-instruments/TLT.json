@@ -2,45 +2,45 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-19T13:01:15.098Z",
+  "createdAt": "2026-11-20T09:26:01.639Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Fed minutes show a split over how soon to raise rates",
-    "summary": "The minutes released Wednesday describe the October 27–28 meeting. Most participants supported holding the federal funds target at 3.75% to 4.00%. Some favored a quarter-point increase. That disagreement matters to long bonds because expected future short rates help shape long yields.",
+    "headline": "Thirty-year Treasury yield edges down to 5.40%",
+    "summary": "The 30-year Treasury yield fell one basis point on Thursday, from 5.41% to 5.40%. The ten-year yield dropped three basis points to 5.04%, leaving the long end 36 basis points above the ten-year benchmark.",
     "bull": [
       {
-        "text": "Participants who favored waiting cited the need to see how the September rate increase would pass through the economy.",
+        "text": "The decline in the 30-year benchmark supported long-duration bond prices, all else equal.",
         "sourceIds": [
-          "FED_FOMC_MINUTES"
+          "TREASURY_YIELD_CURVE"
         ]
       }
     ],
     "bear": [
       {
-        "text": "Some participants favored another 25-basis-point increase in October, citing persistent inflation and the risk that a later response would need to be larger.",
-        "sourceIds": [
-          "FED_FOMC_MINUTES"
-        ]
-      }
-    ],
-    "watch": [
-      {
-        "text": "Leveraged funds were net short 149,858 Treasury bond futures contracts on November 10, down from 166,257 a week earlier. Both observations preceded publication of the minutes.",
+        "text": "Leveraged funds held a net short position of 149,858 Treasury bond futures contracts on November 10. They had been net short 166,257 a week earlier.",
         "sourceIds": [
           "CFTC_BOND"
         ]
       }
     ],
+    "watch": [
+      {
+        "text": "The gap between the 30-year and ten-year yields widened from 34 basis points on Wednesday to 36 on Thursday. Further changes matter to a fund concentrated in longer maturities.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
     "limitations": [
-      "The minutes record views at the October meeting. Future policy decisions depend on later information. The CFTC series covers Treasury bond futures. TLT’s daily outcome requires the fund’s regular-session opening and closing prices."
+      "Treasury par yields describe constant maturities. TLT holds a portfolio of bonds, and its realized session return also depends on its market prices and any distributions. The futures positions predate Thursday’s yield observations."
     ]
   },
   "sources": [
     {
-      "id": "FED_FOMC_MINUTES",
-      "title": "Federal Reserve · FOMC minutes · released 2026-11-18",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm"
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
     },
     {
       "id": "CFTC_BOND",
