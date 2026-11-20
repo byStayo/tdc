@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getPublishedBrief } from '../lib/published-brief.ts';
+import { assertPublicURL } from '../scripts/collect-editorial-evidence.ts';
 
 test('published brief has traceable public evidence and a valid publication date', () => {
   const brief = getPublishedBrief(0);
@@ -8,11 +9,16 @@ test('published brief has traceable public evidence and a valid publication date
   assert.equal(brief.scope, 'market');
   assert.ok(Number.isFinite(Date.parse(brief.createdAt!)));
   assert.ok(brief.sources?.length);
-  const allowed = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk']);
   for (const source of brief.sources!) {
-    const url = new URL(source.url);
+    const url = new URL(assertPublicURL(source.url));
     assert.equal(url.protocol, 'https:');
-    assert.ok(allowed.has(url.hostname));
+    if (source.id === 'TREASURY_YIELD_CURVE' || url.hostname === 'home.treasury.gov') {
+      assert.equal(source.id, 'TREASURY_YIELD_CURVE');
+      assert.equal(url.origin, 'https://home.treasury.gov');
+      assert.equal(url.pathname, '/resource-center/data-chart-center/interest-rates/TextView');
+      assert.equal(url.searchParams.get('type'), 'daily_treasury_yield_curve');
+      assert.match(url.searchParams.get('field_tdr_date_value') ?? '', /^\d{4}$/);
+    }
     if (url.hostname === 'www.bankofengland.co.uk') {
       assert.match(url.pathname, /^\/monetary-policy-summary-and-minutes\/(\d{4})\/[a-z]+-\1$/);
       assert.equal(url.search + url.hash, '');
