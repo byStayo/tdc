@@ -1,0 +1,16 @@
+{
+  "status": "insufficient_data",
+  "engineVersion": "consensus-rules-2.0.0",
+  "samples": 1,
+  "minimum": 500,
+  "datasetHash": "5666cc536db30ef6df6ac665c3ab90c909bdb1c1974227ea7c5ab41ba54f56da",
+  "promoted": false,
+  "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+  "promotionEvidence": null,
+  "instrument": "DIA",
+  "horizon": "daily",
+  "priceAdjustment": "total-return-adjusted",
+  "evaluatedAt": "2026-11-20T09:19:00.750Z",
+  "activated": false,
+  "featureSchema": "family-score-plus-observation-mask-v1"
+}

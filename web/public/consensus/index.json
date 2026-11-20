@@ -238,5 +238,11 @@
     "issuedAt": "2026-11-19T13:00:31.020Z",
     "sha256": "0e741a88222a6c562c7a1119a55bfd6ed80505b7fe97809b7976d0f4e9b904d9",
     "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "id": "2026-11-20T09-18-55-698Z",
+    "issuedAt": "2026-11-20T09:18:55.698Z",
+    "sha256": "ce747f067c1715dd803d78aac3a375d9ae027b8680c7a1742597f5ff2fe2306f",
+    "engineVersion": "consensus-rules-2.0.0"
   }
 ]
