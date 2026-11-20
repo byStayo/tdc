@@ -1,6 +1,8 @@
 # Visual Daily Consensus — active build
 
-The November 20 supplemental edition is live. Under **History & learning**, the published ETF validation table shows ten checked sessions, one with eligible inputs and zero calls for each of the five funds. The production journal settled four November 19 equity outcomes. TLT settled in the private validation and awaits a production price licence. The homepage, research archive, research desk and methodology pages passed at 390 and 1280 pixels. The market had 61.86% weighted observation coverage and three of fifteen voting families at issue. [Release and validation receipt](HANDOFF.md#november-20--november-19-etf-outcomes-verified-after-the-close)
+The Friday morning edition is live. On the market view, **Every signal** shows the restored US analyst ratings series, including 165 upgrades and 277 downgrades through November 19. **Community & retail** shows the current 14-account Bluesky sample. Each ETF’s directional breakdown stays suppressed. Both views and the research desk passed browser checks at 390 and 1280 pixels. Daily market observation coverage is 65.19%, and three of fifteen families vote. [Morning release and pre-open verification](HANDOFF.md#november-20-morning-edition)
+
+The November 20 supplemental edition introduced the updated **History & learning** table. It shows ten checked sessions, one with eligible inputs and zero calls for each of the five funds. The production journal settled four November 19 equity outcomes. TLT settled in the private validation and awaits a production price licence. [Settlement receipt](HANDOFF.md#november-20--november-19-etf-outcomes-verified-after-the-close)
 
 The November 19 morning edition had 64.0% weighted observation coverage and three of fifteen voting families. Its archive was verified on the public domain again after the November 20 deployment. [Morning edition receipt](HANDOFF.md#november-19-at-800-am-new-york--morning-edition)
 
