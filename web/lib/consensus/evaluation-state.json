@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "transactionId": "64c15ee7-b777-4219-a40d-91402554a938",
+  "transactionId": "3bb742a4-dea3-48db-85d1-ac4ae1b3f2cf",
   "status": "complete",
   "hashes": {
-    "public/consensus/outcomes.json": "2dd4bd03807cf8550376a1b8637ddc83ac96ce97d5645dec97d7ac0aa8923c7b",
-    "public/consensus/outcome-selection.json": "9879cbc0514f0d416ed10c3af8a08f0b2b596c05e50cf2de69d6816b9259daae",
+    "public/consensus/outcomes.json": "3fd9f373bb9ec756536fe570f776a515d0a96123856a48488658e2b102e7a236",
+    "public/consensus/outcome-selection.json": "041e79d7654444100ec83ceb8f69b8d0e8781154afb6cb97fc33680aa150903e",
     "lib/consensus/models.json": "448bba0a144f2fa440af9a5cc014f48da830b4eb11516466ab0cc392435548a9",
-    "lib/consensus/performance.json": "64e09364e8c2edba38f09ce78ebd6b89e410fd7740b317cf0e7b2c01291025ca"
+    "lib/consensus/performance.json": "39b7bfc8c19b92b18869b4740f15cac6bfe1762010d7acca30c6b508716cdd99"
   },
   "artifacts": {
     "public/consensus/models/DIA-daily-4f53cda18c2baa0c.json": "013b470a63b7ffd6d63cfab9ac826f1883380af50a41bcc8af5c7160e8f9f18d",
@@ -87,7 +87,10 @@
     "public/consensus/models/SPY-daily-wf2-54fc40311122e2bd.json": "ceb42f6ba85d36ffd537d754f59b5781b65e643e93e6355bae58007acd628751",
     "public/consensus/models/QQQ-daily-wf2-a80bb0cef3571934.json": "1e01602efbd566960d48a0cd0780517a5d3bdf7c2e1941b818e52d8c6430d0c8",
     "public/consensus/models/IWM-daily-wf2-90603b2053afd28d.json": "2d6400bce9d819fe8fdcabb9d2cef6bc483da245b1ab7ffbefa1e2939422dad3",
-    "public/consensus/models/DIA-daily-wf2-5d524e8f86b480c6.json": "047c1c40723de3fea21fa1ca6d1fa0db191a4ec9366ae6c6029924057165b9d0"
+    "public/consensus/models/DIA-daily-wf2-5d524e8f86b480c6.json": "047c1c40723de3fea21fa1ca6d1fa0db191a4ec9366ae6c6029924057165b9d0",
+    "public/consensus/models/SPY-daily-wf2-48506005e3edc878.json": "a3e56d9255a209c587c1a3c22ba6e26d1b36dfc5aa58ef79050ca30bc03a93e1",
+    "public/consensus/models/IWM-daily-wf2-f730710fc246625e.json": "51f1edf3bb86b4bd92701a19e45a10fc6bf5a2969867de243563d67314dc6bcf",
+    "public/consensus/models/DIA-daily-wf2-81f87198e21f4588.json": "06196e5c061022bec7298f6f2bea82af93fa56964ef23948587d2d86e201eed9"
   },
-  "outcomeLedgerTransactionId": "64c15ee7-b777-4219-a40d-91402554a938"
+  "outcomeLedgerTransactionId": "3bb742a4-dea3-48db-85d1-ac4ae1b3f2cf"
 }

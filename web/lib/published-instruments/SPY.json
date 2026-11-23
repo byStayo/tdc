@@ -2,23 +2,23 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "SPY",
-  "createdAt": "2026-11-19T12:52:40.522Z",
+  "createdAt": "2026-11-23T13:07:15.644Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Walmart adds a consumer reading to the S&P 500 earnings picture",
-    "summary": "Walmart’s third-quarter revenue grew 5.2%, while growth in global online sales reached 17%. The release broadens this week’s issuer evidence beyond technology. The latest E-mini S&P 500 positioning report predates these earnings.",
+    "headline": "S&P 500 futures funds trim net shorts as asset managers pare longs",
+    "summary": "The November 17 CFTC report shows two groups moving closer together. Leveraged funds reduced their net short by 68,082 E-mini S&P 500 contracts over the week. Asset managers cut their net long by 19,081.",
     "bull": [
       {
-        "text": "Walmart raised its full-year outlook for constant-currency net sales growth to 4.9%–5.2%.",
+        "text": "Leveraged funds were net short 234,978 contracts on November 17, down from 303,060 on November 10. Their position remained net short after the reduction.",
         "sourceIds": [
-          "SEC_WMT"
+          "CFTC_ES"
         ]
       }
     ],
     "bear": [
       {
-        "text": "Asset managers cut their net long E-mini S&P 500 position from 928,584 contracts on November 3 to 914,130 on November 10.",
+        "text": "Asset managers’ net long fell from 914,130 to 895,049 contracts. Their smaller position tempers the more constructive reading from leveraged funds.",
         "sourceIds": [
           "CFTC_ES"
         ]
@@ -26,26 +26,21 @@
     ],
     "watch": [
       {
-        "text": "Leveraged funds’ net short fell from 372,318 to 303,060 contracts over the same week. The next CFTC report will show whether the two groups continued to move differently.",
+        "text": "Open interest rose to 2,096,958 contracts from 2,017,687. The next weekly report can show whether participation keeps growing as the groups adjust their positions.",
         "sourceIds": [
           "CFTC_ES"
         ]
       }
     ],
     "limitations": [
-      "One issuer’s results give limited evidence about the wider index. The CFTC figures describe related futures. Current SPY options exposure and dealer positioning by strike remain unverified."
+      "E-mini S&P 500 futures are a proxy for SPY exposure. Weekly positions can include hedges. This report supplies no current SPY options-chain or dealer-gamma measurement."
     ]
   },
   "sources": [
     {
-      "id": "SEC_WMT",
-      "title": "SEC EDGAR · Walmart’s November 19 results filing",
-      "url": "https://data.sec.gov/submissions/CIK0000104169.json"
-    },
-    {
       "id": "CFTC_ES",
-      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
     }
   ]
 }

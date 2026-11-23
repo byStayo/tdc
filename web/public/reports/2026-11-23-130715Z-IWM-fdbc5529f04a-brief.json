@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-23T13:07:15.644Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Asset managers add 11,008 net long Russell 2000 contracts",
+    "summary": "Asset managers’ net long rose from 19,663 Russell 2000 futures contracts on November 10 to 30,671 on November 17. Leveraged funds stayed net short, leaving the two groups on opposite sides of the small-cap contract.",
+    "bull": [
+      {
+        "text": "The increase in asset-manager net length came as Russell 2000 futures open interest rose from 440,576 to 459,730 contracts.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Leveraged funds remained net short 42,353 contracts. Their net short was slightly smaller than the 44,429 recorded a week earlier.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The two-year Treasury yield fell 13 basis points on Friday to 4.63%. It gives a short-term funding benchmark to compare with subsequent evidence on smaller companies’ borrowing costs.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "The Russell 2000 contract and the two-year Treasury yield are separate indicators. Neither measures credit spreads for IWM holdings, the ETF’s Monday return or its current options exposure."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    },
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    }
+  ]
+}

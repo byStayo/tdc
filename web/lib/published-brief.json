@@ -1,15 +1,15 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-20T09:26:01.639Z",
+  "createdAt": "2026-11-23T13:07:15.644Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Two-year Treasury yield falls to 4.76% as the curve steepens",
-    "summary": "Treasury yields fell across the curve on Thursday. The two-year benchmark dropped four basis points and the 30-year benchmark fell one. That widened the gap between them to 64 basis points, from 61 on Wednesday.",
+    "headline": "Two-year Treasury yield drops 13 basis points as the curve steepens",
+    "summary": "Friday’s decline in Treasury yields was largest at the short end. From November 19 to 20, the two-year yield fell from 4.76% to 4.63%, the ten-year from 5.04% to 4.92%, and the thirty-year from 5.40% to 5.31%.",
     "bull": [
       {
-        "text": "The ten-year yield fell three basis points to 5.04%. That lowered the Treasury benchmark used to price many new corporate bonds.",
+        "text": "The ten-year yield fell 12 basis points. All else equal, a lower benchmark reduces the discount rate applied to future corporate earnings.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -17,7 +17,7 @@
     ],
     "bear": [
       {
-        "text": "Long-term borrowing remains relatively expensive. The 30-year Treasury yield ended Thursday at 5.40%.",
+        "text": "Long-term financing benchmarks eased less. The thirty-year yield finished 68 basis points above the two-year, up from 64 the previous day.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -25,14 +25,14 @@
     ],
     "watch": [
       {
-        "text": "The two-year yield moved more than the 30-year on Thursday. The next Treasury release will show whether that difference persists.",
+        "text": "S&P 500 futures positioning was divided before Friday’s rate move. On November 17 asset managers were net long 895,049 contracts and leveraged funds were net short 234,978. The next report will show whether that gap persisted.",
         "sourceIds": [
-          "TREASURY_YIELD_CURVE"
+          "CFTC_ES"
         ]
       }
     ],
     "limitations": [
-      "The Treasury publishes estimated par yields. A business’s borrowing rate also depends on its credit spread."
+      "Treasury publishes constant-maturity par yields. The CFTC observations are a Tuesday futures snapshot. The two sources cover different dates and do not measure Monday’s return."
     ]
   },
   "sources": [
@@ -40,6 +40,11 @@
       "id": "TREASURY_YIELD_CURVE",
       "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
       "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    },
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
     }
   ]
 }

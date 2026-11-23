@@ -1,14 +1,14 @@
 {
   "engineVersion": "consensus-rules-2.0.0",
-  "generatedAt": "2026-11-20T13:07:53.884Z",
+  "generatedAt": "2026-11-23T13:08:55.811Z",
   "status": "tracking",
-  "resolved": 64,
+  "resolved": 67,
   "calls": 0,
-  "abstentions": 64,
+  "abstentions": 67,
   "accuracy": null,
   "brier": null,
   "scoringPolicy": "last-edition-before-entry-open-v1",
-  "superseded": 216,
+  "superseded": 219,
   "pending": [
     {
       "snapshotId": "2026-11-03T06-28-30-460Z",
@@ -1885,12 +1885,6 @@
     {
       "snapshotId": "2026-11-20T09-18-55-698Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T09-18-55-698Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1921,12 +1915,6 @@
     {
       "snapshotId": "2026-11-20T09-18-55-698Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T09-18-55-698Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1934,12 +1922,6 @@
       "snapshotId": "2026-11-20T09-18-55-698Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T09-18-55-698Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1975,12 +1957,6 @@
     {
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T13-07-32-081Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2011,12 +1987,6 @@
     {
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T13-07-32-081Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2024,12 +1994,6 @@
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T13-07-32-081Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2058,6 +2022,96 @@
     },
     {
       "snapshotId": "2026-11-20T13-07-32-081Z",
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "SPY",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "IWM",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "DIA",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "TLT",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-23T13-08-51-071Z",
       "instrument": "TLT",
       "horizon": "monthly",
       "reason": "No verified price evidence supplied for this instrument."
@@ -2068,7 +2122,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 9,
+      "resolved": 10,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2266,7 +2320,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 9,
+      "resolved": 10,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2365,7 +2419,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 9,
+      "resolved": 10,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2565,13 +2619,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "SPY",
       "horizon": "daily",
-      "samples": 1,
+      "samples": 2,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/SPY-daily-wf2-54fc40311122e2bd.json"
+      "artifact": "models/SPY-daily-wf2-48506005e3edc878.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",
@@ -2637,13 +2691,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "IWM",
       "horizon": "daily",
-      "samples": 1,
+      "samples": 2,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/IWM-daily-wf2-90603b2053afd28d.json"
+      "artifact": "models/IWM-daily-wf2-f730710fc246625e.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",
@@ -2673,13 +2727,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "DIA",
       "horizon": "daily",
-      "samples": 1,
+      "samples": 2,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/DIA-daily-wf2-5d524e8f86b480c6.json"
+      "artifact": "models/DIA-daily-wf2-81f87198e21f4588.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",

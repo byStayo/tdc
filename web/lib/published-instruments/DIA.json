@@ -2,23 +2,23 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "DIA",
-  "createdAt": "2026-11-19T12:52:40.522Z",
+  "createdAt": "2026-11-23T13:07:15.644Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Walmart lifts its profit outlook after reporting $0.62 in quarterly earnings per share",
-    "summary": "The Dow constituent reported $0.62 of GAAP earnings per share and $0.65 on an adjusted basis. Management’s raised full-year adjusted earnings outlook is $2.84 to $2.89 per share.",
+    "headline": "Asset managers turn net short Dow futures",
+    "summary": "Asset managers moved from 2,080 contracts net long in Dow futures on November 10 to 7,708 net short on November 17. Leveraged funds added to a smaller position on the long side.",
     "bull": [
       {
-        "text": "Walmart reported quarterly operating income growth of 16% and a 28-basis-point expansion in its gross profit rate.",
+        "text": "Leveraged funds increased their net long from 1,315 to 3,449 contracts. Both readings were positive.",
         "sourceIds": [
-          "SEC_WMT"
+          "CFTC_DOW"
         ]
       }
     ],
     "bear": [
       {
-        "text": "In Dow futures, asset managers reduced their net long from 8,220 to 2,080 contracts between November 3 and 10.",
+        "text": "Asset managers’ weekly shift amounted to 9,788 contracts toward the short side, taking their net exposure below zero.",
         "sourceIds": [
           "CFTC_DOW"
         ]
@@ -26,26 +26,21 @@
     ],
     "watch": [
       {
-        "text": "Walmart attributed the three-cent adjustment to its net loss on equity and other investments after tax. Full-year guidance uses the adjusted measure.",
+        "text": "Dow futures open interest changed little, from 83,148 to 83,431 contracts. The next positioning release will show whether the shift persists with a similar number of outstanding contracts.",
         "sourceIds": [
-          "SEC_WMT"
+          "CFTC_DOW"
         ]
       }
     ],
     "limitations": [
-      "The Dow is price weighted and Walmart is one constituent. The older CFTC report describes Dow futures. Current DIA options exposure and the fund’s response to the release are outside this packet."
+      "The CFTC report covers Dow futures positions as of Tuesday. It provides no direct measure of DIA creations, Friday’s ex-distribution price change or current dealer gamma."
     ]
   },
   "sources": [
     {
-      "id": "SEC_WMT",
-      "title": "SEC EDGAR · Walmart’s November 19 results filing",
-      "url": "https://data.sec.gov/submissions/CIK0000104169.json"
-    },
-    {
       "id": "CFTC_DOW",
-      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-11-10",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
     }
   ]
 }

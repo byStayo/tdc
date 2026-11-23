@@ -1,0 +1,16 @@
+{
+  "status": "insufficient_data",
+  "engineVersion": "consensus-rules-2.0.0",
+  "samples": 2,
+  "minimum": 500,
+  "datasetHash": "40f8a6ec6a90b125219f520e1e25b0dc93921637612dcd9ccc70ae32cbaea3ba",
+  "promoted": false,
+  "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+  "promotionEvidence": null,
+  "instrument": "SPY",
+  "horizon": "daily",
+  "priceAdjustment": "total-return-adjusted",
+  "evaluatedAt": "2026-11-23T13:08:55.811Z",
+  "activated": false,
+  "featureSchema": "family-score-plus-observation-mask-v1"
+}

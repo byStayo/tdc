@@ -1726,5 +1726,41 @@
     "instrument": "DIA",
     "horizon": "daily",
     "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T09-18-55-698Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T09-18-55-698Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T09-18-55-698Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T13-07-32-081Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T13-07-32-081Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T13-07-32-081Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
   }
 ]

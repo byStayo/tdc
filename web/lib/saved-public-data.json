@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-20T09:24:54.334Z",
-  "macroRetrievedAt": "2026-11-20T09:15:10.674Z",
-  "positioningRetrievedAt": "2026-11-20T09:15:10.776Z",
+  "collectedAt": "2026-11-23T12:48:32.465Z",
+  "macroRetrievedAt": "2026-11-23T12:48:08.383Z",
+  "positioningRetrievedAt": "2026-11-23T12:48:09.284Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -754,94 +754,94 @@
   ],
   "positioning": [
     {
-      "id": "cftc-tff-futures:13874A:2026-11-10",
+      "id": "cftc-tff-futures:13874A:2026-11-17",
       "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
       "contractCode": "13874A",
-      "reportDate": "2026-11-10",
+      "reportDate": "2026-11-17",
       "units": "($50 X S&P 500 INDEX)",
-      "openInterest": 2017687,
-      "assetManagerLong": 1115756,
-      "assetManagerShort": 201626,
-      "leveragedLong": 145755,
-      "leveragedShort": 448815,
-      "dealerLong": 175005,
-      "dealerShort": 910294
+      "openInterest": 2096958,
+      "assetManagerLong": 1122337,
+      "assetManagerShort": 227288,
+      "leveragedLong": 197833,
+      "leveragedShort": 432811,
+      "dealerLong": 189843,
+      "dealerShort": 977219
     },
     {
-      "id": "cftc-tff-futures:209742:2026-11-10",
+      "id": "cftc-tff-futures:209742:2026-11-17",
       "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
       "contractCode": "209742",
-      "reportDate": "2026-11-10",
+      "reportDate": "2026-11-17",
       "units": "(NASDAQ 100 STOCK INDEX X $20)",
-      "openInterest": 288717,
-      "assetManagerLong": 107927,
-      "assetManagerShort": 35142,
-      "leveragedLong": 58721,
-      "leveragedShort": 44754,
-      "dealerLong": 44896,
-      "dealerShort": 144995
+      "openInterest": 296423,
+      "assetManagerLong": 112461,
+      "assetManagerShort": 29561,
+      "leveragedLong": 53394,
+      "leveragedShort": 64322,
+      "dealerLong": 46518,
+      "dealerShort": 136196
     },
     {
-      "id": "cftc-tff-futures:239742:2026-11-10",
+      "id": "cftc-tff-futures:239742:2026-11-17",
       "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
       "contractCode": "239742",
-      "reportDate": "2026-11-10",
+      "reportDate": "2026-11-17",
       "units": "(RUSSEL 2000 INDEX X $50)",
-      "openInterest": 440576,
-      "assetManagerLong": 141671,
-      "assetManagerShort": 122008,
-      "leveragedLong": 90791,
-      "leveragedShort": 135220,
-      "dealerLong": 113891,
-      "dealerShort": 91628
+      "openInterest": 459730,
+      "assetManagerLong": 145124,
+      "assetManagerShort": 114453,
+      "leveragedLong": 101204,
+      "leveragedShort": 143557,
+      "dealerLong": 112594,
+      "dealerShort": 100129
     },
     {
-      "id": "cftc-tff-futures:124603:2026-11-10",
+      "id": "cftc-tff-futures:124603:2026-11-17",
       "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
       "contractCode": "124603",
-      "reportDate": "2026-11-10",
+      "reportDate": "2026-11-17",
       "units": "($5 X DJIA INDEX)",
-      "openInterest": 83148,
-      "assetManagerLong": 14272,
-      "assetManagerShort": 12192,
-      "leveragedLong": 10470,
-      "leveragedShort": 9155,
-      "dealerLong": 41417,
-      "dealerShort": 48553
+      "openInterest": 83431,
+      "assetManagerLong": 10750,
+      "assetManagerShort": 18458,
+      "leveragedLong": 12114,
+      "leveragedShort": 8665,
+      "dealerLong": 43436,
+      "dealerShort": 42376
     },
     {
-      "id": "cftc-tff-futures:020601:2026-11-10",
+      "id": "cftc-tff-futures:020601:2026-11-17",
       "market": "UST BOND - CHICAGO BOARD OF TRADE",
       "contractCode": "020601",
-      "reportDate": "2026-11-10",
+      "reportDate": "2026-11-17",
       "units": "(CONTRACTS OF $100,000 FACE VALUE)",
-      "openInterest": 1985709,
-      "assetManagerLong": 1157873,
-      "assetManagerShort": 762883,
-      "leveragedLong": 263868,
-      "leveragedShort": 413726,
-      "dealerLong": 43711,
-      "dealerShort": 290102
+      "openInterest": 1968013,
+      "assetManagerLong": 1149793,
+      "assetManagerShort": 777999,
+      "leveragedLong": 246674,
+      "leveragedShort": 391903,
+      "dealerLong": 44896,
+      "dealerShort": 259759
     },
     {
-      "id": "cftc-tff-futures:043602:2026-11-10",
+      "id": "cftc-tff-futures:043602:2026-11-17",
       "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
       "contractCode": "043602",
-      "reportDate": "2026-11-10",
+      "reportDate": "2026-11-17",
       "units": "(CONTRACTS OF $100,000 FACE VALUE)",
-      "openInterest": 6095194,
-      "assetManagerLong": 3838858,
-      "assetManagerShort": 685097,
-      "leveragedLong": 586834,
-      "leveragedShort": 2888161,
-      "dealerLong": 114916,
-      "dealerShort": 774940
+      "openInterest": 6247430,
+      "assetManagerLong": 4019307,
+      "assetManagerShort": 748473,
+      "leveragedLong": 539725,
+      "leveragedShort": 3022168,
+      "dealerLong": 128367,
+      "dealerShort": 796323
     }
   ],
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-20T09:15:10.580Z",
+      "retrievedAt": "2026-11-23T12:48:08.482Z",
       "data": [
         {
           "id": "sec:0000320193:0001140361-26-044952",
@@ -927,7 +927,7 @@
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-20T09:15:10.797Z",
+      "retrievedAt": "2026-11-23T12:48:08.763Z",
       "data": [
         {
           "id": "sec:0000789019:0000789019-26-000236",
@@ -1013,7 +1013,7 @@
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-20T09:15:11.004Z",
+      "retrievedAt": "2026-11-23T12:48:09.050Z",
       "data": [
         {
           "id": "sec:0001045810:0001921094-26-001223",
@@ -1099,7 +1099,7 @@
     },
     {
       "symbol": "WMT",
-      "retrievedAt": "2026-11-20T09:15:11.215Z",
+      "retrievedAt": "2026-11-23T12:48:09.316Z",
       "data": [
         {
           "id": "sec:0000104169:0001949846-26-000669",

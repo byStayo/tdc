@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-23T13:07:15.644Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Leveraged funds turn net short Nasdaq-100 futures",
+    "summary": "Leveraged funds moved from a net long of 13,967 Nasdaq-100 futures contracts on November 10 to a net short of 10,928 on November 17. Asset managers increased their net long during the same week.",
+    "bull": [
+      {
+        "text": "Asset managers’ net long rose to 82,900 contracts from 72,785. Their exposure increased while leveraged funds crossed to the short side.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The leveraged-fund balance swung 24,895 contracts toward the short side. The category ended the week holding more short contracts than long contracts.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The ten-year Treasury yield fell from 5.04% to 4.92% between November 19 and 20. That matters to valuations based on distant earnings, and the rate move came after the positioning snapshot.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "The CFTC counts Nasdaq-100 futures contracts. It cannot establish an individual fund’s intent or QQQ share flows. Monday’s QQQ price response and current options exposure remain unmeasured here."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    },
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    }
+  ]
+}

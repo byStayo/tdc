@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-20T09:26:01.639Z",
+  "createdAt": "2026-11-23T13:07:15.644Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Thirty-year Treasury yield edges down to 5.40%",
-    "summary": "The 30-year Treasury yield fell one basis point on Thursday, from 5.41% to 5.40%. The ten-year yield dropped three basis points to 5.04%, leaving the long end 36 basis points above the ten-year benchmark.",
+    "headline": "Thirty-year Treasury yield falls to 5.31% as its spread over the ten-year widens",
+    "summary": "The thirty-year Treasury yield fell nine basis points from Thursday to Friday, while the ten-year yield fell twelve. The gap between them widened from 36 basis points on November 19 to 39 on November 20.",
     "bull": [
       {
-        "text": "The decline in the 30-year benchmark supported long-duration bond prices, all else equal.",
+        "text": "The thirty-year benchmark declined from 5.40% to 5.31%. A decline in the yield on a long bond supports its price, all else equal.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -18,7 +18,7 @@
     ],
     "bear": [
       {
-        "text": "Leveraged funds held a net short position of 149,858 Treasury bond futures contracts on November 10. They had been net short 166,257 a week earlier.",
+        "text": "Asset managers reduced their net long in Treasury bond futures from 394,990 to 371,794 contracts in the week to November 17. This reduction preceded Friday’s move in yields.",
         "sourceIds": [
           "CFTC_BOND"
         ]
@@ -26,14 +26,14 @@
     ],
     "watch": [
       {
-        "text": "The gap between the 30-year and ten-year yields widened from 34 basis points on Wednesday to 36 on Thursday. Further changes matter to a fund concentrated in longer maturities.",
+        "text": "The ten-year yield ended Friday at 4.92%. If the ten- and thirty-year yields keep moving at different speeds, TLT’s longer maturities make the thirty-year reading particularly relevant.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
       }
     ],
     "limitations": [
-      "Treasury par yields describe constant maturities. TLT holds a portfolio of bonds, and its realized session return also depends on its market prices and any distributions. The futures positions predate Thursday’s yield observations."
+      "Treasury par yields and weekly bond-futures positions cover different instruments and dates. Measuring TLT’s own return requires the ETF’s regular-session open and close and the applicable distribution history."
     ]
   },
   "sources": [
@@ -44,8 +44,8 @@
     },
     {
       "id": "CFTC_BOND",
-      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-10",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
     }
   ]
 }
