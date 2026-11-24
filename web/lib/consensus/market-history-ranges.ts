@@ -218,12 +218,12 @@ export const recentRangeSessions = (at: string) => {
     .reverse();
 };
 
-async function readRangeReview(
+export async function reviewedMarketHistoryRangeSources(
   root: string,
   fund: RangeFund,
   day: string,
   at: string,
-): Promise<SessionRange | null> {
+) {
   const dir = own(root),
     review = await readResearchReceipt<Review>(join(dir, "reviews", fund, day + ".json"));
   if (!review || review.recordedAt > at) return null;
@@ -247,7 +247,7 @@ async function readRangeReview(
   )) as LegTuple;
   if (verifiedFifth(legs, day) !== review.closeFifth)
     throw Error("Saved session range does not match its four original deliveries");
-  return {
+  const row: SessionRange = {
     fund,
     session: day,
     closeFifth: review.closeFifth,
@@ -255,6 +255,7 @@ async function readRangeReview(
     verifiedAt: review.recordedAt,
     receiptSha256: digest(review),
   };
+  return { row, native: legs.map(leg => leg.delivery) };
 }
 export async function loadMarketHistoryRanges(
   root: string,
@@ -267,7 +268,7 @@ export async function loadMarketHistoryRanges(
   for (const fund of RANGE_FUNDS)
     for (const day of dates) {
       try {
-        const row = await readRangeReview(root, fund, day, at);
+        const row = (await reviewedMarketHistoryRangeSources(root, fund, day, at))?.row;
         if (row) {
           rows.push(row);
           break;
@@ -469,7 +470,7 @@ async function pinReview(root: string, fund: RangeFund, day: string, legs: LegTu
     native: ids as Review["native"],
     closeFifth: value,
   });
-  const verified = await readRangeReview(root, fund, day, recordedAt);
+  const verified = (await reviewedMarketHistoryRangeSources(root, fund, day, recordedAt))?.row;
   if (!verified || verified.closeFifth !== value) throw Error("Competing range review disagrees");
   return true;
 }
@@ -619,7 +620,7 @@ export async function prepareMarketHistoryRanges(root: string, opts: Preparation
         let newRaw: [Loaded, Loaded] | null = null,
           newSplits: [Loaded, Loaded] | null = null;
         for (const day of dates) {
-          const previous = await readRangeReview(root, fund, day, clock()).catch(() => null);
+          const previous = (await reviewedMarketHistoryRangeSources(root, fund, day, clock()).catch(() => null))?.row;
           if (previous) {
             diagnostics[fund] = "retained " + day;
             break;

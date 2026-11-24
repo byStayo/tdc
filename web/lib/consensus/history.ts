@@ -29,6 +29,7 @@ import { validateHouseholdEquity } from "./household-equity.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
 import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
+import { validateTltPremarket } from "./tlt-premarket-signal.ts";
 import { validateFirstRatePremarket, validatePremarketBreadth } from "./firstrate-premarket.ts";
 import { RANGE_POLICY_V2, validateSessionRanges } from "./regular-session-range.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
@@ -95,6 +96,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateEtfFlows(signal);
     validateFirstRateTechnical(signal);
     validateFirstRatePremarket(signal, snapshot.cutoff);
+    validateTltPremarket(signal, snapshot.cutoff);
     validateTltCloseSignal(signal, snapshot.cutoff);
     validateOrderActivity(signal);
     validateFuturesOptions(signal);

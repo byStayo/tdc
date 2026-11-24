@@ -5,6 +5,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareKibotPrimary } from "../lib/consensus/kibot-eod-primary.ts";
 import { prepareFirstRateRanges } from "../lib/consensus/firstrate-ranges.ts";
+import { prepareTltPremarket } from "../lib/consensus/market-history-premarket.ts";
 import { prepareMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
 import { prepareFirstRate, prepareFirstRatePremarket } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
@@ -35,6 +36,8 @@ const rangeAbort = new AbortController();
 // Native range checks run during the independent public evidence pass. Always join them before issuing a draft or releasing the lock.
 const rangeJob = prepareMarketHistoryRanges(PROJECT_ROOT, { live: mode.freePriceAccount, signal: rangeAbort.signal })
   .catch((error: Error) => ({ status: "unavailable", reason: error.message }));
+const tltPremarketJob = rangeJob.then(() => prepareTltPremarket(PROJECT_ROOT, { live: mode.freePriceAccount, signal: rangeAbort.signal }))
+  .catch((error: Error) => ({ status: "source_unavailable", reason: error.message.slice(0, 170) }));
 try {
   const baseEvidence = await collectEditorialEvidence(fetch, { archiveRoot: PROJECT_ROOT });
   const { editorialSources, ...form144 } = await collect("research-sec-form144.ts", ["--editorial"], 60_000)
@@ -63,6 +66,7 @@ try {
   const firstRateRanges = await prepareFirstRateRanges(PROJECT_ROOT)
     .catch((error: Error) => ({ status: "unavailable", reason: error.message }));
   const priorPremarket = await prepareFirstRatePremarket(PROJECT_ROOT);
+  const tltPremarket = await tltPremarketJob;
   const tltSettlementQualification = !mode.freePriceAccount ? { status: "skipped_public_only" } :
     await prepareTltBoundaryQualification(PROJECT_ROOT, (from, through) =>
       collect("research-market-history-boundaries.ts", [from, through, "--collect", "--settle-verified"], 120_000))
@@ -91,6 +95,7 @@ try {
     form144,
     firstRate,
     priorPremarket,
+    tltPremarket,
     tltClosingTrend,
     tltSettlementQualification,
     kibotSubscriber,
@@ -103,6 +108,6 @@ try {
   throw error;
 } finally {
   rangeAbort.abort();
-  await rangeJob;
+  await Promise.all([rangeJob, tltPremarketJob]);
   await finishPublicationLock(release, failure);
 }

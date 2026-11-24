@@ -9,6 +9,7 @@ import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
 import { loadFirstRatePremarket, loadFirstRateTechnicals, replaceFirstRatePremarket, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
 import { loadDailySessionRanges } from "../lib/consensus/firstrate-ranges.ts";
 import { visibleSessionRanges } from "../lib/consensus/regular-session-range.ts";
+import { loadTltPremarket } from "../lib/consensus/market-history-premarket.ts";
 import { loadTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { pendingSettledTltInputs, TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
@@ -100,7 +101,10 @@ if (!scoped || technicalsOnly) {
     collectionErrors: [...snapshot.collectionErrors.filter(msg => !msg.startsWith("daily-prices:")),
       ...(missing ? [`daily-prices: ${missing.instruments.join(", ")}. ${missing.summary}`] : [])] };
 }
-const premarket = !scoped || technicalsOnly ? await loadFirstRatePremarket(root, snapshot.cutoff).catch(() => []) : undefined;
+const premarket = !scoped || technicalsOnly ? (await Promise.all([
+  loadFirstRatePremarket(root, snapshot.cutoff).catch(() => []),
+  loadTltPremarket(root, snapshot.cutoff).then(row => row ? [row] : []).catch(() => []),
+])).flat() : undefined;
 const withPremarket = replaceFirstRatePremarket(snapshot.signals, premarket, snapshot.cutoff);
 if (withPremarket !== snapshot.signals) {
   const ids = ["premarket-bars", "previous-premarket-bars"];

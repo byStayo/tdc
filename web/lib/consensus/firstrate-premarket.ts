@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { effectiveStatus } from "./engine.ts";
-import { exchangeSession, hasReviewedCalendar } from "./exchange-calendar.ts";
+import { exchangeSession } from "./exchange-calendar.ts";
 import { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS } from "./firstrate-technicals.ts";
+import { nextPremarketOpen, TLT_PREMARKET_ID } from "./tlt-premarket-signal.ts";
 import { missingSignals } from "./registry.ts";
 import type { Signal } from "./types.ts";
 
@@ -15,15 +16,6 @@ export type PremarketSample = { symbol: ETF; session: string; changePct: number;
 const instant = (value: unknown): value is string => typeof value === "string" && Number.isFinite(Date.parse(value)) &&
   new Date(value).toISOString() === value;
 
-function nextOpen(day: string) {
-  for (let at = Date.parse(day) + dayMs; ; at += dayMs) {
-    const date = new Date(at).toISOString().slice(0, 10);
-    if (!hasReviewedCalendar(date)) throw new Error("Next premarket expiry is outside the reviewed exchange calendar");
-    const session = exchangeSession(date);
-    if (session) return session.openAt;
-  }
-}
-
 export function firstRatePremarketSignal(sample: PremarketSample, approvedAt: string, cutoff: string): Signal {
   const { symbol, session, activeMinutes, vintageAt, retrievedAt, sha256 } = sample;
   const change = sample.changePct || 0;
@@ -34,7 +26,7 @@ export function firstRatePremarketSignal(sample: PremarketSample, approvedAt: st
       ![vintageAt, retrievedAt, approvedAt, cutoff].every(instant) || vintageAt < clock.closeAt ||
       retrievedAt < vintageAt || approvedAt < retrievedAt || cutoff < approvedAt)
     throw new Error("Invalid approved premarket observation");
-  const expiry = nextOpen(session);
+  const expiry = nextPremarketOpen(session);
   // The 09:29 bar includes the last millisecond before the core open. Coverage expires at the following core open.
   const observedAt = new Date(Date.parse(clock.openAt) - 1).toISOString();
   const title = `${symbol} premarket on ${session}`;
@@ -101,7 +93,8 @@ export function validatePremarketBreadth(signals: Signal[], cutoff: string) {
 
 export function replaceFirstRatePremarket(signals: Signal[], readings: Signal[] | undefined, cutoff: string): Signal[] {
   const ids = ["premarket-bars", "previous-premarket-bars"];
-  const saved = signals.filter(row => row.id.startsWith(prefix));
+  const isReading = (row: Signal) => row.id.startsWith(prefix) || row.id === TLT_PREMARKET_ID;
+  const saved = signals.filter(isReading);
   if (readings === undefined && !saved.length && !signals.some(s => s.id === "previous-premarket-bars")) return signals;
   const dated = (readings ?? saved).filter(row => row.id !== marketId)
     .map(row => effectiveStatus(row, cutoff) === "stale" ? { ...row, status: "stale" as const } : row);
@@ -109,7 +102,7 @@ export function replaceFirstRatePremarket(signals: Signal[], readings: Signal[] 
   const [current, missing] = missingSignals(cutoff).filter(row => ids.includes(row.id));
   const covered = dated.filter(row => row.status === "available").flatMap(row => row.instruments);
   missing.instruments = missing.instruments.filter(symbol => !covered.includes(symbol));
-  const owns = (s: Signal) => ids.includes(s.id) || s.id.startsWith(prefix);
+  const owns = (s: Signal) => ids.includes(s.id) || isReading(s);
   const index = signals.findIndex(owns);
   const rest = signals.filter(s => !owns(s));
   const currentReading = signals.find(s => s.id === current.id && s.status !== "unavailable") ?? current;
