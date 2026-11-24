@@ -25,7 +25,7 @@ function releaseDate(url: string): string {
   return date;
 }
 
-function latestRelease(html: string): string {
+export function latestNyFedStockRelease(html: string): string {
   const origin = new URL(NYFED_SCE_INDEX).origin;
   const urls = new Set<string>();
   for (const [, href] of html.matchAll(/\bhref=["']((?:https:\/\/www\.newyorkfed\.org)?\/newsevents\/news\/research\/20\d{2}\/20\d{6})["']/g)) {
@@ -37,7 +37,7 @@ function latestRelease(html: string): string {
   return [...urls][0];
 }
 
-function reading(html: string, published: string) {
+export function parseNyFedStockOutlook(html: string, published: string) {
   const plain = strip(html);
   const month = new RegExp(`findings from the (${months.join("|")}) (20\\d{2})\\s*survey\\b`, "i");
   const period = plain.match(month);
@@ -100,11 +100,11 @@ export async function collectNyFedStockOutlook(
   const base = baseline(now);
   try {
     const index = await read(NYFED_SCE_INDEX);
-    const url = latestRelease(index.text);
+    const url = latestNyFedStockRelease(index.text);
     const releasedAt = releaseDate(url);
     if (releasedAt > index.retrievedAt.slice(0, 10)) throw new Error("Future-dated New York Fed release");
     const document = await read(url);
-    const { observedAt, value, change } = reading(document.text, releasedAt);
+    const { observedAt, value, change } = parseNyFedStockOutlook(document.text, releasedAt);
     const signal: Signal = {
       ...base,
       status: "available",

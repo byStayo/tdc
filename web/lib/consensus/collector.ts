@@ -12,7 +12,7 @@ import { collectOperfCapital } from "./operf-capital-source.ts";
 import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.ts";
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
-import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
+import { collectRetailWithOriginals } from "./prospective-retail.ts";
 import { collectPrimaryDealerPositions } from "./primary-dealer-positions.ts";
 import { collectSchwabRetailFlows } from "./schwab-retail-flows.ts";
 import { collectVxCurve, VX_CURVE_ID } from "./vx-curve.ts";
@@ -969,7 +969,7 @@ export async function collectSnapshot(
     collectHouseholdEquity((url) => publicText(url, fetcher), () => new Date().toISOString(), previous?.signals.find(s => s.id === HOUSEHOLD_EQUITY_ID)),
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectBocSurvey((url) => publicText(url, fetcher)),
-    collectNyFedStockOutlook((url) => publicText(url, fetcher)),
+    collectRetailWithOriginals((url) => publicBytes(url, fetcher), archiveRoot),
     collectNyFedDeskSurvey((url) => publicBytes(url, fetcher, 2_000_000, "*/*"),
       archiveRoot ? join(archiveRoot, ".consensus/private-nyfed-desk-survey/live") : undefined),
     collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),

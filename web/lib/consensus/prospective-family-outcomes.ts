@@ -274,7 +274,7 @@ async function archivedPriceMatch(root: string, source: string, r: Request, asOf
   return false;
 }
 
-async function readApprovedLabels(root: string, requests: Request[], index: Identity[], transaction: string, asOf: string) {
+export async function readApprovedLabels(root: string, requests: Request[], index: Identity[], transaction: string, asOf: string) {
   const seal = await ledgerSeal(root,transaction,digest(index));
   const captured = await verifiedOutcomeSlots(resolve(root,PRIVATE_OUTCOME_LEDGER),seal,index.length,new Set(requests.map(r=>r.slot)));
   const result = new Map<number, Pair>(), providers = new Map<string, Promise<PriceEvidence[]>>();

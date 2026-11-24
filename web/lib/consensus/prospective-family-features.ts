@@ -14,6 +14,8 @@ import { volatilityWindow, validateMarketHistoryVolatility } from "./market-hist
 import { verifyPreopenWithMorningConfirmation } from "./preopen-receipt.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
+import { RETAIL_ID, RETAIL_POLICY, RETAIL_REGISTRATION, RETAIL_ROOT, retailInput } from "./prospective-retail.ts";
+import { NYFED_STOCK_OUTLOOK_ID } from "./nyfed-stock-outlook.ts";
 import type { Signal, Snapshot } from "./types.ts";
 
 const directory = ".consensus/private-prospective-family-features/v1";
@@ -57,14 +59,28 @@ export const PROSPECTIVE_FAMILY_DEFINITIONS = policy.definitions;
 export const PROSPECTIVE_FAMILY_POLICY_SHA256 = "0d1ba17adb95bc2f45f36d1fd5e9bfcf022db78d3e9900594b39a3d077fe3a79";
 if (digest(policy) !== PROSPECTIVE_FAMILY_POLICY_SHA256) throw new Error("Prospective feature definitions changed without a new version");
 const earliestRegistration = "2026-11-24T06:01:52.000Z";
-type Rule = typeof PROSPECTIVE_FAMILY_RULES[number];
+export type FeatureLane = "core" | "retail";
+export const RETAIL_POLICY_SHA256 = "54329a527bbb38998b4c8e31c901c96c83afb3a257aa8e182071204a4a3213b0";
+if (digest(RETAIL_POLICY) !== RETAIL_POLICY_SHA256) throw new Error("SCE feature definitions changed without a new version");
+const lanes = {
+  core: {
+    directory, file: FAMILY_FEATURE_REGISTRATION, hash: PROSPECTIVE_FAMILY_POLICY_SHA256,
+    policy, earliest: earliestRegistration,
+  },
+  retail: {
+    directory: RETAIL_ROOT, file: RETAIL_REGISTRATION, hash: RETAIL_POLICY_SHA256,
+    policy: RETAIL_POLICY, earliest: "2026-11-24T08:22:32.897Z",
+  },
+};
+type Lane = typeof lanes[FeatureLane];
+type Rule = Lane["policy"]["rules"][number];
 type Proof = { file: string; sha256: string };
 type Data = { candidate: number; control: number; eventId: string; observedThrough: string; availableAt: string; sourceHashes: string[]; proofs: Proof[] };
-type Reason = "as-issued-input-unavailable" | "not-immediately-prior-session" | "outside-payroll-release-target" | "insufficient-prior-closes" |
+type Reason = "as-issued-input-unavailable" | "not-immediately-prior-session" | "outside-payroll-release-target" | "outside-survey-release-target" | "release-predates-registration" | "insufficient-prior-closes" |
   "source-stale-at-entry" | "native-proof-missing" | "native-proof-mismatch" | "superseding-edition-unregistered" | "source-event-already-used";
 type Reading = { data: Data } | { reason: Reason };
 type Observation = { id: Rule["id"]; instrument: Rule["instrument"] } & Reading;
-type Registration = { version: 1; policySha256: string; registeredAt: string; policy: typeof policy };
+type Registration = { version: 1; policySha256: string; registeredAt: string; policy: Lane["policy"] };
 type Draft = {
   version: 1; policySha256: string; registeredAt: string; session: string; edition: string; cutoff: string;
   issuedAt: string; witnessedAt: string; archiveSha256: string; preparedAt: string; observations: Observation[]
@@ -230,9 +246,9 @@ async function payrollInput(root: string, s: Signal, session: string, cutoff: st
     }
   };
 }
-async function reading(root: string, snapshot: Snapshot, rule: Rule, session: string, pins?: Proof[]): Promise<Reading> {
+async function reading(root: string, snapshot: Snapshot, rule: Rule, session: string, registeredAt: string, pins?: Proof[]): Promise<Reading> {
   const ids = rule.id === technical ? ["firstrate-technical-" + rule.instrument] :
-    rule.id === options ? ["market-history-iv-spx-term", "market-history-iv-vix"] : [BLS_PAYROLL_NEWS_ID];
+    rule.id === options ? ["market-history-iv-spx-term", "market-history-iv-vix"] : rule.id === RETAIL_ID ? [NYFED_STOCK_OUTLOOK_ID] : [BLS_PAYROLL_NEWS_ID];
   const signals = ids.map(id => snapshot.signals.find(s => s.id === id));
   if (signals.some(s => !s || s.status !== "available")) return { reason: "as-issued-input-unavailable" };
   try {
@@ -244,6 +260,7 @@ async function reading(root: string, snapshot: Snapshot, rule: Rule, session: st
     let result: Reading;
     if (rule.id === technical) result = await technicalInput(root, signals[0]!, rule, day, snapshot.cutoff, pins);
     else if (rule.id === options) result = await optionsInput(root, signals[0]!, signals[1]!, day, snapshot.cutoff, pins);
+    else if (rule.id === RETAIL_ID) result = await retailInput(root, signals[0]!, session, snapshot.cutoff, registeredAt);
     else result = await payrollInput(root, signals[0]!, session, snapshot.cutoff);
     if ("data" in result) {
       const value = result.data;
@@ -264,16 +281,16 @@ async function firstWrite<T>(file: string, value: T) {
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
   return await readResearchReceipt<T>(file) ?? bad("Immutable feature receipt disappeared");
 }
-function verifyRegistration(r: Registration, now: string) {
-  if (!r || r.version !== 1 || r.policySha256 !== PROSPECTIVE_FAMILY_POLICY_SHA256 || !equal(r.policy, policy) ||
-    !instant(r.registeredAt) || r.registeredAt < earliestRegistration || r.registeredAt > now || !sameDayPreopen(newYorkDate(r.registeredAt), r.registeredAt))
+function verifyRegistration(r: Registration, now: string, lane: Lane) {
+  if (!r || r.version !== 1 || r.policySha256 !== lane.hash || !equal(r.policy, lane.policy) ||
+    !instant(r.registeredAt) || r.registeredAt < lane.earliest || r.registeredAt > now || !sameDayPreopen(newYorkDate(r.registeredAt), r.registeredAt))
     bad("Prospective feature registration differs from its original policy or pre-open clock");
   return r;
 }
-const draftFile = (root: string, session: string, edition: string) => join(root, directory, "sessions", session, edition + ".json");
-const sealFile = (root: string, session: string, edition: string) => join(root, directory, "sessions", session, edition + ".seal.json");
-async function assertLedgerClock(root: string, session: string, now: string) {
-  const path = join(root, directory, "sessions");
+const draftFile = (root: string, session: string, edition: string, lane: Lane) => join(root, lane.directory, "sessions", session, edition + ".json");
+const sealFile = (root: string, session: string, edition: string, lane: Lane) => join(root, lane.directory, "sessions", session, edition + ".seal.json");
+async function assertLedgerClock(root: string, session: string, now: string, lane: Lane) {
+  const path = join(root, lane.directory, "sessions");
   if ((await files(path)).some(name => /^\d{4}-\d\d-\d\d$/.test(name) && name > session))
     bad("A later prospective session is already present on the feature ledger");
   for (const name of await files(join(path, session))) {
@@ -284,26 +301,26 @@ async function assertLedgerClock(root: string, session: string, now: string) {
       bad("The feature ledger was observed after the registration clock");
   }
 }
-async function replay(root: string, archive: Archive, registration: Registration, session: string, asOf: string) {
+async function replay(root: string, archive: Archive, registration: Registration, session: string, asOf: string, lane: Lane) {
   const { snapshot, observedAt, archiveSha256 } = archive, edition = snapshot.id;
-  const seal = await readResearchReceipt<Seal>(sealFile(root, session, edition));
+  const seal = await readResearchReceipt<Seal>(sealFile(root, session, edition, lane));
   if (!seal) return null;
-  const draft = await readResearchReceipt<Draft>(draftFile(root, session, edition));
+  const draft = await readResearchReceipt<Draft>(draftFile(root, session, edition, lane));
   if (!draft || seal.version !== 1 || seal.preparedSha256 !== digest(draft) || draft.version !== 1 ||
     draft.policySha256 !== registration.policySha256 || draft.registeredAt !== registration.registeredAt ||
     draft.session !== session || draft.edition !== edition || draft.cutoff !== snapshot.cutoff || draft.issuedAt !== snapshot.issuedAt ||
     draft.witnessedAt !== observedAt || draft.archiveSha256 !== archiveSha256 || !sameDayPreopen(session, observedAt) ||
     !sameDayPreopen(session, draft.preparedAt) || !sameDayPreopen(session, seal.recordedAt) || draft.preparedAt < registration.registeredAt ||
     draft.preparedAt < observedAt || seal.recordedAt < draft.preparedAt || seal.recordedAt > asOf ||
-    !Array.isArray(draft.observations) || draft.observations.length !== PROSPECTIVE_FAMILY_RULES.length)
+    !Array.isArray(draft.observations) || draft.observations.length !== lane.policy.rules.length)
     return bad("Prospective record differs from the sealed public witness, registration or market clock");
   for (const [i, o] of draft.observations.entries()) {
-    const rule = PROSPECTIVE_FAMILY_RULES[i];
+    const rule = lane.policy.rules[i];
     if (o.id !== rule.id || o.instrument !== rule.instrument || ("reason" in o) === ("data" in o))
       bad("Invalid prospective feature identity");
     // A missing source at registration can never become a historical feature after recovery.
     if ("data" in o) {
-      const fresh = await reading(root, snapshot, rule, session, o.data.proofs);
+      const fresh = await reading(root, snapshot, rule, session, registration.registeredAt, o.data.proofs);
       if (!("data" in fresh) || !equal(fresh.data, o.data)) bad("Sealed native input no longer reproduces its registered feature");
     }
   }
@@ -311,27 +328,28 @@ async function replay(root: string, archive: Archive, registration: Registration
 }
 
 /** The caller has just verified the live edition. No parameter can override the registration or sealing clock. */
-export async function recordProspectiveFamilyFeatures(root: string, session: string, edition: string) {
+export async function recordProspectiveFamilyFeatures(root: string, session: string, edition: string, which: FeatureLane = "core") {
+  const lane = lanes[which];
   const start = wall();
-  if (start < earliestRegistration || !sameDayPreopen(session, start)) bad("Registration requires a real same-day wall clock strictly before the NY open");
+  if (start < lane.earliest || !sameDayPreopen(session, start)) bad("Registration requires a real same-day wall clock strictly before the NY open");
   const archive = await publicArchive(root, session, edition, start), { snapshot, observedAt, archiveSha256 } = archive;
   if (!sameDayPreopen(session, observedAt)) bad("Feature registration needs a same-day public pre-open witness");
   const registeredAt = wall();
   if (!sameDayPreopen(session, registeredAt) || registeredAt < start) bad("Feature registration crossed its clock boundary");
-  const regFile = join(root, FAMILY_FEATURE_REGISTRATION);
+  const regFile = join(root, lane.file);
   const saved = await readResearchReceipt<Registration>(regFile);
   const registration = verifyRegistration(saved ?? await firstWrite<Registration>(regFile,
-    { version: 1, policySha256: PROSPECTIVE_FAMILY_POLICY_SHA256, registeredAt, policy }), wall());
-  await assertLedgerClock(root, session, wall());
-  let completed = await replay(root, archive, registration, session, wall());
+    { version: 1, policySha256: lane.hash, registeredAt, policy:lane.policy }), wall(), lane);
+  await assertLedgerClock(root, session, wall(), lane);
+  let completed = await replay(root, archive, registration, session, wall(), lane);
   if (!completed) {
-    const observations = await Promise.all(PROSPECTIVE_FAMILY_RULES.map(async rule => ({
-      id: rule.id, instrument: rule.instrument, ...await reading(root, snapshot, rule, session),
+    const observations = await Promise.all(lane.policy.rules.map(async rule => ({
+      id: rule.id, instrument: rule.instrument, ...await reading(root, snapshot, rule, session, registration.registeredAt),
     })));
     const preparedAt = wall();
     if (!sameDayPreopen(session, preparedAt) || preparedAt < latest([registeredAt, observedAt, registration.registeredAt]))
       bad("Feature preparation crossed its pre-open registration boundary");
-    const draft = await firstWrite<Draft>(draftFile(root, session, edition), {
+    const draft = await firstWrite<Draft>(draftFile(root, session, edition, lane), {
       version: 1, policySha256: registration.policySha256,
       registeredAt: registration.registeredAt, session, edition, cutoff: snapshot.cutoff, issuedAt: snapshot.issuedAt, witnessedAt: observedAt,
       archiveSha256, preparedAt, observations
@@ -341,8 +359,8 @@ export async function recordProspectiveFamilyFeatures(root: string, session: str
       draft.registeredAt !== registration.registeredAt || draft.archiveSha256 !== archiveSha256 ||
       draft.witnessedAt !== observedAt || draft.policySha256 !== registration.policySha256 || !equal(draft.observations, observations))
       bad("A concurrent feature capture differs or the pre-open sealing window closed");
-    await firstWrite<Seal>(sealFile(root, session, edition), { version: 1, preparedSha256: digest(draft), recordedAt });
-    completed = await replay(root, archive, registration, session, wall());
+    await firstWrite<Seal>(sealFile(root, session, edition, lane), { version: 1, preparedSha256: digest(draft), recordedAt });
+    completed = await replay(root, archive, registration, session, wall(), lane);
   }
   if (!completed) return bad("Prospective feature receipt did not become durable");
   const missing = completed.draft.observations.flatMap(o => "reason" in o ? [{ id: o.id, instrument: o.instrument, reason: o.reason }] : []);
@@ -353,16 +371,17 @@ export async function recordProspectiveFamilyFeatures(root: string, session: str
 }
 
 /** Replay exact public witnesses and bounded provider receipts without consulting outcomes or promoting any signal. */
-export async function readProspectiveFamilyFeatures(root: string, through?: string) {
+export async function readProspectiveFamilyFeatures(root: string, through?: string, which: FeatureLane = "core") {
+  const lane = lanes[which];
   const now = wall(), last = through ?? newYorkDate(now);
   if (!/^\d{4}-\d\d-\d\d$/.test(last) || !Number.isFinite(Date.parse(last)) ||
     new Date(last).toISOString().slice(0, 10) !== last || last > newYorkDate(now)) bad("Invalid prospective replay date");
-  const registration = await readResearchReceipt<Registration>(join(root, FAMILY_FEATURE_REGISTRATION));
+  const registration = await readResearchReceipt<Registration>(join(root, lane.file));
   const sessions: Session[] = [], rows: Row[] = [], missing: Missing[] = [];
-  const summary = { registeredAt: registration?.registeredAt ?? null, policySha256: PROSPECTIVE_FAMILY_POLICY_SHA256, sessions, rows, missing };
+  const summary = { registeredAt: registration?.registeredAt ?? null, policySha256: lane.hash, sessions, rows, missing };
   if (!registration) return summary;
-  verifyRegistration(registration, now);
-  const witnesses = join(root, ".consensus/private-preopen"), records = join(root, directory, "sessions");
+  verifyRegistration(registration, now, lane);
+  const witnesses = join(root, ".consensus/private-preopen"), records = join(root, lane.directory, "sessions");
   const days = [...new Set([...(await files(witnesses)), ...(await files(records))])].sort();
   const events = new Set<string>();
   for (const session of days.filter(s => /^\d{4}-\d\d-\d\d$/.test(s) && s >= newYorkDate(registration.registeredAt) && s <= last)) {
@@ -376,7 +395,7 @@ export async function readProspectiveFamilyFeatures(root: string, through?: stri
         if (seals.includes(name.slice(0, -5) + ".seal.json")) bad("A sealed feature lost its same-day public witness");
         continue;
       }
-      const entry = await replay(root, archive, registration, session, now);
+      const entry = await replay(root, archive, registration, session, now, lane);
       sameDay.push({ archive, entry });
     }
     const selected = sameDay.sort((a, b) => a.archive.snapshot.issuedAt.localeCompare(b.archive.snapshot.issuedAt)).at(-1);
@@ -386,7 +405,7 @@ export async function readProspectiveFamilyFeatures(root: string, through?: stri
       session, edition, status: entry ? "recorded" : "missing-latest-registration", witnessedAt: selected.archive.observedAt,
       recordedAt: entry?.seal.recordedAt ?? null, receipts: sameDay.filter(s => s.entry).length
     });
-    for (const [i, rule] of PROSPECTIVE_FAMILY_RULES.entries()) {
+    for (const [i, rule] of lane.policy.rules.entries()) {
       const key = { id: rule.id, instrument: rule.instrument, session, edition };
       const observation = entry?.draft.observations[i];
       if (!entry || !observation) { missing.push({ ...key, reason: "superseding-edition-unregistered" }); continue; }

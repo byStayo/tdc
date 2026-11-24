@@ -43,7 +43,7 @@ if (mismatches.length) throw new Error("Live consensus differs from the saved ed
 const root = fileURLToPath(new URL("../", import.meta.url));
 const preopen = session ? await recordPreopenReceipt(root, session, snapshot.id,
   verified.get(snapshot.id + ".json")!, verified.get("index.json")!, new Date().toISOString()) : undefined;
-let familyFeatures;
+let familyFeatures, retailFeatures;
 if (session && preopen) {
   try {
     familyFeatures = await recordProspectiveFamilyFeatures(root, session, snapshot.id);
@@ -51,6 +51,12 @@ if (session && preopen) {
     console.error("Private family feature capture failed.", error instanceof Error ? error.message : String(error));
     familyFeatures = { status: "failed" };
   }
+  try {
+    retailFeatures = await recordProspectiveFamilyFeatures(root, session, snapshot.id, "retail");
+  } catch (error) {
+    console.error("Private monthly retail capture failed.", error instanceof Error ? error.message : String(error));
+    retailFeatures = { status: "failed" };
+  }
 }
 console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-  matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures }));
+  matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures }));

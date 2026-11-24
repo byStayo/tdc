@@ -15,6 +15,8 @@ import { evaluateOutcome, outcomeKey, outcomeTrainingRow, performance, selectSco
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
+import { auditProspectiveRetailOutcomes } from "../lib/consensus/prospective-retail-outcomes.ts";
+import { RETAIL_REGISTRATION } from "../lib/consensus/prospective-retail.ts";
 import { FAMILY_FEATURE_REGISTRATION } from "../lib/consensus/prospective-family-features.ts";
 import { auditProspectiveFamilyOutcomes } from "../lib/consensus/prospective-family-outcomes.ts";
 import { MARKETPARQUET_SOURCE } from "../lib/consensus/marketparquet.ts";
@@ -282,4 +284,14 @@ try {
   }
 } catch (error) {
   console.error("Private prospective family outcome audit failed.", error instanceof Error ? error.message : String(error));
+}
+
+try {
+  const registered = await lstat(resolve(root, RETAIL_REGISTRATION)).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  });
+  if (registered) console.error("Private monthly retail research", JSON.stringify(await auditProspectiveRetailOutcomes(root)));
+} catch (error) {
+  console.error("Private monthly retail audit failed.", error instanceof Error ? error.message : String(error));
 }
