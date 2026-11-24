@@ -7,11 +7,14 @@ import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { replayFt900Study } from "./research-ft900-exports.ts";
 import { replaySpyCloseLocation } from "./research-spy-close-location.ts";
+import { FOMC_EVE_POLICY_SHA, replayFomcEveStudy } from "./research-fomc-eve.ts";
+import { replayIssuerGuidanceQqq } from "./research-issuer-guidance-qqq.ts";
 import { readPrivateResearchSessions, verifyPreviousResearchSessions, type ResearchSessionReceipt } from "../lib/consensus/kibot-verified-session.ts";
 import { readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
 import {
   FT900_RESEARCH, KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_LEGACY_RESEARCH_STUDIES,
-  KIBOT_RESEARCH_SYMBOLS, SPY_CLOSE_LOCATION_RESEARCH, validateKibotResearch, type Ft900StudyRow, type KibotResearch, type SpyCloseLocationStudyRow,
+  KIBOT_RESEARCH_SYMBOLS, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, validateKibotResearch,
+  type Ft900StudyRow, type FomcEveStudyRow, type QqqIssuerGuidanceRow, type KibotResearch, type SpyCloseLocationStudyRow,
 } from "../lib/consensus/kibot-research.ts";
 
 /** Only expose rounded diagnostics from the checked, cached research replay. */
@@ -61,6 +64,44 @@ export function assertRetainedStudyRows(previous: KibotResearch, next: KibotRese
     throw new Error("A previously published research study changed or is missing");
 }
 
+async function readFomcEveStudy(before: string): Promise<FomcEveStudyRow> {
+  const { result } = await replayFomcEveStudy(true, false, before);
+  if (!result || digest(result) !== "3c1191618d72c62233ae566eaf53231ca2b8d63d4b6c289a8fd52160a75ca3d9" ||
+      result.method !== FOMC_EVE_RESEARCH.id || result.policySha256 !== FOMC_EVE_POLICY_SHA ||
+      result.priceSource !== KIBOT_PRICE_CITATION || result.before !== before || result.combined.split.testEnds >= before)
+    throw new Error("The Fed meeting study differs from the reviewed prelaunch comparison");
+  const { summary } = result;
+  const round = (n: number) => Number(n.toFixed(4));
+  return { studyId: FOMC_EVE_RESEARCH.id, family: FOMC_EVE_RESEARCH.family, instrument: "SPY",
+    samples: summary.samples, testSamples: summary.heldOut, testEves: summary.heldOutEves,
+    modelBrier: round(summary.modelBrier), returnOnlyBrier: round(summary.controlBrier),
+    baseRateBrier: round(summary.baseRateBrier), coinBrier: summary.coinBrier, clearedMargin: summary.clearsMargin,
+    eveCoefficientSign: summary.coefficient > 0 ? "positive" : summary.coefficient < 0 ? "negative" : "zero" };
+}
+
+async function readQqqIssuerGuidanceStudy(before: string): Promise<QqqIssuerGuidanceRow> {
+  const { result, sourceSummary } = await replayIssuerGuidanceQqq(true, false, before);
+  if (!result || result.sealedSHA256 !== "81061a52a2cb7987f658ee56d06e2ac43723dce3307f113e93781be4d4cd591a" ||
+      sourceSummary.inputSHA256 !== "45e4ebec6487e50583a5bd9c9889cc4ebf0e984c784cba22870fe80b45d95f62" ||
+      result.method !== QQQ_ISSUER_GUIDANCE_RESEARCH.id || result.before !== before ||
+      result.policySHA256 !== "bae158de7cfd520381a0985be6944ac95cfb982826ed9531d0e9adb4a3650c57" ||
+      result.summary.split.testEnds >= before)
+    throw new Error("QQQ earnings staging requires the reviewed, reproducible prelaunch holdout");
+  const s = result.summary;
+  const round = (value: number) => Number(value.toFixed(4));
+  const margin = Math.min(s.trainingRateBrier, s.controlBrier, s.coinBrier) - s.combinedBrier;
+  if (s.paired !== s.eligible - s.excluded || s.split.train + s.split.validation + s.split.test !== s.paired ||
+      (s.earningsCoefficient > 0 && margin > 0.01) !== s.clearsResearchGate)
+    throw new Error("QQQ earnings counts or directional decision disagree with the registered analysis");
+  return {
+    studyId: QQQ_ISSUER_GUIDANCE_RESEARCH.id, family: "earnings", instrument: "QQQ",
+    samples: s.paired, testSamples: s.split.test, modelBrier: round(s.combinedBrier), ageOnlyBrier: round(s.controlBrier),
+    baseRateBrier: round(s.trainingRateBrier), coinBrier: s.coinBrier, clearedMargin: s.clearsResearchGate,
+    earningsCoefficientSign: s.earningsCoefficient > 0 ? "positive" : s.earningsCoefficient < 0 ? "negative" : "zero",
+    controlImprovement95: [round(s.interval95[0]), round(s.interval95[1])],
+  };
+}
+
 async function main() {
   const args = process.argv.slice(2);
   if (args.length > 1 || (args.length && args[0] !== "--publish"))
@@ -101,12 +142,13 @@ async function main() {
         };
       });
     });
-    const [exportsStudy, closingStudy] = await Promise.all([
-      readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt),
+    const [exportsStudy, closingStudy, meetingStudy, earningsStudy] = await Promise.all([
+      readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt), readFomcEveStudy(snapshots[0].issuedAt),
+      readQqqIssuerGuidanceStudy(snapshots[0].issuedAt),
     ]);
-    studies.push(exportsStudy, closingStudy);
+    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy);
     const aggregate: KibotResearch = {
-      schemaVersion: 4, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 6, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

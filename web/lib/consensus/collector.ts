@@ -1,3 +1,5 @@
+import { collectIssuerGuidance } from "./issuer-guidance-match.ts";
+import { REVENUE_ISSUERS } from "./issuer-revenue.ts";
 import { collectNews } from "./news.ts";
 import { newYorkTimestamp } from "./time.ts";
 export { newYorkTimestamp } from "./time.ts";
@@ -942,6 +944,7 @@ export async function collectSnapshot(
     exchangeOrders,
     optionActivity,
     volatility,
+    issuerGuidance,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -975,6 +978,19 @@ export async function collectSnapshot(
       return undefined;
     }) : undefined,
     collectMarketHistoryVolatility(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-volatility-indices") : undefined),
+    (async () => {
+      const signals = [];
+      const read = async (url: string) => {
+        const {bytes, sha256, retrievedAt} = await publicBytes(url, fetcher, url.endsWith("_htm.xml") ? 5_000_000 : 2_000_000);
+        return {url, text: bytes.toString("utf8"), sha256, retrievedAt};
+      };
+      for (const ticker of REVENUE_ISSUERS) {
+        signals.push(await collectIssuerGuidance(ticker, read, undefined,
+          archiveRoot ? join(archiveRoot, ".consensus/private-issuer-revenue") : undefined,
+          previous?.signals.find(signal => signal.issuerGuidance?.ticker === ticker)));
+      }
+      return signals;
+    })(),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -1009,6 +1025,7 @@ export async function collectSnapshot(
       ...exchangeOrders,
       // Preserve the insertion anchors used by existing scoped refreshes.
       householdEquity,
+      ...issuerGuidance,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
   return applyScoringPolicy({
@@ -1027,7 +1044,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 64 + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 64 + REVENUE_ISSUERS.length + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

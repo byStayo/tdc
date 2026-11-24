@@ -98,3 +98,47 @@ test("version four adds the distinct matched SPY close-location study without re
   for (const clearedMargin of [true,false])
     validateKibotResearch(from({clearedMargin, modelBrier:0.24, returnOnlyBrier:0.25, baseRateBrier:0.27}),history[0]);
 });
+
+test("version five distinguishes the SPY meeting-eve study and checks its direction and controls", async () => {
+  const root = new URL("../", import.meta.url);
+  const { history } = await verifyPublicationTree(fileURLToPath(root));
+  const shipped = JSON.parse(await readFile(new URL("public/consensus/kibot-research.json", root), "utf8"));
+  const v4 = { ...shipped, schemaVersion: 4 as const, studies: shipped.studies.slice(0, 22) };
+  validateKibotResearch(v4, history[0]);
+  const row = { studyId: "prelaunch-spy-fomc-eve-2016-2025-v1", family: "events", instrument: "SPY",
+    samples: 160, testSamples: 32, testEves: 16, modelBrier: 0.2508, returnOnlyBrier: 0.2516,
+    baseRateBrier: 0.2501, coinBrier: 0.25, eveCoefficientSign: "negative", clearedMargin: false };
+  const v5 = { ...v4, schemaVersion: 5, studies: [...v4.studies, row] };
+  validateKibotResearch(v5, history[0]);
+  assert.equal(researchStudyFor(v5.studies[22]).id, row.studyId);
+  assertRetainedStudyRows(v4, v5);
+  for (const change of [{ instrument: "QQQ" }, { testEves: 32 }, { testEves: 17 }, { testSamples: 25 },
+    { samples: 162 }, { samples: 159 }, { clearedMargin: true },
+    { eveCoefficientSign: "unknown" }, { eveCoefficientSign: ["negative"] }, { eveCoefficientSign: [["positive"]], modelBrier: 0.20 },
+    { eveCoefficientSign: "negative", clearedMargin: true, modelBrier: 0.21 },
+    { sourcePrices: [12, 13] }, { returnOnlyBrier: 0.25163 }]) {
+    assert.throws(() => validateKibotResearch({ ...v5, studies: [...v4.studies, { ...row, ...change }] }, history[0]));
+  }
+});
+
+test("version six retains prior studies and bounds the QQQ earnings comparisons and interval", async () => {
+  const root = new URL("../", import.meta.url);
+  const { history } = await verifyPublicationTree(fileURLToPath(root));
+  const shipped = JSON.parse(await readFile(new URL("public/consensus/kibot-research.json", root), "utf8"));
+  const prior = { ...shipped, schemaVersion: 5, studies: shipped.studies.slice(0, 23) };
+  validateKibotResearch(prior, history[0]);
+  const row = { studyId: "prelaunch-qqq-original-revenue-guidance-v1", family: "earnings", instrument: "QQQ",
+    samples: 124, testSamples: 25, modelBrier: 0.2599, ageOnlyBrier: 0.2643, baseRateBrier: 0.2518, coinBrier: 0.25,
+    earningsCoefficientSign: "negative", controlImprovement95: [-0.0041, 0.0117], clearedMargin: false };
+  const make = (changes: Record<string, unknown>) => ({ ...prior, schemaVersion: 6, studies: [...prior.studies, { ...row, ...changes }] });
+  const report = make({});
+  validateKibotResearch(report, history[0]);
+  assert.equal(researchStudyFor(report.studies.at(-1)!).label, "Revenue surprise against management guidance");
+  assertRetainedStudyRows(prior, report);
+  for (const change of [{ instrument: "SPY" }, { samples: 125 }, { testSamples: 40 }, { clearedMargin: true },
+    { earningsCoefficientSign: ["negative"] }, { ageOnlyBrier: 0.26432 }, { controlImprovement95: [0.02, -0.03] },
+    { controlImprovement95: [-0.01, 0.02, 0.03] }, { controlImprovement95: [-2, 1] }, { underlyingPrices: [] }]) {
+    assert.throws(() => validateKibotResearch(make(change), history[0]), /reviewed aggregate schema/);
+  }
+  assert.throws(() => validateKibotResearch({ ...report, schemaVersion: 5 }, history[0]));
+});

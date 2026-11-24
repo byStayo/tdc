@@ -4,9 +4,10 @@ import { resolve } from "node:path";
 import { setTimeout } from "node:timers/promises";
 import { REVIEWED_ISSUERS } from "../lib/consensus/issuer-context.ts";
 import {
-  REVENUE_ISSUERS, exhibitURL, filingIndex, pairIssuerRevenue, readIssuerRevenue, resultsFilings,
+  REVENUE_ISSUERS, pairIssuerRevenue, readIssuerRevenue, resultsFilings,
   type ResultsFiling,
 } from "../lib/consensus/issuer-revenue.ts";
+import { originalExhibit } from "../lib/consensus/issuer-results-source.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { collectKibotSeries, isFullKibotSession, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
@@ -23,7 +24,6 @@ const directory = resolve(PROJECT_ROOT, ".consensus/private-issuer-revenue");
 const hash = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 
 type Document = Awaited<ReturnType<typeof fetchText>> & { url: string };
-type Receipt = { filing: ResultsFiling; index: Document; original: Document };
 
 async function load<T>(path: string): Promise<T | null> {
   try { return JSON.parse(await readFile(path, "utf8")); }
@@ -38,31 +38,10 @@ async function sec(url: string): Promise<Document> {
   return { url, ...await fetchText(url, fetch) };
 }
 
-function verifiedReceipt(receipt: Receipt, filing: ResultsFiling) {
-  const { index, original } = receipt;
-  if (JSON.stringify(receipt.filing) !== JSON.stringify(filing) ||
-      index.url !== filingIndex(filing) || original.url !== exhibitURL(filing, index.text) ||
-      [index, original].some(item => hash(item.text) !== item.sha256 || item.retrievedAt < filing.acceptedAt))
-    throw new Error(`Original SEC receipt changed for ${filing.accession}`);
-  return readIssuerRevenue(filing, original.text);
-}
-
 async function readOriginal(filing: ResultsFiling) {
-  const path = resolve(directory, filing.accession + ".json");
-  let receipt = await load<Receipt>(path);
-  if (!receipt) {
-    const index = await sec(filingIndex(filing));
-    const original = await sec(exhibitURL(filing, index.text));
-    receipt = { filing, index, original };
-    verifiedReceipt(receipt, filing);
-    try { await durableJSON(path, receipt, true); }
-    catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-      receipt = (await load<Receipt>(path))!;
-    }
-  }
+  const receipt = await originalExhibit(filing, sec, directory);
   return {
-    ...verifiedReceipt(receipt, filing),
+    ...readIssuerRevenue(filing, receipt.original.text),
     index: { url: receipt.index.url, sha256: receipt.index.sha256 },
     source: { url: receipt.original.url, retrievedAt: receipt.original.retrievedAt, sha256: receipt.original.sha256 },
   };

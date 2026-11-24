@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 6,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-20",
@@ -239,6 +239,37 @@
       "baseRateBrier": 0.2544,
       "coinBrier": 0.25,
       "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-fomc-eve-2016-2025-v1",
+      "family": "events",
+      "instrument": "SPY",
+      "samples": 160,
+      "testSamples": 32,
+      "testEves": 16,
+      "modelBrier": 0.2508,
+      "returnOnlyBrier": 0.2516,
+      "baseRateBrier": 0.2501,
+      "coinBrier": 0.25,
+      "clearedMargin": false,
+      "eveCoefficientSign": "negative"
+    },
+    {
+      "studyId": "prelaunch-qqq-original-revenue-guidance-v1",
+      "family": "earnings",
+      "instrument": "QQQ",
+      "samples": 124,
+      "testSamples": 25,
+      "modelBrier": 0.2599,
+      "ageOnlyBrier": 0.2643,
+      "baseRateBrier": 0.2518,
+      "coinBrier": 0.25,
+      "clearedMargin": false,
+      "earningsCoefficientSign": "negative",
+      "controlImprovement95": [
+        -0.0041,
+        0.0117
+      ]
     }
   ]
 }

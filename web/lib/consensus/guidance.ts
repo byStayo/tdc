@@ -3,6 +3,16 @@ import type { Instrument, Snapshot } from "./types.ts";
 import { newYorkDate } from "./time.ts";
 import { REVIEWED_ISSUERS } from "./issuer-context.ts";
 
+export function filedGuidanceRows(snapshot: Snapshot, instrument: Instrument, reference: string) {
+  return snapshot.signals.flatMap(signal => {
+    const e = signal.issuerGuidance;
+    if (!e || !signal.instruments.includes(instrument) || !["available", "stale"].includes(signal.status) ||
+        !signal.source.releasedAt || e.publiclyKnownBy > reference || e.firstEvidenceCompleteAt > reference || signal.source.retrievedAt > reference) return [];
+    return [{ evidence: e, period: `FY${e.year} Q${e.quarter}`, summary: signal.summary,
+      filingURL: signal.source.url, stale: signal.status === "stale" || Date.parse(reference) - Date.parse(e.end) > signal.staleAfterDays * 86_400_000 }];
+  });
+}
+
 /** Arithmetic bounds, not a probability distribution or an earnings forecast. */
 export function guidanceBounds(item: ReviewedGuidance): { low: number; high: number } {
   const range = item.revenue;

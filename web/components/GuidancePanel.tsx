@@ -1,4 +1,4 @@
-import { guidanceRows } from "@/lib/consensus/guidance";
+import { filedGuidanceRows, guidanceRows } from "@/lib/consensus/guidance";
 import type { Instrument, Snapshot } from "@/lib/consensus/types";
 import styles from "./GuidancePanel.module.css";
 
@@ -9,9 +9,11 @@ const date = (s: string) => new Date(s.length === 10 ? `${s}T12:00:00Z` : s)
 export default function GuidancePanel({ snapshot, instrument, reference }: {
   snapshot: Snapshot; instrument: Instrument; reference: string;
 }) {
-  const rows = guidanceRows(snapshot, instrument, reference);
-  if (!rows.length) return null;
-  return <section className={styles.panel} aria-label="Company revenue guidance">
+  const filed = filedGuidanceRows(snapshot, instrument, reference);
+  const rows = guidanceRows(snapshot, instrument, reference).filter(row =>
+    !filed.some(match => match.evidence.ticker === row.ticker && match.period === row.fiscalPeriod));
+  if (!rows.length && !filed.length) return null;
+  return <>{rows.length > 0 && <section className={styles.panel} aria-label="Company revenue guidance">
     <header>
       <span className={styles.eyebrow}>MANAGEMENT OUTLOOK</span>
       <h3>Before the next results</h3>
@@ -44,5 +46,27 @@ export default function GuidancePanel({ snapshot, instrument, reference }: {
         </div>
       </article>)}
     </div>
-  </section>;
+  </section>}
+    {filed.length > 0 && <section className={styles.panel} aria-label="Filed revenue versus management guidance">
+      <h3>Revenue versus management guidance</h3>
+      <div className={styles.rows}>
+        {filed.map(({ evidence: e, period, summary, filingURL, stale }) =>
+          <article key={e.ticker} className={styles.row}>
+            <div className={styles.identity}>
+              <h4>{e.ticker}</h4><span>{period}</span>
+              <small>Quarter ended {date(e.end)}{stale && " · stale"}</small>
+            </div>
+            <div>
+              <p>{summary}</p>
+              <details>
+                <summary>Filing sources</summary>
+                <a href={e.guidance.url} target="_blank" rel="noreferrer">Original guidance · filed {date(e.guidance.filed)} ↗</a>
+                <a href={e.results.url} target="_blank" rel="noreferrer">Quarterly earnings release · filed {date(e.results.filed)} ↗</a>
+                <a href={filingURL} target="_blank" rel="noreferrer">Form 10-Q · filed {date(e.quarterly.filed)} ↗</a>
+                <small>All three filings first verified {date(e.firstEvidenceCompleteAt)}.</small>
+              </details>
+            </div>
+          </article>)}
+      </div>
+    </section>}</>;
 }

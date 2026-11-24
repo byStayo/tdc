@@ -27,7 +27,19 @@ export const SPY_CLOSE_LOCATION_RESEARCH = {
   bars: "https://getmarkethistory.com/docs/bars/", delivery: "https://getmarkethistory.com/docs/reliability/",
   terms: "https://getmarkethistory.com/docs/terms/",
 } as const;
-export const KIBOT_RESEARCH_STUDIES = [...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH] as const;
+export const FOMC_EVE_RESEARCH = {
+  id: "prelaunch-spy-fomc-eve-2016-2025-v1", family: "events", label: "Session before a scheduled Fed decision",
+  schedule: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240809a.htm",
+  paper: "https://www.newyorkfed.org/research/staff_reports/sr512.html",
+} as const;
+export const QQQ_ISSUER_GUIDANCE_RESEARCH = {
+  id: "prelaunch-qqq-original-revenue-guidance-v1", family: "earnings", label: "Revenue surprise against management guidance",
+  sec: "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+  timing: "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing",
+} as const;
+export const KIBOT_RESEARCH_STUDIES = [
+  ...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH,
+] as const;
 
 type Symbol = typeof KIBOT_RESEARCH_SYMBOLS[number];
 type StudyMetrics = {
@@ -41,17 +53,26 @@ export type SpyCloseLocationStudyRow = StudyMetrics & {
   studyId: typeof SPY_CLOSE_LOCATION_RESEARCH.id; family: "technicals"; instrument: "SPY";
   returnOnlyBrier: number; coinBrier: number;
 };
+export type FomcEveStudyRow = StudyMetrics & {
+  studyId: typeof FOMC_EVE_RESEARCH.id; family: "events"; instrument: "SPY"; testEves: number;
+  returnOnlyBrier: number; coinBrier: number; eveCoefficientSign: "positive" | "negative" | "zero";
+};
+export type QqqIssuerGuidanceRow = StudyMetrics & {
+  studyId: typeof QQQ_ISSUER_GUIDANCE_RESEARCH.id; family: "earnings"; instrument: "QQQ";
+  ageOnlyBrier: number; coinBrier: number; earningsCoefficientSign: "positive" | "negative" | "zero";
+  controlImprovement95: [number, number];
+};
 type LegacyStudyRow = StudyMetrics & {
   family: typeof KIBOT_LEGACY_RESEARCH_STUDIES[number]["family"]; instrument: Symbol;
 };
 
 export interface KibotResearch {
-  schemaVersion: 1 | 2 | 3 | 4;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
   daily: { instrument: Symbol; sessions: number; calls: number; eligibleSessions?: number }[];
-  studies: (LegacyStudyRow | Ft900StudyRow | SpyCloseLocationStudyRow)[];
+  studies: (LegacyStudyRow | Ft900StudyRow | SpyCloseLocationStudyRow | FomcEveStudyRow | QqqIssuerGuidanceRow)[];
 }
 
 function exact(value: unknown, keys: string[]): value is Record<string, unknown> {
@@ -82,7 +103,7 @@ function isFt900Row(row: unknown): row is Ft900StudyRow {
 }
 
 export function researchStudyFor(row: KibotResearch["studies"][number]) {
-  if ("studyId" in row) return SPY_CLOSE_LOCATION_RESEARCH;
+  if ("studyId" in row) return KIBOT_RESEARCH_STUDIES.find(study => study.id === row.studyId)!;
   if (row.family === FT900_RESEARCH.family) return FT900_RESEARCH;
   return KIBOT_LEGACY_RESEARCH_STUDIES.find(study => study.family === row.family)!;
 }
@@ -97,11 +118,38 @@ function isSpyCloseLocationRow(row: unknown): row is SpyCloseLocationStudyRow {
   return !row.clearedMargin || edge >= 100;
 }
 
+function isFomcEveRow(row: unknown): row is FomcEveStudyRow {
+  if (!exact(row, [...studyKeys, "studyId", "returnOnlyBrier", "coinBrier", "eveCoefficientSign", "testEves"]) ||
+      !validMetrics(row) || row.studyId !== FOMC_EVE_RESEARCH.id || row.family !== FOMC_EVE_RESEARCH.family ||
+      row.instrument !== "SPY" || !count(row.samples) || row.samples > 160 || row.samples % 2 !== 0 || !count(row.testEves) ||
+      !count(row.testSamples) || row.testSamples !== row.samples - Math.floor(row.samples * 0.8) ||
+      row.testEves !== Math.ceil(row.testSamples / 2) || row.coinBrier !== 0.25 ||
+      !brier(row.modelBrier) || !brier(row.baseRateBrier) || !brier(row.returnOnlyBrier) ||
+      (row.eveCoefficientSign !== "positive" && row.eveCoefficientSign !== "negative" && row.eveCoefficientSign !== "zero")) return false;
+  const edge = Math.round(10000 * (Math.min(row.returnOnlyBrier, row.baseRateBrier, row.coinBrier) - row.modelBrier));
+  return row.clearedMargin ? row.eveCoefficientSign === "positive" && edge >= 100 : row.eveCoefficientSign !== "positive" || edge <= 100;
+}
+
+function isQqqIssuerGuidanceRow(row: unknown): row is QqqIssuerGuidanceRow {
+  if (!exact(row, [...studyKeys, "studyId", "ageOnlyBrier", "coinBrier", "earningsCoefficientSign", "controlImprovement95"]) ||
+      !validMetrics(row) || row.studyId !== QQQ_ISSUER_GUIDANCE_RESEARCH.id || row.family !== "earnings" || row.instrument !== "QQQ" ||
+      !count(row.samples) || row.samples > 124 || row.testSamples !== row.samples - Math.floor(row.samples * 0.8) ||
+      !brier(row.modelBrier) || !brier(row.baseRateBrier) || !brier(row.ageOnlyBrier) || row.coinBrier !== 0.25 ||
+      (row.earningsCoefficientSign !== "positive" && row.earningsCoefficientSign !== "negative" && row.earningsCoefficientSign !== "zero"))
+    return false;
+  const interval = row.controlImprovement95;
+  if (!Array.isArray(interval) || interval.length !== 2 || !interval.every(value => typeof value === "number" && brier(Math.abs(value))) ||
+      interval[0] > interval[1]) return false;
+  // The interval is descriptive. The registered decision uses the sign and all three unrounded comparisons.
+  const edge = Math.round(10000 * (Math.min(row.ageOnlyBrier, row.baseRateBrier, row.coinBrier) - row.modelBrier));
+  return row.clearedMargin ? row.earningsCoefficientSign === "positive" && edge >= 100 : row.earningsCoefficientSign !== "positive" || edge <= 100;
+}
+
 /** Only aggregate counts and rounded research errors are public. */
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      ![1, 2, 3, 4].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
+      ![1, 2, 3, 4, 5, 6].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -110,11 +158,15 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
     return fail();
 
   const legacyCount = KIBOT_LEGACY_RESEARCH_STUDIES.reduce((sum, study) => sum + study.size, 0);
-  const hasFt900 = value.schemaVersion === 3 || value.schemaVersion === 4;
-  const hasCloseLocation = value.schemaVersion === 4;
-  if (value.studies.length !== legacyCount + Number(hasFt900) + Number(hasCloseLocation) ||
+  const hasFt900 = Number(value.schemaVersion) >= 3;
+  const hasCloseLocation = Number(value.schemaVersion) >= 4;
+  const hasFomcEve = Number(value.schemaVersion) >= 5;
+  const hasIssuerGuidance = value.schemaVersion === 6;
+  if (value.studies.length !== legacyCount + Number(hasFt900) + Number(hasCloseLocation) + Number(hasFomcEve) + Number(hasIssuerGuidance) ||
       (hasFt900 && !isFt900Row(value.studies[legacyCount])) ||
-      (hasCloseLocation && !isSpyCloseLocationRow(value.studies[legacyCount + 1]))) return fail();
+      (hasCloseLocation && !isSpyCloseLocationRow(value.studies[legacyCount + 1])) ||
+      (hasFomcEve && !isFomcEveRow(value.studies[legacyCount + 2])) ||
+      (hasIssuerGuidance && !isQqqIssuerGuidanceRow(value.studies[legacyCount + 3]))) return fail();
   const dailyKeys = ["instrument", "sessions", "calls"];
   if (value.schemaVersion !== 1) dailyKeys.push("eligibleSessions");
   for (const [index, row] of value.daily.entries()) {

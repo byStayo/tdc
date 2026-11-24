@@ -17,6 +17,7 @@ import { isCftcPosition, validateCftcProvenance } from "./cftc-provenance.ts";
 import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
+import { validateIssuerGuidance } from "./issuer-guidance-match.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateOperfCapital } from "./operf-capital.ts";
 import { validateHouseholdEquity } from "./household-equity.ts";
@@ -76,6 +77,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     digest(snapshot) === "cbfa41bc9745578cb32c7d6a5f872b29c4b10664d1df729f0114826ae7be973e";
   for (const signal of snapshot.signals) {
     validatePrivateCredit(signal);
+    validateIssuerGuidance(signal, snapshot.cutoff);
     validateOperfCapital(signal, snapshot.cutoff);
     validateHouseholdEquity(signal);
     validateAnalystRatings(signal);

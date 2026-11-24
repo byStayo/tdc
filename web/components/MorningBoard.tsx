@@ -27,7 +27,7 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
-import { FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, researchStudyFor, type KibotResearch } from "@/lib/consensus/kibot-research";
+import { FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
   Catalyst,
@@ -1290,6 +1290,7 @@ export default function MorningBoard({
     .filter((item) => item.score !== null)
     .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
     .slice(0, 5);
+  const fomcEve = kibotResearch?.studies.find((row): row is FomcEveStudyRow => "testEves" in row);
   const timing = editionTiming(snapshot, history);
   const cohort = performanceView(
     performance,
@@ -2487,12 +2488,16 @@ export default function MorningBoard({
                             <td role="cell" data-label="Comparison Brier">
                               Base rate {row.baseRateBrier.toFixed(4)}
                               {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}</>}
-                              {"studyId" in row && <><br />Same-day return only {row.returnOnlyBrier.toFixed(4)}</>}
+                              {"returnOnlyBrier" in row && <><br />{row.studyId === FOMC_EVE_RESEARCH.id ? "Prior session return only" : "Same-day return only"} {row.returnOnlyBrier.toFixed(4)}</>}
+                              {"ageOnlyBrier" in row && <><br />Filing age only {row.ageOnlyBrier.toFixed(4)}</>}
                               {"coinBrier" in row && <><br />50/50 {row.coinBrier.toFixed(4)}</>}
                             </td>
                             <td role="cell" data-label="Result">
                               {row.clearedMargin ? "Passed" : "Below threshold"}
                               {row.family === "international" && <><br />Export coefficient {row.exportCoefficientSign}</>}
+                              {"eveCoefficientSign" in row && <><br />Calendar coefficient {row.eveCoefficientSign}</>}
+                              {"earningsCoefficientSign" in row && <><br />Surprise coefficient {row.earningsCoefficientSign}
+                                <br />95% interval for improvement over filing age alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}</>}
                             </td>
                           </tr>
                         ))}
@@ -2518,6 +2523,25 @@ export default function MorningBoard({
                       <a href={SPY_CLOSE_LOCATION_RESEARCH.bars} target="_blank" rel="noopener noreferrer">Market History bar definitions</a>
                       {" · "}<a href={SPY_CLOSE_LOCATION_RESEARCH.delivery} target="_blank" rel="noopener noreferrer">Delivery schedule</a>
                       {" · "}<a href={SPY_CLOSE_LOCATION_RESEARCH.terms} target="_blank" rel="noopener noreferrer">Source terms</a>
+                    </p>
+                  )}
+                  {fomcEve && (instrument === "MARKET" || instrument === "SPY") && (
+                    <p className={styles.muted}>
+                      The Fed calendar study paired the session before each originally scheduled decision with the same weekday
+                      one week earlier, using schedules the Fed announced the year before. The final test covered {fomcEve.testSamples} sessions,
+                      including {fomcEve.testEves} meeting eves. The comparison used the preceding session’s return. Some test dates also appear in earlier SPY research.
+                      {" "}<a href={FOMC_EVE_RESEARCH.schedule} target="_blank" rel="noopener noreferrer">Original Fed schedule</a>
+                      {" · "}<a href={FOMC_EVE_RESEARCH.paper} target="_blank" rel="noopener noreferrer">New York Fed research</a>
+                    </p>
+                  )}
+                  {kibotResearch.schemaVersion >= 6 && (instrument === "MARKET" || instrument === "QQQ") && (
+                    <p className={styles.muted}>
+                      The QQQ study compared AMD, NVIDIA and Texas Instruments revenue with each company’s earlier guidance midpoint.
+                      The target was the first session after all required filing dates. Shortened sessions were excluded and overlapping releases
+                      counted once. The comparison used time since the announcement. These three semiconductor companies were selected
+                      for source availability. Eleven of the final 25 dates also appeared in the older QQQ momentum test.{" "}
+                      <a href={QQQ_ISSUER_GUIDANCE_RESEARCH.sec} target="_blank" rel="noopener noreferrer">Original SEC filings</a>
+                      {" · "}<a href={QQQ_ISSUER_GUIDANCE_RESEARCH.timing} target="_blank" rel="noopener noreferrer">EDGAR release timing</a>
                     </p>
                   )}
                   <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">

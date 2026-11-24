@@ -91,8 +91,7 @@ function quarterOrdinal(period: FiscalQuarter) {
   return period.year * 4 + period.quarter;
 }
 
-export function readIssuerRevenue(filing: ResultsFiling, document: string) {
-  const text = plain(document);
+function reportedRevenue(filing: ResultsFiling, text: string) {
   const nvidia = filing.ticker === "NVDA";
   const lead = text.slice(0, 1200);
   const heading = nvidia
@@ -110,6 +109,16 @@ export function readIssuerRevenue(filing: ResultsFiling, document: string) {
   if (!periodEnd || periodEnd >= filing.reportDate || !Number.isSafeInteger(actualMillions) || actualMillions <= 0)
     throw new Error(`Missing quarter date or financial-statement revenue for ${filing.accession}`);
 
+  return { ...filing, period, periodEnd, actualMillions };
+}
+
+export function readIssuerReportedRevenue(filing: ResultsFiling, document: string) {
+  return reportedRevenue(filing, plain(document));
+}
+
+export function readIssuerRevenue(filing: ResultsFiling, document: string) {
+  const text = plain(document), actual = reportedRevenue(filing, text);
+  const nvidia = filing.ticker === "NVDA";
   const currentOutlook = /\bCurrent Outlook\b\s*(.{1,1900}?)(?:\bAMD Teleconference\b)/i.exec(text)?.[1] ?? "";
   const guidanceText = nvidia
     ? /NVIDIA's outlook for the (first|second|third|fourth) quarter of fiscal (\d{4})(?:, which includes an additional week,)? is as follows:\s*•?\s*Revenue is expected to be \$([\d.]+) billion, plus or minus (\$[\d.]+ (?:million|billion)|[\d.]+%)/i.exec(text)
@@ -121,11 +130,11 @@ export function readIssuerRevenue(filing: ResultsFiling, document: string) {
   const value = Number(/[\d.]+/.exec(tolerance)?.[0]);
   const radius = tolerance.endsWith("%") ? midpointMillions * (value / 100)
     : value * (tolerance.endsWith("billion") ? 1000 : 1);
-  if (quarterOrdinal(guidancePeriod) !== quarterOrdinal(period) + 1 ||
+  if (quarterOrdinal(guidancePeriod) !== quarterOrdinal(actual.period) + 1 ||
       !Number.isFinite(radius) || !(radius > 0 && radius < midpointMillions))
     throw new Error(`Inconsistent next-quarter management range for ${filing.accession}`);
   return {
-    ...filing, period, periodEnd, actualMillions,
+    ...actual,
     guidance: {
       period: guidancePeriod, midpointMillions,
       lowMillions: Number((midpointMillions - radius).toFixed(6)),
@@ -137,6 +146,19 @@ export function readIssuerRevenue(filing: ResultsFiling, document: string) {
 
 type Release = ReturnType<typeof readIssuerRevenue>;
 
+export function matchGuidedQuarter<T extends ReturnType<typeof readIssuerReportedRevenue>>(prior: Release, actual: T) {
+  if (prior.ticker !== actual.ticker || quarterOrdinal(prior.period) + 1 !== quarterOrdinal(actual.period) ||
+      quarterOrdinal(prior.guidance.period) !== quarterOrdinal(actual.period)) return null;
+  if (prior.acceptedAt >= actual.acceptedAt || prior.periodEnd >= actual.periodEnd || prior.filingDate >= actual.periodEnd)
+    throw new Error(`Guidance was not issued before the reported quarter end for ${actual.accession}`);
+  const { lowMillions, highMillions, midpointMillions } = prior.guidance, amount = actual.actualMillions;
+  const rangeStatus = amount > highMillions ? "above" : amount < lowMillions ? "below" : "within";
+  const deviationPercent = 100 * (amount / midpointMillions - 1);
+  // Historical research waits until an exchange session after all recorded release dates.
+  const afterDate = [actual.reportDate, actual.filingDate, newYorkDate(actual.acceptedAt)].sort().at(-1)!;
+  return { ticker: actual.ticker, actual, prior, rangeStatus, deviationPercent, afterDate };
+}
+
 export function pairIssuerRevenue(releases: Release[]) {
   const byQuarter = new Map<string, Release>();
   for (const release of releases) {
@@ -146,17 +168,7 @@ export function pairIssuerRevenue(releases: Release[]) {
   }
   return releases.flatMap(actual => {
     const prior = byQuarter.get(`${actual.ticker}:${quarterOrdinal(actual.period) - 1}`);
-    if (!prior || quarterOrdinal(prior.guidance.period) !== quarterOrdinal(actual.period)) return [];
-    if (prior.acceptedAt >= actual.acceptedAt || prior.periodEnd >= actual.periodEnd ||
-        prior.filingDate >= actual.periodEnd)
-      throw new Error(`Guidance was not issued before the reported quarter end for ${actual.accession}`);
-    const { lowMillions, highMillions, midpointMillions } = prior.guidance;
-    const amount = actual.actualMillions;
-    const rangeStatus = amount > highMillions ? "above" : amount < lowMillions ? "below" : "within";
-    const deviationPercent = 100 * (amount / midpointMillions - 1);
-    // SEC acceptance can precede public dissemination. Historical research
-    // waits until an exchange session after all the recorded release dates.
-    const afterDate = [actual.reportDate, actual.filingDate, newYorkDate(actual.acceptedAt)].sort().at(-1)!;
-    return [{ ticker: actual.ticker, actual, prior, rangeStatus, deviationPercent, afterDate }];
+    const pair = prior && matchGuidedQuarter(prior, actual);
+    return pair ? [pair] : [];
   }).sort((a, b) => a.afterDate.localeCompare(b.afterDate));
 }
