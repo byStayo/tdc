@@ -1,5 +1,7 @@
 # Visual consensus publication and evaluation
 
+The weekday issuer-flow check replays verified SEC filing identities and fetches five ETFIQ histories when a new fiscal-quarter comparison is due. The forward ETFIQ study uses the previous session only. The separate historical event-market study tests SPY against Iowa’s original traded popular-vote contracts. The private data stay outside Git. [Issuer flow reconciliation](SEC_ETF_FLOW_RECONCILIATION.md) · [Election-market replay](IEM_EVENT_STUDY.md) · [Reviewed exchange dates](US_EQUITY_CALENDAR_REVIEW.md)
+
 The normal ETFIQ collector reconciles each eligible tracked fund to its own history and counts peer inflows, outflows and flats in its asset class. Check the private forward study with `npm run consensus:fund-flow-study -- --status`. The public pre-open verifier enrolls the immediately preceding session's inputs and the native evaluator settles the final witnessed edition. [Capture, dates and denominators](ETF_FLOWS.md)
 
 The historical research report includes a replayable international comparison on 147 prelaunch DIA sessions. The standard research publisher verifies Treasury’s regional releases and both DIA price bases before staging the rounded result. Its pre-registered payroll comparison replays the original, hash-verified price parser independently of future subscriber-client updates. [International study and offline commands](OFR_GEOGRAPHIC_RESEARCH.md)
