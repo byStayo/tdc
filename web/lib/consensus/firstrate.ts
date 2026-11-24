@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
 import { collectCtaReference, ctaReferenceUrl, CTA_REFERENCE_SYMBOLS, type CtaReference } from "./cta-reference.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, trailingExchangeSessions, availableExchangeSessions, hasReviewedCalendar, hasReviewedCalendarRange, isUnresolvedExchangeDate } from "./exchange-calendar.ts";
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
 import { digest } from "./history.ts";
 import { isFullKibotSession } from "./kibot.ts";
@@ -77,8 +77,10 @@ export function latestFirstRateSession(now: string): string {
 export function firstRateCaptureDates(now: string, approvedThrough: string[]) {
   const latest = latestFirstRateSession(now);
   if (latest !== newYorkDate(now) || latest <= FIRST_EDITION_DAY) return [latest];
-  const prior = latestFirstRateSession(exchangeSession(latest)!.openAt);
-  return approvedThrough.some(through => through < prior) ? [prior, latest] : [latest];
+  // A newly closed session is reviewable even when its preceding session is unknown.
+  const lookback = new Date(Date.parse(latest) - 7 * 86_400_000).toISOString().slice(0, 10);
+  const prior = trailingExchangeSessions(lookback, latest).at(-2);
+  return prior && approvedThrough.some(through => through < prior) ? [prior, latest] : [latest];
 }
 
 function fullSession(day: string) {
@@ -211,12 +213,14 @@ function verifyIssuers(issuers: Issuer[], through: string, now: string) {
         !Number.isFinite(Date.parse(row.capturedAt)) || row.capturedAt <= close || row.capturedAt > now ||
         !Array.isArray(row.cash) || new Set(row.cash.map(action => action.session)).size !== row.cash.length ||
         row.cash.some(action => !Number.isFinite(action.amount) || action.amount <= 0 ||
-          (action.session >= FIRST_EDITION_DAY && action.session <= through && !exchangeSession(action.session)))))
+          (action.session >= FIRST_EDITION_DAY && action.session <= through && !isUnresolvedExchangeDate(action.session) && !exchangeSession(action.session)))))
     throw new Error("All five official issuer histories must be captured after the final reviewed close");
 }
 
 export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
-  const dates = exchangeSessions(approval.from, approval.through);
+  if (!hasReviewedCalendar(approval.from) || !hasReviewedCalendar(approval.through))
+    throw new Error("FirstRate approval dates are outside the reviewed exchange calendar");
+  const dates = availableExchangeSessions(approval.from, approval.through);
   const ordered = FIRST_RATE_SYMBOLS.filter(symbol => approval.symbols.some(row => row.symbol === symbol));
   if (approval.from < FIRST_EDITION_DAY || approval.source !== FIRST_RATE_SOURCE ||
       !approval.symbols.length || ordered.length !== approval.symbols.length ||
@@ -246,6 +250,8 @@ export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
       const row = byDate.get(day);
       if (!row) block = [];
       else {
+        const previous = block.at(-1);
+        if (previous && !hasReviewedCalendarRange(previous.session, day)) block = [];
         if (!block.length) blocks.push(block);
         block.push(row);
       }
@@ -423,11 +429,15 @@ export async function loadFirstRatePremarket(root: string, cutoff: string) {
 async function reviewSample(directory: string, sample: Sample, through: string, from: string,
   cachedOnly: boolean, observed: string, old: ApprovedSymbol | undefined, issuerCash: CashDistribution[],
   failures: SampleFailure[]): Promise<ReviewedSymbol> {
-  const { rows, regularMinutes, ...source } = sample;
+  const { rows: delivered, regularMinutes, ...source } = sample;
   const { symbol } = source;
-  const dates = exchangeSessions(rows[0].session, through);
+  const dates = trailingExchangeSessions(delivered[0].session, through);
+  // The original ZIP can include an unresolved market day. Reconcile only the
+  // independently dated suffix, retaining the digest of the complete delivery.
+  const rows = delivered.filter(bar => bar.session >= dates[0]);
   const closingAt = exchangeSession(through)!.closeAt;
-  if (dates.join() !== rows.map(row => row.session).join() || source.url !== sourceURL(symbol) ||
+  if (!dates.length || delivered.some((bar, i) => i > 0 && bar.session <= delivered[i - 1].session) ||
+      dates.join() !== rows.map(row => row.session).join() || source.url !== sourceURL(symbol) ||
       source.basis !== "split-adjusted" || !SHA256.test(source.sha256) ||
       !(closingAt <= source.modifiedAt && source.modifiedAt <= source.capturedAt && source.capturedAt <= observed))
     throw new Error(`FirstRate ${symbol} sample is stale or differs from the reviewed calendar or source`);
@@ -457,7 +467,7 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
   const priorRows = new Map(old?.rows.map(row => [row.session, row]));
   const candidates = rows.map(row => repairs.has(row.session) ? priorRows.get(row.session)! : row);
   const shortReplays = candidates.flatMap(row => repairs.get(row.session)?.minutes === 210 ? [{ ...row, minutes: 210 }] : []);
-  const minutesToReview = [...shortReplays, ...regularMinutes.filter(row => !repairs.has(row.session))];
+  const minutesToReview = [...shortReplays, ...regularMinutes.filter(row => row.session >= dates[0] && !repairs.has(row.session))];
   const check = reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly);
   const listing = await listingReferences(directory, symbol,
     check.withheld.filter(row => row.reason === "direction" || (row.reason === "short-session" &&
@@ -488,7 +498,7 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
   const priorLast = old?.rows.at(-1)?.session;
   const incomingFirst = normalized.rows[0]?.session;
   if (priorLast && incomingFirst && incomingFirst > priorLast &&
-      exchangeSessions(priorLast, incomingFirst).length === 2)
+      hasReviewedCalendarRange(priorLast, incomingFirst) && exchangeSessions(priorLast, incomingFirst).length === 2)
     throw new Error(`${symbol} needs an overlapping raw share-basis check before joining these adjacent sessions`);
   for (const issue of normalized.withheld) {
     if (merged.has(issue.session))
@@ -545,7 +555,7 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   if (previous && !pending.length)
     return { status: "reused", through: previous.through, approved: approvedCounts(previous) };
   const pinned = cachedOnly || reviewWithheld;
-  const shortArgs = exchangeSessions(EXCHANGE_CALENDAR.from, through).slice(-16)
+  const shortArgs = trailingExchangeSessions(EXCHANGE_CALENDAR.from, through).slice(-16)
     .flatMap(day => sessionMinutes(exchangeSession(day)!) === 210 ? ["--short-session", day] : []);
   await durableDirectory(directory, 0o700);
   const { stdout } = await promisify(execFile)("python3",

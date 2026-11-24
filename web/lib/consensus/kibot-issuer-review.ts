@@ -1,6 +1,6 @@
 import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
 import { evaluateOutcome, outcomeKey, outcomeWindowSessions, selectScoredOutcomes, type PriceEvidence, type SessionPrice } from "./evaluation.ts";
-import { EXCHANGE_CALENDAR, exchangeSessions } from "./exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSessions, availableExchangeSessions, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, reviewedMarketParquetDays, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { newYorkDate } from "./time.ts";
@@ -19,7 +19,7 @@ export function kibotIssuerCollectionStart(cash: IssuerCash, through: string): s
     if (!last) throw new Error("A latest issuer distribution is required for each ETF");
     return last;
   });
-  const prior = exchangeSessions(EXCHANGE_CALENDAR.from, latest.sort()[0]).at(-2);
+  const prior = trailingExchangeSessions(EXCHANGE_CALENDAR.from, latest.sort()[0]).at(-2);
   if (!prior) throw new Error("Previous issuer session outside the reviewed calendar");
   return prior;
 }
@@ -86,7 +86,7 @@ export function scorePriceSensitivity({ snapshots, files, cash, raw, sameRunSess
 }) {
   const first = snapshots[0], lastFile = files.at(-1);
   if (!first || !lastFile) throw new Error("Sensitivity requires an archive and sample sessions");
-  const expectedSessions = exchangeSessions(newYorkDate(first.issuedAt), lastFile.session);
+  const expectedSessions = availableExchangeSessions(newYorkDate(first.issuedAt), lastFile.session);
   const fullFiles = reviewedMarketParquetDays(files, []);
   const reference = Object.fromEntries(ETF_SYMBOLS.map((symbol): [ETF, ReferenceBars[ETF]] =>
     [symbol, findSeries(raw, symbol, "unadjusted").sessions])) as ReferenceBars;

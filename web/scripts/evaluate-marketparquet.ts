@@ -11,7 +11,7 @@ import { evaluateOutcome, outcomeKey, outcomeTrainingRow, outcomeWindowSessions,
 import { observationCutoff, outcomeClockMap, researchOutcomeAvailability, type OutcomeAvailability } from "../lib/consensus/outcome-availability.ts";
 import type { Outcome } from "../lib/consensus/types.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
-import { exchangeCalendarVersion, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
+import { exchangeCalendarVersion, exchangeSession, REVIEWED_EXCHANGE_THROUGH, availableExchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { planCandidate } from "../lib/consensus/learning.ts";
 import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, readReservations } from "../lib/consensus/learning-audit.ts";
@@ -63,8 +63,8 @@ try {
   const { current, snapshots } = await verifyPublicationTree(root);
   const from = newYorkDate(snapshots[0].issuedAt);
   const yesterday = new Date(Date.parse(newYorkDate(now)) - 86400000).toISOString().slice(0, 10);
-  const completed = exchangeSessions(from, yesterday);
-  const calendar = exchangeSessions(from, REVIEWED_EXCHANGE_THROUGH);
+  const completed = availableExchangeSessions(from, yesterday);
+  const calendar = availableExchangeSessions(from, REVIEWED_EXCHANGE_THROUGH);
   const through = completed.at(-1)!;
   let old: Ledger | undefined;
   try {

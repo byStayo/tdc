@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { outcomeWindowSessions, selectScoredOutcomes } from "./evaluation.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "./exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, REVIEWED_EXCHANGE_THROUGH, availableExchangeSessions, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
 import { replayRecordedFund, type reviewedFund, type CloseProof } from "./kibot-after-close.ts";
 import { isFullKibotSession, KIBOT_PRICE_CITATION } from "./kibot.ts";
@@ -25,7 +25,7 @@ export async function verifiedPrivateSession(root: string, snapshots: Snapshot[]
   if (recorded.every(row => row === null || row.retrospective === true)) return report;
 
   const snapshot = snapshots.find(item => item.id === report.edition);
-  const previous = exchangeSessions(EXCHANGE_CALENDAR.from, day).at(-2);
+  const previous = trailingExchangeSessions(EXCHANGE_CALENDAR.from, day).at(-2);
   if (!snapshot || !previous) throw new Error("No selected pre-open edition or prior exchange session for the private results");
   const archive = await readFile(resolve(root, "public/consensus", snapshot.id + ".json"));
   const pin = await verifyPreopenReceipt(root, day, snapshot.id, archive, asOf);
@@ -74,7 +74,7 @@ export async function readPrivateResearchSessions(root: string, snapshots: Snaps
     throw new Error("Private Kibot ledger must cover a completed, reviewed session");
 
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
-  const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
+  const calendar = availableExchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
   const fullSessions = (ledger.outcomes as Outcome[]).filter(row => {
     const snapshot = byId.get(row.snapshotId);
     const target = snapshot && outcomeWindowSessions(snapshot.issuedAt, "daily", calendar)[0];

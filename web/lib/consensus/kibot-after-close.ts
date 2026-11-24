@@ -4,7 +4,7 @@ import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { ETF_CASH_SOURCES, type CashDistribution } from "./corporate-adjustment.ts";
 import { ctaReferenceUrl, CTA_REFERENCE_SYMBOLS } from "./cta-reference.ts";
 import { asIssuedOutcomeCall, outcomeKey, type SessionPrice } from "./evaluation.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { digest, verifyPublicationTree } from "./history.ts";
 import { isFullKibotSession, KIBOT_PRICE_CITATION } from "./kibot.ts";
 import { ETF_SYMBOLS } from "./marketparquet.ts";
@@ -171,7 +171,7 @@ export type AfterCloseInput = string | { sources: string; collect?: boolean };
 export async function evaluatePrivateAfterClose(root: string, day: string, input: AfterCloseInput) {
   const startedAt = new Date().toISOString();
   const market = completedRegularSession(day, startedAt);
-  const previous = exchangeSessions(EXCHANGE_CALENDAR.from, day).at(-2);
+  const previous = trailingExchangeSessions(EXCHANGE_CALENDAR.from, day).at(-2);
   if (!previous) throw new Error("Missing reviewed previous exchange session");
   const { snapshots, current } = await verifyPublicationTree(root);
   const target = dailySessionOutcomes(snapshots, [], day, current.engineVersion, { asOf: startedAt, ledgerObservedAt: startedAt });

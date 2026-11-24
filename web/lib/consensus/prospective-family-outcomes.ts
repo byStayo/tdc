@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { digest, verifyPublicationTree } from "./history.ts";
-import { exchangeSession, exchangeSessions, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, exchangeCalendarVersion } from "./exchange-calendar.ts";
+import { exchangeSession, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, exchangeCalendarVersion, availableExchangeSessions } from "./exchange-calendar.ts";
 import { outcomeKey, outcomeWindowSessions, SCORING_POLICY, type PriceEvidence } from "./evaluation.ts";
 import { firstRatePriceEvidence, loadFirstRatePrices, FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS } from "./firstrate.ts";
 import { readQqqAuction } from "./firstrate-nasdaq-auction.ts";
@@ -34,7 +34,7 @@ const isInstant = (s: string) => typeof s === "string" && Number.isFinite(Date.p
 const pairedKey = (id: string, instrument: string) => id + ":" + instrument;
 const checksum = (s: unknown): s is string => typeof s === "string" && /^[a-f0-9]{64}$/.test(s);
 const selectionPath = "public/consensus/outcome-selection.json";
-const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
+const calendar = availableExchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
 
 /** planCandidate needs at least 500 rows and begins validation at floor(n * .6).
  * Count every archive issued through verified first availability, including superseded

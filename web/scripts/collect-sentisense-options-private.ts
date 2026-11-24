@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { publicDate } from "../lib/public-normalization.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
-import { EXCHANGE_CALENDAR, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, trailingExchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { sentisenseCredential, sentisenseResponse } from "../lib/consensus/sentisense.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import { INSTRUMENTS } from "../lib/consensus/types.ts";
@@ -43,7 +43,7 @@ async function main() {
   if (process.argv.length !== 2) throw new Error("The private options capture takes no arguments");
   const startedAt = new Date().toISOString();
   const today = newYorkDate(startedAt);
-  const previousSession = exchangeSessions(EXCHANGE_CALENDAR.from, today).filter(day => day < today).at(-1);
+  const previousSession = trailingExchangeSessions(EXCHANGE_CALENDAR.from, today).filter(day => day < today).at(-1);
   if (!previousSession) throw new Error("There is no preceding options session in the reviewed exchange calendar");
   const prior = previousSession;
 

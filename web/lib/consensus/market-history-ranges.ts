@@ -2,7 +2,7 @@ import { link, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { acquirePublicationLock, finishPublicationLock } from "../publication-lock.ts";
 import { durableDirectory, durableJSON, syncDirectory } from "../publication-storage.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { exchangeSession, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
 import { freeMarketHistoryBalance, MARKET_HISTORY_ETF_IDS } from "./market-history-boundaries.ts";
 import {
@@ -206,7 +206,7 @@ export function rangeFromSignedMarketHistory(
 }
 export const recentRangeSessions = (at: string) => {
   const left = new Date(Date.parse(at) - RANGE_MAX_AGE - DAY).toISOString().slice(0, 10);
-  return exchangeSessions(left < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : left, newYorkDate(at))
+  return trailingExchangeSessions(left, newYorkDate(at))
     .filter((d) => {
       const clock = exchangeSession(d)!;
       return (

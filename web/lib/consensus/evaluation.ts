@@ -4,7 +4,7 @@ import { newYorkDate } from "./time.ts";
 import { publicDate } from "../public-normalization.ts";
 import { INSTRUMENTS } from "./types.ts";
 import { requireOutcomePriceBasis } from "./price-basis.ts";
-import { exchangeCalendarVersion, exchangeSession, hasReviewedCalendar, verifyExpectedSessions } from "./exchange-calendar.ts";
+import { exchangeCalendarVersion, exchangeSession, hasReviewedCalendar, hasReviewedCalendarRange, verifyExpectedSessions } from "./exchange-calendar.ts";
 import type { TrainingRow } from "./learning.ts";
 
 export const outcomeKey = (row: Pick<Outcome, "snapshotId" | "instrument" | "horizon">) =>
@@ -53,7 +53,10 @@ export function outcomeWindowSessions(issuedAt: string, horizon: Horizon, review
   const beforeOpen = issueSession !== null && issuedAt < issueSession.openAt;
   const start = reviewedSessions.findIndex(day => day > issueDay || (day === issueDay && beforeOpen));
   const length = SESSION_HORIZONS[horizon];
-  return start < 0 || start + length > reviewedSessions.length ? [] : reviewedSessions.slice(start, start + length);
+  if (start < 0 || start + length > reviewedSessions.length) return [];
+  const end = start + length;
+  if (!hasReviewedCalendarRange(issueDay, reviewedSessions[end - 1])) return [];
+  return reviewedSessions.slice(start, end);
 }
 export interface SessionPrice {
   session: string;
@@ -109,7 +112,7 @@ export function evaluateOutcome(
     )
   )
     throw new Error("Exchange calendar must be ordered and unique");
-  const reviewedSessions = verifyExpectedSessions(prices.expectedSessions);
+  const reviewedSessions = verifyExpectedSessions(prices.expectedSessions, { separateIntervals: true });
   for (const row of sessions) {
     const reviewed = hasReviewedCalendar(row.session);
     const scheduled = reviewed ? exchangeSession(row.session) : null;

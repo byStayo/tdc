@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { join } from "node:path";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { exchangeSession, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { marketHistoryPreview } from "./market-history-preview.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { sourceChunk, sourceFailureKind, sourceResponse } from "./source-failure.ts";
@@ -62,7 +62,7 @@ export function volatilityWindow(symbol: Index, capture: Capture, retrievedAt: s
   }
   if (previous !== frame.last) throw new Error("Volatility preview and catalogue end on different dates");
   const start = new Date(Date.parse(previous) - calendarDays * dayMs).toISOString().slice(0,10);
-  const dates = exchangeSessions(start < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : start, previous.slice(0,10)).slice(-61);
+  const dates = trailingExchangeSessions(start, previous.slice(0,10)).slice(-61);
   if (dates.length !== 61 || dates.some(date => !prices.has(date)))
     throw new Error("Incomplete 61-session volatility comparison");
   return { day: dates[60], dates, closes: dates.map(date => prices.get(date)!), retrievedAt,

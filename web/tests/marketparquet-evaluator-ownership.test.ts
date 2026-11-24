@@ -33,15 +33,15 @@ test("a bulk backfill cannot create a walk-forward record; fully dated core sett
     await writeFile(join(library, "models.json"), '{"schemaVersion":1,"models":[]}');
     await writeFile(join(archive, "outcomes.json"), "[]");
 
-    // The production reviewed calendar has fewer than 500 sessions. Extend only
-    // this isolated synthetic calendar; thresholds and both entry points stay real.
+    // Supply enough already elapsed fixture sessions before the synthetic 2027 issue clock.
+    // The actual thresholds, calendar validation and both entry points execute unchanged.
     const calendarPath = join(library, "exchange-calendar.ts");
     await writeFile(calendarPath, (await readFile(calendarPath, "utf8")).replace('from: "2026-01-01"', 'from: "2025-01-01"')
       .replace("export function exchangeSession(", "function uncachedExchangeSession(")
       .replace("export function verifyExpectedSessions(", "function uncachedVerifyExpectedSessions(") + `
         const sessionsCache=new Map(),expectedCache=new Map();
         export function exchangeSession(day:string){if(!sessionsCache.has(day))sessionsCache.set(day,uncachedExchangeSession(day));return sessionsCache.get(day)}
-        export function verifyExpectedSessions(days:string[]){const key=JSON.stringify(days);if(!expectedCache.has(key))expectedCache.set(key,uncachedVerifyExpectedSessions(days));return expectedCache.get(key)}
+        export function verifyExpectedSessions(days:string[],options={}){const key=JSON.stringify([days,options]);if(!expectedCache.has(key))expectedCache.set(key,uncachedVerifyExpectedSessions(days,options));return expectedCache.get(key)}
       `);
     const timePath = join(library, "time.ts");
     await writeFile(timePath, (await readFile(timePath, "utf8")).replace("export function localDate(", "function uncachedLocalDate(") + `

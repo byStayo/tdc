@@ -21,7 +21,8 @@ test("FirstRate can review a completed core session immediately and never uses t
     ["2026-07-02T20:00:00.000Z", "2026-07-02"],
   ]) assert.equal(latestFirstRateSession(now), expected, now);
   assert.throws(() => latestFirstRateSession("2026-01-01T22:00:00.000Z"), /No reviewed/);
-  assert.throws(() => latestFirstRateSession("2027-11-29T22:00:00.000Z"), /no reviewed coverage/);
+  assert.throws(() => latestFirstRateSession("2027-11-29T14:00:00.000Z"), /no reviewed coverage/);
+  assert.equal(latestFirstRateSession("2027-11-29T22:00:00.000Z"), "2027-11-29");
 });
 
 test("a post-close refresh gives a lagging fund a bounded opportunity to catch up", () => {
@@ -30,6 +31,8 @@ test("a post-close refresh gives a lagging fund a bounded opportunity to catch u
   assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-19", "2026-11-17"]), ["2026-11-18", "2026-11-19"]);
   assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-18", "2026-11-19"]), ["2026-11-19"]);
   assert.deepEqual(firstRateCaptureDates("2026-11-19T13:00:00.000Z", ["2026-11-17"]), ["2026-11-18"]);
+  assert.deepEqual(firstRateCaptureDates("2027-11-29T22:00:00.000Z", ["2027-11-24"]), ["2027-11-29"]);
+  assert.deepEqual(firstRateCaptureDates("2027-11-30T22:00:00.000Z", ["2027-11-24"]), ["2027-11-29", "2027-11-30"]);
 });
 
 test("a stale evening price file does not pin issuer evidence for tomorrow's retry", () => {

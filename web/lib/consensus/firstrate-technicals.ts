@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { exchangeSession } from "./exchange-calendar.ts";
+import { exchangeSession, hasReviewedCalendarRange } from "./exchange-calendar.ts";
 import type { SessionPrice } from "./evaluation.ts";
 import { missingSignals } from "./registry.ts";
 import type { Signal } from "./types.ts";
@@ -71,7 +71,7 @@ export function technicalSignals(inputs: TechnicalEvidence[], cutoff: string): S
     const rows = [last];
     for (let lag = 1; lag <= 20 && lag <= end; lag++) {
       const bar = item.sessions[item.sessions.length - 1 - lag];
-      if (!bar || bar.session !== item.expectedSessions[end - lag]) break;
+      if (!bar || bar.session !== item.expectedSessions[end - lag] || !hasReviewedCalendarRange(bar.session, reviewedThrough)) break;
       rows.push(bar);
     }
     const values = [change(last.close, last.open)];

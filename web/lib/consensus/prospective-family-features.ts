@@ -6,7 +6,7 @@ import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { BLS_PAYROLL_NEWS_ID, parsePayrollRelease, validateBlsPayrollNews } from "./bls-payroll-news.ts";
 import { ETF_CASH_SOURCES } from "./corporate-adjustment.ts";
 import { effectiveStatus } from "./engines/v2.ts";
-import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { exchangeSession, exchangeSessions, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { firstRateTechnicalSignals } from "./firstrate.ts";
 import { FIRST_RATE_SYMBOLS, validateFirstRateTechnical } from "./firstrate-technicals.ts";
 import { digest, validateSnapshot } from "./history.ts";
@@ -113,7 +113,7 @@ function sameDayPreopen(session: string, at: string) {
 }
 function priorSession(session: string) {
   const start = new Date(Date.parse(session) - 10 * 86400000).toISOString().slice(0, 10);
-  return exchangeSessions(start, session).at(-2)!;
+  return trailingExchangeSessions(start, session).at(-2)!;
 }
 async function publicArchive(root: string, session: string, edition: string, asOf: string): Promise<Archive> {
   if (!editionPattern.test(edition) || !exchangeSession(session)) bad("Invalid prospective session or edition");

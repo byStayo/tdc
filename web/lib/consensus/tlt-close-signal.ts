@@ -1,4 +1,4 @@
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { exchangeSession, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { RANGE_SOURCE as STOCKS_SOURCE } from "./regular-session-range.ts";
 import { HORIZONS, type Signal } from "./types.ts";
 
@@ -72,7 +72,7 @@ export function validateTltCloseSignal(signal: Signal, cutoff?: string) {
     throw new Error("Invalid closing-hour observation for TLT");
   const earlier = new Date(Date.parse(session) - 40 * 86_400_000).toISOString().slice(0, 10);
   const window = [1, 5, 20][metrics.length - 1] + 1;
-  const dates = exchangeSessions(earlier < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : earlier, session).slice(-window);
+  const dates = trailingExchangeSessions(earlier, session).slice(-window);
   if (dates.length !== window || dates.some(day => {
     const clock = exchangeSession(day)!;
     return Date.parse(clock.closeAt) - Date.parse(clock.openAt) !== 390 * 60_000;

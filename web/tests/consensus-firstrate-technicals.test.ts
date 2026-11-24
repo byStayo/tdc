@@ -56,6 +56,29 @@ test("a missing session breaks a lookback and mixed last dates withhold market b
   assert.ok(!readings(late).some(row => row.instruments.includes("MARKET")));
 });
 
+test("new-session cash and prior technicals are isolated across an unresolved listing-calendar date", () => {
+  const oldDay = "2027-11-24", nextDay = "2027-11-29", now = "2027-11-30T12:00:00.000Z";
+  const current = structuredClone(approval);
+  current.from = oldDay;
+  current.through = nextDay;
+  current.approvedAt = now;
+  for (const issuer of current.issuers) {
+    issuer.capturedAt = now;
+    issuer.cash = [{ session: "2027-11-26", amount: 2 }, { session: nextDay, amount: 1 }];
+  }
+  for (const fund of current.symbols) {
+    fund.reviewedThrough = nextDay;
+    fund.rows = [oldDay, nextDay].map(session => ({ ...exchangeSession(session)!, open: 100, close: 101 }));
+    fund.proof.source.modifiedAt = nextDay + "T22:00:00.000Z";
+    fund.proof.source.capturedAt = now;
+  }
+  const prices = firstRate.firstRatePriceEvidence(current);
+  assert.deepEqual(prices[0].sessions.map(row => row.close), [101, 101]);
+  const signals = readings(current, now);
+  assert.equal(signals.length, 4);
+  for (const signal of signals) assert.deepEqual(signal.metrics.map(row => row.value), [1]);
+});
+
 test("a verified file timestamp at the core close preserves independent ETF observations", () => {
   const atClose = structuredClone(approval);
   atClose.symbols[1].proof.source.modifiedAt = exchangeSession(through)!.closeAt;

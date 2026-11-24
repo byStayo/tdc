@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
-import { exchangeSession, verifyExpectedSessions } from "./exchange-calendar.ts";
+import { exchangeSession, hasReviewedCalendarRange, isUnresolvedExchangeDate, verifyExpectedSessions } from "./exchange-calendar.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { MARKETPARQUET_SOURCE } from "./marketparquet-aggregate.ts";
 import { INSTRUMENTS } from "./types.ts";
@@ -19,7 +19,7 @@ export function marketParquetEvidence(
   calendar: string[], files: MarketParquetDay[], cash: Record<ETF, CashDistribution[]>,
   source = MARKETPARQUET_SOURCE,
 ): PriceEvidence[] {
-  verifyExpectedSessions(calendar);
+  verifyExpectedSessions(calendar, { separateIntervals: true });
   const allowed = new Set(calendar);
   const byDate = new Map(files.map(file => [file.session, file]));
   if (byDate.size !== files.length || files.some(file => !allowed.has(file.session) ||
@@ -32,7 +32,7 @@ export function marketParquetEvidence(
     const distributions = cash[instrument];
     if (!Array.isArray(distributions) ||
         new Set(distributions.map(action => action.session)).size !== distributions.length ||
-        distributions.some(action => !exchangeSession(action.session) || !(action.amount > 0) ||
+        distributions.some(action => (!isUnresolvedExchangeDate(action.session) && !exchangeSession(action.session)) || !(action.amount > 0) ||
           !Number.isFinite(action.amount)))
       throw new Error(`Invalid issuer distributions for ${instrument}`);
 
@@ -41,6 +41,8 @@ export function marketParquetEvidence(
     for (const session of calendar) {
       const file = byDate.get(session);
       if (file) {
+        const previous = block.at(-1);
+        if (previous && !hasReviewedCalendarRange(previous.session, session)) block = [];
         if (!block.length) blocks.push(block);
         block.push({ ...exchangeSession(session)!, ...file.bars[instrument] });
       } else {

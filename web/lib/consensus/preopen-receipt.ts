@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { outcomeWindowSessions } from "./evaluation.ts";
-import { exchangeSession, exchangeSessions, hasReviewedCalendar } from "./exchange-calendar.ts";
+import { exchangeSession, hasReviewedCalendar, availableExchangeSessions } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
@@ -23,7 +23,7 @@ export function scheduledPreopenSession(issuedAt: string, now: string) {
   if (!hasReviewedCalendar(session) || !hasReviewedCalendar(issueDay)) return null;
   const clock = exchangeSession(session);
   if (!clock || now >= clock.openAt) return null;
-  return outcomeWindowSessions(issuedAt, "daily", exchangeSessions(issueDay, session))[0] === session ? session : null;
+  return outcomeWindowSessions(issuedAt, "daily", availableExchangeSessions(issueDay, session))[0] === session ? session : null;
 }
 
 function file(root: string, session: string, edition: string) {
@@ -47,7 +47,7 @@ function verify(receipt: Receipt, session: string, edition: string, archive: Buf
       !Number.isFinite(Date.parse(receipt.observedAt)) || new Date(receipt.observedAt).toISOString() !== receipt.observedAt ||
       receipt.observedAt < snapshot.issuedAt || receipt.observedAt > asOf || receipt.observedAt >= market.openAt)
     throw new Error("No public observation within the pre-open window");
-  const dates = exchangeSessions(newYorkDate(snapshot.issuedAt), session);
+  const dates = availableExchangeSessions(newYorkDate(snapshot.issuedAt), session);
   if (outcomeWindowSessions(snapshot.issuedAt, "daily", dates)[0] !== session)
     throw new Error("Pre-open archive targets another trading session");
   return { observedAt: receipt.observedAt, edition, archiveSha256: receipt.archiveSha256 };

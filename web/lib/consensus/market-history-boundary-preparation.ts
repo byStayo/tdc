@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { FIRST_PUBLIC_FORECAST } from "./cftc-release-clocks.ts";
-import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, hasReviewedCalendarRange, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { loadTltSettlement } from "./market-history-settlement.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { sourceChunk, sourceResponse } from "./source-failure.ts";
@@ -45,11 +45,11 @@ export async function prepareTltBoundaryQualification(root: string, run: Run, { 
   if (![delivered, updated, asOf].every(Number.isFinite) || delivered > updated || updated > asOf)
     throw new Error("Market History catalogue has an invalid delivery clock");
   const today = newYorkDate(cutoff);
-  const dates = exchangeSessions(lookback(today), today).filter(day => Date.parse(exchangeSession(day)!.closeAt) <= asOf);
+  const dates = trailingExchangeSessions(lookback(today), today).filter(day => Date.parse(exchangeSession(day)!.closeAt) <= asOf);
   const available = dates.filter(day => Date.parse(exchangeSession(day)!.closeAt) <= delivered);
   const through = available.at(-1), expected = dates.at(-1);
   if (!through) return { status: "awaiting_consolidated_prices", expected, dataThrough: series.last };
-  const eligible = exchangeSessions(lookback(through), through).filter(day => day >= firstForecastDate);
+  const eligible = trailingExchangeSessions(lookback(through), through).filter(day => day >= firstForecastDate);
   if (!eligible.length) return { status: "no_issued_targets", expected, through, dataThrough: series.last };
   const settled = await loadSettlements(root, cutoff, message => console.warn(message));
   // One revalidated span must contain every eligible day, including the interior of multi-session targets.
@@ -59,7 +59,8 @@ export async function prepareTltBoundaryQualification(root: string, run: Run, { 
     return eligible.every(day => verified.has(day));
   });
   if (existing) {
-    const covered = existing.sessions.filter(row => row.session >= lookback(through) && row.session <= through);
+    const covered = existing.sessions.filter(row => row.session >= lookback(through) && row.session <= through &&
+      hasReviewedCalendarRange(row.session, through));
     return { status: "verified_private_settlement", reused: true, expected, from: covered[0].session, through,
       dataThrough: series.last, sessions: covered.length, matched: covered.length, completeHourlyGrids: 2,
       adjustedSessions: covered.length, settlementSessions: covered.length };
@@ -68,8 +69,9 @@ export async function prepareTltBoundaryQualification(root: string, run: Run, { 
   // Keep the original hourly query when it can fill a gap from updated controls. Otherwise anchor
   // the request to the delivered close so that an identical provider vintage keeps its cache keys.
   const retainedStarts = settled.filter(evidence => evidence.expectedSessions.at(-1) === through &&
-    evidence.expectedSessions[0] <= eligible[0]).map(evidence => evidence.expectedSessions[0]).sort();
-  const from = retainedStarts.at(-1) ?? exchangeSessions(lookback(through), through)[0];
+    evidence.expectedSessions[0] <= eligible[0] && hasReviewedCalendarRange(evidence.expectedSessions[0], through))
+    .map(evidence => evidence.expectedSessions[0]).sort();
+  const from = retainedStarts.at(-1) ?? trailingExchangeSessions(lookback(through), through)[0];
   const output = await run(from, through);
   if (output.scope !== "private-source-qualification" || output.from !== from || output.through !== through ||
       output.sessions !== exchangeSessions(from, through).length || !/^[a-f0-9]{64}$/.test(output.receipt) ||

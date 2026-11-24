@@ -8,7 +8,7 @@ import {
   EXCHANGE_CALENDAR,
   REVIEWED_EXCHANGE_THROUGH,
   exchangeSession,
-  exchangeSessions,
+  availableExchangeSessions,
 } from "./exchange-calendar.ts";
 import { digest, verifyPublicationTree } from "./history.ts";
 import {
@@ -49,7 +49,7 @@ type Plan = {
 };
 type ResultSeal = { version: 1; planSha256: string; resultSha256: string; passes: boolean };
 const selectionFile = "public/consensus/outcome-selection.json";
-const dateRange = () => exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
+const dateRange = () => availableExchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
 const isInstant = (s: string) =>
   typeof s === "string" && Number.isFinite(Date.parse(s)) && new Date(s).toISOString() === s;
 const key = (s: string, h: string, e: string) => [s, h, e].join("/");

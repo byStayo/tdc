@@ -2,7 +2,7 @@ import { readdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import type { Horizon, Instrument } from "./types.ts";
-import { exchangeSession, exchangeSessions, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH } from "./exchange-calendar.ts";
+import { exchangeSession, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, availableExchangeSessions, trailingExchangeSessions } from "./exchange-calendar.ts";
 import { outcomeWindowSessions, type PriceEvidence, type SessionPrice } from "./evaluation.ts";
 import { digest } from "./history.ts";
 import { isFullKibotSession } from "./kibot.ts";
@@ -173,7 +173,7 @@ export function ordinaryDailyTarget(issuedAt: string, horizon: Horizon) {
   const issuedDay = newYorkDate(issuedAt);
   if (issuedDay < EXCHANGE_CALENDAR.from || issuedDay > REVIEWED_EXCHANGE_THROUGH) return null;
   const limit = [addDays(issuedDay, 10), REVIEWED_EXCHANGE_THROUGH].sort()[0];
-  const [day] = outcomeWindowSessions(issuedAt, horizon, exchangeSessions(issuedDay, limit));
+  const [day] = outcomeWindowSessions(issuedAt, horizon, availableExchangeSessions(issuedDay, limit));
   const session = day && exchangeSession(day);
   // Shortened days retain their pre-existing auction policy. No regular-day fallback is selected after prices arrive.
   return session && isFullKibotSession(session.openAt, session.closeAt) ? day : null;
@@ -205,7 +205,7 @@ export function kibotCashBoundary(amount: number, raw: PricePair, splits: PriceP
 
 function dailyCalendar(day: string) {
   const from = [EXCHANGE_CALENDAR.from, addDays(day, -14)].sort().at(-1)!;
-  const calendar = exchangeSessions(from, day).slice(-2);
+  const calendar = trailingExchangeSessions(from, day).slice(-2);
   if (calendar.length !== 2) throw Error("The previous session is outside the reviewed exchange calendar");
   return calendar;
 }
@@ -308,7 +308,7 @@ export async function prepareKibotPrimary(root: string) {
   try { await kibotSubscriberCredentials(root); }
   catch { return { status: "awaiting_owner_subscriber_credentials" }; }
   const now = new Date().toISOString();
-  const days = exchangeSessions(newYorkDate(policy.registeredAt), newYorkDate(now)).filter(day => {
+  const days = availableExchangeSessions(newYorkDate(policy.registeredAt), newYorkDate(now)).filter(day => {
     const clock = exchangeSession(day)!;
     return !!sourceChoiceAt(policy, clock.openAt) && clock.closeAt < now && isFullKibotSession(clock.openAt, clock.closeAt);
   }).reverse();

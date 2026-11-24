@@ -1,5 +1,5 @@
 import { asIssuedOutcomeCall, outcomeKey, outcomeWindowSessions } from "./evaluation.ts";
-import { EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, exchangeSession, availableExchangeSessions } from "./exchange-calendar.ts";
 import { permitsModelInputs } from "./model.ts";
 import { HORIZONS, INSTRUMENTS, type HistoryEntry, type Instrument, type Outcome, type Snapshot } from "./types.ts";
 
@@ -37,7 +37,7 @@ export interface DailySettlementStatus {
 export function recentDailySettlements(history: HistoryEntry[], identities: Pick<Outcome, "snapshotId" | "instrument" | "horizon" | "engineVersion">[],
   evaluatedAt: string): DailySettlementStatus[] {
   verifyLedgerClock({ asOf: evaluatedAt, ledgerObservedAt: evaluatedAt });
-  const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
+  const calendar = availableExchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
   const daily = new Set(identities.filter(row => row.horizon === "daily")
     .map(row => `${row.snapshotId}:${row.engineVersion}:${row.instrument}`));
   const selected = latestDailyEditions(history.filter(edition => edition.issuedAt <= evaluatedAt), calendar);
@@ -57,7 +57,7 @@ export function dailySessionOutcomes(snapshots: Snapshot[], outcomes: Outcome[],
   const { asOf, ledgerObservedAt } = time;
   const clock = exchangeSession(session);
   if (!clock) throw new Error("The requested date is not an exchange session");
-  const sessions = exchangeSessions(EXCHANGE_CALENDAR.from, session);
+  const sessions = availableExchangeSessions(EXCHANGE_CALENDAR.from, session);
   const issued = latestDailyEditions(snapshots.filter(snapshot => snapshot.issuedAt <= asOf), sessions).get(session);
   const phase = asOf < clock.openAt ? "awaiting_open" : asOf < clock.closeAt ? "awaiting_close" : "awaiting_approved_prices";
   const selected = outcomes.filter(row => row.snapshotId === issued?.id && row.horizon === "daily");
@@ -91,7 +91,7 @@ export function auditOutcomeCoverage(
 ) {
   verifyLedgerClock(time);
   const { asOf } = time;
-  const sessions = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
+  const sessions = availableExchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
   const visible = snapshots.filter(snapshot => snapshot.issuedAt <= asOf);
   function visibleTargets(rows: PendingTarget[], name: string) {

@@ -25,6 +25,9 @@ async function checkFuturePhases(t: TestContext, daily: boolean) {
       export const verifyExpectedSessions=a=>a;
       export const exchangeSession=d=>({session:d,openAt:d+"T14:30:00.000Z",closeAt:d+"T21:00:00.000Z"});
       export const exchangeSessions=()=>[];
+      export const availableExchangeSessions=exchangeSessions, trailingExchangeSessions=exchangeSessions;
+      export const isUnresolvedExchangeDate=()=>false;
+      export const hasReviewedCalendarRange=(from,through)=>hasReviewedCalendar(from)&&hasReviewedCalendar(through)&&from<=through;
     `,
       };
     },

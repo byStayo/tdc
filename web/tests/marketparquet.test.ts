@@ -30,6 +30,17 @@ test("preserves calendar gaps and prevents a dividend factor from crossing missi
   assert.equal(tlt.sessions[0].open, 90);
 });
 
+test("an independently confirmed dividend after an unresolved market day cannot restate earlier approved prices", () => {
+  const sessions = ["2027-11-24", "2027-11-29", "2027-11-30"];
+  const files = sessions.map(file);
+  const cashAtNewBlock = { ...cash, TLT: [{ session: "2027-11-26", amount: 1 }, { session: "2027-11-29", amount: 3 }] };
+  const prices = marketParquetEvidence(sessions, files, cashAtNewBlock);
+  const tlt = prices.find(series => series.instrument === "TLT")!.sessions;
+  assert.deepEqual(tlt.map(row => row.close), [100, 100, 100]);
+  assert.throws(() => reconcileMarketParquet(sessions, files, cashAtNewBlock, referenceFor(files), strict),
+    /contiguous reviewed coverage/);
+});
+
 test("rejects a session when any ETF is absent", () => {
   const incomplete = file(calendar[0]);
   delete (incomplete.bars as Partial<MarketParquetDay["bars"]>).TLT;
