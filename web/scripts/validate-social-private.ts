@@ -8,7 +8,7 @@ import { nativeAnnotationFolder, openCapturedSocialAnnotation, withdrawCapturedS
 import { readBlueskyAnnotationExclusions } from "../lib/bluesky-private.ts";
 import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
-import { isSocialClock as canonicalInstant, socialAnnotationTemplate, socialObject as record } from "../lib/consensus/social-annotation-source.ts";
+import { isSocialClock as canonicalInstant, socialAnnotationTemplate, socialTextKey, socialObject as record } from "../lib/consensus/social-annotation-source.ts";
 import { xLongPostText } from "../lib/consensus/x-post-text.ts";
 
 const cues = ["upward", "downward", "mixed", "unclassified"] as const;
@@ -98,7 +98,7 @@ function scoreCheckedSocialCorpus(corpus: Record<string, unknown>, now: string,
     else classifierText = text.length <= 3000 ? text : null;
     if (classifierText === null) throw new Error("Invalid platform text");
     const group = `${platform}/${instrument}`;
-    const key = JSON.stringify([group, text.trim().replace(/\s+/g, " ")]);
+    const key = JSON.stringify([group, socialTextKey(platform as typeof platforms[number], text)]);
     if (seen.has(key)) throw new Error("Duplicate text for the same platform and instrument");
     seen.add(key);
     const state = groups.get(group) ?? { matrix: matrix(), pending: 0 };
@@ -122,9 +122,11 @@ function scoreCheckedSocialCorpus(corpus: Record<string, unknown>, now: string,
       directionalPrecision: directionalCalls ? (matrix[0][0] + matrix[1][1]) / directionalCalls : null,
     }];
   });
+  const xSource = corpus.source === "x-v2" || corpus.source === "white-house-twitter-v1";
+  const contributorPolicy = xSource ? "native-contributors-v4" : "native-contributors-v3";
   return {
     scope: "private-language-interpretation-only",
-    inputPolicy: verified ? "native-contributors-v3" : "native-text-v2",
+    inputPolicy: verified ? contributorPolicy : "native-text-v2",
     contributorVerification: verified ? "replayed-native-source" : "unavailable-legacy",
     classifiers: { x: X_STANCE_METHOD, bluesky: BLUESKY_METHOD, instagram: BLUESKY_METHOD },
     labels: cues,

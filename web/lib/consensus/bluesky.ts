@@ -1,11 +1,12 @@
 import { createHash } from "node:crypto";
 import { BlueskyFailure, type BlueskyFailureReason } from "./bluesky-failure.ts";
 import { INSTRUMENTS, type Instrument } from "./types.ts";
+import { xDisplayText } from "./x-post-text.ts";
 
 /** Never persist network frames, post text, account identifiers or record URIs. */
 export const BLUESKY_STREAM = "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post";
 export const BLUESKY_METHOD = "bluesky-market-stance-v2" as const;
-export const X_STANCE_METHOD = "x-explicit-stances-v3" as const;
+export const X_STANCE_METHOD = "x-explicit-stances-v4" as const;
 export const MINIMUM_PARTICIPANTS = 10;
 export type LanguageCue = "upward" | "downward" | "mixed" | "unclassified";
 export type CueCounts = Record<LanguageCue, number>;
@@ -63,7 +64,7 @@ const relatedMarket = /\$(?:AAPL|MSFT|NVDA|AMZN|GOOGL|META|TSLA)\b|\b(?:Federal 
 const stanceSubjects = [...etfAliases, ["MARKET", equityMarket] as const];
 function marketText(text: string, source?: "x") {
   const cleaned = text.replace(/https?:\/\/\S+/gi, " ");
-  return source === "x" ? cleaned.replace(/\bNasdaq[-‐‑](?=100\b)/gi, "Nasdaq ") : cleaned;
+  return source === "x" ? xDisplayText(cleaned).replace(/\bNasdaq[-‐‑](?=100\b)/gi, "Nasdaq ") : cleaned;
 }
 export function marketInstruments(text: string, source?: "x"): Instrument[] {
   const cleaned = marketText(text, source);
@@ -93,7 +94,8 @@ function analyzeStances(text: string, source?: "x"): {
   const cleaned = marketText(text, source);
   const cues: Partial<Record<Instrument, LanguageCue>> = {};
   // A quoted or interrogative post is too ambiguous to classify across clauses.
-  if ((source === "x" ? /["“”]/ : /[?"“”]/).test(cleaned) ||
+  const unresolvedEntity = source === "x" && /&(?:[a-z][a-z0-9]*|#(?:[0-9]+|x[0-9a-f]+));/i.test(cleaned);
+  if (unresolvedEntity || (source === "x" ? /["“”]/ : /[?"“”]/).test(cleaned) ||
       /(?:^|\s)\/s\b|\b(?:if|unless)\b/i.test(cleaned)) return { cues, abstentionReason: "guardedContext" };
   let guarded = false, singleSubject = false;
   const clauses = cleaned.replace(/\bU\.?S\.? (?=stocks|equities)/gi, "US ")

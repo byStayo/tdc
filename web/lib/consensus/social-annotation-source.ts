@@ -2,7 +2,7 @@ import { createHmac, randomBytes } from "node:crypto";
 import { privateIdentifier, type Exclusions } from "./bluesky.ts";
 import { INSTRUMENTS, type Instrument } from "./types.ts";
 import { instagramCaptionText } from "./instagram-post-text.ts";
-import { xPostText } from "./x-post-text.ts";
+import { xDisplayText, xPostText } from "./x-post-text.ts";
 
 const day = 86_400_000;
 const sources = ["x-v2", "instagram-business-discovery", "bluesky-appview", "white-house-twitter-v1"] as const;
@@ -10,6 +10,11 @@ type Source = typeof sources[number];
 type Platform = "x" | "instagram" | "bluesky";
 type Original = { author: string; post: string; at: number; text: string };
 export type SocialAnnotation = { ref: string; platform: Platform; instrument: Instrument; text: string; expected: string | null };
+
+export function socialTextKey(platform: Platform, original: string): string {
+  const text = platform === "x" ? xDisplayText(original) : original;
+  return text.trim().replace(/\s+/g, " ");
+}
 
 export function socialObject(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Expected a source object");
@@ -138,7 +143,7 @@ export function socialAnnotationTemplate(input: unknown, now: string, nonce = ra
   const groups = [...chosen.keys()].sort().map(instrument => platform + "/" + instrument);
   for (const [instrument, authors] of chosen) {
     const textCounts = new Map<string, number>();
-    const normalized = (text: string) => text.trim().replace(/\s+/g, " ");
+    const normalized = (text: string) => socialTextKey(platform, text);
     for (const { text } of authors.values()) textCounts.set(normalized(text), (textCounts.get(normalized(text)) ?? 0) + 1);
     for (const { author, post, at, text } of authors.values()) {
       // Syndicated text does not provide independent language. Discard every ambiguous copy.

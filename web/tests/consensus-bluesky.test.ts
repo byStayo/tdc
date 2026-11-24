@@ -86,6 +86,24 @@ test("X preserves explicit forward verbs after heading separators and matches th
   assert.equal(xStanceAnalysis("$SPY volume. Nasdaq-100 will rise?").abstentionReason, "guardedContext");
   assert.equal(xStanceAnalysis("$SPY volume. Thoughts?").abstentionReason, "noAttachedDirection");
 });
+test("X reads encoded S&P names without parsing an entity terminator as a new outlook", () => {
+  for (const amp of ["&amp;", "&#38;", "&#x26;", "&amp;amp;", "&#38;amp;"]) {
+    const text = "I expect the S" + amp + "P 500 to fall.";
+    assert.deepEqual(marketInstruments(text, "x"), ["MARKET", "SPY"]);
+    assert.equal(marketStances(text, "x").SPY, "downward");
+    assert.deepEqual(marketInstruments(text), []);
+  }
+  for (const text of [
+    "&quot;$SPY will rise.&quot;", "&#x201c;$SPY will fall.&#8221;",
+    "She said &amp; then $SPY will rise.", "S&amp;P 500 will fall&#63;",
+    "I don&#39;t think S&amp;P 500 will rise.", "S&amp;P 500 and $TLT will rise.",
+    "S&amp;P 500 will rise &unknown;", "S&amp;amp;amp;amp;P 500 will rise.",
+  ]) {
+    assert.equal(marketStances(text, "x").SPY ?? "unclassified", "unclassified", text);
+  }
+  assert.deepEqual(marketInstruments("https://example.org/?name=S&amp;P500", "x"), []);
+});
+
 test("suppresses small samples and never pools counts between instrument views", () => {
   const w = new BlueskyWindow(start);
   for (let n = 0; n < 10; n++) w.ingest(frame(n, n < 9 ? "$SPY bullish" : "$TLT bearish"), now);

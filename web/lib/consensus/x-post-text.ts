@@ -18,3 +18,30 @@ export function xLongPostText(text: unknown): string | null {
   if (text.length > maxNoteCharacters && [...text].length > maxNoteCharacters) return null;
   return text.trim() ? text : null;
 }
+
+// These are display characters found in native X exports or needed for their quotation,
+// question and negation guards. Keep original text intact for provenance and annotation.
+const displayEntities: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", ldquo: "“", rdquo: "”",
+  lsquo: "‘", rsquo: "’", quest: "?", nbsp: "\u00a0",
+};
+const numericDisplayEntities = new Map(
+  Object.values(displayEntities).map(character => [character.codePointAt(0)!, character]),
+);
+const displayEntity = /&(amp|lt|gt|quot|apos|ldquo|rdquo|lsquo|rsquo|quest|nbsp|#(?:[0-9]{1,7}|x[0-9a-f]{1,6}));/gi;
+
+export function xDisplayText(original: string): string {
+  let text = original;
+  for (let depth = 0; depth < 3 && text.includes("&"); depth++) {
+    const decoded = text.replace(displayEntity, (match, name: string) => {
+      const key = name.toLowerCase();
+      if (!key.startsWith("#")) return displayEntities[key];
+      const hexadecimal = key.startsWith("#x");
+      const number = Number.parseInt(key.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+      return numericDisplayEntities.get(number) ?? match;
+    });
+    if (decoded === text) break;
+    text = decoded;
+  }
+  return text;
+}

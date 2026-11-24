@@ -76,11 +76,35 @@ test("the private benchmark reads an X call or guard at the end of a native long
   const page = { includes: { users }, data: rows.map((row, index) => ({ id: String(1500 + index),
     author_id: users[index].id, created_at: created, lang: "en", text: "preview", note_tweet: { text: row.text } })) };
   const { result } = verifyNative("x-v2", [{ instrument: "QQQ", page }], rows);
-  assert.equal(result.inputPolicy, "native-contributors-v3");
+  assert.equal(result.inputPolicy, "native-contributors-v4");
   assert.deepEqual(result.results[0].expectedByPredicted, [[0, 0, 0, 0], [0, 9, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]);
   for (const invalid of [rows[0].text + "!", "$QQQ will rise.\uD800"]) {
     assert.throws(() => evaluateSocialCorpus(corpus([{ ...rows[0], text: invalid }]), assessedAt), /platform text/);
   }
+});
+
+test("native X replay preserves original text but rejects copies differing only in displayed entity spelling", () => {
+  const payload = [
+    ...Array.from({ length: 9 }, (_, i) => "Fixture " + i + ". S&#x26;P 500 will fall."),
+    "&quot;$SPY will rise.&quot;",
+    "S&amp;P 500 will rise.",
+    "S&P 500 will rise.",
+  ];
+  const users = payload.map((_, i) => ({ id: String(9000 + i), protected: false }));
+  const page = { includes: { users }, data: payload.map((text, i) => ({
+    id: String(7000 + i), author_id: users[i].id, created_at: created, lang: "en", text,
+  })) };
+  const labels = payload.map((text, i) => ({
+    text, instrument: "SPY", expected: i === 9 ? "unclassified" : "downward",
+  }));
+  const { result, template, raw } = verifyNative("x-v2", [{ instrument: "SPY", page }], labels);
+  assert.equal(template.items.length, 10);
+  assert.equal(result.classifiers.x, "x-explicit-stances-v4");
+  assert.equal(result.results[0].rows, 10);
+  assert.deepEqual(result.results[0].expectedByPredicted, [[0, 0, 0, 0], [0, 9, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]);
+  const labelled = template.items.find(item => item.text.includes("&#x26;"))!;
+  labelled.text = labelled.text.replace("&#x26;", "&");
+  assert.throws(() => evaluateSocialCorpus(template, assessedAt, raw), /native source/);
 });
 
 test("the input change preserves the caption bounds, suppression, duplicate and expiry rules", () => {
