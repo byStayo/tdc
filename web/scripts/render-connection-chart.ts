@@ -1,3 +1,4 @@
+import { RANGE_POLICY, sessionRangeSource } from "../lib/consensus/regular-session-range.ts";
 import type { Consensus, FamilyReading, HistoryEntry, Signal, SignalStatus, Snapshot } from "../lib/consensus/types.ts";
 
 type View = Omit<Consensus, "families"> & {
@@ -72,11 +73,17 @@ function editionContext(snapshot: Snapshot) {
   const ranges = snapshot.regularSessionRanges;
   if (ranges) {
     const bands = ["Lowest fifth", "Second fifth", "Middle fifth", "Fourth fifth", "Highest fifth"];
-    const items = ranges.rows.map(row => '<li><strong>' + escape(row.fund) + '</strong> · ' + bands[row.closeFifth - 1] +
-      ' on ' + escape(row.session) + ' · verified ' + stamp(row.verifiedAt) + '</li>').join("");
+    const items = ranges.rows.map(row => {
+      const source = sessionRangeSource(row);
+      return '<li><strong>' + escape(row.fund) + '</strong> · ' + bands[row.closeFifth - 1] +
+        ' on ' + escape(row.session) + ' · verified ' + stamp(row.verifiedAt) +
+        (row.source ? ' · ' + sourceLink(source.url, source.name) : '') + '</li>';
+    }).join("");
+    const credit = ranges.method === RANGE_POLICY ? sourceLink(ranges.url, ranges.attribution) :
+      "Regular-session calculations by The Daily Consensus.";
     blocks.push('<details open><summary><strong>Where each fund closed within its regular-session range</strong></summary>' +
       '<div class="body"><p>Each fifth spans 20% of the distance from the day’s low to its high. These positions supply daily price context.</p>' +
-      '<ul>' + items + '</ul><p>' + sourceLink(ranges.url, ranges.attribution) + '</p></div></details>');
+      '<ul>' + items + '</ul><p>' + credit + '</p></div></details>');
   }
   const options = snapshot.optionActivity;
   if (options) {

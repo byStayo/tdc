@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareKibotPrimary } from "../lib/consensus/kibot-eod-primary.ts";
+import { prepareFirstRateRanges } from "../lib/consensus/firstrate-ranges.ts";
 import { prepareMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
 import { prepareFirstRate, prepareFirstRatePremarket } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
@@ -53,12 +54,14 @@ try {
   const following = mode.following
     ? await collect("collect-following-feeds.ts", ["--scheduled"])
     : { status: mode.freePriceAccount ? "separate_scheduled_digest" : "skipped_public_only" };
-  const regularSessionRanges = await rangeJob;
+  const marketHistoryRanges = await rangeJob;
   const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
     status: "unavailable",
     error: error.killed ? "FirstRate source capture exceeded 105 seconds"
       : error.stderr?.trim().slice(0, 200) || error.message || "FirstRate preparation did not complete",
   }));
+  const firstRateRanges = await prepareFirstRateRanges(PROJECT_ROOT)
+    .catch((error: Error) => ({ status: "unavailable", reason: error.message }));
   const priorPremarket = await prepareFirstRatePremarket(PROJECT_ROOT);
   const tltSettlementQualification = !mode.freePriceAccount ? { status: "skipped_public_only" } :
     await prepareTltBoundaryQualification(PROJECT_ROOT, (from, through) =>
@@ -91,7 +94,7 @@ try {
     tltClosingTrend,
     tltSettlementQualification,
     kibotSubscriber,
-    regularSessionRanges,
+    regularSessionRanges: { rows: consensus.regularSessionRanges, marketHistory: marketHistoryRanges, firstRate: firstRateRanges },
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));

@@ -7,7 +7,7 @@ import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
 import { loadFirstRatePremarket, loadFirstRateTechnicals, replaceFirstRatePremarket, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
-import { loadMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
+import { loadDailySessionRanges } from "../lib/consensus/firstrate-ranges.ts";
 import { visibleSessionRanges } from "../lib/consensus/regular-session-range.ts";
 import { loadTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { pendingSettledTltInputs, TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
@@ -68,7 +68,7 @@ if (snapshot.regularSessionRanges) {
   else delete snapshot.regularSessionRanges;
 }
 if (!scoped || technicalsOnly) {
-  const ranges = await loadMarketHistoryRanges(root, snapshot.cutoff, message => console.warn("ETF range:", message))
+  const ranges = await loadDailySessionRanges(root, snapshot.cutoff, message => console.warn("ETF range:", message))
     .catch((error: Error) => { console.warn("ETF ranges unavailable.", error.message); return undefined; });
   if (ranges) snapshot.regularSessionRanges = ranges;
   else delete snapshot.regularSessionRanges;
@@ -145,6 +145,9 @@ if (process.argv.includes("--publish")) {
   console.log(
     JSON.stringify({
       draft: ".consensus/last-collection.json",
+      regularSessionRanges: snapshot.regularSessionRanges?.rows.map(row => ({
+        fund: row.fund, session: row.session, source: row.source ?? "market-history",
+      })) ?? [],
       sha256: digest(snapshot),
       baseEdition: previous?.id ?? "none",
       signals: snapshot.signals.length,

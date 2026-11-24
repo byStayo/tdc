@@ -1,5 +1,5 @@
 "use client";
-import { visibleSessionRanges } from "@/lib/consensus/regular-session-range";
+import { RANGE_POLICY, sessionRangeSource, visibleSessionRanges } from "@/lib/consensus/regular-session-range";
 import PublicationFooter from "@/components/PublicationFooter";
 import { isCftcPosition } from "@/lib/consensus/cftc-provenance";
 
@@ -2118,10 +2118,18 @@ export default function MorningBoard({
                 {sessionRanges.length > 0 && (
                   <div className={styles.marketContext}>
                     <strong>Close within the regular-session range</strong>
-                    <ul>{sessionRanges.map(row => (
-                      <li key={row.fund}>{row.fund} · {["lowest fifth", "second fifth", "middle fifth", "fourth fifth", "highest fifth"][row.closeFifth - 1]} · {datedYear(row.observedAt)}</li>
-                    ))}</ul>
-                    <a href={snapshot.regularSessionRanges!.url}>{snapshot.regularSessionRanges!.attribution}</a>
+                    <ul>{sessionRanges.map(row => {
+                      const source = sessionRangeSource(row);
+                      return (
+                        <li key={row.fund}>
+                          {row.fund} · {["lowest fifth", "second fifth", "middle fifth", "fourth fifth", "highest fifth"][row.closeFifth - 1]} · {datedYear(row.observedAt)}
+                          {row.source && <> · <a href={source.url}>{source.name}</a></>}
+                        </li>
+                      );
+                    })}</ul>
+                    {snapshot.regularSessionRanges?.method === RANGE_POLICY
+                      ? <a href={snapshot.regularSessionRanges.url}>{snapshot.regularSessionRanges.attribution}</a>
+                      : <small>Regular-session calculations by The Daily Consensus.</small>}
                   </div>
                 )}
                 <MorningMarket

@@ -8,6 +8,8 @@ export const RANGE_SOURCE = "https://getmarkethistory.com/docs/guides/historical
 export const RANGE_ATTRIBUTION =
   "Market History consolidated US equities. Regular-session calculation by The Daily Consensus.";
 export const RANGE_POLICY = "regular-session-close-fifth-v1";
+export const RANGE_POLICY_V2 = "regular-session-close-fifth-v2";
+export type RangeSource = "market-history" | "firstrate";
 export const RANGE_MAX_AGE = 5 * 86_400_000;
 export type SessionRange = {
   fund: RangeFund;
@@ -16,13 +18,25 @@ export type SessionRange = {
   observedAt: string;
   verifiedAt: string;
   receiptSha256: string;
+  source?: RangeSource;
 };
-export type SessionRanges = {
+export type MarketHistoryRanges = {
   method: typeof RANGE_POLICY;
   url: typeof RANGE_SOURCE;
   attribution: typeof RANGE_ATTRIBUTION;
   rows: SessionRange[];
 };
+export type SessionRanges = MarketHistoryRanges | {
+  method: typeof RANGE_POLICY_V2;
+  rows: SessionRange[];
+};
+
+export function sessionRangeSource(row: SessionRange) {
+  return row.source === "firstrate"
+    ? { name: "FirstRate Data", url: "https://firstratedata.com/i/etf/" + row.fund }
+    : { name: "Market History", url: RANGE_SOURCE };
+}
+
 export const rangeInstant = (s: unknown): s is string =>
   typeof s === "string" && Number.isFinite(Date.parse(s)) && new Date(s).toISOString() === s;
 const exact = (v: object, keys: string[]) =>
@@ -32,10 +46,10 @@ export function validateSessionRanges(evidence: SessionRanges, cutoff: string) {
   if (
     !rangeInstant(cutoff) ||
     !evidence ||
-    !exact(evidence, ["method", "url", "attribution", "rows"]) ||
-    evidence.method !== RANGE_POLICY ||
-    evidence.url !== RANGE_SOURCE ||
-    evidence.attribution !== RANGE_ATTRIBUTION ||
+    !(evidence.method === RANGE_POLICY
+      ? exact(evidence, ["method", "url", "attribution", "rows"]) &&
+        evidence.url === RANGE_SOURCE && evidence.attribution === RANGE_ATTRIBUTION
+      : evidence.method === RANGE_POLICY_V2 && exact(evidence, ["method", "rows"])) ||
     !Array.isArray(evidence.rows) ||
     !evidence.rows.length ||
     evidence.rows.length > RANGE_FUNDS.length ||
@@ -47,7 +61,10 @@ export function validateSessionRanges(evidence: SessionRanges, cutoff: string) {
     const index = RANGE_FUNDS.indexOf(row.fund),
       clock = exchangeSession(row.session);
     if (
-      !exact(row, ["fund", "session", "closeFifth", "observedAt", "verifiedAt", "receiptSha256"]) ||
+      !exact(row, ["fund", "session", "closeFifth", "observedAt", "verifiedAt", "receiptSha256",
+        ...(evidence.method === RANGE_POLICY_V2 ? ["source"] : [])]) ||
+      (evidence.method === RANGE_POLICY_V2 &&
+        !(row.source === "market-history" || (row.source === "firstrate" && row.fund !== "TLT"))) ||
       index <= previous ||
       !clock ||
       Date.parse(clock.closeAt) - Date.parse(clock.openAt) !== 390 * 60_000 ||

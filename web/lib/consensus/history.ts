@@ -30,7 +30,7 @@ import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
 import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
 import { validateFirstRatePremarket, validatePremarketBreadth } from "./firstrate-premarket.ts";
-import { validateSessionRanges } from "./regular-session-range.ts";
+import { RANGE_POLICY_V2, validateSessionRanges } from "./regular-session-range.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
@@ -370,7 +370,12 @@ export function observationDigest(snapshot: Snapshot): string {
     catalysts: snapshot.catalysts,
     forecasts: snapshot.forecasts ?? [],
     news: snapshot.news ?? null,
-    ...(snapshot.regularSessionRanges ? {regularSessionRanges:snapshot.regularSessionRanges.rows.map(({fund,session,closeFifth})=>({fund,session,closeFifth}))} : {}),
+    ...(snapshot.regularSessionRanges ? {
+      regularSessionRanges: snapshot.regularSessionRanges.method === RANGE_POLICY_V2
+        ? { method: RANGE_POLICY_V2, rows: snapshot.regularSessionRanges.rows.map(({ fund, session, closeFifth, source }) =>
+            ({ fund, session, closeFifth, source })) }
+        : snapshot.regularSessionRanges.rows.map(({ fund, session, closeFifth }) => ({ fund, session, closeFifth })),
+    } : {}),
     ...(snapshot.optionActivity ? { optionActivity: { ...snapshot.optionActivity,
       rows: snapshot.optionActivity.rows.map(row => row.status === "observed"
         ? { symbol: row.symbol, status: row.status, putPercent: row.putPercent } : row) } } : {}),

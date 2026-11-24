@@ -29,7 +29,7 @@ import {
   validateSessionRanges,
   type RangeFund,
   type SessionRange,
-  type SessionRanges,
+  type MarketHistoryRanges,
 } from "./regular-session-range.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
@@ -204,7 +204,7 @@ export function rangeFromSignedMarketHistory(
   ) as LegTuple;
   return days.map((session) => ({ session, closeFifth: verifiedFifth(legs, session) }));
 }
-const recent = (at: string) => {
+export const recentRangeSessions = (at: string) => {
   const left = new Date(Date.parse(at) - RANGE_MAX_AGE - DAY).toISOString().slice(0, 10);
   return exchangeSessions(left < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : left, newYorkDate(at))
     .filter((d) => {
@@ -260,9 +260,9 @@ export async function loadMarketHistoryRanges(
   root: string,
   at: string,
   warn: (message: string) => void = () => {},
-): Promise<SessionRanges | undefined> {
+): Promise<MarketHistoryRanges | undefined> {
   if (!rangeInstant(at)) throw Error("Invalid session range cutoff");
-  const dates = recent(at),
+  const dates = recentRangeSessions(at),
     rows: SessionRange[] = [];
   for (const fund of RANGE_FUNDS)
     for (const day of dates) {
@@ -504,7 +504,7 @@ type PreparationOptions = {
 export async function prepareMarketHistoryRanges(root: string, opts: PreparationOptions) {
   const clock = opts.clock ?? now,
     cutoff = clock(),
-    dates = recent(cutoff),
+    dates = recentRangeSessions(cutoff),
     dir = own(root),
     local = new Map<string, Loaded | null>();
   const lock = await acquirePublicationLock(dir, "daily-regular-session-range");
