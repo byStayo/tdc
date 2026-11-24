@@ -199,6 +199,8 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
   const cards = readings.map(r => signalCard(byId.get(r.id)!, r)).join("");
   const context = editionContext(snapshot);
   const state = new Map(readings.map(r => [r.id, r.status]));
+  const delivering = sources.filter(p => p.signals.some(id => state.get(id) === "available")).length;
+  const countStatus = (status: SignalStatus) => readings.filter(r => r.status === status).length;
   const providers = sources.map(p => {
     const active = p.signals.filter(id => state.get(id) === "available").length;
     const links = p.signals.map(id => '<li><a href="#' + fragment(id) + '">' + escape(byId.get(id)!.title) +
@@ -209,7 +211,9 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
     '<title>Connection report · The Daily Consensus</title><style>' + styles + '</style></head><body><header><a href="#views">The Daily Consensus</a>' +
     '<h1>' + voteCount(market) + ' of ' + market.families.length + ' families vote on the daily market outlook</h1>' +
-    '<p>' + current + ' of ' + readings.length + ' source records were current at the evidence cutoff.</p><p class="muted">Issued ' +
+    '<p>' + current + ' of ' + readings.length + ' source records were current at the evidence cutoff. ' + delivering + ' of ' +
+    sources.length + ' named source labels supplied a current reading.</p><p>' + countStatus("stale") + ' readings were stale, ' +
+    countStatus("unavailable") + ' unavailable and ' + countStatus("not_formed") + ' awaiting confirmation.</p><p class="muted">Issued ' +
     stamp(edition.issuedAt) + ' · Evidence through ' + stamp(snapshot.cutoff) + '</p><nav aria-label="Report sections"><a href="#views">Forecasts</a>' +
     (product ? '<a href="#product">Product status</a>' : '') + '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
     '<a href="' + archive + '">Original edition</a></nav></header><main>' +
