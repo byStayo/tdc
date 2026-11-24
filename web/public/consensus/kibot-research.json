@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-23",
@@ -379,6 +379,31 @@
         0.0048
       ],
       "coefficientSign": "positive",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-iem-popular-vote-certainty-spy-v1",
+      "family": "events",
+      "instrument": "SPY",
+      "timingBasis": "historical-reconstruction",
+      "samples": 214,
+      "trainSamples": 131,
+      "validationSamples": 51,
+      "testSamples": 32,
+      "test2020Samples": 24,
+      "test2024Samples": 8,
+      "controlImprovement95": [
+        -0.0024,
+        0.0028
+      ],
+      "campaignControlP": 1,
+      "comparisonCount": 384,
+      "adjustedControlP": 1,
+      "coefficientSign": "negative",
+      "modelBrier": 0.2508,
+      "controlBrier": 0.2499,
+      "baseRateBrier": 0.251,
+      "coinBrier": 0.25,
       "clearedMargin": false
     }
   ]
