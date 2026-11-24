@@ -139,7 +139,8 @@ th{font-weight:600}td,pre,summary span{font-variant-numeric:tabular-nums}.view t
 meter{height:1rem;width:4.5rem;accent-color:var(--accent)}.history{margin-top:1rem}.history pre{max-height:17rem;overflow:auto}
 ul{padding-inline-start:1.4rem}.providers{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));gap:.6rem 1rem;padding:0}
 .providers details{border:1px solid var(--line);padding:0 .7rem}.providers ul{margin:0 0 1rem}
-@media(max-width:42rem){.view table thead,section#signals thead,section#product thead{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
+.voting{color:#145634;font-weight:650}
+@media(max-width:42rem){.view table thead,section#signals thead,section#product thead,section#family-status thead{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
 tbody,tr,td,tbody th{display:block}tr{border-bottom:1px solid var(--line);padding:.6rem 0}
 tbody th,td{border:0;padding:.15rem 0}td:before{content:attr(data-label) " ";color:var(--muted);font-size:.85rem}
 .body{padding-left:.3rem}summary span{display:block;margin-left:1rem}}
@@ -179,15 +180,28 @@ function currentProduct(product: Product, snapshot: Snapshot, readings: Reading[
     return '<tr><th scope="row">' + row.symbol + '</th>' + values.map(([key, value]) =>
       '<td data-label="' + key + '">' + escape(value) + '</td>').join("") + '</tr>';
   }).join("");
-  const forward = market.families.filter(family => product.forwardFamilies.some(id => id === family.id)).map(family => family.label);
+  const horizons = views.filter(v => v.instrument === "MARKET");
+  const familyRows = market.families.map(family => {
+    const cells = horizons.map(v => {
+      const input = v.families.find(f => f.id === family.id)!;
+      const status = input.score !== null ? '<span class="voting">Voted</span>' : input.available ? 'Observed only' : 'No current input';
+      return '<td data-label="' + v.horizon + '">' + status + '</td>';
+    }).join("");
+    const studied = product.forwardFamilies.some(id => id === family.id);
+    return '<tr><th scope="row">' + escape(family.label) + '</th><td data-label="Current inputs">' + family.available + '/' +
+      family.expected + '</td>' + cells + '<td data-label="Prospective ETF study">' + (studied ? 'Connected' : '—') + '</td></tr>';
+  }).join("");
   return '<section id="product"><h2>Features and operating status</h2><p>Issue inputs are dated at the cutoff. The model and settlement report was evaluated ' +
     stamp(product.asOf) + '.</p><table><thead><tr><th scope="col">Feature</th><th scope="col">Verified in the release</th></tr></thead><tbody>' + grid +
     '</tbody></table><h3>ETF price checks and outstanding outcomes</h3><p>The first four columns count passed checks across August 31 to October 1, 2026, before launch. The last column counts outstanding prices for real, elapsed forecasts.</p>' +
     '<table><thead><tr><th scope="col">ETF</th><th scope="col">Daily</th><th scope="col">5-session</th><th scope="col">21-session</th><th scope="col">Dividends</th><th scope="col">Elapsed forecasts awaiting prices</th></tr></thead><tbody>' +
     prices + '</tbody></table><p>' + product.completeDailyCohorts + ' input-eligible daily sessions have settled for all five ETFs. Across the archive, ' +
     product.due + ' elapsed targets await prices and ' + product.future + ' have future exits. ' + product.calendarMissing + ' await calendar coverage and ' +
-    product.unaccounted + ' are unaccounted for.</p><p>The weekday publisher attaches witnessed inputs to future ETF outcomes for ' +
-    escape(forward.join(", ")) + '. Each comparison applies to its registered funds.</p></section>';
+    product.unaccounted + ' are unaccounted for.</p></section><section id="family-status"><h2>Which families voted</h2>' +
+    '<p>Votes are for the broad market at publication. A connected prospective study can pair a witnessed input with a later return for one or more ETFs.</p>' +
+    '<table><thead><tr><th scope="col">Family</th><th scope="col">Current inputs</th>' +
+    horizons.map(v => '<th scope="col">' + escape(v.horizon) + '</th>').join("") +
+    '<th scope="col">Prospective ETF study</th></tr></thead><tbody>' + familyRows + '</tbody></table></section>';
 }
 
 /** Archive views use only their original evidence. The optional current product inventory has a separate evaluation clock. */
@@ -215,7 +229,7 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
     sources.length + ' named source labels supplied a current reading.</p><p>' + countStatus("stale") + ' readings were stale, ' +
     countStatus("unavailable") + ' unavailable and ' + countStatus("not_formed") + ' awaiting confirmation.</p><p class="muted">Issued ' +
     stamp(edition.issuedAt) + ' · Evidence through ' + stamp(snapshot.cutoff) + '</p><nav aria-label="Report sections"><a href="#views">Forecasts</a>' +
-    (product ? '<a href="#product">Product status</a>' : '') + '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
+    (product ? '<a href="#product">Product status</a><a href="#family-status">Family votes</a>' : '') + '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
     '<a href="' + archive + '">Original edition</a></nav></header><main>' +
     (product ? currentProduct(product, snapshot, readings, views, sources) : '') +
     '<section id="views"><h2>How the inputs voted</h2><p>Each row shows the current inputs in one family and the values that contributed to its score. A zero score is a neutral vote.</p>' +
