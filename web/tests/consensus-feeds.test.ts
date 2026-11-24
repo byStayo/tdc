@@ -63,6 +63,81 @@ test("Treasury auctions require announced evidence and convert Eastern deadline 
   assert.equal(events[0].at, "2026-11-03T16:30:00.000Z");
   assert.match(events[0].title, /\$100bn/);
 });
+test("Treasury coupon reopenings retain original tenor, remaining maturity and the dated announcement", () => {
+  const reopen = {
+    cusip: "912810UX4", type: "Bond", securityType: "Bond", securityTerm: "19-Year 10-Month",
+    originalSecurityTerm: "20-Year", reopening: "Yes", inflationProtected: "No", floatingRate: "No",
+    announcementDate: "2026-10-15T00:00:00", competitiveAuctionCloseDate: "2026-10-21T00:00:00",
+    competitiveAuctionCloseTime: "01:00 PM", offeringAmount: "13000000000",
+    treasuryOfferingAnnouncementPressReleaseFileName: "A_20261015_3.pdf",
+  };
+  const cutoff = "2026-10-19T12:00:00.000Z";
+  const [event] = treasuryEvents([reopen], cutoff);
+  assert.equal(event.title, "Treasury 20-Year bond reopening auction · 19-Year 10-Month remaining · $13bn offered");
+  assert.equal(event.at, "2026-10-21T17:00:00.000Z");
+  assert.equal(event.url, "https://www.treasurydirect.gov/instit/annceresult/press/preanre/2026/A_20261015_3.pdf");
+  const invalid = [
+    { ...reopen, reopening: "No" }, { ...reopen, originalSecurityTerm: "10-Year" },
+    { ...reopen, securityTerm: "19-Year 13-Month" }, { ...reopen, securityTerm: "unknown" },
+    { ...reopen, type: "Note" }, { ...reopen, announcementDate: "2026-10-20T00:00:00" },
+  ];
+  assert.deepEqual(treasuryEvents(invalid, cutoff), []);
+  assert.equal(treasuryEvents([reopen, reopen], cutoff).length, 1);
+});
+
+test("Treasury floating-rate, inflation-protected and cash-management offerings keep their native category", () => {
+  const base = {
+    cusip: "91282CSA0", securityType: "Note", securityTerm: "2-Year", reopening: "No",
+    announcementDate: "2026-11-19T00:00:00", competitiveAuctionCloseDate: "2026-11-25T00:00:00",
+    competitiveAuctionCloseTime: "11:30 AM", offeringAmount: "44000000000",
+  };
+  const input = [
+    { ...base, type: "FRN", floatingRate: "Yes" },
+    { ...base, cusip: "91282CSA1", type: "TIPS", inflationProtected: "Yes", securityTerm: "5-Year" },
+    { ...base, cusip: "91282CSA2", type: "CMB", cashManagementBill: "Yes", securityType: "Bill", securityTerm: "9-Day" },
+    { ...base, cusip: "91282CSA3", type: "FRN", floatingRate: "No" },
+    { ...base, cusip: "91282CSA4", type: "TIPS", inflationProtected: "Yes", floatingRate: "Yes" },
+    { ...base, cusip: "91282CSA5", type: "Note", securityTerm: "7-Year", treasuryOfferingAnnouncementPressReleaseFileName: "../A_20261119_8.pdf" },
+  ];
+  const events = treasuryEvents(input, "2026-11-24T12:00:00.000Z");
+  assert.deepEqual(events.map((event) => event.title), [
+    "Treasury 2-Year floating-rate note auction · $44bn offered", "Treasury 5-Year TIPS auction · $44bn offered",
+    "Treasury 9-Day cash management bill auction · $44bn offered", "Treasury 7-Year note auction · $44bn offered",
+  ]);
+  assert.equal(events[2].importance, "context");
+  assert.equal(events[3].url, "https://www.treasurydirect.gov/auctions/upcoming/");
+  assert.ok(events.every((event) => event.at === "2026-11-25T16:30:00.000Z"));
+});
+
+test("the ordinary calendar collector uses the native reopening as a dated event", async () => {
+  const retrievedAt = "2026-11-24T12:48:48.373Z";
+  const result = await collectMarketCalendars(async (url) => {
+    if (!url.startsWith("https://www.treasurydirect.gov/")) throw new Error("missing fixture");
+    const row = {
+      cusip: "91282CRS2",
+      type: "FRN",
+      securityType: "Note",
+      floatingRate: "Yes",
+      reopening: "Yes",
+      originalSecurityTerm: "2-Year",
+      securityTerm: "1-Year 11-Month",
+      announcementDate: "2026-11-19T00:00:00",
+      competitiveAuctionCloseDate: "2026-11-24T00:00:00",
+      competitiveAuctionCloseTime: "01:00 PM",
+      offeringAmount: "28000000000",
+      treasuryOfferingAnnouncementPressReleaseFileName: "A_20261119_5.pdf",
+    };
+    return { text: JSON.stringify([row]), retrievedAt, sha256: "a".repeat(64) };
+  });
+  const signal = result.signals.find((item) => item.id === "treasury-calendar");
+  assert.equal(signal?.status, "available");
+  assert.equal(signal.metrics[0].value, 1);
+  assert.equal(signal.source.observedAt, retrievedAt);
+  assert.equal(signal.source.releasedAt, null);
+  assert.deepEqual(signal.scores, { daily: null, weekly: null, monthly: null });
+  assert.equal(result.catalysts[0].at, "2026-11-24T18:00:00.000Z");
+});
+
 test("failed calendar sources stay unavailable without directional scores", async () => {
   const r = await collectMarketCalendars(async () => {
     throw new Error("offline");

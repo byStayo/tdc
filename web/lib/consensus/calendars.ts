@@ -76,6 +76,57 @@ export function fomcEvents(html: string, cutoff: string): Catalyst[] {
   return [...events.values()].sort((a, b) => a.at.localeCompare(b.at));
 }
 
+const treasuryProducts: Record<
+  string,
+  { label: string; securityTypes: string[]; flag?: string }
+> = {
+  Bill: { label: "bill", securityTypes: ["Bill"] },
+  Note: { label: "note", securityTypes: ["Note"] },
+  Bond: { label: "bond", securityTypes: ["Bond"] },
+  TIPS: { label: "TIPS", securityTypes: ["Note", "Bond", "TIPS"], flag: "inflationProtected" },
+  FRN: { label: "floating-rate note", securityTypes: ["Note", "FRN"], flag: "floatingRate" },
+  CMB: { label: "cash management bill", securityTypes: ["Bill"], flag: "cashManagementBill" },
+};
+
+function treasuryAuctionName(row: Record<string, unknown>) {
+  const securityType = String(row.securityType ?? "");
+  const flagged = Object.keys(treasuryProducts).filter((name) => {
+    const flag = treasuryProducts[name].flag;
+    return flag && row[flag] === "Yes";
+  });
+  const category = String(row.type ?? flagged[0] ?? securityType);
+  if (!Object.hasOwn(treasuryProducts, category)) return null;
+  const product = treasuryProducts[category];
+  if (
+    flagged.some((name) => name !== category) ||
+    !product.securityTypes.includes(securityType) ||
+    (product.flag && row[product.flag] === "No")
+  ) return null;
+
+  const term = String(row.securityTerm ?? "");
+  if (
+    /^[1-9]\d{0,2}-(?:Week|Year|Month)$/.test(term) ||
+    (securityType === "Bill" && /^[1-9]\d{0,2}-Day$/.test(term))
+  )
+    return `${term} ${product.label} auction`;
+
+  const remaining = /^(\d{1,2})-Year ([1-9]|1[01])-Month$/.exec(term);
+  const original = /^([1-9]\d?)-Year$/.exec(String(row.originalSecurityTerm ?? ""));
+  if (
+    row.reopening !== "Yes" || securityType === "Bill" ||
+    !remaining || !original || Number(remaining[1]) >= Number(original[1])
+  ) return null;
+  return `${row.originalSecurityTerm} ${product.label} reopening auction · ${term} remaining`;
+}
+
+function treasuryAnnouncementLink(row: Record<string, unknown>, announcementDay: string) {
+  const file = String(row.treasuryOfferingAnnouncementPressReleaseFileName ?? "");
+  const name = /^A_(\d{8})_[1-9]\d*\.pdf$/.exec(file);
+  if (name?.[1] !== announcementDay.replaceAll("-", ""))
+    return "https://www.treasurydirect.gov/auctions/upcoming/";
+  return `https://www.treasurydirect.gov/instit/annceresult/press/preanre/${announcementDay.slice(0, 4)}/${file}`;
+}
+
 export function treasuryEvents(data: unknown, cutoff: string): Catalyst[] {
   if (!Array.isArray(data))
     throw new Error("Unexpected Treasury announcement schema");
@@ -88,16 +139,14 @@ export function treasuryEvents(data: unknown, cutoff: string): Catalyst[] {
         /^(\d{1,2}):(\d{2}) (AM|PM)$/,
       ),
       cusip = String(row.cusip ?? ""),
-      term = String(row.securityTerm ?? ""),
-      type = String(row.securityType ?? "");
+      auctionName = treasuryAuctionName(row);
     if (
       !publicDate(day) ||
       !publicDate(announced) ||
       announced > newYorkDate(cutoff) ||
       !close ||
       !/^\d[A-Z0-9]{8}$/.test(cusip) ||
-      !/^\d{1,3}-(?:Week|Year|Month)$/.test(term) ||
-      !["Bill", "Note", "Bond", "FRN", "TIPS"].includes(type) ||
+      !auctionName ||
       +close[1] < 1 ||
       +close[1] > 12 ||
       +close[2] > 59
@@ -110,15 +159,15 @@ export function treasuryEvents(data: unknown, cutoff: string): Catalyst[] {
     if (!at || !eventUpcoming(at, cutoff)) continue;
     const raw = String(row.offeringAmount ?? ""),
       amount = /^\d+$/.test(raw) ? Number(raw) : NaN;
-    const title = `Treasury ${term} ${type.toLowerCase()} auction${Number.isFinite(amount) && amount > 0 ? ` · $${(amount / 1e9).toLocaleString("en-US", { maximumFractionDigits: 1 })}bn offered` : ""}`;
+    const title = `Treasury ${auctionName}${Number.isFinite(amount) && amount > 0 ? ` · $${(amount / 1e9).toLocaleString("en-US", { maximumFractionDigits: 1 })}bn offered` : ""}`;
     events.set(cusip, {
       id: `treasury-${cusip}-${day}`,
       title,
       at,
-      url: "https://www.treasurydirect.gov/auctions/upcoming/",
+      url: treasuryAnnouncementLink(row, announced),
       source: "US Treasury",
       kind: "scheduled",
-      importance: type === "Bill" ? "context" : "major",
+      importance: row.securityType === "Bill" ? "context" : "major",
     });
   }
   return [...events.values()].sort((a, b) => a.at.localeCompare(b.at));
