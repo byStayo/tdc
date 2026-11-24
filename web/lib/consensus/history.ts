@@ -29,7 +29,7 @@ import { validateHouseholdEquity } from "./household-equity.ts";
 import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
 import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
-import { validateFirstRatePremarket } from "./firstrate-premarket.ts";
+import { validateFirstRatePremarket, validatePremarketBreadth } from "./firstrate-premarket.ts";
 import { validateSessionRanges } from "./regular-session-range.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
@@ -175,6 +175,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       throw new Error("Invalid metric");
   }
   validateFirstRateBreadth(snapshot.signals);
+  validatePremarketBreadth(snapshot.signals, snapshot.cutoff);
   for (const catalyst of snapshot.catalysts) {
     validateSourceCitation(catalyst.url);
     if (

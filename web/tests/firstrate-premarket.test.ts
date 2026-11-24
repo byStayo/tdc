@@ -110,9 +110,12 @@ test("approved sparse premarket samples join each ETF's premarket family only fo
   checkSnapshot(all, approvedAt);
   assert.equal(all.find(s => s.id === "premarket-bars")?.status, "unavailable");
   assert.deepEqual(all.find(s => s.id === "previous-premarket-bars")?.instruments, ["TLT"]);
+  const market = all.find(s => s.id === "firstrate-premarket-equity-breadth")!;
+  assert.deepEqual(market.metrics.map(m => m.value), [3.4, 4, 0, 0]);
+  assert.deepEqual(market.instruments, ["MARKET"]);
   for (const symbol of [...symbols, "TLT", "MARKET"] as const) for (const horizon of HORIZONS) {
     const family = calculateConsensus(all, symbol, horizon, approvedAt).families.find(f => f.id === "premarket")!;
-    assert.equal(family.available, symbol === "TLT" || symbol === "MARKET" ? 0 : 1);
+    assert.equal(family.available, symbol === "TLT" ? 0 : 1);
     assert.equal(family.score, null);
   }
   assert.deepEqual(await firstRate.loadFirstRatePremarket(directory, "2026-11-19T10:14:59.999Z"), []);
@@ -121,6 +124,27 @@ test("approved sparse premarket samples join each ETF's premarket family only fo
   const later = await firstRate.loadFirstRatePremarket(directory, "2026-11-20T13:00:00.000Z");
   assert.ok(later.length === 4 && later.every(s => s.status === "stale"));
   assert.deepEqual(await readFile(path), before);
+});
+
+test("four matched equity windows support one market observation with a reproducible median and no vote", () => {
+  const changes = [-3, 0, 1.1, 2.3];
+  const etfs = symbols.map((symbol, i) => firstRatePremarketSignal({ symbol, session: day, changePct: changes[i], activeMinutes: 330,
+    retrievedAt: capturedAt, vintageAt: new Date(vintage).toISOString(), sha256: String(i + 1).repeat(64) }, approvedAt, approvedAt));
+  const make = (readings: Signal[]) => firstRate.replaceFirstRatePremarket(missingSignals(approvedAt), readings, approvedAt);
+  const all = make(etfs);
+  const breadth = all.find(s => s.id === "firstrate-premarket-equity-breadth")!;
+  assert.deepEqual(breadth.metrics.map(m => m.value), [0.55, 2, 1, 1]);
+  checkSnapshot(all, approvedAt);
+  assert.deepEqual(breadth.directionalInstruments, []);
+  assert.deepEqual(breadth.scores, { daily: null, weekly: null, monthly: null });
+  assert.ok(!make(etfs.slice(1)).some(s => s.id === breadth.id));
+  assert.throws(() => checkSnapshot(all.filter(s => s.id !== etfs[0].id), approvedAt), /premarket breadth/);
+  const changed = structuredClone(all);
+  changed.find(s => s.id === breadth.id)!.metrics[0].value = 0;
+  assert.throws(() => checkSnapshot(changed, approvedAt), /premarket breadth/);
+  const expired = firstRate.replaceFirstRatePremarket(all, undefined, "2026-11-19T14:30:00.000Z");
+  assert.ok(!expired.some(s => s.id === breadth.id));
+  checkSnapshot(expired, "2026-11-19T14:30:00.000Z");
 });
 
 test("a missing boundary, duplicate minute or invalid OHLCV withholds only the affected ETF", async t => {

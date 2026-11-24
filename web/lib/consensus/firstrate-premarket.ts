@@ -1,11 +1,13 @@
+import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { effectiveStatus } from "./engine.ts";
 import { exchangeSession, hasReviewedCalendar } from "./exchange-calendar.ts";
-import { FIRST_RATE_SYMBOLS } from "./firstrate-technicals.ts";
+import { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS } from "./firstrate-technicals.ts";
 import { missingSignals } from "./registry.ts";
 import type { Signal } from "./types.ts";
 
 const prefix = "firstrate-premarket-";
+const marketId = prefix + "equity-breadth";
 const dayMs = 86_400_000;
 type ETF = (typeof FIRST_RATE_SYMBOLS)[number];
 export type PremarketSample = { symbol: ETF; session: string; changePct: number; activeMinutes: number;
@@ -51,7 +53,7 @@ export function firstRatePremarketSignal(sample: PremarketSample, approvedAt: st
 }
 
 export function validateFirstRatePremarket(signal: Signal, cutoff: string) {
-  if (!signal.id.startsWith(prefix)) return;
+  if (!signal.id.startsWith(prefix) || signal.id === marketId) return;
   const { source, metrics } = signal;
   const canonical = firstRatePremarketSignal({ symbol: signal.id.slice(prefix.length) as ETF,
     session: source.observedAt?.slice(0, 10) ?? "", changePct: metrics[0]?.value, activeMinutes: metrics[1]?.value,
@@ -59,11 +61,51 @@ export function validateFirstRatePremarket(signal: Signal, cutoff: string) {
   if (!isDeepStrictEqual(signal, canonical)) throw new Error("Invalid premarket observation, scope or public fields");
 }
 
+/** Comparable, rounded returns for the same prior window, represented once in the broad market view. */
+function equityPremarketBreadth(signals: Signal[], cutoff: string): Signal | undefined {
+  const members: Signal[] = [];
+  for (const symbol of FIRST_RATE_SYMBOLS) {
+    const row = signals.find(s => s.id === prefix + symbol);
+    if (!row || effectiveStatus(row, cutoff) !== "available") return;
+    validateFirstRatePremarket(row, cutoff);
+    members.push(row);
+  }
+  const [first] = members, observedAt = first.source.observedAt!;
+  if (!members.every(s => s.source.observedAt === observedAt)) return;
+  const date = observedAt.slice(0, 10);
+  const changes = members.map(s => s.metrics[0].value).sort((a, b) => a - b);
+  const median = Number(((changes[1] + changes[2]) / 2).toFixed(2));
+  const up = changes.filter(v => v > 0).length, down = changes.filter(v => v < 0).length, flat = members.length - up - down;
+  const clocks = (key: "retrievedAt" | "approvedAt" | "vintageAt") => members.map(s => s.source[key]!).sort().at(-1)!;
+  const sha256 = createHash("sha256").update(JSON.stringify(members.map(s => [s.id, s.source.sha256, s.metrics[0].value, date]))).digest("hex");
+  const title = "Previous premarket across four U.S. equity ETFs";
+  return { id: marketId, family: "premarket", title, shortLabel: title, instruments: ["MARKET"], directionalInstruments: [],
+    status: "available", staleAfterDays: first.staleAfterDays, unit: "%", scores: { daily: null, weekly: null, monthly: null },
+    summary: "On " + date + ", " + up + " equity ETFs rose, " + down + " fell and " + flat +
+      " were flat from 4:00 to 9:29 a.m. New York. The median reported change was " + median + "%.",
+    methodology: "Use each of SPY, QQQ, IWM and DIA once. Count the signs of their published one-decimal premarket changes and take the median of those four readings.",
+    limitation: "The four funds have overlapping holdings. A change that rounds to zero counts as flat. This measures the preceding session and carries no forecast vote.",
+    metrics: [{ label: "Median reported premarket change", value: median, unit: "%", date },
+      { label: "Advancing ETFs", value: up, unit: "ETFs", date }, { label: "Declining ETFs", value: down, unit: "ETFs", date },
+      { label: "Flat at reported precision", value: flat, unit: "ETFs", date }],
+    series: [{ date, value: median }],
+    source: { ...first.source, url: FIRST_RATE_SOURCE, retrievedAt: clocks("retrievedAt"), approvedAt: clocks("approvedAt"),
+      vintageAt: clocks("vintageAt"), sha256 } };
+}
+
+export function validatePremarketBreadth(signals: Signal[], cutoff: string) {
+  const row = signals.find(s => s.id === marketId);
+  if (row && !isDeepStrictEqual(row, equityPremarketBreadth(signals, cutoff)))
+    throw new Error("Market premarket breadth differs from the four current equity observations");
+}
+
 export function replaceFirstRatePremarket(signals: Signal[], readings: Signal[] | undefined, cutoff: string): Signal[] {
   const ids = ["premarket-bars", "previous-premarket-bars"];
   const saved = signals.filter(row => row.id.startsWith(prefix));
   if (readings === undefined && !saved.length && !signals.some(s => s.id === "previous-premarket-bars")) return signals;
-  const dated = (readings ?? saved).map(row => effectiveStatus(row, cutoff) === "stale" ? { ...row, status: "stale" as const } : row);
+  const dated = (readings ?? saved).filter(row => row.id !== marketId)
+    .map(row => effectiveStatus(row, cutoff) === "stale" ? { ...row, status: "stale" as const } : row);
+  const breadth = readings !== undefined || saved.some(row => row.id === marketId) ? equityPremarketBreadth(dated, cutoff) : undefined;
   const [current, missing] = missingSignals(cutoff).filter(row => ids.includes(row.id));
   const covered = dated.filter(row => row.status === "available").flatMap(row => row.instruments);
   missing.instruments = missing.instruments.filter(symbol => !covered.includes(symbol));
@@ -71,6 +113,6 @@ export function replaceFirstRatePremarket(signals: Signal[], readings: Signal[] 
   const index = signals.findIndex(owns);
   const rest = signals.filter(s => !owns(s));
   const currentReading = signals.find(s => s.id === current.id && s.status !== "unavailable") ?? current;
-  rest.splice(index < 0 ? rest.length : index, 0, currentReading, ...dated, ...(missing.instruments.length ? [missing] : []));
+  rest.splice(index < 0 ? rest.length : index, 0, currentReading, ...(breadth ? [breadth] : []), ...dated, ...(missing.instruments.length ? [missing] : []));
   return rest;
 }
