@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-20",
@@ -316,6 +316,46 @@
       "baseRateBrier": 0.2518,
       "coinBrier": 0.25,
       "coefficientSign": "negative",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-tlt-original-bls-payroll-revisions-v1",
+      "family": "news",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 134,
+      "testSamples": 27,
+      "modelBrier": 0.2579,
+      "controlBrier": 0.2505,
+      "baseRateBrier": 0.2473,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "controlImprovement95": [
+        -0.0175,
+        -0.0019
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "ofr-volatility-contribution-prelaunch-v1-time-attested-four-decimal",
+      "family": "macro",
+      "instrument": "SPY",
+      "timingBasis": "archived-before-cutoff",
+      "sourceBasis": "originals-and-four-decimal-mirror",
+      "samples": 125,
+      "testSamples": 25,
+      "nativeOnlySamples": 76,
+      "nativeSamples": 70,
+      "mirrorSamples": 55,
+      "modelBrier": 0.2515,
+      "controlBrier": 0.2518,
+      "baseRateBrier": 0.254,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "controlImprovement95": [
+        -0.002,
+        0.0019
+      ],
       "clearedMargin": false
     }
   ]

@@ -76,6 +76,7 @@ export interface Signal {
   /** First-release Treasury components with their own observation and publication clock. */
   ticRelease?: import("./tic-release.ts").TicReleaseEvidence;
   schwabRetailFlows?: import("./schwab-retail-flows.ts").SchwabRetailFlowsEvidence;
+  blsPayrollNews?: import("./bls-payroll-news.ts").BlsPayrollNewsEvidence;
   /** Aggregate coverage for two adjacent Oregon public pension schedules. */
   operfCapital?: import("./operf-capital.ts").OperfEvidence;
   /** Reviewed Fed release metadata; stored with the edition, never inferred from today's release. */

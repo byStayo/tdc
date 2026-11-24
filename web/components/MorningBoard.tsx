@@ -27,7 +27,7 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
-import { FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
+import { BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
   TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
@@ -61,7 +61,10 @@ const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
 const number = (value: number, decimals = 2) =>
   value.toLocaleString("en-US", { maximumFractionDigits: decimals });
-const visibleAttribution = new Set(["nyfed-sce-stock-outlook", "nyfed-desk-year-end-policy-expectations", "japan-mof-equity-flows"]);
+const visibleAttribution = new Set([
+  "nyfed-sce-stock-outlook", "nyfed-desk-year-end-policy-expectations", "japan-mof-equity-flows",
+  "bls-payroll-revision-news", "nyfed-dealer-long-treasury-positions",
+]);
 const date = (value: string) =>
   new Date(
     value.length === 10 ? `${value}T12:00:00Z` : value,
@@ -429,7 +432,11 @@ function SourceDrawer({
           (signal) =>
             signal.family === family && signal.instruments.includes(instrument),
         )
-        .map((signal) => (
+        .map((signal) => {
+          const firstVerified = signal.id === "nyfed-dealer-long-treasury-positions"
+            ? signal.source.vintageAt
+            : signal.blsPayrollNews?.firstVerifiedAt;
+          return (
           <article className={styles.sourceItem} key={signal.id}>
             <div className={styles.cardTop}>
               <h3>{signal.title}</h3>
@@ -495,7 +502,13 @@ function SourceDrawer({
                     : "Not supplied by source"}
                 </dd>
               </div>
-              {signal.source.vintageAt && (!isCftcPosition(signal.id) || signal.source.vintageAt !== signal.source.releasedAt) && (
+              {firstVerified && (
+                <div>
+                  <dt>First verified by The Daily Consensus</dt>
+                  <dd>{datedYear(firstVerified)} · {time(firstVerified)} ET</dd>
+                </div>
+              )}
+              {!firstVerified && signal.source.vintageAt && (!isCftcPosition(signal.id) || signal.source.vintageAt !== signal.source.releasedAt) && (
                 <div>
                   <dt>{isCftcPosition(signal.id) ? "CFTC table row updated" : "Provider vintage"}</dt>
                   <dd>{datedYear(signal.source.vintageAt)}{isCftcPosition(signal.id) && ` · ${time(signal.source.vintageAt)} ET`}</dd>
@@ -535,7 +548,8 @@ function SourceDrawer({
               <ExternalLink size={13} />
             </a>
           </article>
-        ))}
+          );
+        })}
     </dialog>
   );
 }
@@ -1304,6 +1318,7 @@ export default function MorningBoard({
     .sort((a, b) => Math.abs(b.score!) - Math.abs(a.score!))
     .slice(0, 5);
   const fomcEve = kibotResearch?.studies.find((row): row is FomcEveStudyRow => "testEves" in row);
+  const ofrStudy = kibotResearch?.studies.find(row => "nativeOnlySamples" in row);
   const timing = editionTiming(snapshot, history);
   const cohort = performanceView(
     performance,
@@ -2513,7 +2528,7 @@ export default function MorningBoard({
                               {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}</>}
                               {"returnOnlyBrier" in row && <><br />{row.studyId === FOMC_EVE_RESEARCH.id ? "Prior session return only" : "Same-day return only"} {row.returnOnlyBrier.toFixed(4)}</>}
                               {"ageOnlyBrier" in row && <><br />Filing age only {row.ageOnlyBrier.toFixed(4)}</>}
-                              {"controlBrier" in row && <><br />{[TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH]
+                              {"controlBrier" in row && <><br />{KIBOT_DATED_RESEARCH
                                 .find(study => study.id === row.studyId)?.controlLabel} {row.controlBrier.toFixed(4)}</>}
                               {"coinBrier" in row && <><br />50/50 {row.coinBrier.toFixed(4)}</>}
                             </td>
@@ -2523,6 +2538,14 @@ export default function MorningBoard({
                               {"eveCoefficientSign" in row && <><br />Calendar coefficient {row.eveCoefficientSign}</>}
                               {"earningsCoefficientSign" in row && <><br />Surprise coefficient {row.earningsCoefficientSign}
                                 <br />95% interval for improvement over filing age alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}</>}
+                              {"studyId" in row && row.studyId === BLS_PAYROLL_RESEARCH.id && <>
+                                <br />Revision coefficient {row.coefficientSign} (expected {BLS_PAYROLL_RESEARCH.expectedSign})
+                                <br />95% interval for improvement over the headline alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                              </>}
+                              {"nativeOnlySamples" in row && <>
+                                <br />Coefficient for falling volatility {row.coefficientSign} (expected {OFR_VOLATILITY_RESEARCH.expectedSign})
+                                <br />95% interval for improvement over the rest of the index {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                              </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
                           </tr>
@@ -2585,6 +2608,25 @@ export default function MorningBoard({
                       also had an independently dated copy before the next 8 a.m. cutoff.{" "}
                       <a href={SWVXX_FLOW_RESEARCH.source}>SEC fund filings</a>
                       {" · "}<a href={VX_CURVE_RESEARCH.source}>Futures settlement data</a>
+                    </p>
+                  )}
+                  {kibotResearch.schemaVersion >= 8 && (instrument === "MARKET" || instrument === "TLT") && (
+                    <p className={styles.muted}>
+                      The payroll study used original 8:30 a.m. Eastern employment reports. It tested whether revisions to the
+                      previous two months added information about TLT’s open-to-close direction on the next trading day,
+                      beyond the newly reported change in payrolls. January benchmark reports and shortened target sessions were excluded.{" "}
+                      <a href={BLS_PAYROLL_RESEARCH.source}>Bureau of Labor Statistics employment reports</a>
+                    </p>
+                  )}
+                  {ofrStudy && (instrument === "MARKET" || instrument === "SPY") && (
+                    <p className={styles.muted}>
+                      The Office of Financial Research study tested whether falling volatility predicted SPY’s next full-session direction.
+                      Official files archived before the forecast cutoff supplied {ofrStudy.nativeOnlySamples} eligible dates, below the 120 needed for that test.
+                      The separately registered comparison used {ofrStudy.nativeSamples} dates from original files and {ofrStudy.mirrorSamples} from
+                      timestamped copies, rounding all inputs to four decimals. The interval describes uncertainty in the comparison.{" "}
+                      <a href={OFR_VOLATILITY_RESEARCH.source}>OFR Financial Stress Index</a>
+                      {" · "}<a href={OFR_VOLATILITY_RESEARCH.archive}>Library of Congress archive</a>
+                      {" · "}<a href={OFR_VOLATILITY_RESEARCH.mirror}>Four-decimal archive</a>
                     </p>
                   )}
                   <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">

@@ -20,6 +20,8 @@ import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validateIssuerGuidance } from "./issuer-guidance-match.ts";
 import { validateTicRelease } from "./tic-release.ts";
 import { validateSchwabRetailFlows } from "./schwab-retail-flows.ts";
+import { validatePrimaryDealerPositions } from "./primary-dealer-positions.ts";
+import { validateBlsPayrollNews } from "./bls-payroll-news.ts";
 import { validateVxCurve } from "./vx-curve.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateOperfCapital } from "./operf-capital.ts";
@@ -83,6 +85,8 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateIssuerGuidance(signal, snapshot.cutoff);
     validateTicRelease(signal, snapshot.cutoff);
     validateSchwabRetailFlows(signal, snapshot.cutoff);
+    validatePrimaryDealerPositions(signal, snapshot.cutoff);
+    validateBlsPayrollNews(signal, snapshot.cutoff);
     validateVxCurve(signal, snapshot.cutoff);
     validateOperfCapital(signal, snapshot.cutoff);
     validateHouseholdEquity(signal);

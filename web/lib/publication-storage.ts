@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, open, rename, unlink, link } from "node:fs/promises";
-import { dirname } from "node:path";
+import { mkdir, open, readFile, rename, unlink, link } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 export async function syncDirectory(path: string): Promise<void> {
   const directory = await open(path, "r");
@@ -48,4 +48,30 @@ export async function durableJSON(path: string, value: unknown, immutable = fals
       throw cleanupError;
     }
   }
+}
+
+/** The first verified source capture wins, including when two collectors run concurrently. */
+export async function immutableSourceReceipt<T>(directory: string | undefined, filename: string, collect: () => Promise<T>,
+  verify: (receipt: T) => void): Promise<T> {
+  const path = directory && join(directory, filename);
+  async function saved(file: string) {
+    const receipt = JSON.parse(await readFile(file, "utf8")) as T;
+    verify(receipt);
+    return receipt;
+  }
+  if (path) {
+    try { return await saved(path); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+  }
+  const fresh = await collect();
+  verify(fresh);
+  if (path && directory) {
+    await durableDirectory(directory, 0o700);
+    try { await durableJSON(path, fresh, true); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      return saved(path);
+    }
+  }
+  return fresh;
 }

@@ -1,6 +1,7 @@
 import { collectIssuerGuidance } from "./issuer-guidance-match.ts";
 import { REVENUE_ISSUERS } from "./issuer-revenue.ts";
 import { collectNews } from "./news.ts";
+import { collectBlsPayrollNews } from "./bls-payroll-news.ts";
 import { newYorkTimestamp } from "./time.ts";
 export { newYorkTimestamp } from "./time.ts";
 import { collectMarketCalendars } from "./calendars.ts";
@@ -12,6 +13,7 @@ import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
 import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
+import { collectPrimaryDealerPositions } from "./primary-dealer-positions.ts";
 import { collectSchwabRetailFlows } from "./schwab-retail-flows.ts";
 import { collectVxCurve, VX_CURVE_ID } from "./vx-curve.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
@@ -949,6 +951,8 @@ export async function collectSnapshot(
     issuerGuidance,
     retailFundFlow,
     vxCurve,
+    dealerPositions,
+    payrollNews,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -999,6 +1003,10 @@ export async function collectSnapshot(
       archiveRoot ? join(archiveRoot, ".consensus/private-retail-nmfp/live-collector") : undefined),
     collectVxCurve(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-vx-curve/live") : undefined,
       previous?.signals.find(signal => signal.id === VX_CURVE_ID)),
+    collectPrimaryDealerPositions(url => publicText(url, fetcher),
+      archiveRoot ? join(archiveRoot, ".consensus/private-primary-dealer-positions") : undefined),
+    collectBlsPayrollNews(fetcher, undefined,
+      archiveRoot ? join(archiveRoot, ".consensus/private-bls-payroll-news/current-collector") : undefined),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -1036,6 +1044,8 @@ export async function collectSnapshot(
       ...issuerGuidance,
       retailFundFlow,
       vxCurve,
+      dealerPositions,
+      payrollNews,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
   return applyScoringPolicy({
@@ -1054,7 +1064,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 64 + REVENUE_ISSUERS.length + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 66 + REVENUE_ISSUERS.length + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

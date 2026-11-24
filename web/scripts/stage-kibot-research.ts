@@ -6,16 +6,18 @@ import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { readDatedStudyRows } from "../lib/consensus/dated-study-review.ts";
+import { replayOfrVolatility } from "../lib/consensus/ofr-volatility-review.ts";
 import { replayFt900Study } from "./research-ft900-exports.ts";
 import { replaySpyCloseLocation } from "./research-spy-close-location.ts";
 import { FOMC_EVE_POLICY_SHA, replayFomcEveStudy } from "./research-fomc-eve.ts";
 import { replayIssuerGuidanceQqq } from "./research-issuer-guidance-qqq.ts";
+import { replayBlsPayrollNewsStudy } from "./research-bls-payroll-news.ts";
 import { readPrivateResearchSessions, verifyPreviousResearchSessions, type ResearchSessionReceipt } from "../lib/consensus/kibot-verified-session.ts";
 import { readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
 import {
-  FT900_RESEARCH, KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_LEGACY_RESEARCH_STUDIES,
+  BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, FT900_RESEARCH, KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_LEGACY_RESEARCH_STUDIES,
   KIBOT_RESEARCH_SYMBOLS, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, validateKibotResearch,
-  type Ft900StudyRow, type FomcEveStudyRow, type QqqIssuerGuidanceRow, type KibotResearch, type SpyCloseLocationStudyRow,
+  type DatedStudyRow, type Ft900StudyRow, type FomcEveStudyRow, type QqqIssuerGuidanceRow, type KibotResearch, type SpyCloseLocationStudyRow,
 } from "../lib/consensus/kibot-research.ts";
 
 /** Only expose rounded diagnostics from the checked, cached research replay. */
@@ -103,6 +105,58 @@ async function readQqqIssuerGuidanceStudy(before: string): Promise<QqqIssuerGuid
   };
 }
 
+export async function readBlsPayrollNewsStudy(before: string): Promise<DatedStudyRow> {
+  const result = await replayBlsPayrollNewsStudy(true, before);
+  if (result.method !== BLS_PAYROLL_RESEARCH.id || result.before !== before ||
+      result.policySHA256 !== "69db484547a03f3800f10e35ad5d9e8808cbe8648ced266e728843c6d61d4b05" ||
+      result.sourceSHA256 !== "c515848fb40c480dfa978a43bff6da4b065edd41310a9cc9bd46888ce77dd9e6" ||
+      result.sealedSHA256 !== "bf27c369a61f213963d33cb719d3f87fb1ca618ecaff7c21e0993062408ab066")
+    throw new Error("BLS payroll staging requires the reviewed original releases, TLT prices and prelaunch results");
+  const s = result.summary;
+  const [lower, upper] = s.uncertainty95;
+  const margin = Math.min(s.controlBrier, s.baseBrier, s.coinBrier) - s.candidateBrier;
+  if (s.status !== "evaluated" || s.eligible !== BLS_PAYROLL_RESEARCH.samples || s.paired !== s.eligible - s.excluded ||
+      s.paired !== s.split.train + s.split.validation + s.split.test || s.split.testEnds >= before ||
+      ![s.coefficient, margin, lower, upper].every(Number.isFinite) || lower > upper || s.coinBrier !== 0.25 ||
+      s.clearsGate !== (s.coefficient < 0 && margin > 0.01 && lower > 0))
+    throw new Error("BLS payroll staging disagrees with the registered chronological comparison and uncertainty gate");
+  const round = (value: number) => Number(value.toFixed(4));
+  return {
+    studyId: BLS_PAYROLL_RESEARCH.id, family: BLS_PAYROLL_RESEARCH.family, instrument: BLS_PAYROLL_RESEARCH.instrument,
+    timingBasis: "dated-release", samples: s.paired, testSamples: s.split.test,
+    modelBrier: round(s.candidateBrier), controlBrier: round(s.controlBrier), baseRateBrier: round(s.baseBrier), coinBrier: s.coinBrier,
+    coefficientSign: s.coefficient < 0 ? "negative" : s.coefficient > 0 ? "positive" : "zero",
+    controlImprovement95: [round(lower), round(upper)], clearedMargin: s.clearsGate,
+  };
+}
+
+export async function readOfrVolatilityStudy(root: string, before: string): Promise<DatedStudyRow> {
+  const r = await replayOfrVolatility(root);
+  if (r.engineVersion !== OFR_VOLATILITY_RESEARCH.id || r.before !== before || r.testEnds >= before ||
+      r.nativePolicySha256 !== "88f96b5baca5e16dc6d5c49df4e8d78496bfb66372e563a9a1843eb182d10d7e" ||
+      r.precisionPolicySha256 !== "e6248d835cdfb6add08ddf1681433b30e16a2c2c7da2eebd039b4b0c90b42fbf" ||
+      r.cohortSha256 !== "7c2608afbed7bd9fa23a0f5a5ca4455a07366fcb4d821ac6b6441ef8b390839b" ||
+      r.receiptSha256 !== "ced65dadf515af48bb47beed604005dab4702ecdeb99879c3095bdddf0d9c77e")
+    throw new Error("OFR staging requires the two registered source rules, sealed mixed cohort and checked prelaunch outcomes");
+  const { improvement, lowerBound, upperBound } = r.pairedControl;
+  const margin = Math.min(r.controlBrier, r.baseRateBrier, r.coinBrier) - r.candidateBrier;
+  if (r.eligibleTargets !== OFR_VOLATILITY_RESEARCH.samples || r.eligibleTargets !== r.nativeTargetsInMixed + r.mirrorTargetsInMixed ||
+      r.eligibleTargets !== r.train + r.validation + r.test || r.nativeOnlyTargets >= 120 || r.coinBrier !== 0.25 ||
+      ![r.featureWeight, margin, improvement, lowerBound, upperBound].every(Number.isFinite) || lowerBound > upperBound ||
+      Math.abs(improvement - (r.controlBrier - r.candidateBrier)) > 1e-12 || r.passed !== (r.featureWeight > 0 && margin > 0.01))
+    throw new Error("OFR aggregate disagrees with the source counts, chronological comparison or registered decision");
+  const round = (value: number) => Number(value.toFixed(4));
+  return {
+    studyId: OFR_VOLATILITY_RESEARCH.id, family: OFR_VOLATILITY_RESEARCH.family, instrument: OFR_VOLATILITY_RESEARCH.instrument,
+    timingBasis: OFR_VOLATILITY_RESEARCH.timingBasis, sourceBasis: "originals-and-four-decimal-mirror",
+    samples: r.eligibleTargets, testSamples: r.test, nativeOnlySamples: r.nativeOnlyTargets,
+    nativeSamples: r.nativeTargetsInMixed, mirrorSamples: r.mirrorTargetsInMixed,
+    modelBrier: round(r.candidateBrier), controlBrier: round(r.controlBrier), baseRateBrier: round(r.baseRateBrier), coinBrier: r.coinBrier,
+    coefficientSign: r.featureWeight > 0 ? "positive" : r.featureWeight < 0 ? "negative" : "zero",
+    controlImprovement95: [round(lowerBound), round(upperBound)], clearedMargin: r.passed,
+  };
+}
+
 async function main() {
   const args = process.argv.slice(2);
   if (args.length > 1 || (args.length && args[0] !== "--publish"))
@@ -143,13 +197,14 @@ async function main() {
         };
       });
     });
-    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies] = await Promise.all([
+    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy] = await Promise.all([
       readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt), readFomcEveStudy(snapshots[0].issuedAt),
       readQqqIssuerGuidanceStudy(snapshots[0].issuedAt), readDatedStudyRows(root, snapshots[0].issuedAt),
+      readBlsPayrollNewsStudy(snapshots[0].issuedAt), readOfrVolatilityStudy(root, snapshots[0].issuedAt),
     ]);
-    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies);
+    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies, payrollStudy, ofrStudy);
     const aggregate: KibotResearch = {
-      schemaVersion: 7, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 8, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

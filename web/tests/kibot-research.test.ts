@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { researchStudyFor, SPY_CLOSE_LOCATION_RESEARCH, validateKibotResearch, type Ft900StudyRow, type SpyCloseLocationStudyRow } from "../lib/consensus/kibot-research.ts";
+import { BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, researchStudyFor, SPY_CLOSE_LOCATION_RESEARCH, validateKibotResearch, type Ft900StudyRow, type SpyCloseLocationStudyRow } from "../lib/consensus/kibot-research.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { assertRetainedStudyRows } from "../scripts/stage-kibot-research.ts";
 
@@ -178,4 +178,70 @@ test("version seven appends the three dated studies to the unchanged twenty-four
   ]) assert.throws(()=>validateKibotResearch(altered,history[0]),/reviewed aggregate schema/);
   const changed = {...v7,studies:[{...v6.studies[0],samples:v6.studies[0].samples+1},...v7.studies.slice(1)]};
   assert.throws(()=>assertRetainedStudyRows(v6,changed),/previously published/);
+});
+
+test("version eight retains all twenty-seven earlier rows and appends the TLT payroll and mixed-source SPY volatility studies", async () => {
+  const root = new URL("../", import.meta.url);
+  const { history } = await verifyPublicationTree(fileURLToPath(root));
+  const shipped = JSON.parse(await readFile(new URL("public/consensus/kibot-research.json", root), "utf8"));
+  const previous = { ...shipped, schemaVersion: 7, studies: shipped.studies.slice(0, 27) };
+  validateKibotResearch(previous, history[0]);
+  const row = {
+    studyId: BLS_PAYROLL_RESEARCH.id, family: "news", instrument: "TLT", timingBasis: "dated-release",
+    samples: 134, testSamples: 27, modelBrier: 0.2579, controlBrier: 0.2505, baseRateBrier: 0.2473,
+    coinBrier: 0.25, coefficientSign: "positive", controlImprovement95: [-0.0175, -0.0019], clearedMargin: false,
+  };
+  const ofr = {
+    studyId: OFR_VOLATILITY_RESEARCH.id, family: "macro", instrument: "SPY", timingBasis: "archived-before-cutoff",
+    sourceBasis: "originals-and-four-decimal-mirror", nativeOnlySamples: 76, nativeSamples: 70, mirrorSamples: 55,
+    samples: 125, testSamples: 25, modelBrier: 0.2515, controlBrier: 0.2518, baseRateBrier: 0.2540,
+    coinBrier: 0.25, coefficientSign: "positive", controlImprovement95: [-0.0020, 0.0019], clearedMargin: false,
+  };
+  const append = (changes: Record<string, unknown> = {}, ofrChanges: Record<string, unknown> = {}) => ({
+    ...previous, schemaVersion: 8, studies: [...previous.studies, { ...row, ...changes }, { ...ofr, ...ofrChanges }],
+  });
+  const report = append();
+  validateKibotResearch(report, history[0]);
+  assertRetainedStudyRows(previous, report);
+  assert.equal(researchStudyFor(report.studies.at(-2)!), BLS_PAYROLL_RESEARCH);
+  assert.equal(researchStudyFor(report.studies.at(-1)!), OFR_VOLATILITY_RESEARCH);
+  assert.equal(BLS_PAYROLL_RESEARCH.expectedSign, "negative");
+  const substitutions = [
+    { instrument: "DIA" }, { family: "rates" }, { samples: 135 }, { testSamples: 26 }, { timingBasis: "historical-reconstruction" },
+    { studyId: "prelaunch-gdelt-news-v1" }, { coefficientSign: ["positive"] }, { coinBrier: 0.2499 }, { clearedMargin: true },
+    { controlBrier: 0.25054 }, { controlImprovement95: [-0.01751, -0.0019] }, { controlImprovement95: [-0.0019, -0.0175] },
+    { controlImprovement95: [NaN, 0.2] }, { controlImprovement95: [0.1] }, { strictBeforeCutoff: 134 },
+    { modelWeights: [0.0603] }, { sourceHashes: [] }, { payrollChanges: [] }, { priceRows: [] },
+  ];
+  for (const change of substitutions) assert.throws(() => validateKibotResearch(append(change), history[0]), /reviewed aggregate schema/);
+  for (const altered of [
+    { ...previous, schemaVersion: 8 }, { ...report, schemaVersion: 7 }, { ...report, studies: [...report.studies, row] },
+    { ...report, studies: [...previous.studies.slice(0, -1), row, previous.studies.at(-1)] },
+    { ...report, studies: [...previous.studies, row] }, { ...report, studies: [...previous.studies, ofr] },
+    { ...report, studies: [...previous.studies, ofr, row] },
+  ]) assert.throws(() => validateKibotResearch(altered, history[0]), /reviewed aggregate schema/);
+  const changedPrior = { ...report, studies: [{ ...previous.studies[0], samples: previous.studies[0].samples + 1 }, ...report.studies.slice(1)] };
+  assert.throws(() => assertRetainedStudyRows(previous, changedPrior), /previously published/);
+  const passed = { modelBrier: 0.21, clearedMargin: true, coefficientSign: "negative", controlImprovement95: [0.02, 0.06] };
+  validateKibotResearch(append(passed), history[0]);
+  for (const change of [
+    { coefficientSign: "positive" }, { coefficientSign: "zero" }, { controlImprovement95: [-0.001, 0.06] }, { clearedMargin: false },
+    { controlBrier: 0.2199 }, { baseRateBrier: 0.2199 }, { modelBrier: 0.2401, controlBrier: 0.27, baseRateBrier: 0.27 },
+  ]) assert.throws(() => validateKibotResearch(append({ ...passed, ...change }), history[0]));
+  validateKibotResearch(append({ ...passed, clearedMargin: false, controlImprovement95: [-0.001, 0.06] }), history[0]);
+  // A lower 95% bound rounded to zero can have either sign at the precision used in the replay.
+  for (const clearedMargin of [true, false]) validateKibotResearch(append({
+    ...passed, clearedMargin, controlImprovement95: [0, 0.06],
+  }), history[0]);
+
+  for (const change of [
+    { instrument: "TLT" }, { family: "rates" }, { sourceBasis: "originals-only" }, { timingBasis: "dated-release" },
+    { nativeOnlySamples: 125 }, { nativeSamples: 76, mirrorSamples: 49 }, { mirrorSamples: 56 }, { samples: 126 }, { testSamples: 24 },
+    { studyId: "ofr-volatility-contribution-spy-prelaunch-v1" }, { clearedMargin: true }, { rawVolatilityChanges: [] },
+    { controlImprovement95: [0.01, -0.01] }, { controlImprovement95: [-0.01, 0.01001] }, { controlBrier: 0.25181 },
+  ]) assert.throws(() => validateKibotResearch(append({}, change), history[0]), /reviewed aggregate schema/);
+  // The OFR interval is descriptive. Its registered decision uses a positive coefficient on minus delta volatility and all three margins.
+  validateKibotResearch(append({}, { modelBrier: 0.21, clearedMargin: true, controlImprovement95: [-0.01, 0.04] }), history[0]);
+  assert.throws(() => validateKibotResearch(append({}, { modelBrier: 0.21, clearedMargin: true, coefficientSign: "negative" }), history[0]));
+  assert.throws(() => validateKibotResearch(append({}, { modelBrier: 0.21, clearedMargin: false }), history[0]));
 });

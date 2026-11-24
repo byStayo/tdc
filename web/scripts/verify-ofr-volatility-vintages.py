@@ -17,6 +17,7 @@ import math
 import re
 import subprocess
 from collections import Counter, defaultdict
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -29,7 +30,11 @@ START, END = "2022-01-03", "2026-11-02"
 TREASURY = "https://www.financialresearch.gov/financial-stress-index/data/fsi."
 GITHUB = "https://github.com/oid87/PersonalFiance/actions/runs/"
 RAW_GITHUB = "https://raw.githubusercontent.com/oid87/PersonalFiance/"
-NATIVE = {"native-wayback", "native-archived-eco", "native-zenodo-release"}
+LOC = "native-library-congress"
+LOC_PLAYBACK = "https://webarchive-beta.loc.gov/playback-services/general/"
+LOC_INDEX_SHA = "d5baedee48045e35ca6d240bb7f36aeaeb5a2e4f72328a153a9667a0d5851ee5"
+PRIOR_COHORT = "83ae529ad9d0fe7eb5789737915e9de5975413cd0b4fffa5e2fb6e64f6a2fbef"
+NATIVE = {"native-wayback", "native-archived-eco", "native-zenodo-release", LOC}
 MIRROR = "timestamped-mirror-four-decimals"
 PROTOCOLS = {
     "preregistration.json": "88f96b5baca5e16dc6d5c49df4e8d78496bfb66372e563a9a1843eb182d10d7e",
@@ -129,6 +134,7 @@ def verified_receipts(directory, rows):
     warc, artifacts, runs = indexes(directory)
     parsed = {}
     verified_code = set()
+    loc = None
     for row in rows:
         source, digest, at = row["source"], row["rawSha256"], row["available"]
         check(source in NATIVE or source == MIRROR, "Unrecognized source")
@@ -147,6 +153,11 @@ def verified_receipts(directory, rows):
                 wire = artifact(directory / "originals", digest)
             check(base64.b32encode(hashlib.sha1(wire).digest()).decode() == row["cdxSha1"],
                   "Archived entity differs from independent CDX digest")
+        elif source == LOC:
+            if loc is None:
+                loc = congress_index(directory)
+            payload = artifact(directory / "originals", digest)
+            verify_congress_original(row, payload, loc)
         elif source == "native-archived-eco":
             check(row["native"] == TREASURY + "csv" and (digest, at) in artifacts and
                   row["timeBasis"] == "FIRST_RETRIEVAL" and row["url"].split("?")[0] ==
@@ -196,10 +207,13 @@ console.log(JSON.stringify(sessions.map(day => {
 
 
 def precision(points):
-    return tuple((day, round(fsi, 4), round(vol, 4)) for day, fsi, vol in points)
+    # Match Number.toFixed(4) in the frozen historical evaluator, including tie handling.
+    def fixed(value):
+        return float(Decimal.from_float(value).quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP))
+    return tuple((day, fixed(fsi), fixed(vol)) for day, fsi, vol in points)
 
 
-def eligible(captures, calendar, holidays, conflicts):
+def selected_dates(captures, calendar, holidays, conflicts):
     ordered_days, pending = sorted(calendar), {}
     for moment, source, pair in sorted(captures, key=lambda r: r[0]):
         day = moment.astimezone(DISPLAY_ZONE).date()
@@ -213,18 +227,86 @@ def eligible(captures, calendar, holidays, conflicts):
             continue
         target = ordered_days[index]
         if target not in pending or (latest, moment) >= pending[target][:2]:
-            pending[target] = (latest, moment, source)
-    seen, by_source = set(), Counter()
+            pending[target] = (latest, moment, source, pair)
+    seen, selected = set(), {}
     for target in sorted(pending):
-        economic, _, source = pending[target]
+        economic, moment, source, pair = pending[target]
         if economic not in seen:
             seen.add(economic)
-            by_source[source] += 1
-    return {"eligibleTargets": len(seen), "missingFor120": max(0, REQUIRED_TARGETS - len(seen)),
+            selected[target] = (moment, source, pair)
+    return selected
+
+
+def counts(selected):
+    by_source = Counter(source for _, source, _ in selected.values())
+    return {"eligibleTargets": len(selected), "missingFor120": max(0, REQUIRED_TARGETS - len(selected)),
             "targetsBySource": dict(sorted(by_source.items()))}
 
 
-def replay(digest):
+def congress_index(directory):
+    doc = json.loads(hashed(directory / "library-congress-index-projection.json", LOC_INDEX_SHA))
+    check(doc["source"] == TREASURY + "csv" and doc["catalog"] == "https://www.loc.gov/item/lcwaN0017866/" and
+          doc["index"] == LOC_PLAYBACK + "cdx?url=https%3A%2F%2Fwww.financialresearch.gov%2Ffinancial-stress-index%2Fdata%2Ffsi.csv&from=2022&to=20261102&output=json" and
+          (doc["status"], doc["mime"], doc["access"]) == ("200", "text/csv", "allow"),
+          "Library native clock source differs")
+    return doc["clocksAndOriginalCdxBase32Sha1"]
+
+
+def verify_congress_original(row, payload, index):
+    stamp = instant(row["available"]).astimezone(dt.timezone.utc).strftime("%Y%m%d%H%M%S")
+    check(row["native"] == TREASURY + "csv" and
+          row["url"] == LOC_PLAYBACK + stamp + "mp_/" + row["native"] and
+          index.get(stamp) == row["cdxSha1"] == base64.b32encode(hashlib.sha1(payload).digest()).decode(),
+          "Library replay substituted another government CSV")
+
+
+def verify_congress_collection(doc, directory):
+    supplement = doc["libraryCongress"]
+    previous = json.loads(hashed(ROOT / ("cohort-inputs-" + PRIOR_COHORT + ".json"), PRIOR_COHORT))
+    old = previous["observations"]
+    check(doc["observations"][:len(old)] == old and doc["omissions"] == previous["omissions"] and
+          supplement["beforePriceSelection"] is True and supplement["previousCohortSha256"] == PRIOR_COHORT and
+          supplement["indexProjectionSha256"] == LOC_INDEX_SHA, "Previous sealed cohort changed")
+    loc = congress_index(directory)
+    accepted = set()
+    for row in doc["observations"][len(old):]:
+        stamp = instant(row["available"]).astimezone(dt.timezone.utc).strftime("%Y%m%d%H%M%S")
+        check(row["source"] == LOC and stamp not in accepted and loc.get(stamp) == row["cdxSha1"],
+              "Unknown or repeated Library capture")
+        accepted.add(stamp)
+    mismatched = set()
+    for row in supplement["deliveryDigestMismatches"]:
+        stamp = row["timestamp"]
+        check(stamp not in mismatched and loc.get(stamp) == row["expectedCdxSha1"] and
+              row["archiveUrl"] == LOC_PLAYBACK + stamp + "mp_/" + TREASURY + "csv" and
+              row["actualReturnedSha1"] in loc.values() and row["actualReturnedSha1"] != row["expectedCdxSha1"],
+              "Invalid Library delivery-rejection evidence")
+        mismatched.add(stamp)
+    check(accepted.isdisjoint(mismatched) and accepted | mismatched == set(loc) and
+          len(accepted) == supplement["exactMatches"] and len(loc) == supplement["requested"],
+          "Library requests are incomplete")
+    return {"requested": len(loc), "matched": len(accepted), "mismatched": len(mismatched)}
+
+
+def verify_outcome_inputs(outcome_digest, cohort_digest, doc, captures, selected):
+    name = "outcome-time-attested-four-decimal-" + cohort_digest + ".json"
+    result = json.loads(hashed(ROOT / name, outcome_digest))
+    check(result["receipt"] == cohort_digest and result["scope"] == "time-attested-four-decimal" and
+          len(selected) >= REQUIRED_TARGETS and len(result["selected"]) == len(selected), "Outcome scope differs")
+    originals = {verified: row for verified, row in zip(captures, doc["observations"])}
+    for (day, verified), used in zip(selected.items(), result["selected"]):
+        moment, source, pair = verified
+        first, last = precision(pair)
+        origin = originals[verified]
+        features = [(last[1] - last[2]) - (first[1] - first[2]), -(last[2] - first[2])]
+        cutoff = dt.datetime.combine(day, dt.time(7, 48), DISPLAY_ZONE)
+        check(moment < cutoff and used == {"session": day.isoformat(), "obs": last[0].isoformat(),
+              "progress": origin["available"], "url": origin["url"], "source": source,
+              "rawSha256": origin["rawSha256"], "features": features},
+              "Scored row differs from native vintage or registered control on " + day.isoformat())
+
+
+def replay(digest, outcome_digest=None):
     directory = ROOT / "evidence"
     for name, fingerprint in PROTOCOLS.items():
         hashed(ROOT / name, fingerprint)
@@ -246,14 +328,23 @@ def replay(digest):
             overlap.add(econ)
             if fields[econ] != {precision(pair)}:
                 conflicts.add(econ)
-    return {"captures": dict(sorted(Counter(r[1] for r in captures).items())),
+    native_dates = selected_dates(native, calendar, holidays, set())
+    mixed_dates = selected_dates(captures, calendar, holidays, conflicts)
+    result = {"captures": dict(sorted(Counter(r[1] for r in captures).items())),
             "matchedMirrorEconomicDates": len(overlap - conflicts), "conflictingMirrorEconomicDates": len(conflicts),
-            "nativeTreasury": eligible(native, calendar, holidays, set()),
-            "fourDecimalSensitivity": eligible(captures, calendar, holidays, conflicts),
+            "nativeTreasury": counts(native_dates), "fourDecimalSensitivity": counts(mixed_dates),
             "etfOutcomesOpenedByReplay": 0}
+    if "libraryCongress" in doc:
+        result["libraryCongress"] = verify_congress_collection(doc, directory)
+    if outcome_digest:
+        verify_outcome_inputs(outcome_digest, digest, doc, captures, mixed_dates)
+        result["verifiedOutcomeInputSha256"] = outcome_digest
+    return result
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("receipt", help="SHA-256 of the private OFR cohort input")
-    print(json.dumps(replay(parser.parse_args().receipt), sort_keys=True))
+    parser.add_argument("--verify-outcome-inputs", help="Check the sealed scoring receipt's selected dates and features")
+    args = parser.parse_args()
+    print(json.dumps(replay(args.receipt, args.verify_outcome_inputs), sort_keys=True))
