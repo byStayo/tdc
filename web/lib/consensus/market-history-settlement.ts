@@ -5,7 +5,8 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { adjustETFPrices, ETF_CASH_SOURCES, officialCashLocation, type CashDistribution } from "./corporate-adjustment.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
-import type { PriceEvidence } from "./evaluation.ts";
+import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
+import { confirmedHoldingPeriods } from "./holding-periods.ts";
 import { digest } from "./history.ts";
 import { readNasdaqHistoricalControl } from "./kibot-session-witnesses.ts";
 import { KIBOT_PRICE_CITATION, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
@@ -122,7 +123,7 @@ async function replayTltSettlement(root: string, review: TltSettlementReview, as
       issuer.capturedAt <= clocks.at(-1)!.closeAt || issuer.cash[0].session > dates[0])
     throw new Error("TLT needs the matching issuer history captured after the final close");
   const boundaries = marketHistoryBoundaries(opening, closing, clocks, asOf);
-  const rows = [], rawCloses = [];
+  const rows: SessionPrice[] = [], raw: SessionPrice[] = [], listed: SessionPrice[] = [];
   for (const [i, day] of dates.entries()) {
     const controls = await originalControls(root, day, review.controls[i], { from: requested[0], through: requested.at(-1)! }, asOf);
     const boundary = boundaries[i];
@@ -130,19 +131,21 @@ async function replayTltSettlement(root: string, review: TltSettlementReview, as
     const status = compareMarketHistoryBoundary(boundary, controls.raw, controls.split, controls.listed, true);
     if (status !== "matched") throw new Error(`TLT settlement withheld for ${day}: ${status}`);
     rows.push({ ...clocks[i], open: boundary.open!, close: boundary.close! });
-    rawCloses.push(controls.raw.close);
+    raw.push(controls.raw);
+    listed.push({ ...clocks[i], ...controls.listed });
   }
   const actions = issuer.cash.filter(r => r.session >= dates[0] && r.session <= dates.at(-1)!);
   for (const action of actions) {
     const index = dates.indexOf(action.session);
-    if (index < 1 || Math.abs(rows[index - 1].close - rawCloses[index - 1]) >= action.amount / 2)
+    if (index < 1 || Math.abs(rows[index - 1].close - raw[index - 1].close) >= action.amount / 2)
       throw new Error("TLT issuer adjustment requires the verified preceding session and its as-traded basis");
   }
   // These are the original signed response and corroborating capture clocks, separately from subsequent approval.
   const retrievedAt = [issuer.capturedAt, ...[opening, closing].map(page => new Date(new Headers(page.headers).get("date")!).toISOString()),
     ...review.controls.flatMap(row => [row.raw.capturedAt, row.split.capturedAt, row.listed.capturedAt])].sort().at(-1)!;
+  const sessions = adjustETFPrices(rows, actions, []);
   const prices: PriceEvidence = { instrument: "TLT", source: MARKET_HISTORY_SOURCE, adjustment: OUTCOME_PRICE_BASIS,
-    expectedSessions: requested, sessions: adjustETFPrices(rows, actions, []) };
+    expectedSessions: requested, sessions, confirmedHoldingPeriods: confirmedHoldingPeriods(requested, rows, [raw, listed], actions, sessions) };
   return { prices, retrievedAt };
 }
 

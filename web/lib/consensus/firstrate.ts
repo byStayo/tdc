@@ -9,6 +9,9 @@ import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.t
 import { collectCtaReference, ctaReferenceUrl, CTA_REFERENCE_SYMBOLS, type CtaReference } from "./cta-reference.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, trailingExchangeSessions, availableExchangeSessions, hasReviewedCalendar, hasReviewedCalendarRange, isUnresolvedExchangeDate } from "./exchange-calendar.ts";
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
+import { confirmedHoldingPeriods } from "./holding-periods.ts";
+import { firstRateControlSeries, firstRateHoldingSource, priorFirstRateHoldingSources, readFirstRateHoldingSource,
+  type FirstRateHoldingSource } from "./firstrate-holding-periods.ts";
 import { digest } from "./history.ts";
 import { isFullKibotSession } from "./kibot.ts";
 import { ETF_SYMBOLS } from "./marketparquet.ts";
@@ -44,6 +47,7 @@ type MinuteRepair = {
 type ApprovedSymbol = {
   symbol: Symbol;
   reviewedThrough?: string;
+  earlierComparisons?: FirstRateHoldingSource[];
   rows: SessionPrice[];
   withheld: { session: string; reason: "short-session" | "price" | "direction" }[];
   proof: { source: Omit<PriceSource, "rows">; comparison: string[]; splitComparison: string[];
@@ -265,7 +269,7 @@ function verifyIssuers(issuers: Issuer[], through: string, now: string) {
     throw new Error("All five official issuer histories must be captured after the final reviewed close");
 }
 
-export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
+function firstRateApprovalCalendar(approval: Approval) {
   if (!hasReviewedCalendar(approval.from) || !hasReviewedCalendar(approval.through))
     throw new Error("FirstRate approval dates are outside the reviewed exchange calendar");
   const dates = availableExchangeSessions(approval.from, approval.through);
@@ -275,81 +279,131 @@ export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
       ordered.some((symbol, index) => symbol !== approval.symbols[index].symbol))
     throw new Error("FirstRate approval has an invalid source or instrument list");
   verifyIssuers(approval.issuers, approval.through, approval.approvedAt);
-  return approval.symbols.map(({ symbol, rows, proof, reviewedThrough = approval.through }) => {
-    const byDate = new Map(rows.map(row => [row.session, row]));
-    const repairs = proof.minuteRepairs ?? [];
-    const early = new Set(repairs.filter(repair => repair.minutes === 210).map(repair => repair.session));
-    if (!dates.includes(reviewedThrough) || byDate.size !== rows.length ||
-        rows.some(row => row.session < approval.from || row.session > reviewedThrough ||
-        (!fullSession(row.session) && (!early.has(row.session) || sessionMinutes(row) !== 210 ||
-          !CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol))) || row.openAt !== exchangeSession(row.session)!.openAt ||
-        row.closeAt !== exchangeSession(row.session)!.closeAt))
-      throw new Error(`FirstRate approval has invalid sessions for ${symbol}`);
-    if (new Set(repairs.map(repair => repair.session)).size !== repairs.length || repairs.some(repair =>
-      !byDate.has(repair.session) || repair.captureSession < repair.session || repair.captureSession > reviewedThrough ||
-      repair.source.symbol !== symbol || repair.source.url !== sourceURL(symbol) ||
-      !validMinuteWitness(repair, symbol, byDate.get(repair.session)!, approval.approvedAt) ||
-      (repair.minutes !== undefined && repair.minutes !== sessionMinutes(byDate.get(repair.session)!)) ||
-      ![repair.source.sha256, repair.rawSha256, repair.splitSha256].every(hash => SHA256.test(hash))))
-      throw new Error(`FirstRate ${symbol} minute repair lacks its pinned independent evidence`);
-    const blocks: SessionPrice[][] = [];
-    let block: SessionPrice[] = [];
-    for (const day of dates) {
-      const row = byDate.get(day);
-      if (!row) block = [];
-      else {
-        const previous = block.at(-1);
-        if (previous && !hasReviewedCalendarRange(previous.session, day)) block = [];
-        if (!block.length) blocks.push(block);
-        block.push(row);
-      }
-    }
-    const cash = approval.issuers.find(issuer => issuer.symbol === symbol)!.cash;
-    const sessions = blocks.flatMap(block => adjustETFPrices(block,
-      cash.filter(action => action.session >= block[0].session && action.session <= block.at(-1)!.session), []));
-    return { instrument: symbol, source: FIRST_RATE_SOURCE, adjustment: OUTCOME_PRICE_BASIS, expectedSessions: dates, sessions };
-  });
+  return dates;
 }
 
-async function readApproval(root: string) {
+function firstRateFundPrices(approval: Approval, dates: string[], { symbol, rows, proof, reviewedThrough = approval.through }: ApprovedSymbol): PriceEvidence {
+  const byDate = new Map(rows.map(row => [row.session, row]));
+  const repairs = proof.minuteRepairs ?? [];
+  const early = new Set(repairs.filter(repair => repair.minutes === 210).map(repair => repair.session));
+  if (!dates.includes(reviewedThrough) || byDate.size !== rows.length ||
+      rows.some(row => row.session < approval.from || row.session > reviewedThrough ||
+      (!fullSession(row.session) && (!early.has(row.session) || sessionMinutes(row) !== 210 ||
+        !CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol))) || row.openAt !== exchangeSession(row.session)!.openAt ||
+      row.closeAt !== exchangeSession(row.session)!.closeAt))
+    throw new Error(`FirstRate approval has invalid sessions for ${symbol}`);
+  if (new Set(repairs.map(repair => repair.session)).size !== repairs.length || repairs.some(repair =>
+    !byDate.has(repair.session) || repair.captureSession < repair.session || repair.captureSession > reviewedThrough ||
+    repair.source.symbol !== symbol || repair.source.url !== sourceURL(symbol) ||
+    !validMinuteWitness(repair, symbol, byDate.get(repair.session)!, approval.approvedAt) ||
+    (repair.minutes !== undefined && repair.minutes !== sessionMinutes(byDate.get(repair.session)!)) ||
+    ![repair.source.sha256, repair.rawSha256, repair.splitSha256].every(hash => SHA256.test(hash))))
+    throw new Error(`FirstRate ${symbol} minute repair lacks its pinned independent evidence`);
+  const blocks: SessionPrice[][] = [];
+  let block: SessionPrice[] = [];
+  for (const day of dates) {
+    const row = byDate.get(day);
+    if (!row) block = [];
+    else {
+      const previous = block.at(-1);
+      if (previous && !hasReviewedCalendarRange(previous.session, day)) block = [];
+      if (!block.length) blocks.push(block);
+      block.push(row);
+    }
+  }
+  const cash = approval.issuers.find(issuer => issuer.symbol === symbol)!.cash;
+  const sessions = blocks.flatMap(block => adjustETFPrices(block,
+    cash.filter(action => action.session >= block[0].session && action.session <= block.at(-1)!.session), []));
+  return { instrument: symbol, source: FIRST_RATE_SOURCE, adjustment: OUTCOME_PRICE_BASIS, expectedSessions: dates, sessions };
+}
+
+export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
+  const dates = firstRateApprovalCalendar(approval);
+  return approval.symbols.map(fund => firstRateFundPrices(approval, dates, fund));
+}
+
+async function readApproval(root: string, holdingControls?: Map<Symbol, ReturnType<typeof firstRateControlSeries>>, cutoff?: string,
+  warn?: (message: string) => void) {
   const directory = resolve(root, directoryName);
-  const stored = await readResearchReceipt<StoredApproval>(resolve(directory, "approved.json"));
+  if (cutoff !== undefined && (!Number.isFinite(Date.parse(cutoff)) || new Date(cutoff).toISOString() !== cutoff))
+    throw new Error("Invalid FirstRate approval cutoff");
+  let stored = await readResearchReceipt<StoredApproval>(resolve(directory, "approved.json"));
   if (stored && (stored.approval.schemaVersion !== 1 || stored.sha256 !== digest(stored.approval)))
     throw new Error("FirstRate approved prices differ from their private receipt");
-  for (const fund of stored?.approval.symbols ?? []) {
-    const proof = fund.proof.marketHistory, paid = fund.proof.subscriber;
-    if (paid) {
-      if (proof) throw new Error("FirstRate approval names conflicting independent providers");
-      const dates = exchangeSessions(paid.from, paid.through);
-      const opts = { reviewedExchangeCalendar: true, productionRoot: root, cachedOnly: true };
-      const raw = await collectResearchPrices(directory, fund.symbol, dates, opts);
-      const splits = await collectResearchPrices(directory, fund.symbol, dates, { ...opts, splitAdjusted: true });
-      if (paid.sha256 !== digest({ raw, splits }) || [...raw, ...splits].some(row => !row.paid || row.paid.capturedAt > stored!.approval.approvedAt) ||
-          digest(fund.proof.comparison) !== digest(raw.map(r => r.sha256)) ||
-          digest(fund.proof.splitComparison) !== digest(splits.map(r => r.sha256))) throw new Error("FirstRate subscriber control changed");
+  if (cutoff && stored && stored.approval.approvedAt > cutoff) {
+    stored = null;
+    for (const file of await captureEntries(resolve(directory, "approvals"))) {
+      if (!file.isFile() || !/^\d{4}-\d{2}-\d{2}(?:-[a-f0-9]{64})?\.json$/.test(file.name)) continue;
+      const entry = await readResearchReceipt<StoredApproval>(resolve(directory, "approvals", file.name));
+      if (!entry || entry.approval.schemaVersion !== 1 || entry.sha256 !== digest(entry.approval) ||
+          (file.name !== entry.approval.through + ".json" &&
+           file.name !== entry.approval.through + "-" + digest({ ...entry.approval, approvedAt: null }) + ".json"))
+        throw new Error("FirstRate archived approval differs from its receipt");
+      if (entry.approval.approvedAt <= cutoff && (!stored || stored.approval.approvedAt < entry.approval.approvedAt)) stored = entry;
     }
-    if (!proof) continue;
-    const controls = await collectMarketHistoryPriceControls(root, fund.symbol, exchangeSessions(proof.from, proof.through), true,
-      { asOf: stored!.approval.approvedAt });
-    const issuer = stored!.approval.issuers.find(row => row.symbol === fund.symbol);
-    if (!issuer || !fund.proof.actions) throw new Error("FirstRate hourly control is missing its issuer action check");
-    const actions = await firstRateIssuerActionProof(root, fund.symbol, proof.from, proof.through, issuer.cash, true,
-      { asOf: stored!.approval.approvedAt });
-    if (digest(actions) !== digest(fund.proof.actions)) throw new Error("FirstRate issuer action proof changed");
-    if (digest(controls.proof) !== digest(proof) || fund.proof.comparison.length !== 1 ||
-        fund.proof.splitComparison.length !== 1 || fund.proof.comparison[0] !== proof.raw ||
-        fund.proof.splitComparison[0] !== proof.splits) throw new Error("FirstRate hourly comparison differs from its pinned sources");
   }
-  for (const fund of stored?.approval.symbols ?? []) for (const repair of fund.proof.minuteRepairs ?? []) {
-    if (repair.auction && digest(await readQqqAuction(directory, repair.session, true)) !== digest(repair.auction))
-      throw new Error("FirstRate QQQ approval differs from its archived Nasdaq auction");
+  if (!stored) return null;
+  const approval = stored.approval;
+  if (holdingControls) firstRateApprovalCalendar(approval);
+  async function verifyFund(fund: ApprovedSymbol) {
+    const asOf = approval.approvedAt;
+    const current = firstRateHoldingSource(fund.proof, asOf);
+    const cash = approval.issuers.find(row => row.symbol === fund.symbol)?.cash ?? [];
+    const rows = current && await readFirstRateHoldingSource(root, fund.symbol, current, asOf, cash);
+    if (holdingControls) {
+      const ranges = current && rows ? [{ provider: current.provider, rows }] : [];
+      const unavailable = new Set<string>();
+      for (const previous of fund.earlierComparisons ?? []) {
+        try { ranges.push({ provider: previous.provider, rows: await readFirstRateHoldingSource(root, fund.symbol, previous, asOf, cash) }); }
+        catch {
+          (warn ?? console.warn)(`Earlier FirstRate holding-period control is unavailable for ${fund.symbol}, ${previous.from} through ${previous.through}.`);
+          for (const row of fund.rows)
+            if (previous.from <= row.session && row.session <= previous.through) unavailable.add(row.session);
+        }
+      }
+      const series = firstRateControlSeries(ranges);
+      const primary = new Map(fund.rows.map(row => [row.session, row]));
+      for (const range of ranges) for (const reference of range.rows) {
+        const row = primary.get(reference.session);
+        if (row && (!withinPriceLimits(row, reference) || Math.sign(row.close - row.open) !== Math.sign(reference.close - reference.open)))
+          series.disputed.add(reference.session);
+      }
+      for (const day of unavailable) series.disputed.add(day);
+      holdingControls.set(fund.symbol, series);
+    }
+    for (const repair of fund.proof.minuteRepairs ?? []) {
+      if (repair.auction && digest(await readQqqAuction(directory, repair.session, true)) !== digest(repair.auction))
+        throw new Error("FirstRate QQQ approval differs from its archived Nasdaq auction");
+    }
   }
-  return stored?.approval ?? null;
+  const verified: ApprovedSymbol[] = [];
+  for (const fund of approval.symbols ?? []) {
+    try { await verifyFund(fund); verified.push(fund); }
+    catch (error) {
+      if (!warn) throw error;
+      warn(`FirstRate ${fund.symbol} withheld because its current independent price or auction receipt did not verify.`);
+    }
+  }
+  return warn && approval.symbols && verified.length !== approval.symbols.length ? { ...approval, symbols: verified } : approval;
 }
 
-export async function loadFirstRatePrices(root: string) {
-  const approval = await readApproval(root);
-  return approval ? firstRatePriceEvidence(approval) : [];
+export async function loadFirstRatePrices(root: string, cutoff = new Date().toISOString(), warn?: (message: string) => void) {
+  const controls = new Map<Symbol, ReturnType<typeof firstRateControlSeries>>();
+  const approval = await readApproval(root, controls, cutoff, warn);
+  if (!approval?.symbols?.length) return [];
+  const dates = availableExchangeSessions(approval.from, approval.through);
+  return approval.symbols.flatMap(fund => {
+    try {
+      const prices = firstRateFundPrices(approval, dates, fund), reference = controls.get(fund.symbol)!;
+      const cash = approval.issuers.find(issuer => issuer.symbol === fund.symbol)!.cash;
+      const rows = fund.rows.filter(row => !reference.disputed.has(row.session));
+      return [{ ...prices, confirmedHoldingPeriods: confirmedHoldingPeriods(dates, rows, reference.references, cash, prices.sessions) }];
+    } catch (error) {
+      if (!warn) throw error;
+      warn(`FirstRate ${fund.symbol} withheld because its regular-session prices or corporate adjustments did not verify.`);
+      return [];
+    }
+  });
 }
 
 export async function loadReviewedTltCash(root: string, cutoff: string) {
@@ -476,7 +530,7 @@ export async function loadFirstRatePremarket(root: string, cutoff: string) {
 
 async function reviewSample(directory: string, sample: Sample, through: string, from: string,
   cachedOnly: boolean, observed: string, old: ApprovedSymbol | undefined, issuerCash: CashDistribution[],
-  failures: SampleFailure[]): Promise<ReviewedSymbol> {
+  failures: SampleFailure[], previouslyApprovedAt?: string): Promise<ReviewedSymbol> {
   const { rows: delivered, regularMinutes, ...source } = sample;
   const { symbol } = source;
   const dates = trailingExchangeSessions(delivered[0].session, through);
@@ -572,12 +626,15 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
         { listing: references.find(reference => reference.session === session)! }) });
   }
   const previousDisagreements = (old?.withheld ?? []).filter(issue => issue.session < dates[0]);
-  return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
-    withheld: [...previousDisagreements, ...normalized.withheld],
-    proof: { source, comparison: raw.map(row => row.sha256), splitComparison: splits.map(row => row.sha256),
+  const proof = { source, comparison: raw.map(row => row.sha256), splitComparison: splits.map(row => row.sha256),
       listingReferences: references, ...(comparisons.proof ? { marketHistory: comparisons.proof, actions } :
         { subscriber: { from: dates[0], through, sha256: digest({ raw, splits }) } }),
-      ...(repairs.size ? { minuteRepairs: [...repairs.values()] } : {}) } };
+      ...(repairs.size ? { minuteRepairs: [...repairs.values()] } : {}) };
+  const previous = old && previouslyApprovedAt && firstRateHoldingSource(old.proof, previouslyApprovedAt);
+  const earlierComparisons = priorFirstRateHoldingSources([...(old?.earlierComparisons ?? []), ...(previous ? [previous] : [])],
+    firstRateHoldingSource(proof, observed)!);
+  return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
+    withheld: [...previousDisagreements, ...normalized.withheld], proof, ...(earlierComparisons.length ? { earlierComparisons } : {}) };
 }
 
 function approvedCounts(approval: Approval) {
@@ -684,7 +741,7 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
     try {
       const old = approved.get(sample.symbol);
       const issuer = issuers.find(row => row.symbol === sample.symbol)!;
-      const match = await reviewSample(directory, sample, through, from, pinned, observed, old, issuer.cash, failures);
+      const match = await reviewSample(directory, sample, through, from, pinned, observed, old, issuer.cash, failures, previous?.approvedAt);
       if (catchUp && !match.rows.some(row => row.session === through)) {
         const issue = match.withheld.find(row => row.session === through);
         if (!issue) throw new Error("The older session has neither a verified price nor a dated comparison decision");
@@ -717,6 +774,14 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
     through: preserveNewer ? previous.through : through, approvedAt: new Date().toISOString(),
     issuers: preserveNewer ? previous.issuers : issuers, symbols };
   const counts = approvedCounts(approval);
+  await saveFirstRateApproval(directory, approval);
+  const completed = reviewed.filter(symbol => approved.get(symbol)!.reviewedThrough === through);
+  return { status: "qualified", from, through: approval.through, reviewed, completed, approved: counts, failures, captured,
+    ...(listingFailure ? { listingFailure } : {}),
+    withheld: symbols.flatMap(({ symbol, withheld }) => withheld.map(row => ({ symbol, ...row }))) };
+}
+
+async function saveFirstRateApproval(directory: string, approval: Approval) {
   // Archive each accepted capture before advancing the current receipt.
   const stored = { approval, sha256: digest(approval) };
   const fingerprint = digest({ ...approval, approvedAt: null });
@@ -727,10 +792,41 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
     throw new Error("A previous capture for that FirstRate session differs");
   if (!replay) await durableJSON(archivePath, stored, true);
   await durableJSON(resolve(directory, "approved.json"), replay ?? stored);
-  const completed = reviewed.filter(symbol => approved.get(symbol)!.reviewedThrough === through);
-  return { status: "qualified", from, through: approval.through, reviewed, completed, approved: counts, failures, captured,
-    ...(listingFailure ? { listingFailure } : {}),
-    withheld: symbols.flatMap(({ symbol, withheld }) => withheld.map(row => ({ symbol, ...row }))) };
+}
+
+/** Attach permitted independent controls to earlier accepted prices, retaining the original approval and its clock. */
+export async function confirmFirstRateHoldingPeriods(root: string, cachedOnly = false) {
+  const approval = await readApproval(root);
+  if (!approval?.symbols.length) return { status: "no_existing_approval", confirmed: [], failures: [] };
+  firstRatePriceEvidence(approval);
+  const symbols: ApprovedSymbol[] = [], confirmed: Symbol[] = [], failures: { symbol: Symbol; reason: string }[] = [];
+  for (const fund of approval.symbols) {
+    const from = fund.rows[0]?.session, through = fund.rows.at(-1)?.session;
+    if (!from || !through || fund.proof.marketHistory || fund.proof.subscriber) { symbols.push(fund); continue; }
+    try {
+      const cash = approval.issuers.find(issuer => issuer.symbol === fund.symbol)!.cash;
+      const prior = fund.earlierComparisons?.find(source => source.from <= from && source.through >= through);
+      if (prior) {
+        await readFirstRateHoldingSource(root, fund.symbol, prior, approval.approvedAt, cash);
+        symbols.push(fund);
+        continue;
+      }
+      const days = exchangeSessions(from, through);
+      const { raw, splits, proof } = await collectMarketHistoryPriceControls(root, fund.symbol, days, cachedOnly);
+      const actions = await firstRateIssuerActionProof(root, fund.symbol, from, through, cash, cachedOnly);
+      const approvedAt = new Date().toISOString();
+      const source = firstRateHoldingSource({ marketHistory: proof, comparison: raw.map(r => r.sha256),
+        splitComparison: splits.map(r => r.sha256), actions }, approvedAt)!;
+      await readFirstRateHoldingSource(root, fund.symbol, source, approvedAt, cash);
+      symbols.push({ ...fund, earlierComparisons: [...(fund.earlierComparisons ?? []), source] });
+      confirmed.push(fund.symbol);
+    } catch (error) {
+      failures.push({ symbol: fund.symbol, reason: error instanceof Error ? error.message : "Independent source unavailable" });
+      symbols.push(fund);
+    }
+  }
+  if (confirmed.length) await saveFirstRateApproval(resolve(root, directoryName), { ...approval, approvedAt: new Date().toISOString(), symbols });
+  return { status: confirmed.length ? "comparison_sources_recorded" : failures.length ? "awaiting_comparison" : "already_reviewed", confirmed, failures };
 }
 
 /** Caller holds the publication lock. Retain a verified catch-up when the newest sample or its control is late. */

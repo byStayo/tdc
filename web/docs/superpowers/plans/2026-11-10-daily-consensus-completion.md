@@ -1,5 +1,11 @@
 # The Daily Consensus completion plan
 
+### November 24 free-source settlement
+
+- [x] Requalify all 56 existing FirstRate equity sessions against newly collected, authenticated raw and split-only prices and issuer distributions. Preserve the earlier price approvals and the actual availability time of the new evidence.
+- [x] Wire independent five- and 21-session direction checks into both free price paths. Replay all 52 available five-session windows, including two cash-distribution crossings. No source yet spans a full eligible monthly outcome. [Operating procedure](../../CONSENSUS_OPERATIONS.md#free-price-settlement-across-five-and-21-sessions)
+- [x] Re-run prospective evaluation and the strict completion audit. All 370 settled records reproduced. The five November 23 daily outcomes still await qualified prices. The two eligible five-fund cohorts both abstained on all five funds.
+
 ### November 24 outcome and holding-period verification
 
 - [x] Reproduce the 370 recorded outcomes at their original verification times. Two independent controls per production source confirmed all directions across 55 distinct daily windows and 40 distinct weekly windows. Every recorded forecast abstained. No settled window crossed an ex-dividend date.

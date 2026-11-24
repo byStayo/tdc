@@ -71,6 +71,8 @@ export interface PriceEvidence {
   adjustment: string;
   sessions: SessionPrice[];
   expectedSessions: string[];
+  /** Private source review, keyed by the exit of each complete exchange-calendar window. */
+  confirmedHoldingPeriods?: Record<"weekly" | "monthly", string[]>;
 }
 export function evaluateOutcome(
   snapshot: Snapshot,
@@ -132,6 +134,8 @@ export function evaluateOutcome(
   // The independently checked exchange calendar fixes the horizon despite missing price rows.
   const dates = outcomeWindowSessions(snapshot.issuedAt, horizon, reviewedSessions);
   if (!dates.length) return null;
+  if (horizon !== "daily" && prices.confirmedHoldingPeriods &&
+      !prices.confirmedHoldingPeriods[horizon].includes(dates.at(-1)!)) return null;
   const rows = dates.map((day) => sessions.find((row) => row.session === day));
   if (rows.some((row) => !row)) return null;
   const start = rows[0]!;

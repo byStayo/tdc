@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test, { type TestContext } from "node:test";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
-import { FIRST_RATE_SYMBOLS, prepareFirstRate } from "../lib/consensus/firstrate.ts";
+import { FIRST_RATE_SYMBOLS, confirmFirstRateHoldingPeriods, prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import { writeHourlyFixtures } from "./fixtures/firstrate-hourly-controls.ts";
 import { digest } from "../lib/consensus/history.ts";
 import { evaluateOutcome } from "../lib/consensus/evaluation.ts";
@@ -78,6 +78,67 @@ test("a late old file advances its ETF without rolling back other ETFs or their 
       assert.deepEqual(current.rows.slice(0, -1), previous.rows);
     } else assert.deepEqual(current, previous);
   }
+});
+
+test("normal FirstRate settlement replays rolling controls, isolates a weekly sign reversal and preserves the daily price", async t => {
+  const { root, scripts, sample } = await fixture(t);
+  const comparisonStore = join(root, ".consensus/private-market-history/firstrate-controls");
+  const exit = "2026-11-19", issue = "2026-11-13", asOf = "2026-11-20T13:00:00.000Z";
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(asOf) });
+  for (const [from, through] of [["2026-11-03", "2026-11-12"], ["2026-11-11", exit]]) {
+    await sample(through, ["SPY"]);
+    const sessions = exchangeSessions(from, through).map(day => ({ ...exchangeSession(day)!,
+      open: day === exit ? 95 : 100, close: day === exit ? 100.01 : 101 }));
+    const file = join(scripts, through + ".json");
+    const fixture = JSON.parse(await readFile(file, "utf8"));
+    fixture.samples[0].rows = sessions.map(({ session, open, close }) => ({ session, open, close }));
+    await writeFile(file, JSON.stringify(fixture));
+    await writeHourlyFixtures(root, "SPY", sessions.map(row => row.session === exit ? { ...row, close: 99.99 } : row));
+    await prepareFirstRate(root, true, through + "T23:30:00.000Z");
+  }
+  const snapshot = JSON.parse(await readFile(new URL("../public/consensus/2026-11-03T08-48-02-469Z.json", import.meta.url), "utf8"));
+  const [prices] = await defaultEvaluationPrices(root, asOf);
+  const forecast = (day: string) => ({ ...snapshot, issuedAt: day + "T12:00:00.000Z" });
+  assert.equal(evaluateOutcome(forecast(issue), prices, "weekly", asOf), null);
+  assert.ok(evaluateOutcome(forecast(exit), prices, "daily", asOf));
+  assert.ok(evaluateOutcome(forecast("2026-11-10"), prices, "weekly", asOf));
+  // A changed older original withholds its crossing windows while the current daily receipt still works.
+  await writeFile(join(comparisonStore, "SPY-2026-11-03-2026-11-12-raw-open.json"), "{}");
+  t.mock.method(console, "warn", () => {});
+  const [damaged] = await defaultEvaluationPrices(root, asOf);
+  assert.equal(evaluateOutcome(forecast("2026-11-10"), damaged, "weekly", asOf), null);
+  assert.ok(evaluateOutcome(forecast(exit), damaged, "daily", asOf));
+});
+
+test("a legacy price archive gains weekly eligibility only at its independent review, and damage to one fund stays local", async t => {
+  const { root, sample, privateDir } = await fixture(t);
+  const through = "2026-11-12", initialAt = "2026-11-13T13:00:00.000Z", reviewedAt = "2026-11-16T13:00:00.000Z";
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(initialAt) });
+  await sample(through, FIRST_RATE_SYMBOLS);
+  await prepareFirstRate(root, true);
+  const pointer = join(privateDir, "approved.json");
+  const legacy = JSON.parse(await readFile(pointer, "utf8")).approval;
+  for (const fund of legacy.symbols) { delete fund.proof.marketHistory; delete fund.proof.actions; }
+  for (const name of await readdir(join(privateDir, "approvals"))) await rm(join(privateDir, "approvals", name));
+  const stored = JSON.stringify({ approval: legacy, sha256: digest(legacy) });
+  await writeFile(pointer, stored);
+  await writeFile(join(privateDir, "approvals", through + ".json"), stored, { mode: 0o600 });
+  const before = await defaultEvaluationPrices(root, initialAt);
+  assert.ok(before.length === 4 && before.every(p => p.confirmedHoldingPeriods?.weekly.length === 0));
+  t.mock.timers.setTime(Date.parse(reviewedAt));
+  assert.deepEqual((await confirmFirstRateHoldingPeriods(root, true)).confirmed, FIRST_RATE_SYMBOLS);
+  const after = await defaultEvaluationPrices(root, reviewedAt);
+  assert.ok(after.length === 4 && after.every(p => p.confirmedHoldingPeriods?.weekly.includes(through)));
+  assert.deepEqual(await defaultEvaluationPrices(root, initialAt), before);
+  assert.deepEqual(await defaultEvaluationPrices(root, "2026-11-01T12:00:00.000Z"), []);
+  assert.equal((await confirmFirstRateHoldingPeriods(root, true)).status, "already_reviewed");
+  // Now exercise a normal new approval independently of the historical supplement.
+  await sample("2026-11-13", FIRST_RATE_SYMBOLS);
+  await prepareFirstRate(root, true, "2026-11-13T23:15:00.000Z");
+  await writeFile(join(root, ".consensus/private-market-history/firstrate-controls", "DIA-2026-11-03-2026-11-13-raw-open.json"), "{}");
+  const warnings: string[] = [];
+  assert.deepEqual((await defaultEvaluationPrices(root, reviewedAt, message => warnings.push(message))).map(p => p.instrument), ["SPY", "QQQ", "IWM"]);
+  assert.ok(warnings.some(message => message.includes("DIA withheld")));
 });
 
 test("Wednesday reconciles Monday for four funds even with Tuesday delayed and no valid TLT settlement", async t => {

@@ -287,7 +287,9 @@ export async function loadApprovedMarketParquetPrices(root: string, asOf: string
 }
 
 export async function defaultEvaluationPrices(root: string, asOf: string, warn: (message: string) => void = console.error) {
-  const prices: PriceEvidence[] = await loadFirstRatePrices(root);
+  let prices: PriceEvidence[] = [];
+  try { prices = await loadFirstRatePrices(root, asOf, warn); }
+  catch { warn("FirstRate settlement withheld. Its private approval or shared issuer history did not verify."); }
   prices.push(...await loadApprovedMarketParquetPrices(root, asOf, warn));
   try { prices.push(...await loadTltSettlement(root, asOf, warn)); }
   catch { warn("Market History TLT settlement withheld. Its private storage or source comparison could not be verified."); }
