@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { gunzipSync } from "node:zlib";
+import { collectCtaReference, type CtaReference } from "../lib/consensus/cta-reference.ts";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,8 +24,9 @@ const { dates, symbols } = JSON.parse(policy.toString()) as { dates: string[]; s
 if (symbols.join() !== ETF_SYMBOLS.join()) throw Error("The historical policy and ETF universe disagree");
 const folder = resolve(root, ".consensus/private-short-session-price-qualification/2025");
 const args = process.argv.slice(2);
-if (args.length > 1 || (args.length && args[0] !== "--collect")) throw Error("Usage: qualify-short-session-prices.ts [--collect]");
-const collect = args[0] === "--collect";
+if (new Set(args).size !== args.length || args.some(arg => !["--collect", "--arca"].includes(arg)))
+  throw Error("Usage: qualify-short-session-prices.ts [--collect] [--arca]");
+const collect = args.includes("--collect");
 if (collect) await durableDirectory(folder, 0o700);
 let account: FreeHourlyAccount | undefined;
 const issuerVintage = "2026-11-23";
@@ -87,6 +90,33 @@ async function bound(symbol: MarketHistoryETF, day: string, basis: MarketHistory
   return { open: row.open, close: row.close };
 }
 
+// A second, independent check of the two boundary exceptions. Each digest binds the complete
+// source hash, final listing participant rows, clocks and source URL from the original exchange file.
+const arcaDigests: Record<string, string> = {
+  "2025-07-03": "354087db45de39865091c2a5c4fef6598a9e2f6ee6f19d806e8e058d85d4730f",
+  "2025-11-28": "158019ebb16fe17b960505cfcc9e8089da7b664bb87764b6b8ee471b46aa27a7",
+  "2025-12-24": "4ad742f2c516d97df774f4e40f870c2d35991e851753418d0b1524a2aaf06b67",
+};
+async function listingReference(day: string) {
+  return original<CtaReference>("cta-final-" + day, async () => {
+    if (day === "2025-11-28") {
+      const previous = await readResearchReceipt<CtaReference>(resolve(root, ".consensus/private-early-close-review/cta-2025-11-28.json"));
+      if (previous) return previous;
+    }
+    let bytes: Buffer | undefined;
+    try { bytes = gunzipSync(await readFile(resolve(folder, "..", "cta-" + day + ".csv.gz")), { maxOutputLength: 80_000_000 }); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+    return (await collectCtaReference(day, { cachedBytes: bytes, sessionClock: boundaryClock })).reference;
+  }, reference => { if (digest(reference) !== arcaDigests[day]) throw Error("The reviewed final Arca participant summary changed"); });
+}
+function matchesListing(pair: { open: number; close: number }, listing: { open: number; close: number }) {
+  return Math.abs(pair.open / listing.open - 1) * 10_000 <= 3 &&
+    Math.abs(pair.close / listing.close - 1) * 10_000 <= 15 &&
+    Math.sign(pair.close - pair.open) === Math.sign(listing.close - listing.open);
+}
+const arca = new Map<string, CtaReference>();
+if (args.includes("--arca")) for (const day of dates) arca.set(day, await listingReference(day));
+const listingChecks = [];
 const rows = [];
 for (const symbol of symbols) {
   const issuer = await kibotPostCloseIssuerActions(root, resolve(root, ".consensus/private-kibot/sources", issuerVintage),
@@ -95,6 +125,8 @@ for (const symbol of symbols) {
   for (const day of dates) {
     const [raw, splits] = [await native(symbol, day, "raw"), await native(symbol, day, "splits")];
     const [hourly, splitHourly] = [await bound(symbol, day, "raw"), await bound(symbol, day, "splits")];
+    const listing = arca.get(day)?.rows.find(r => r.symbol === symbol);
+    if (listing) listingChecks.push({ symbol, day, hourlyAgreement: matchesListing(hourly, listing), kibotAgreement: matchesListing(raw, listing) });
     const auction = await historicalNasdaqAuction(root, symbol, day);
     const issuerBracketsDay = cash.some(event => event.session < day) && cash.some(event => event.session > day);
     const cashEvents = issuerBracketsDay ? cash.filter(event => event.session === day).length : null;
@@ -112,4 +144,5 @@ const result = { method: "short-session-etf-prices-2025-v1", rows };
 const checked = await original<typeof result>("counts", async () => result, (saved) => {
   if (digest(saved) !== digest(result)) throw Error("Frozen historical comparison differs from the replay");
 });
-console.log(JSON.stringify(checked));
+if (args.includes("--arca") && listingChecks.length !== 9) throw Error("The three Tape B funds need nine dated listing checks");
+console.log(JSON.stringify(args.includes("--arca") ? { ...checked, listingChecks } : checked));
