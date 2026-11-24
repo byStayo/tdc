@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-24T13-04-12-171Z",
-  "issuedAt": "2026-11-24T13:04:12.171Z",
-  "cutoff": "2026-11-24T12:49:06.680Z",
+  "id": "2026-11-24T15-08-52-845Z",
+  "issuedAt": "2026-11-24T15:08:52.845Z",
+  "cutoff": "2026-11-24T15:06:44.135Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -28806,6 +28806,228 @@
       }
     },
     {
+      "id": "ons-uk-cpi-services",
+      "family": "international",
+      "title": "UK headline and services inflation",
+      "shortLabel": "UK inflation",
+      "instruments": [
+        "MARKET",
+        "TLT"
+      ],
+      "directionalInstruments": [],
+      "status": "available",
+      "summary": "October 2026 UK services inflation was 3.7% and headline inflation was 3.6%.",
+      "source": {
+        "name": "Office for National Statistics · UK consumer prices",
+        "url": "https://www.ons.gov.uk/releases/consumerpriceinflationukoctober2026",
+        "retrievedAt": "2026-11-24T15:06:44.133Z",
+        "observedAt": "2026-10-31",
+        "releasedAt": "2026-11-18T07:00:00.000Z",
+        "sha256": "874fe18ee8bce06cb5748e1a91d7802d92bb8190f93aa3d66392a41e3879e6fd",
+        "frequency": "monthly",
+        "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v3.0.",
+        "usage": "Crown copyright. https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+      },
+      "methodology": "Compare the first published annual CPI rates for services and all items with their immediately preceding monthly releases. Changes are in percentage points.",
+      "limitation": "These changes describe UK consumer prices. Their relationship to U.S. Treasury ETF returns requires separate validation.",
+      "unit": "%",
+      "staleAfterDays": 65,
+      "metrics": [
+        {
+          "label": "UK headline CPI annual rate",
+          "date": "2026-10-31",
+          "unit": "%",
+          "value": 3.6
+        },
+        {
+          "label": "UK services CPI annual rate",
+          "date": "2026-10-31",
+          "unit": "%",
+          "value": 3.7
+        },
+        {
+          "label": "Change in headline annual inflation",
+          "date": "2026-10-31",
+          "unit": "percentage points",
+          "value": 0.1
+        },
+        {
+          "label": "Change in services annual inflation",
+          "date": "2026-10-31",
+          "unit": "percentage points",
+          "value": 0
+        }
+      ],
+      "series": [
+        {
+          "date": "2026-09-30",
+          "value": 3.7
+        },
+        {
+          "date": "2026-10-31",
+          "value": 3.7
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "onsInflation": {
+        "current": {
+          "period": "2026-10",
+          "releaseAt": "2026-11-18T07:00:00.000Z",
+          "availableAt": "2026-11-18T07:00:00.000Z",
+          "calendarSha256": "5769040e1c1f4e0026c36c188572242d280e7e0e0198b0fad18318592b31241e",
+          "headline": {
+            "period": "2026-10",
+            "rate": 3.6,
+            "nativeDay": "2026-11-18",
+            "introducedAt": "2026-11-18T07:00:00.000Z",
+            "nativeDate": "2026-11-18T00:00:00.000Z",
+            "observationUpdate": "2026-11-18T00:00:00.000Z",
+            "uri": "/economy/inflationandpriceindices/timeseries/d7g7/mm23",
+            "sha256": "f7fef6130d7c366b8cae1715254c7c3113b2d6a496a2e89cc2313c3c3efc0520"
+          },
+          "services": {
+            "period": "2026-10",
+            "rate": 3.7,
+            "nativeDay": "2026-11-18",
+            "introducedAt": "2026-11-18T07:00:00.000Z",
+            "nativeDate": "2026-11-18T00:00:00.000Z",
+            "observationUpdate": "2026-11-18T00:00:00.000Z",
+            "uri": "/economy/inflationandpriceindices/timeseries/d7nn/mm23",
+            "sha256": "7388ce2c2d6a880a4ef6d16ff61f99603bd4e339defcb5d7c49cceb173a50281"
+          }
+        },
+        "previous": {
+          "period": "2026-09",
+          "releaseAt": "2026-10-21T06:00:00.000Z",
+          "availableAt": "2026-10-21T06:00:00.000Z",
+          "calendarSha256": "701b2097fa1ce0f0438ec31b0985aa05774bb4da54143b1b86787bd3d4b469cb",
+          "headline": {
+            "period": "2026-09",
+            "rate": 3.5,
+            "nativeDay": "2026-10-21",
+            "introducedAt": "2026-10-21T06:00:00.000Z",
+            "nativeDate": "2026-10-20T23:00:00.000Z",
+            "observationUpdate": "2026-10-20T23:00:00.000Z",
+            "uri": "/economy/inflationandpriceindices/timeseries/d7g7/mm23/previous/v132",
+            "sha256": "61941f85761d6e3668370f26ddc9a987c5e9b696e02fb586488d53eab40b583b"
+          },
+          "services": {
+            "period": "2026-09",
+            "rate": 3.7,
+            "nativeDay": "2026-10-21",
+            "introducedAt": "2026-10-21T06:00:00.000Z",
+            "nativeDate": "2026-10-20T23:00:00.000Z",
+            "observationUpdate": "2026-10-20T23:00:00.000Z",
+            "uri": "/economy/inflationandpriceindices/timeseries/d7nn/mm23/previous/v132",
+            "sha256": "4b195b5d1e933827d96a23753eb6604a6492e577b930ebf020681f4cc8adbdc4"
+          }
+        }
+      }
+    },
+    {
+      "id": "fed-h6-retail-balances",
+      "family": "retail",
+      "title": "U.S. retail money funds and small deposits",
+      "shortLabel": "Household cash balances",
+      "instruments": [
+        "MARKET"
+      ],
+      "directionalInstruments": [],
+      "status": "available",
+      "summary": "U.S. retail money funds held $3,085 billion for 2026-09. Small time deposits held $1,506 billion.",
+      "source": {
+        "name": "Federal Reserve Board · H.6 Money Stock Measures",
+        "url": "https://www.federalreserve.gov/releases/h6/20261027/",
+        "retrievedAt": "2026-11-24T15:06:43.620Z",
+        "observedAt": "2026-09-30",
+        "releasedAt": "2026-10-27",
+        "frequency": "monthly",
+        "attribution": "Board of Governors of the Federal Reserve System (US), H.6 Money Stock Measures, Tables 1 and 2.",
+        "usage": "Board of Governors of the Federal Reserve System, public statistical release. https://www.federalreserve.gov/disclaimer.htm",
+        "sha256": "a54a5bbc6c9b86478a8441343a9895d5bf334099c3cc548796c95e1a3dd702e2"
+      },
+      "methodology": "Use the first verified dated Federal Reserve Board H.6 issue on the gross-component basis introduced July 28, 2026. Compare two consecutive monthly balances within that issue and reconcile both to M1 and M2 after deducting the separately reported retirement accounts.",
+      "limitation": "Balances can change through subscriptions, redemptions, interest and reclassification. The Board does not identify which securities households bought or sold. The retirement-account deduction covers both funds and deposits.",
+      "series": [
+        {
+          "date": "2026-08-31",
+          "value": 3073.9
+        },
+        {
+          "date": "2026-09-30",
+          "value": 3085
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Retail money funds",
+          "value": 3085,
+          "unit": "USD billions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "Monthly change in retail funds",
+          "value": 11.1,
+          "unit": "USD billions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "Small time deposits",
+          "value": 1506,
+          "unit": "USD billions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "Monthly change in small deposits",
+          "value": 8.1,
+          "unit": "USD billions",
+          "date": "2026-09-30"
+        },
+        {
+          "label": "Retirement accounts deducted from M2 (estimated)",
+          "value": 1238.2,
+          "unit": "USD billions",
+          "date": "2026-09-30"
+        }
+      ],
+      "scores": {
+        "daily": null,
+        "weekly": null,
+        "monthly": null
+      },
+      "staleAfterDays": 70,
+      "unit": "USD billions",
+      "fedRetailMoney": {
+        "definition": "gross-retail-and-time-deposits-separate-ira-v1",
+        "releaseDay": "2026-10-27",
+        "scheduledAt": "2026-10-27T17:00:00.000Z",
+        "firstVerifiedAt": "2026-11-24T14:56:01.126Z",
+        "indexSHA256": "45f907337970884c70962681e7011a0e90b84366d4e52a41e3dda6801d7a06e1",
+        "current": {
+          "month": "2026-09",
+          "retail": 30850,
+          "smallDeposits": 15060,
+          "retirement": 12382,
+          "retirementEstimated": true,
+          "m1": 200612,
+          "m2": 234139
+        },
+        "previous": {
+          "month": "2026-08",
+          "retail": 30739,
+          "smallDeposits": 14979,
+          "retirement": 12382,
+          "retirementEstimated": true,
+          "m1": 199673,
+          "m2": 233009
+        }
+      }
+    },
+    {
       "id": "sec-holdings-berkshire",
       "family": "institutions",
       "title": "Berkshire Hathaway · disclosed share holdings",
@@ -29536,79 +29758,13 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-24T12:49:06.680Z",
+        "retrievedAt": "2026-11-24T15:06:44.135Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
         "attribution": "",
         "usage": "Not integrated",
         "sha256": null
-      }
-    },
-    {
-      "id": "firstrate-premarket-equity-breadth",
-      "family": "premarket",
-      "title": "Previous premarket across four U.S. equity ETFs",
-      "shortLabel": "Previous premarket across four U.S. equity ETFs",
-      "instruments": [
-        "MARKET"
-      ],
-      "directionalInstruments": [],
-      "status": "available",
-      "staleAfterDays": 1,
-      "unit": "%",
-      "scores": {
-        "daily": null,
-        "weekly": null,
-        "monthly": null
-      },
-      "summary": "On 2026-11-23, 4 equity ETFs rose, 0 fell and 0 were flat from 4:00 to 9:29 a.m. New York. The median reported change was 1.8%.",
-      "methodology": "Use each of SPY, QQQ, IWM and DIA once. Count the signs of their published one-decimal premarket changes and take the median of those four readings.",
-      "limitation": "The four funds have overlapping holdings. A change that rounds to zero counts as flat. This measures the preceding session and carries no forecast vote.",
-      "metrics": [
-        {
-          "label": "Median reported premarket change",
-          "value": 1.8,
-          "unit": "%",
-          "date": "2026-11-23"
-        },
-        {
-          "label": "Advancing ETFs",
-          "value": 4,
-          "unit": "ETFs",
-          "date": "2026-11-23"
-        },
-        {
-          "label": "Declining ETFs",
-          "value": 0,
-          "unit": "ETFs",
-          "date": "2026-11-23"
-        },
-        {
-          "label": "Flat at reported precision",
-          "value": 0,
-          "unit": "ETFs",
-          "date": "2026-11-23"
-        }
-      ],
-      "series": [
-        {
-          "date": "2026-11-23",
-          "value": 1.8
-        }
-      ],
-      "source": {
-        "name": "FirstRate Data",
-        "url": "https://firstratedata.com/stock-data",
-        "observedAt": "2026-11-23T14:29:59.999Z",
-        "vintageAt": "2026-11-24T08:01:19.000Z",
-        "retrievedAt": "2026-11-24T09:04:22.556Z",
-        "approvedAt": "2026-11-24T09:11:56.510Z",
-        "sha256": "d30cd1ae4761fc1e1730555f5d995be39bdec45518bf93455f06c16633bcfc77",
-        "releasedAt": null,
-        "frequency": "completed premarket sessions",
-        "attribution": "Price data from FirstRate Data. Premarket calculations by The Daily Consensus.",
-        "usage": "Attributed derived statistics under the FirstRate Data licence. The underlying minute bars stay private."
       }
     },
     {
@@ -29620,7 +29776,7 @@
         "SPY"
       ],
       "directionalInstruments": [],
-      "status": "available",
+      "status": "stale",
       "staleAfterDays": 1,
       "summary": "On 2026-11-23, SPY changed 2.3% from the 4:00 a.m. open to the close of the 9:29 a.m. New York bar. The archive records volume in 328 of 330 minutes.",
       "methodology": "Use the first open and final close in the same dated, split-adjusted premarket window. Count distinct observed minutes with positive volume. Display the price change to one decimal place.",
@@ -29674,7 +29830,7 @@
         "QQQ"
       ],
       "directionalInstruments": [],
-      "status": "available",
+      "status": "stale",
       "staleAfterDays": 1,
       "summary": "On 2026-11-23, QQQ changed 4.4% from the 4:00 a.m. open to the close of the 9:29 a.m. New York bar. The archive records volume in 330 of 330 minutes.",
       "methodology": "Use the first open and final close in the same dated, split-adjusted premarket window. Count distinct observed minutes with positive volume. Display the price change to one decimal place.",
@@ -29728,7 +29884,7 @@
         "IWM"
       ],
       "directionalInstruments": [],
-      "status": "available",
+      "status": "stale",
       "staleAfterDays": 1,
       "summary": "On 2026-11-23, IWM changed 1.3% from the 4:00 a.m. open to the close of the 9:29 a.m. New York bar. The archive records volume in 267 of 330 minutes.",
       "methodology": "Use the first open and final close in the same dated, split-adjusted premarket window. Count distinct observed minutes with positive volume. Display the price change to one decimal place.",
@@ -29782,7 +29938,7 @@
         "DIA"
       ],
       "directionalInstruments": [],
-      "status": "available",
+      "status": "stale",
       "staleAfterDays": 1,
       "summary": "On 2026-11-23, DIA changed 0.8% from the 4:00 a.m. open to the close of the 9:29 a.m. New York bar. The archive records volume in 149 of 330 minutes.",
       "methodology": "Use the first open and final close in the same dated, split-adjusted premarket window. Count distinct observed minutes with positive volume. Display the price change to one decimal place.",
@@ -29834,6 +29990,10 @@
       "reason": "The preceding exchange session needs verified 4:00 a.m. and 9:29 a.m. New York bars for this ETF.",
       "url": "https://firstratedata.com/stock-data",
       "instruments": [
+        "SPY",
+        "QQQ",
+        "IWM",
+        "DIA",
         "TLT"
       ],
       "shortLabel": "Previous-session premarket window",
@@ -29853,7 +30013,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://firstratedata.com/stock-data",
-        "retrievedAt": "2026-11-24T12:49:06.680Z",
+        "retrievedAt": "2026-11-24T15:06:44.135Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -34666,7 +34826,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-24T12:49:06.680Z",
+        "retrievedAt": "2026-11-24T15:06:44.135Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -35781,7 +35941,7 @@
       }
     ]
   },
-  "sourcesAttempted": 83,
+  "sourcesAttempted": 2,
   "collectionErrors": [
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
@@ -35793,14 +35953,14 @@
     "private-capital: Market-wide private-equity calls and distributions await a verified source. Oregon pension schedules cover one limited partner.",
     "daily-prices: TLT. TLT has verified regular-session opens and closes through 2026-11-20. The opening range and twenty-session trend remain pending for that session.",
     "premarket-bars: MARKET, SPY, QQQ, IWM, DIA, TLT. The current session’s premarket gap, range and volume await a verified extended-hours feed.",
-    "previous-premarket-bars: TLT. The preceding exchange session needs verified 4:00 a.m. and 9:29 a.m. New York bars for this ETF."
+    "previous-premarket-bars: SPY, QQQ, IWM, DIA, TLT. The preceding exchange session needs verified 4:00 a.m. and 9:29 a.m. New York bars for this ETF."
   ],
   "consensus": [
     {
       "instrument": "MARKET",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.7250194250194251,
+      "coverage": 0.6953857253857254,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -35808,6 +35968,7 @@
       "neutral": 3,
       "abstain": true,
       "reasons": [
+        "Less than 70% of the requested evidence is current.",
         "Less than 70% of independent families can cast a directional vote for this horizon.",
         "A verified price-based setup is missing.",
         "Fewer than five independent families provide directional readings."
@@ -35826,8 +35987,8 @@
           "id": "retail",
           "label": "Retail crowd",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -35862,10 +36023,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 1,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "unavailable"
         },
         {
           "id": "events",
@@ -35934,8 +36095,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 13,
-          "available": 12,
+          "expected": 14,
+          "available": 13,
           "score": null,
           "status": "available"
         },
@@ -35955,7 +36116,7 @@
       "instrument": "MARKET",
       "horizon": "weekly",
       "score": 0.07516389240097167,
-      "coverage": 0.7250194250194251,
+      "coverage": 0.6953857253857254,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -35963,6 +36124,7 @@
       "neutral": 1,
       "abstain": true,
       "reasons": [
+        "Less than 70% of the requested evidence is current.",
         "Less than 70% of independent families can cast a directional vote for this horizon.",
         "A verified price-based setup is missing."
       ],
@@ -35980,8 +36142,8 @@
           "id": "retail",
           "label": "Retail crowd",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -36016,10 +36178,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 1,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "unavailable"
         },
         {
           "id": "events",
@@ -36088,8 +36250,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 13,
-          "available": 12,
+          "expected": 14,
+          "available": 13,
           "score": null,
           "status": "available"
         },
@@ -36109,7 +36271,7 @@
       "instrument": "MARKET",
       "horizon": "monthly",
       "score": -0.04225581376643315,
-      "coverage": 0.7250194250194251,
+      "coverage": 0.6953857253857254,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 1,
@@ -36117,6 +36279,7 @@
       "neutral": 3,
       "abstain": true,
       "reasons": [
+        "Less than 70% of the requested evidence is current.",
         "Less than 70% of independent families can cast a directional vote for this horizon.",
         "A verified price-based setup is missing."
       ],
@@ -36134,8 +36297,8 @@
           "id": "retail",
           "label": "Retail crowd",
           "weight": 1,
-          "expected": 4,
-          "available": 3,
+          "expected": 5,
+          "available": 4,
           "score": null,
           "status": "available"
         },
@@ -36170,10 +36333,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 1,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "unavailable"
         },
         {
           "id": "events",
@@ -36242,8 +36405,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 13,
-          "available": 12,
+          "expected": 14,
+          "available": 13,
           "score": null,
           "status": "available"
         },
@@ -36263,7 +36426,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.6769658119658122,
+      "coverage": 0.6436324786324786,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -36326,10 +36489,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -36419,7 +36582,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "score": 0.10943947838038715,
-      "coverage": 0.6769658119658122,
+      "coverage": 0.6436324786324786,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 2,
@@ -36481,10 +36644,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -36574,7 +36737,7 @@
       "instrument": "SPY",
       "horizon": "monthly",
       "score": -0.0032994151367838676,
-      "coverage": 0.6769658119658122,
+      "coverage": 0.6436324786324786,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 2,
@@ -36636,10 +36799,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -36729,7 +36892,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.6769658119658122,
+      "coverage": 0.6436324786324786,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -36792,10 +36955,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -36885,7 +37048,7 @@
       "instrument": "QQQ",
       "horizon": "weekly",
       "score": 0.03984817185710632,
-      "coverage": 0.6769658119658122,
+      "coverage": 0.6436324786324786,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -36947,10 +37110,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37040,7 +37203,7 @@
       "instrument": "QQQ",
       "horizon": "monthly",
       "score": -0.06134258776388526,
-      "coverage": 0.6769658119658122,
+      "coverage": 0.6436324786324786,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 1,
@@ -37102,10 +37265,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37195,7 +37358,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.6402991452991454,
+      "coverage": 0.606965811965812,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -37258,10 +37421,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37351,7 +37514,7 @@
       "instrument": "IWM",
       "horizon": "weekly",
       "score": 0.12832287559701236,
-      "coverage": 0.6402991452991454,
+      "coverage": 0.606965811965812,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.75,
       "bullish": 3,
@@ -37413,10 +37576,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37506,7 +37669,7 @@
       "instrument": "IWM",
       "horizon": "monthly",
       "score": -0.015960345124651255,
-      "coverage": 0.6402991452991454,
+      "coverage": 0.606965811965812,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 1,
@@ -37568,10 +37731,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37661,7 +37824,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.6709052059052059,
+      "coverage": 0.6375718725718725,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -37724,10 +37887,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37817,7 +37980,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "score": 0.023045043769380845,
-      "coverage": 0.6709052059052059,
+      "coverage": 0.6375718725718725,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -37879,10 +38042,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -37972,7 +38135,7 @@
       "instrument": "DIA",
       "horizon": "monthly",
       "score": -0.08842090704041224,
-      "coverage": 0.6709052059052059,
+      "coverage": 0.6375718725718725,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 1,
@@ -38034,10 +38197,10 @@
           "id": "premarket",
           "label": "Before the bell",
           "weight": 1,
-          "expected": 2,
-          "available": 1,
+          "expected": 3,
+          "available": 0,
           "score": null,
-          "status": "available"
+          "status": "stale"
         },
         {
           "id": "events",
@@ -38127,7 +38290,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "score": 0.049999999999998934,
-      "coverage": 0.5727594627594628,
+      "coverage": 0.5733655233655234,
       "directionalCoverage": 0.06666666666666667,
       "agreement": null,
       "bullish": 0,
@@ -38262,8 +38425,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 11,
+          "available": 10,
           "score": null,
           "status": "available"
         },
@@ -38283,7 +38446,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "score": 0.4416890825277281,
-      "coverage": 0.5727594627594628,
+      "coverage": 0.5733655233655234,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -38418,8 +38581,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 11,
+          "available": 10,
           "score": null,
           "status": "available"
         },
@@ -38439,7 +38602,7 @@
       "instrument": "TLT",
       "horizon": "monthly",
       "score": 0.03160925754665389,
-      "coverage": 0.5727594627594628,
+      "coverage": 0.5733655233655234,
       "directionalCoverage": 0.13333333333333333,
       "agreement": 1,
       "bullish": 1,
@@ -38574,8 +38737,8 @@
           "id": "international",
           "label": "Around the world",
           "weight": 1,
-          "expected": 10,
-          "available": 9,
+          "expected": 11,
+          "available": 10,
           "score": null,
           "status": "available"
         },
