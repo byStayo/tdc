@@ -1,0 +1,15 @@
+{
+  "method": "prelaunch-ofr-international-stress-dia-v1-native-precision",
+  "registeredAt": "2026-11-24T11:20:12.052Z",
+  "beforeAnyETFOutcomes": true,
+  "originalPolicy": "9e2615f0e735d5e527506317243607c82294b1d4c0b6928607db5e5fb18b7119",
+  "originalSourceResult": "7065445998392e2c196c311b928f8cecb4a6832ad40f902ae2ffe22005df9bc3",
+  "scope": "Same question, ETF, signs, features, clock, economic-date and target de-duplication, forward forecast exclusion, tests, comparisons and outcome gate. Keep the original 2022-2026 result as a separate source-only report. A single supplemental study uses the Treasury publication history from its first full calendar year, beginning on 2018-01-02, to 2026-11-02. Treasury introduced all three regions October 25, 2017. Retain as-issued definitions across historical methodology changes; disclose the differing interest-rate regimes and sparse archival selection.",
+  "precision": "Source review before prices found all 2,792 observed index and region fields from the 349 geographically complete old receipts have at most three decimals. Each of the global index and three component values is independently published to 0.001. Accept only entirely exact multiples of .001 and at most 4 times half the native grid, .002, of discrepancy between published total and regional sum at both observations. Require all six source fields; do not impute an omitted region from the total. Retain independent same-date mirror agreement at precision of 4 decimals.",
+  "additionalVintages": "Every independently clocked 200-status Internet Archive CDX record for the exact native Treasury fsi.csv or fsi.json from 2018-01-01 through 2021-12-31. Require exact Memento-Datetime, replay URL, verified CDX SHA1 received bytes and native dates before any label. Reject substituted dates, errors or stale frames. Use frozen prelaunch existing inventory for 2022 onward. No further archive/cohort changes. If under 120 selected targets, do not open prices.",
+  "references": [
+    "https://www.financialresearch.gov/from-the-director/2017/10/25/the-ofr-introduces-financial-stability-index-and-financial-vulnerabilities-monitor/",
+    "https://www.financialresearch.gov/financial-stress-index/regions/",
+    "https://www.financialresearch.gov/working-papers/2023/05/02/the-transition-to-alternative-reference-rates-in-the-ofr-financial-stress-index/"
+  ]
+}
