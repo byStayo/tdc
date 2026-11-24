@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { setTimeout as wait } from "node:timers/promises";
 import { gzipSync, gunzipSync } from "node:zlib";
 import type { EditorialEvidence, EditorialSource } from "../scripts/collect-editorial-evidence.ts";
-import { publicBytes } from "./consensus/collector.ts";
+import { publicBytes } from "./consensus/public-source.ts";
 import { TREASURY_YIELD_CITATION, treasuryYieldFile, treasuryYieldPoints } from "./consensus/fed-market-data.ts";
 import { SourceTransportError } from "./consensus/source-failure.ts";
 import { newYorkDate, newYorkTimestamp } from "./consensus/time.ts";
