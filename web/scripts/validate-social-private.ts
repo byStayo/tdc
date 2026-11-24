@@ -4,6 +4,7 @@ import { homedir, tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BLUESKY_METHOD, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, marketStances, type Exclusions, type LanguageCue } from "../lib/consensus/bluesky.ts";
+import { nativeAnnotationFolder, openCapturedSocialAnnotation, withdrawCapturedSocialAnnotation } from "../lib/consensus/social-annotation-capture.ts";
 import { readBlueskyAnnotationExclusions } from "../lib/bluesky-private.ts";
 import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
@@ -52,6 +53,12 @@ async function readPrivateCorpus(path: string) {
 }
 
 export function evaluateSocialCorpus(corpus: Record<string, unknown>, now = new Date().toISOString(), native?: unknown, exclusions?: Exclusions) {
+  return scoreCheckedSocialCorpus(corpus, now, () => typeof corpus.nonce === "string" && native !== undefined
+    ? socialAnnotationTemplate(native, now, corpus.nonce, exclusions) : undefined);
+}
+
+function scoreCheckedSocialCorpus(corpus: Record<string, unknown>, now: string,
+  checkedSource: () => ReturnType<typeof socialAnnotationTemplate> | undefined) {
   if ((corpus.schemaVersion !== 1 && corpus.schemaVersion !== 2) || !canonicalInstant(now) || !canonicalInstant(corpus.collectedAt) ||
       !canonicalInstant(corpus.expiresAt) || corpus.collectedAt > now || corpus.expiresAt <= now ||
       Date.parse(corpus.expiresAt) - Date.parse(corpus.collectedAt) > 86_400_000 ||
@@ -63,8 +70,8 @@ export function evaluateSocialCorpus(corpus: Record<string, unknown>, now = new 
   const verified = corpus.schemaVersion === 2;
   let originals: Map<string, { platform: string; instrument: Instrument; text: string }> | undefined;
   if (verified) {
-    if (typeof corpus.nonce !== "string" || native === undefined) throw new Error("Independent native source required");
-    const template = socialAnnotationTemplate(native, now, corpus.nonce, exclusions);
+    const template = checkedSource();
+    if (!template || template.nonce !== corpus.nonce) throw new Error("Independent native source required");
     if (template.collectedAt !== corpus.collectedAt || template.expiresAt !== corpus.expiresAt ||
         template.source !== corpus.source || template.from !== corpus.from || template.through !== corpus.through ||
         JSON.stringify(template.groups) !== JSON.stringify(corpus.groups) || template.items.length !== corpus.items.length)
@@ -162,12 +169,27 @@ async function preparePrivateCorpus(path: string) {
     expiresAt: template.expiresAt };
 }
 
+export async function runCapturedSocialBenchmark(storage: string, platform: "x" | "instagram", withdraw = false,
+  clock: () => string = () => new Date().toISOString()) {
+  const now = clock();
+  if (withdraw) {
+    await withdrawCapturedSocialAnnotation(storage, platform, now);
+    return { status: "withdrawn" };
+  }
+  const { packet, template } = await openCapturedSocialAnnotation(storage, platform, now);
+  const result = scoreCheckedSocialCorpus(packet, now, () => template);
+  return { ...result, contributorVerification: "verified-at-provider-collection" };
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const args = process.argv.slice(2);
     let result;
     if (args.length === 2 && args[0] === "--prepare") {
       result = await preparePrivateCorpus(args[1]);
+    } else if (args.length === 2 && ["--captured", "--withdraw-captured"].includes(args[0]) &&
+        (args[1] === "x" || args[1] === "instagram")) {
+      result = await runCapturedSocialBenchmark(nativeAnnotationFolder(), args[1], args[0] === "--withdraw-captured");
     } else if (args.length === 1) {
       const corpus = await readPrivateCorpus(args[0]);
       const source = corpus.schemaVersion === 2 ? await readNativeSource() : undefined;

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, xStanceAnalysis,
   type LanguageCue, type XAbstentionReason } from "../lib/consensus/bluesky.ts";
 import { rssItems } from "../lib/consensus/collector.ts";
+import { nativeAnnotationFolder, startNativeAnnotationCapture, type NativeAnnotationCapture } from "../lib/consensus/social-annotation-capture.ts";
 import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
@@ -109,7 +110,7 @@ function xAuthorization(url: URL, account: XAccount) {
     .map(([key, value]) => key + '="' + encode(value) + '"').join(", ");
 }
 
-export async function collectX(input: unknown, cutoff: string) {
+export async function collectX(input: unknown, cutoff: string, observe?: NativeAnnotationCapture["observe"]) {
   const config = object(input);
   if (!isId(config.userId) || ![config.apiKey, config.apiSecret, config.accessToken, config.accessSecret].every(isCredential))
     throw new Error("Invalid X OAuth 1.0a configuration");
@@ -121,6 +122,7 @@ export async function collectX(input: unknown, cutoff: string) {
     "tweet.fields": X_POST_FIELDS,
   }).toString();
   const page = await readXPage(url, xAuthorization(url, account), 100);
+  observe?.(null, page.native, page.missingVisibility);
   return { status: "ok", classifier: X_STANCE_METHOD, textMethod: X_POST_TEXT_METHOD, read: page.read, truncated: page.next !== null,
     ...summarizeX(page.posts, cutoff, page.read, page.rejectedTextAuthors.size, page.missingVisibility) };
 }
@@ -154,10 +156,10 @@ async function readXPage(url: URL, authorization: string, limit: number) {
     return [{ author: row.author_id, at, text }];
   });
   const next = typeof meta.next_token === "string" && meta.next_token.length <= 2048 ? meta.next_token : null;
-  return { posts, read: rows.length, next, rejectedTextAuthors, missingVisibility };
+  return { posts, read: rows.length, next, rejectedTextAuthors, missingVisibility, native: body };
 }
 
-export async function collectXPublic(input: unknown, cutoff: string) {
+export async function collectXPublic(input: unknown, cutoff: string, observe?: NativeAnnotationCapture["observe"]) {
   const { bearerToken } = object(input);
   if (!isCredential(bearerToken)) throw new Error("Invalid X public-search configuration");
   const authorization = "Bearer " + bearerToken;
@@ -182,6 +184,7 @@ export async function collectXPublic(input: unknown, cutoff: string) {
       if (next) url.searchParams.set("next_token", next);
       try {
         const page = await readXPage(url, authorization, xSearchPageSize);
+        observe?.(instrument as Instrument, page.native, page.missingVisibility);
         posts.push(...page.posts);
         missingVisibility ||= page.missingVisibility;
         for (const author of page.rejectedTextAuthors) rejectedTextAuthors.add(author);
@@ -208,7 +211,7 @@ export async function collectXPublic(input: unknown, cutoff: string) {
     read, queries, ...summarizeX(posts, cutoff, read, rejectedTextAuthors.size, missingVisibility || failedQueries > 0) };
 }
 
-export async function collectInstagram(input: unknown, cutoff: string) {
+export async function collectInstagram(input: unknown, cutoff: string, capture?: NativeAnnotationCapture) {
   const config = object(input);
   if (!isId(config.accountId) || !isCredential(config.token) || typeof config.graphVersion !== "string" ||
       !/^v\d{1,2}\.0$/.test(config.graphVersion) || !Array.isArray(config.handles) ||
@@ -223,12 +226,15 @@ export async function collectInstagram(input: unknown, cutoff: string) {
   for (const handle of account.handles) {
     try {
       const url = new URL("https://graph.facebook.com/" + account.graphVersion + "/" + account.accountId);
-      url.searchParams.set("fields", "business_discovery.username(" + handle + "){id,username,media.limit(10){caption,timestamp}}");
+      const annotate = capture?.acceptsInstagramHandle?.(handle) ? capture.observe : undefined;
+      const fields = annotate ? "id,caption,timestamp" : "caption,timestamp";
+      url.searchParams.set("fields", "business_discovery.username(" + handle + "){id,username,media.limit(10){" + fields + "}}");
       const body = object(JSON.parse(await fetchText(url, { Authorization: "Bearer " + account.token })));
       const profile = object(body.business_discovery);
       if (!isId(profile.id) || profile.username !== handle) throw new Error("Unexpected Instagram account");
       const media = object(profile.media);
       if (!Array.isArray(media.data) || media.data.length > 10) throw new Error("Invalid Instagram media page");
+      annotate?.(null, { requestedUsername: handle, business_discovery: profile });
       truncated ||= media.paging !== undefined && typeof object(media.paging).next === "string";
       for (const row of media.data.map(object)) {
         const text = instagramCaptionText(row.caption);
@@ -310,7 +316,8 @@ function reusableX(text: string | null, cutoff: string, sameDay: boolean): Timed
   return { ...x, cutoff: observed, expiresAt: expires };
 }
 
-async function dailyX(folder: string, config: Record<string, unknown>, cutoff: string, freeOnly: boolean): Promise<TimedX> {
+async function dailyX(folder: string, config: Record<string, unknown>, cutoff: string, freeOnly: boolean,
+  observe?: NativeAnnotationCapture["observe"]): Promise<TimedX> {
   const publicSearch = config.xPublic !== undefined;
   const input = publicSearch ? config.xPublic : config.x;
   if (input === undefined) return { status: "not_configured" };
@@ -325,7 +332,8 @@ async function dailyX(folder: string, config: Record<string, unknown>, cutoff: s
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
     }
     if (acquired) {
-      const reading = publicSearch ? await platform(input, collectXPublic, cutoff) : await platform(input, collectX, cutoff);
+      const reading = publicSearch ? await platform(input, (settings, at) => collectXPublic(settings, at, observe), cutoff) :
+        await platform(input, (settings, at) => collectX(settings, at, observe), cutoff);
       return { ...reading, cutoff, expiresAt: new Date(Date.parse(cutoff) + dayMs).toISOString() };
     }
   }
@@ -348,17 +356,30 @@ async function collectNewsletters(cutoff: string) {
 }
 
 export async function collectFollowingDigest(project: string, config: Record<string, unknown>, freeOnly = false,
-  cutoff = new Date(Date.now() - 15_000).toISOString()) {
+  cutoff = new Date(Date.now() - 15_000).toISOString(), annotationStorage?: { folder: string; clock?: () => string }) {
   const folder = resolve(project, ".editorial");
   const output = resolve(folder, "following-digest.json");
   const release = await acquirePublicationLock(project, "following-digest", "following-digest.lock");
   let failure: { error: unknown } | undefined;
   try {
+    const begin = async (source: "x" | "instagram"): Promise<NativeAnnotationCapture | undefined> => {
+      if (!annotationStorage) return;
+      try { return await startNativeAnnotationCapture(annotationStorage.folder, source, cutoff, annotationStorage.clock); }
+      catch { return { finish: async () => "private_storage_unavailable" }; }
+    };
+    const [xCapture, igCapture] = await Promise.all([begin("x"), begin("instagram")]);
     const [x, instagram, newsletters] = await Promise.all([
-      dailyX(folder, config, cutoff, freeOnly),
-      platform(config.instagram, collectInstagram, cutoff),
+      dailyX(folder, config, cutoff, freeOnly, xCapture?.observe),
+      platform(config.instagram, (input, at) => collectInstagram(input, at, igCapture), cutoff),
       collectNewsletters(cutoff),
     ]);
+    // Annotation cannot introduce a provider request or stop the independent daily digest.
+    const finish = async (capture: NativeAnnotationCapture | undefined, complete: boolean) =>
+      capture?.finish(complete).catch(() => "private_storage_unavailable");
+    const [xAnnotation, igAnnotation] = await Promise.all([
+      finish(xCapture, x.status === "ok"), finish(igCapture, instagram.status === "ok"),
+    ]);
+    const annotations = annotationStorage ? { x: xAnnotation, instagram: igAnnotation } : undefined;
     const freshExpiry = new Date(Date.parse(cutoff) + dayMs).toISOString();
     // Anyone reading the whole digest must stop using it when its oldest included read expires.
     const expiresAt = x.expiresAt && x.expiresAt < freshExpiry ? x.expiresAt : freshExpiry;
@@ -366,7 +387,7 @@ export async function collectFollowingDigest(project: string, config: Record<str
       purpose: "Private editorial leads and social interpretation diagnostics. Check primary evidence before publication.",
       x, instagram, newsletters };
     await durableJSON(output, report);
-    return { followingDigest: output, x: x.status, xCutoff: x.cutoff ?? null, instagram: instagram.status,
+    return { followingDigest: output, x: x.status, xCutoff: x.cutoff ?? null, instagram: instagram.status, ...(annotations && { annotations }),
       newsletters: newsletters.map(feed => ({ name: feed.name, status: feed.status, items: feed.entries.length })) };
   } catch (error) {
     failure = { error };
@@ -380,7 +401,7 @@ async function main() {
   const args = process.argv.slice(2);
   if (new Set(args).size !== args.length || args.some(arg => arg !== "--scheduled" && arg !== "--free-only"))
     throw new Error("Use --scheduled or --free-only when collecting the following digest");
-  console.log(JSON.stringify(await collectFollowingDigest(root, await localConfig(), args.includes("--free-only"))));
+  console.log(JSON.stringify(await collectFollowingDigest(root, await localConfig(), args.includes("--free-only"), undefined, { folder: nativeAnnotationFolder() })));
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
