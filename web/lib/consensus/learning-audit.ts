@@ -14,11 +14,19 @@ export const PROSPECTIVE_MINIMUM = 500;
 export const MINIMUM_TEST_LABELS = 100;
 const COHORTS = 15;
 const RESAMPLES = 19999;
-export function resamplesForAlpha(alpha: number) {
+const MAX_RESAMPLES = 1_999_999;
+function requiredResamples(alpha: number) {
   if (!Number.isFinite(alpha) || alpha <= 0 || alpha > 0.05) throw new Error("Invalid bootstrap alpha");
-  const count = Math.max(RESAMPLES, Math.ceil(4 / alpha) - 1);
-  if (count > 1_999_999) throw new Error("Bootstrap resolution exceeds the declared computation budget; no test may be inspected");
+  return Math.max(RESAMPLES, Math.ceil(4 / alpha) - 1);
+}
+export function resamplesForAlpha(alpha: number) {
+  const count = requiredResamples(alpha);
+  if (count > MAX_RESAMPLES) throw new Error("Bootstrap resolution exceeds the declared computation budget; no test may be inspected");
   return count;
+}
+export function prospectiveAttemptBudget(attempt: number) {
+  const required = requiredResamples(attemptAlpha(attempt));
+  return { required, limit: MAX_RESAMPLES, available: required <= MAX_RESAMPLES };
 }
 
 export interface EvaluationReservation {

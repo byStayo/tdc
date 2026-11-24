@@ -4,6 +4,7 @@ import { isDeepStrictEqual } from "node:util";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt } from "../lib/consensus/preopen-receipt.ts";
 import { recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
+import { enrollJointRetail } from "../lib/consensus/retail-joint.ts";
 import { HORIZONS, INSTRUMENTS, type Snapshot } from "../lib/consensus/types.ts";
 
 const [option, session, ...extra] = process.argv.slice(2);
@@ -43,7 +44,7 @@ if (mismatches.length) throw new Error("Live consensus differs from the saved ed
 const root = fileURLToPath(new URL("../", import.meta.url));
 const preopen = session ? await recordPreopenReceipt(root, session, snapshot.id,
   verified.get(snapshot.id + ".json")!, verified.get("index.json")!, new Date().toISOString()) : undefined;
-let familyFeatures, retailFeatures;
+let familyFeatures, retailFeatures, jointRetail;
 if (session && preopen) {
   try {
     familyFeatures = await recordProspectiveFamilyFeatures(root, session, snapshot.id);
@@ -57,6 +58,12 @@ if (session && preopen) {
     console.error("Private monthly retail capture failed.", error instanceof Error ? error.message : String(error));
     retailFeatures = { status: "failed" };
   }
+  if ("available" in retailFeatures && retailFeatures.available) try {
+    jointRetail = await enrollJointRetail(root, session, snapshot.id);
+  } catch(error) {
+    console.error("Private joint retail enrollment failed.",error instanceof Error?error.message:String(error));
+    jointRetail = { status: "failed" };
+  }
 }
 console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-  matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures }));
+  matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail }));

@@ -25,6 +25,10 @@ import {
   retailInput,
 } from "../lib/consensus/prospective-retail.ts";
 import type { Signal, Snapshot } from "../lib/consensus/types.ts";
+import { enrollJointRetail, jointRetailStatus, registerJointRetail, stageJointRetail, type NewCoreSettlement } from "../lib/consensus/retail-joint.ts";
+import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
+import { COMPLETED_EVALUATIONS } from "../lib/consensus/outcome-ledger.ts";
+import { durableJSON } from "../lib/publication-storage.ts";
 type Input = Parameters<typeof evaluateMatureRetail>[3][number];
 
 const session = "2026-12-08",
@@ -161,6 +165,51 @@ test("a real pre-open registration binds two separate monthly originals and one 
   m.release.sha256 = "0".repeat(64);
   await writeFile(file, JSON.stringify(m));
   await assert.rejects(() => readProspectiveFamilyFeatures(root, session, "retail"), /no longer reproduces/);
+});
+test("joint enrollment uses the live witness and only the first authorized native core settlement", async (t) => {
+  const root=await fixture(t), registration=await registerJointRetail(root);
+  const initial=await collect(t,root,"2026-11-09","October",40,signup);
+  const n=await issue(t,root,"2026-11-24",initial.signal);
+  await recordProspectiveFamilyFeatures(root,"2026-11-24",n,"retail");
+  const signal=await collect(t,root,"2026-12-07","November",41.3,"2026-12-07T16:01:00.000Z");
+  const early=await issue(t,root,session,signal.signal);
+  await recordProspectiveFamilyFeatures(root,session,early,"retail");
+  assert.equal((await enrollJointRetail(root,session,early)).enrolled,4);
+  const late=await issue(t,root,session,signal.signal,"13:08");
+  await recordProspectiveFamilyFeatures(root,session,late,"retail");
+  assert.equal((await enrollJointRetail(root,session,late)).enrolled,4);
+  assert.equal((await registerJointRetail(root)).registeredAt,registration.registeredAt);
+  const archives=await Promise.all([n,early,late].map(async id=>JSON.parse(await readFile(join(root,"public/consensus",id+".json"),"utf8")) as Snapshot));
+  await durableJSON(join(root,"public/consensus/index.json"),archives.map(s=>({id:s.id,issuedAt:s.issuedAt,engineVersion:s.engineVersion,sha256:digest(s)})));
+  tick(t,"2026-12-08T21:10:00.000Z");
+  assert.equal((await enrollJointRetail(root,session,late)).status,"outside_preopen");
+  const clock=exchangeSession(session)!, reads:string[]=[];
+  const make=(s:Snapshot,fund:NewCoreSettlement["instrument"],source:string):NewCoreSettlement=>({
+    snapshotId:s.id,instrument:fund,horizon:"daily",source,issuedAt:s.issuedAt,entryAt:clock.openAt,exitAt:clock.closeAt,
+    calendarVersion:"us-equities-core-2026-reviewed-2026-11-03-v1",adjustment:"total-return-adjusted",
+    direction:()=>{reads.push(fund+"/"+s.id);return 1;}});
+  const firstRead=[make(archives[1],"SPY",FIRST_RATE_SOURCE),make(archives[2],"SPY",FIRST_RATE_SOURCE),
+    make(archives[2],"QQQ",FIRST_RATE_SOURCE),make(archives[2],"IWM","https://example.com/unverified"),make(archives[2],"DIA",FIRST_RATE_SOURCE)];
+  const tx="aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
+  const core=(instrument:string,reservedAt:string)=>({instrument,reservedAt,consumedThrough:clock.closeAt,
+    testWindows:[{issuedAt:archives[2].issuedAt,labelKnownAt:clock.closeAt}]});
+  const reservations=[core("QQQ","2026-12-08T13:01:00.000Z"),core("SPY","2026-12-08T21:01:00.000Z")] as Parameters<typeof stageJointRetail>[4];
+  await durableJSON(join(root,"public/consensus/outcomes.json"),[]);
+  await stageJointRetail(root,tx,firstRead,archives,reservations);
+  assert.deepEqual(reads,[]);
+  await durableJSON(join(root,".consensus/evaluation-transaction.json"),{schemaVersion:1,id:tx,synthetic:true});
+  await stageJointRetail(root,tx,firstRead,archives,reservations);
+  assert.deepEqual(reads,["SPY/"+late,"DIA/"+late]);
+  await durableJSON(join(root,"public/consensus/outcomes.json"),firstRead.map(row=>({snapshotId:row.snapshotId,instrument:row.instrument,horizon:"daily",engineVersion:"consensus-rules-2.0.0"})));
+  await stageJointRetail(root,tx,firstRead,archives,reservations);
+  assert.deepEqual(reads,["SPY/"+late,"DIA/"+late]);
+  const before=(await jointRetailStatus(root)).cohorts?.find(row=>row.instrument==="SPY");
+  assert.equal(before && "awaitingTransaction" in before && before.awaitingTransaction,1);
+  await durableJSON(join(root,COMPLETED_EVALUATIONS,tx+".json"),{schemaVersion:1,id:tx,synthetic:true});
+  const after=(await jointRetailStatus(root,true)).cohorts!;
+  assert.deepEqual(after.map(row=>[row.instrument,"confirmed" in row&&row.confirmed]),[["SPY",1],["QQQ",0],["IWM",0],["DIA",1]]);
+  assert(after.every(row=>"supersededEnrollments" in row && row.supersededEnrollments===1));
+  assert.equal((await jointRetailStatus(root)).status,"registered");
 });
 test("wrong issuer dates, late enrollment, short sessions and late controls cannot create a prospective survey pair", async (t) => {
   const root = await fixture(t),

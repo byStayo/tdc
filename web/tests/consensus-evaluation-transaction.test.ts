@@ -8,6 +8,7 @@ import { commitEvaluationTransaction, recoverEvaluationTransaction, assertNoPend
 import { rollbackActiveModel } from "../lib/consensus/model-rollback.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { digest } from "../lib/consensus/history.ts";
+import { attemptAlpha, LEARNING_POLICY } from "../lib/consensus/learning-audit.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER } from "../lib/consensus/outcome-ledger.ts";
@@ -64,6 +65,22 @@ test("transaction recovery rejects intervening edits, unsafe paths, symlinks and
   }finally{await rm(root,{recursive:true,force:true});}
 });
 
+test("optional secondary intake cannot block a verified core commit or re-open labels during recovery",async(t)=>{
+  const root=await mkdtemp(join(tmpdir(),"tdc-secondary-intake-"));
+  t.after(()=>rm(root,{recursive:true,force:true}));
+  let calls=0;
+  await commitEvaluationTransaction(root,writes,undefined,async(id)=>{
+    const journal=JSON.parse(await readFile(join(root,".consensus/evaluation-transaction.json"),"utf8"));
+    assert.equal(journal.id,id);
+    calls++;
+    throw Error("simulated private disk failure");
+  });
+  assert.equal(calls,1);
+  assert.deepEqual(await loadEvaluationOutcomes(root),[fixtureOutcome]);
+  assert.equal(await recoverEvaluationTransaction(root),false);
+  assert.equal(calls,1);
+});
+
 test("the actual evaluator finishes a pending transaction and exits without fitting again",async()=>{
   const root=await mkdtemp(join(tmpdir(),"tdc-evaluation-resume-"));
   try {
@@ -109,15 +126,38 @@ test("the actual evaluator scores a covered date and records uncovered targets a
     assert.equal(runWithoutPrices.status,"awaiting_price_evidence");
     assert.equal(runWithoutPrices.pending,index.length*5*3,"Every edition/instrument/horizon needs evidence, including instruments absent from --prices");
     assert.equal(runWithoutPrices.resolved,0);assert.equal(runWithoutPrices.trained,0);
+    // Forty real-shaped pre-existing test reservations exhaust SPY daily's next bootstrap budget.
+    const evaluations=join(root,"public/consensus/evaluations");
+    await mkdir(evaluations,{recursive:true});
+    let previousHash:string|null=null, day=Date.UTC(2000,0,3);
+    for(let attempt=1;attempt<=40;attempt++) {
+      const windows=Array.from({length:100},()=>{
+        while([0,6].includes(new Date(day).getUTCDay())) day+=86400000;
+        const session=new Date(day).toISOString().slice(0,10);day+=86400000;
+        return {id:"fixture-"+session,issuedAt:session+"T13:00:00.000Z",labelKnownAt:session+"T21:00:00.000Z"};
+      });
+      const record={policy:LEARNING_POLICY,engineVersion:"consensus-rules-2.0.0",instrument:"SPY",horizon:"daily",attempt,
+        datasetHash:digest(windows),testIds:windows.map(w=>w.id),testWindows:windows,testStarts:windows[0].issuedAt,
+        consumedThrough:windows.at(-1)!.labelKnownAt,reservedAt:windows.at(-1)!.labelKnownAt,alpha:attemptAlpha(attempt),
+        previousHash,incumbentId:null,incumbentModelHash:null};
+      await writeFile(join(evaluations,"SPY-daily-"+String(attempt).padStart(6,"0")+".json"),JSON.stringify(record));
+      previousHash=digest(record);
+    }
+    execFileSync("git",["add","public/consensus/evaluations"],{cwd:root});
+    execFileSync("git",["-c","user.name=Test","-c","user.email=test@example.invalid","commit","-qm","Synthetic prior reservations"],{cwd:root});
     const output=JSON.parse(execFileSync(process.execPath,["--experimental-strip-types","scripts/evaluate-consensus.ts","--prices",join(root,"prices.json")],{cwd:root,encoding:"utf8"}));
     assert.ok(output.resolved>=1);assert.ok(output.pending>=1);assert.equal(output.trained,0);
     const report=JSON.parse(await readFile(join(root,"lib/consensus/performance.json"),"utf8"));
+    assert.equal(report.learning.find((r:{instrument:string;horizon:string})=>r.instrument==="SPY"&&r.horizon==="daily").status,"evaluation_budget_exhausted");
+    assert.notEqual(report.learning.find((r:{instrument:string;horizon:string})=>r.instrument==="SPY"&&r.horizon==="weekly").status,"evaluation_budget_exhausted");
+    assert.equal(execFileSync("git",["status","--porcelain","--","public/consensus/evaluations"],{cwd:root,encoding:"utf8"}),"");
     assert.ok(report.pending.some((row:{snapshotId:string;horizon:string})=>row.snapshotId.startsWith("2026-12-03")&&row.horizon==="monthly"));
     assert.equal(report.pending.filter((row:{instrument:string})=>row.instrument!=="SPY").length,index.length*4*3);
     const firstOutcomes=await readFile(join(root,"public/consensus/outcomes.json"),"utf8");
     const privatePath=join(root, PRIVATE_OUTCOME_LEDGER);
     const privateText=await readFile(privatePath,"utf8");
     const privateOutcomes=JSON.parse(privateText) as Outcome[];
+    assert(privateOutcomes.some(row=>row.instrument==="SPY" && row.horizon==="daily"));
     assert.equal((await stat(privatePath)).mode & 0o777, 0o600);
     assert.ok(privateOutcomes.some(row=>row.entry===100&&row.exit===101&&row.returnPct>0));
     assert.deepEqual(JSON.parse(firstOutcomes),outcomeIndex(privateOutcomes));

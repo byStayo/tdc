@@ -155,7 +155,8 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
 }
 
 /** Recoverable group commit for local evaluation outputs, guarded by prebuild before deployment. */
-export async function commitEvaluationTransaction(root: string, writes: EvaluationWrite[], afterWrite?: (path: string) => void | Promise<void>): Promise<void> {
+export async function commitEvaluationTransaction(root: string, writes: EvaluationWrite[], afterWrite?: (path: string) => void | Promise<void>,
+  afterJournal?: (transaction: string) => Promise<void>): Promise<void> {
   await assertNoPendingEvaluation(root);
   if (!writes.length || new Set(writes.map(write => write.path)).size !== writes.length) throw new Error("Empty or duplicate evaluation write set");
   checkOutcomeWrites(writes);
@@ -173,5 +174,8 @@ export async function commitEvaluationTransaction(root: string, writes: Evaluati
   const id = randomUUID();
   const outcomeLedgerTransactionId = planned.some(write => write.path === PRIVATE_OUTCOME_LEDGER) ? id : previous?.outcomeLedgerTransactionId;
   await durableJSON(journalPath(root), { schemaVersion: 1, id, createdAt: new Date().toISOString(), writes: planned, artifacts, outcomeLedgerTransactionId } satisfies Journal, true);
+  // Optional private secondaries can consume a newly settled target once. A failure cannot interrupt the durable core release.
+  if (afterJournal) try { await afterJournal(id); }
+  catch (error) { console.error("Optional secondary settlement intake failed.", error instanceof Error ? error.message : String(error)); }
   await recoverEvaluationTransaction(root, afterWrite);
 }

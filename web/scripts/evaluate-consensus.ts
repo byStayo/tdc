@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { commitEvaluationTransaction, recoverEvaluationTransaction, type EvaluationWrite } from "../lib/consensus/evaluation-transaction.ts";
 import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
-import { assertCommittedReservations } from "../lib/consensus/learning-audit.ts";
+import { assertCommittedReservations, prospectiveAttemptBudget } from "../lib/consensus/learning-audit.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
@@ -17,6 +17,7 @@ import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { auditProspectiveRetailOutcomes } from "../lib/consensus/prospective-retail-outcomes.ts";
 import { RETAIL_REGISTRATION } from "../lib/consensus/prospective-retail.ts";
+import { JOINT_RETAIL_ADVANCE_MARKER, jointRetailStatus, stageJointRetail } from "../lib/consensus/retail-joint.ts";
 import { FAMILY_FEATURE_REGISTRATION } from "../lib/consensus/prospective-family-features.ts";
 import { auditProspectiveFamilyOutcomes } from "../lib/consensus/prospective-family-outcomes.ts";
 import { MARKETPARQUET_SOURCE } from "../lib/consensus/marketparquet.ts";
@@ -70,6 +71,7 @@ try {
     try { choice = await kibotPrimaryPolicy(root); }
     catch { damagedChoice = true; }
     const outcomes: Outcome[] = await loadEvaluationOutcomes(root);
+    const previouslySettled = outcomes.length;
     if (outcomes.some(row => row.source === KIBOT_SUBSCRIBER_EOD_SOURCE && !kibotSelectedTarget(choice, row.issuedAt, row.horizon)))
       damagedChoice = true;
     let subscriber: Awaited<ReturnType<typeof readKibotPrimaryPrices>> = [];
@@ -136,8 +138,6 @@ try {
       metrics = publicEvaluationMetrics(outcomes, ENGINE_VERSION),
       cohorts: PerformanceReport["cohorts"] = [],
       learning: PerformanceReport["learning"] = [];
-    const priorReport: PerformanceReport | null = incompleteSubscriberCohorts.size
-      ? JSON.parse(await readFile(resolve(root, "lib/consensus/performance.json"), "utf8")) : null;
     const registryPath = resolve(root, "lib/consensus/models.json");
     const registry = JSON.parse(await readFile(registryPath, "utf8")) as {
       schemaVersion: number;
@@ -146,6 +146,10 @@ try {
     };
     await mkdir(resolve(dir, "models"), { recursive: true });
     const reservations = await readReservations(root);
+    const needsPriorReport = incompleteSubscriberCohorts.size || reservations.some(r => !prospectiveAttemptBudget(r.attempt + 1).available);
+    const priorReport: PerformanceReport | null = needsPriorReport
+      ? await readFile(resolve(root, "lib/consensus/performance.json"), "utf8").then(text => JSON.parse(text))
+        .catch((e: NodeJS.ErrnoException) => { if (e.code === "ENOENT") return null; throw e; }) : null;
     // Never silently restart the holdout ledger after an earlier untracked evaluation.
     for (const name of (await readdir(resolve(dir, "models"))).filter((name) => name.endsWith(".json"))) {
       const saved = JSON.parse(await readFile(resolve(dir, "models", name), "utf8"));
@@ -177,6 +181,20 @@ try {
             reason: "One or more previously admitted subscriber prices could not be rechecked. The prior candidate and reservation are retained." });
           continue;
         }
+        const prior = reservations.filter((record) => record.instrument === instrument && record.horizon === horizon)
+          .sort((a, b) => b.attempt - a.attempt)[0];
+        const nextBudget = prospectiveAttemptBudget((prior?.attempt ?? 0) + 1);
+        if (prior && !nextBudget.available) {
+          const previous = priorReport?.learning.find(row => row.engineVersion === ENGINE_VERSION && row.instrument === instrument && row.horizon === horizon);
+          const artifact = previous?.artifact ?? `models/${instrument}-${horizon}-budget-${digest([ENGINE_VERSION, LEARNING_POLICY, prior.attempt]).slice(0,16)}.json`;
+          if (!previous) writes.push({ path: "public/consensus/" + artifact, immutable: true,
+            value: { instrument, horizon, engineVersion: ENGINE_VERSION, status: "evaluation_budget_exhausted", lastAttempt: prior.attempt, nextBudget } });
+          learning.push({ engineVersion: ENGINE_VERSION, instrument, horizon, samples: previous?.samples ?? 0,
+            minimum: PROSPECTIVE_MINIMUM, status: "evaluation_budget_exhausted", promoted: false, artifact,
+            activeModelId: registry.models.find(model => model.instrument === instrument && model.horizon === horizon)?.id ?? null,
+            reason: `Calibration is paused after attempt ${prior.attempt}. The next test requires ${nextBudget.required} bootstrap draws and the declared maximum is ${nextBudget.limit}. Sample count is from the last calibration. Newly verified outcomes continue to settle.` });
+          continue;
+        }
         const trainingRows: TrainingRow[] = [];
         const subscriberIds = new Set<string>();
         // Preserve the predeclared edition selection before checking source rights.
@@ -200,8 +218,6 @@ try {
             (model) =>
               model.instrument === instrument && model.horizon === horizon,
           );
-        const prior = reservations.filter((record) => record.instrument === instrument && record.horizon === horizon)
-          .sort((a, b) => b.attempt - a.attempt)[0];
         const planned = planCandidate(trainingRows, now, {
           engineVersion: ENGINE_VERSION,
           consumedThrough: prior?.consumedThrough,
@@ -322,7 +338,15 @@ try {
       { path: "lib/consensus/models.json", value: registry },
       { path: "lib/consensus/performance.json", value: report },
     );
-    await commitEvaluationTransaction(root, writes);
+    await commitEvaluationTransaction(root, writes, undefined, args.length ? undefined : async transaction => {
+      // Only newly verified native settlements enter the secondary lane. Closures skip even the direction of unregistered targets.
+      const fresh = outcomes.slice(previouslySettled).map(row => ({
+        snapshotId: row.snapshotId, instrument: row.instrument, horizon: row.horizon, source: row.source,
+        issuedAt: row.issuedAt, entryAt: row.entryAt, exitAt: row.exitAt, adjustment: row.adjustment, calendarVersion: row.calendarVersion,
+        direction: (): 0 | 1 => row.returnPct > 0 ? 1 : 0,
+      }));
+      await stageJointRetail(root, transaction, fresh, snapshots, reservations);
+    });
     console.log(
       JSON.stringify({
         status: report.status,
@@ -334,6 +358,11 @@ try {
       }),
     );
   }
+  // Complete previously journaled private admissions under the same lock, including after core crash recovery.
+  try {
+    if (await lstat(resolve(root, JOINT_RETAIL_ADVANCE_MARKER)).catch((e: NodeJS.ErrnoException) => { if (e.code === "ENOENT") return null; throw e; }))
+      console.error("Private joint retail status", JSON.stringify(await jointRetailStatus(root, true)));
+  } catch(error) { console.error("Private joint retail advance failed.", error instanceof Error ? error.message : String(error)); }
 } catch (error) {
   failure = {error};
   throw error;

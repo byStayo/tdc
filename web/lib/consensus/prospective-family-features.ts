@@ -370,6 +370,21 @@ export async function recordProspectiveFamilyFeatures(root: string, session: str
   };
 }
 
+/** Read one exact, already sealed SCE observation and its original sources. No enrollment or price reads. */
+export async function readSealedRetailSession(root: string, session: string, edition: string) {
+  const lane = lanes.retail, now = wall(), raw = await readResearchReceipt<Registration>(join(root, lane.file));
+  if (!raw) return [];
+  const registration = verifyRegistration(raw, now, lane);
+  const archive = await publicArchive(root, session, edition, now);
+  const saved = await replay(root, archive, registration, session, now, lane);
+  if (!saved) return [];
+  return saved.draft.observations.flatMap(o => "data" in o ? [{
+    id: o.id, instrument: o.instrument, session, edition, issuedAt: saved.draft.issuedAt,
+    witnessedAt: saved.draft.witnessedAt, recordedAt: saved.seal.recordedAt,
+    sourceSeal: digest({ draft: saved.seal.preparedSha256, data: o.data }), ...o.data,
+  }] : []);
+}
+
 /** Replay exact public witnesses and bounded provider receipts without consulting outcomes or promoting any signal. */
 export async function readProspectiveFamilyFeatures(root: string, through?: string, which: FeatureLane = "core") {
   const lane = lanes[which];

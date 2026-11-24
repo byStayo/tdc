@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { chronologicalSplit, planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
 import { readReservations, reserveEvaluation, validateReservations, attemptAlpha,
-  pairedLossEvidence, promotionEvidence, validateActivePromotion, reservationAnchors, resamplesForAlpha } from "../lib/consensus/learning-audit.ts";
+  pairedLossEvidence, promotionEvidence, validateActivePromotion, reservationAnchors, resamplesForAlpha, prospectiveAttemptBudget } from "../lib/consensus/learning-audit.ts";
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -235,6 +235,10 @@ test('later attempt resolution scales rather than making attempt eight impossibl
   const strong=pairedLossEvidence(Array(100).fill(.2),'synthetic-eighth-attempt',alpha);
   assert.ok(strong.pValue<alpha);
   assert.throws(()=>resamplesForAlpha(1e-12),/computation budget/);
+  assert.equal(prospectiveAttemptBudget(40).available,true);
+  assert.equal(prospectiveAttemptBudget(40).required,resamplesForAlpha(attemptAlpha(40)));
+  assert.equal(prospectiveAttemptBudget(41).available,false);
+  assert.throws(()=>resamplesForAlpha(attemptAlpha(41)),/computation budget/);
 });
 
 test('a replacement is bound to the reserved incumbent and exact candidate coefficients',async()=>{
