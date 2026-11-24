@@ -1,5 +1,7 @@
 # Comparing SEC filings with ETFIQ daily share flows
 
+The weekday publisher checks for new SEC filings and amendments, then runs this comparison. When the five filing identities and reviewed exchange sessions match an existing comparison, it replays that receipt with zero ETFIQ requests. To check an announced ETFIQ historical backfill against the same filings, use `--collect`. Each new comparison retains its first local timestamp.
+
 This private check compares each fund’s public Item B.6 fiscal quarter with the computed daily flows in its original ETFIQ history. Each comparison carries the fund, SEC accession, reporting period, EDGAR acceptance time, ETFIQ observation date, original source hashes and first local comparison time. [SEC filings and verified fund identities](SEC_ETF_FLOW_CONTROL.md)
 
 ETFIQ calculates daily flow from the change in issuer share counts valued at the earlier NAV, adjusting the earlier count for confirmed splits. It dates that amount to the later count. For each economic order session in the SEC quarter, the primary comparison selects exactly one ETFIQ row whose NAV date is that session and whose count date is the immediately following reviewed exchange session. This includes the first trading-day count after quarter-end. A separate diagnostic includes the later count dates inside the fiscal quarter. It exposes how much changing the two boundary observations affects the dollar difference. [ETFIQ fund-flow methodology](https://etfiq.com/methodology/flows)

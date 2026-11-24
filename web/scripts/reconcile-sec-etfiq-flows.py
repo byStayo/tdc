@@ -319,7 +319,7 @@ def replay(sec_root, directory, identity):
             "etfiqMethodology": METHODOLOGY, "etfiqLicense": LICENSE, "rows": results}
 
 
-def collect(sec_root, directory, read=fetch):
+def collect(sec_root, directory, read=fetch, new_filings_only=False):
     sec.private_dir(directory)
     handle = sec.collector_lock(directory)
     try:
@@ -327,12 +327,25 @@ def collect(sec_root, directory, read=fetch):
         if not all(filings.values()):
             raise ValueError("Collect all five public SEC originals before comparison")
         calendar = calendar_for(filings)
+        refs = {symbol: original(row) for symbol, row in filings.items()}
+        session_sha = sha(packed(calendar["days"]))
+        if new_filings_only:
+            matching = []
+            for path in directory.glob("*.json"):
+                if not FINGERPRINT.fullmatch(path.stem):
+                    continue
+                evidence, observed = read_evidence(directory, path.stem)
+                if (evidence["sec"] == refs and evidence["calendarVersion"] == calendar["version"]
+                        and evidence["sessionSha256"] == session_sha):
+                    matching.append((observed, path.stem))
+            if matching:
+                return max(matching)[1]
         projections = {}
         for symbol, row in filings.items():
             pairs = count_date_period(row, calendar) | eligible_period(row, calendar)
             projections[symbol] = project(read(symbol), symbol, pairs)
-        evidence = {"method": METHOD, "calendarVersion": calendar["version"], "sessionSha256": sha(packed(calendar["days"])),
-                    "sec": {s: original(row) for s, row in filings.items()}, "histories": projections}
+        evidence = {"method": METHOD, "calendarVersion": calendar["version"], "sessionSha256": session_sha,
+                    "sec": refs, "histories": projections}
         checked_at = sec.utc(datetime.now(timezone.utc))
         for symbol, projection in projections.items():
             validate_projection(projection, symbol, checked_at)
@@ -345,13 +358,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--collect", action="store_true", help="fetch five individual histories and pin the comparison")
+    mode.add_argument("--scheduled", action="store_true", help="reuse a checked comparison for unchanged SEC filings")
     mode.add_argument("--replay", metavar="SHA256", help="offline replay of an exact private comparison")
     args = parser.parse_args()
-    if args.collect:
+    if args.collect or args.scheduled:
         os.umask(0o077)
     try:
-        identity = collect(sec.ROOT, ROOT) if args.collect else args.replay
-        print(json.dumps(replay(sec.ROOT, ROOT, identity), sort_keys=True, indent=2))
+        identity = args.replay or collect(sec.ROOT, ROOT, new_filings_only=args.scheduled)
+        report = replay(sec.ROOT, ROOT, identity)
+        if args.scheduled:
+            print(json.dumps({"receipt": identity, "sessionsByFund": {fund: [row["coveredSessions"], row["expectedSessions"]]
+                              for fund, row in report["rows"].items()}}, sort_keys=True))
+        else:
+            print(json.dumps(report, sort_keys=True, indent=2))
         return 0
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         print(f"ETF flow comparison unavailable: {error}", file=sys.stderr)

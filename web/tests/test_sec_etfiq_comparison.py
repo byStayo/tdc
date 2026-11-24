@@ -148,6 +148,8 @@ class DailyQuarterTests(unittest.TestCase):
             identity = audit.collect(private, output, bodies.__getitem__)
             second = audit.collect(private, output, bodies.__getitem__)
             self.assertEqual(identity, second)
+            # The daily run reuses an unchanged filing bundle without a single provider request.
+            self.assertEqual(audit.collect(private, output, {}.__getitem__, new_filings_only=True), identity)
             location = output / (identity + ".json")
             self.assertEqual(location.stat().st_mode & 0o077, 0)
             with patch.object(audit, "fetch", side_effect=AssertionError("unexpected network call")):

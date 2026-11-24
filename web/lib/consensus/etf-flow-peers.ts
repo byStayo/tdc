@@ -59,7 +59,7 @@ function matchHistory(doc: PublicDocument, asOf: string, row: Amount, license: s
   if (body?.schemaVersion !== 3 || body.ticker !== row.fund || body.category !== row.category ||
     body.issuer !== issuer || body.seriesId !== series || body.coverage !== "daily" ||
     body.asOf !== asOf || body.cite?.publisher !== "ETFIQ" || body.cite.class !== "ETFIQ-computed" ||
-    body.cite.license !== license || body.cite.as_of !== asOf ||
+    body.cite.license !== license || body.cite.as_of !== asOf || body.cite.methodology !== "https://etfiq.com/methodology/flows" ||
     body.cite.page !== "https://etfiq.com/funds/" + row.fund.toLowerCase() ||
     !Array.isArray(body.daily) || body.daily.length > 5000)
     throw Error("ETFIQ fund history has a different identity, licence or vintage");
@@ -68,9 +68,16 @@ function matchHistory(doc: PublicDocument, asOf: string, row: Amount, license: s
   if (matches.length !== 1 || day.flow !== row.usd || day.navDate !== row.navDate || day.house !== issuer ||
     body.daily.filter((item: {navDate?: unknown} | null) => item?.navDate === row.navDate).length !== 1 ||
     !["history", "capture"].includes(day.src) || Object.keys(day).some(key => !dailyKeys.has(key)) ||
-    day.held || day.spans || day.spansSessions || (day.spanDays !== undefined && day.spanDays !== 1) ||
+    ["held", "spans", "spansSessions"].some(key => key in day && day[key] !== false) ||
+    (day.spanDays !== undefined && day.spanDays !== 1) ||
     (day.why != null && day.why !== "") || (day.status !== undefined && day.status !== "ok"))
     throw Error("ETFIQ fund history disagrees with its single-session aggregate");
+  if ("split" in day && (!Number.isFinite(day.split) || day.split <= 0 || day.split === 1))
+    throw Error("Invalid ETFIQ split annotation");
+  if ("heartbeat" in day && !(Array.isArray(body.heartbeats) && body.heartbeats.some((leg: { in?: string; out?: string } | null) =>
+    leg?.in && leg.out && canonical(leg.in + "T00:00:00.000Z") && canonical(leg.out + "T00:00:00.000Z") &&
+    leg.in < leg.out && (leg.in === asOf || leg.out === asOf))))
+    throw Error("No matching ETFIQ round-trip dates");
   return { fund: row.fund, asOf, navDate: day.navDate as string, usd: day.flow as number, sha256: doc.sha256 };
 }
 

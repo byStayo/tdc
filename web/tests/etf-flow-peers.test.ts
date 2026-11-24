@@ -36,7 +36,7 @@ function reader(problem?: "date" | "mismatch" | "duplicate" | "licence" | "span"
     const text = JSON.stringify(url === ETF_FLOW_URL ? input : {
       schemaVersion: 3, asOf: broken === "date" ? "2026-11-05" : input.asOf, ticker: fund, category: row.category,
       issuer: broken === "issuer" ? "Unrelated issuer" : issuer, coverage: "daily", seriesId: fund === "QQQ" ? "S000101292" : "S000004360",
-      cite: { ...input.cite, page: row.page, license: broken === "licence" ? "unknown" : ETF_FLOW_LICENSE },
+      cite: { ...input.cite, page: row.page, methodology: "https://etfiq.com/methodology/flows", license: broken === "licence" ? "unknown" : ETF_FLOW_LICENSE },
       daily: broken === "duplicate" ? [day, day] : [day], netAssets: { excludedFromEvidence: 98765432 },
     });
     return { text, sha256: createHash("sha256").update(text).digest("hex"), retrievedAt: clock };
