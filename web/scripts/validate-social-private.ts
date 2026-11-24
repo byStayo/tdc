@@ -11,6 +11,7 @@ import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
 import { BLUESKY_CONSENT_SOURCE, isSocialClock as canonicalInstant, socialAnnotationTemplate, socialTextKey, socialObject as record } from "../lib/consensus/social-annotation-source.ts";
 import { xLongPostText } from "../lib/consensus/x-post-text.ts";
+import { requireConsentReviewTerminal, reviewBlueskyConsent } from "./review-bluesky-consent.ts";
 
 const cues = ["upward", "downward", "mixed", "unclassified"] as const;
 const platforms = ["x", "instagram", "bluesky"] as const;
@@ -181,21 +182,42 @@ async function preparePrivateCorpus(path: string) {
     expiresAt: template.expiresAt };
 }
 
-async function runBlueskyConsentBenchmark(path: string, operation: "prepare" | "score" | "withdraw") {
+function consentLabels(items: unknown, template: ReturnType<typeof socialAnnotationTemplate>) {
+  if (!Array.isArray(items) || items.length !== template.items.length)
+    throw new Error("Bluesky labels differ from the live selection");
+  const labels = new Map<string, LanguageCue | null>();
+  for (const item of items) {
+    const row = record(item);
+    if (Object.keys(row).length !== 2 || typeof row.ref !== "string" || labels.has(row.ref) ||
+        (row.expected !== null && !cues.includes(row.expected as LanguageCue)))
+      throw new Error("Expected unique blind references with labels only");
+    labels.set(row.ref, row.expected as LanguageCue | null);
+  }
+  return template.items.map(item => {
+    const expected = labels.get(item.ref);
+    if (expected === undefined) throw new Error("Bluesky labels differ from the live selection");
+    return { ...item, expected };
+  });
+}
+
+async function runBlueskyConsentBenchmark(path: string, operation: "prepare" | "review" | "score" | "withdraw") {
+  if (operation === "review") requireConsentReviewTerminal();
   const target = await privateCorpusPath(path);
   const exclusions = () => readBlueskyAnnotationExclusions(resolve(root, "web"));
   if (operation === "prepare") {
     const verified = await collectBlueskyConsent(await readSocialInput(64_000), { exclusions });
     const template = socialAnnotationTemplate(verified.native, new Date().toISOString(), undefined, verified.exclusions);
     if (!template.items.length) throw new Error("No eligible consenting Bluesky contributors");
-    await writePrivatePacket(target, { ...template, consentDigest: verified.consentDigest,
-      consentManifestDigest: verified.consentManifestDigest });
+    await writePrivatePacket(target, { schemaVersion: 3, source: BLUESKY_CONSENT_SOURCE,
+      collectedAt: template.collectedAt, expiresAt: template.expiresAt, nonce: template.nonce,
+      consentDigest: verified.consentDigest, consentManifestDigest: verified.consentManifestDigest,
+      items: template.items.map(({ ref, expected }) => ({ ref, expected })) });
     return { status: "prepared", verifiedConsentRecords: verified.approvedPosts, sourceGroups: template.groups.length,
       selectedRows: template.items.length, expiresAt: template.expiresAt };
   }
   const packet = await readPrivateCorpus(path);
-  const { consentDigest, consentManifestDigest, expiresAt, collectedAt } = packet;
-  if (packet.source !== BLUESKY_CONSENT_SOURCE || packet.schemaVersion !== 2 || !canonicalInstant(expiresAt) ||
+  const { consentDigest, consentManifestDigest, expiresAt, collectedAt, nonce } = packet;
+  if (packet.source !== BLUESKY_CONSENT_SOURCE || (packet.schemaVersion !== 2 && packet.schemaVersion !== 3) || !canonicalInstant(expiresAt) ||
       !canonicalInstant(collectedAt) || typeof consentDigest !== "string" || !/^[a-f0-9]{64}$/.test(consentDigest) ||
       typeof consentManifestDigest !== "string" || !/^[a-f0-9]{64}$/.test(consentManifestDigest))
     throw new Error("Expected an owner-only Bluesky consent packet");
@@ -203,15 +225,29 @@ async function runBlueskyConsentBenchmark(path: string, operation: "prepare" | "
     await unlink(target);
     return { status: "withdrawn" };
   }
+  if (packet.schemaVersion === 2) {
+    await unlink(target);
+    throw new Error("Superseded Bluesky packet removed. Prepare a fresh receipt.");
+  }
   if (expiresAt <= new Date().toISOString()) {
     await unlink(target);
     throw new Error("Bluesky consent packet expired");
   }
+  if (Object.keys(packet).length !== 8 || typeof nonce !== "string" || !/^[a-f0-9]{32}$/.test(nonce))
+    throw new Error("Invalid Bluesky receipt");
   try {
     const verified = await collectBlueskyConsent(await readSocialInput(64_000), { collectedAt, exclusions,
       expectedManifestDigest: consentManifestDigest });
     if (verified.consentDigest !== consentDigest) throw new BlueskyConsentRefused("The native consent proof changed");
-    return { ...evaluateSocialCorpus(packet, new Date().toISOString(), verified.native, verified.exclusions),
+    const now = new Date().toISOString();
+    const template = socialAnnotationTemplate(verified.native, now, nonce, verified.exclusions);
+    if (template.expiresAt !== expiresAt) throw new BlueskyConsentRefused("The verified Bluesky deadline changed");
+    const items = consentLabels(packet.items, template);
+    if (operation === "review") {
+      await reviewBlueskyConsent(target, expiresAt, items);
+      return { status: "review-closed" };
+    }
+    return { ...scoreCheckedSocialCorpus({ ...template, items }, now, () => template),
       contributorVerification: "reverified-public-bluesky-consent", verifiedConsentRecords: verified.approvedPosts };
   } catch (error) {
     if (error instanceof BlueskyConsentRefused || expiresAt <= new Date().toISOString()) await unlink(target);
@@ -237,8 +273,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     let result;
     if (args.length === 2 && args[0] === "--prepare") {
       result = await preparePrivateCorpus(args[1]);
-    } else if (args[0] === "--bluesky-consent" && args.length === 3 && (args[1] === "--prepare" || args[1] === "--withdraw")) {
-      result = await runBlueskyConsentBenchmark(args[2], args[1] === "--prepare" ? "prepare" : "withdraw");
+    } else if (args[0] === "--bluesky-consent" && args.length === 3 &&
+        (args[1] === "--prepare" || args[1] === "--review" || args[1] === "--withdraw")) {
+      result = await runBlueskyConsentBenchmark(args[2], args[1] === "--prepare" ? "prepare" : args[1] === "--review" ? "review" : "withdraw");
     } else if (args.length === 2 && args[0] === "--bluesky-consent") {
       result = await runBlueskyConsentBenchmark(args[1], "score");
     } else if (args.length === 2 && ["--captured", "--withdraw-captured"].includes(args[0]) &&

@@ -114,7 +114,7 @@ test("empty, mismatched and excluded manifests refuse before the public API, and
   assert.equal(requests.length, 1);
 });
 
-test("the CLI gates the consent source and removes its expired fixture packet", async (t) => {
+test("the CLI gates the consent source and removes a superseded cleartext fixture packet", async (t) => {
   const { mkdtemp, lstat, rm, writeFile } = await import("node:fs/promises");
   const { tmpdir } = await import("node:os");
   const { join } = await import("node:path");
@@ -136,11 +136,96 @@ test("the CLI gates the consent source and removes its expired fixture packet", 
   assert.equal(manual.stdout, "");
   await assert.rejects(lstat(packetPath), { code: "ENOENT" });
   await writeFile(packetPath, JSON.stringify({ schemaVersion: 2, source: "bluesky-consent-appview", from, through,
-    collectedAt, expiresAt: relative(-60), consentDigest: "a".repeat(64), consentManifestDigest: "b".repeat(64),
+    collectedAt, expiresAt: relative(1_200), consentDigest: "a".repeat(64), consentManifestDigest: "b".repeat(64),
     items: [{ text: "Synthetic fixture; this is not permission." }], }), { flag: "wx", mode: 0o600 });
-  const expired = run(["--bluesky-consent", packetPath]);
-  assert.equal(expired.status, 1);
-  assert.equal(expired.stdout, "");
-  assert.equal(expired.stderr.includes(fixtureDid), false);
+  const superseded = run(["--bluesky-consent", packetPath]);
+  assert.equal(superseded.status, 1);
+  assert.equal(superseded.stdout, "");
+  assert.equal(superseded.stderr.includes(fixtureDid), false);
   await assert.rejects(lstat(packetPath), { code: "ENOENT" });
+});
+
+test("consent CLI keeps only blind labels, replays synthetic native text, and purges withdrawn or expired receipts", async (t) => {
+  const { mkdtemp, lstat, readFile, rm, writeFile } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { spawnSync } = await import("node:child_process");
+  const { fileURLToPath } = await import("node:url");
+  const directory = await mkdtemp(join(tmpdir(), "daily-consensus-social-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const path = join(directory, "labels.json");
+  const script = fileURLToPath(new URL("../scripts/validate-social-private.ts", import.meta.url));
+  const localClock = (seconds: number) => new Date(Date.now() + seconds * 1_000).toISOString();
+  const examples = [..."abcdefghij"].map((letter, index) => {
+    const { original, consent } = fixture();
+    const did = "did:plc:" + letter.repeat(24);
+    original.author.did = consent.author.did = did;
+    original.uri = original.uri.replace(fixtureDid, did);
+    consent.uri = consent.uri.replace(fixtureDid, did);
+    consent.record.reply.root.uri = consent.record.reply.parent.uri = original.uri;
+    original.record.text += ` Distinct review ${index}.`;
+    original.record.createdAt = localClock(-480);
+    original.indexedAt = localClock(-470);
+    consent.record.createdAt = localClock(-120);
+    consent.indexedAt = localClock(-110);
+    consent.record.text = grant.replace("2026-11-24T19:00:00Z", localClock(600).replace(/\.\d{3}Z$/, "Z"));
+    return { original, consent };
+  });
+  const input = { schemaVersion: 1, from: localClock(-600), through: localClock(-240),
+    entries: examples.map(({ original, consent }) => ({ instrument: "SPY", postUri: original.uri, consentUri: consent.uri })) };
+  const posts = examples.flatMap(({ original, consent }) => [original, consent]);
+  const call = (args: string[], fixturePosts: unknown[] = posts) => {
+    const body = JSON.stringify({ posts: fixturePosts });
+    const mock = `data:text/javascript,${encodeURIComponent(`globalThis.fetch = async () => new Response(${JSON.stringify(body)});`)}`;
+    return spawnSync(process.execPath, ["--experimental-strip-types", "--import", mock, script, "--bluesky-consent", ...args],
+      { input: JSON.stringify(input), encoding: "utf8", timeout: 5_000 });
+  };
+  const prepare = () => {
+    const run = call(["--prepare", path]);
+    assert.equal(run.status, 0, run.stderr);
+  };
+  prepare();
+  const saved = await readFile(path, "utf8");
+  const packet = JSON.parse(saved);
+  assert.equal((await lstat(path)).mode & 0o777, 0o600);
+  assert.equal(packet.schemaVersion, 3);
+  for (const row of packet.items) assert.deepEqual(row, { ref: row.ref, expected: null });
+  for (const { original, consent } of examples) {
+    for (const raw of [original.record.text, consent.record.text, original.author.did, original.uri, consent.uri, original.cid, consent.cid])
+      assert.equal(saved.includes(raw), false);
+  }
+  packet.items.forEach((row: { expected: string }) => { row.expected = "upward"; });
+  await writeFile(path, JSON.stringify(packet));
+  const pipedReview = call(["--review", path]);
+  assert.equal(pipedReview.status, 1);
+  assert.equal(pipedReview.stdout, "");
+  const replay = call([path]);
+  assert.equal(replay.status, 0, replay.stderr);
+  const score = JSON.parse(replay.stdout);
+  assert.equal(score.results[0].rows, 10);
+  assert.equal(score.results[0].directionalPrecision, 1);
+  const labelWithText = structuredClone(packet);
+  labelWithText.items[0].text = "$SPY will fall. Untrusted local text.";
+  await writeFile(path, JSON.stringify(labelWithText));
+  const badLabel = call([path]);
+  assert.equal(badLabel.status, 1);
+  assert.equal(badLabel.stdout, "");
+  await writeFile(path, JSON.stringify(packet));
+  const changed = structuredClone(posts);
+  changed[0].record.text = "$SPY will fall. Changed synthetic record.";
+  const refused = call([path], changed);
+  assert.equal(refused.status, 1);
+  assert.equal(refused.stdout, "");
+  await assert.rejects(lstat(path), { code: "ENOENT" });
+  prepare();
+  assert.equal(call(["--withdraw", path], []).status, 0);
+  await assert.rejects(lstat(path), { code: "ENOENT" });
+  prepare();
+  const expired = JSON.parse(await readFile(path, "utf8"));
+  expired.expiresAt = localClock(-30);
+  await writeFile(path, JSON.stringify(expired));
+  const rejectedExpiry = call([path], []);
+  assert.equal(rejectedExpiry.status, 1);
+  assert.equal(rejectedExpiry.stdout, "");
+  await assert.rejects(lstat(path), { code: "ENOENT" });
 });
