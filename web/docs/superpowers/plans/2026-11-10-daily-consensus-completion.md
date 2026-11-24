@@ -1,5 +1,13 @@
 # The Daily Consensus completion plan
 
+### Verified at the November 24, 4:39 a.m. New York issue
+
+- [x] Publish the four November 23 equity premarket readings and their market breadth, four November 23 regular close ranges, and the November 20 TLT range and one- and five-session closing changes. The production site and 18 as-issued consensus views matched the signed edition. [Issued inputs](https://thedailyconsensus.com/consensus/2026-11-24T09-39-37-253Z.json)
+- [x] Re-evaluate all 765 issued targets and reproduce the pre-open outcomes for all five funds on November 19 and 20. The audit found 370 settlements and 390 targets awaiting their scheduled exit. Five November 23 targets still require an approved public price comparison. [Production verification and commands](../../../../HANDOFF.md)
+- [x] Evaluate the registered initial-claims revision test on IWM and replicate it independently. Its 30 held-out sessions had higher forecast error after adding revisions. Keep the existing news-family score.
+- [ ] Settle November 23 publicly once the independent price deliveries qualify. FirstRate's four equity tapes arrived. The five latest independent consolidated price catalogues still ended November 20. For subsequent TLT sessions establish the authorized listing-price comparison or use a prospectively selected and owner-activated subscriber path. [Price qualification](../../FREE_FEED_PATH.md)
+- [ ] Qualify daily directional contributions from the remaining 12 families and promote the five ETFs' 15 horizon models. Fourteen market families have a current reading, 72.50% of the weighted inputs are current, and three families cast a daily score. Each fund has two eligible public daily dates. [Model gates](../../CONSENSUS_OPERATIONS.md#promotion-and-rollback)
+
 - [x] Register the future NY Fed retail comparison on the publishing host before the next release. The earlier monthly policy lost access to its targets once the main model reserved rolling test windows. The replacement seals each fund's feature before the bell and accepts its outcome only on the first eligible production settlement. All four equity groups are registered and have zero completed months. The first possible target is December 8. At one reading per month, the 500th possible observation is July 2068. [Registered policy and controls](../../../lib/consensus/retail-joint-model.ts)
 
 - [x] Recover Monday's premarket observations independently of delayed regular-session settlement. The November 23 native one-minute data reproduced 66 five-minute bars for each of SPY, QQQ and IWM, and all 57 reported bars for DIA. Each private approval pins its original file, observation and approval times. [Replay command](../../CONSENSUS_OPERATIONS.md#commands)
