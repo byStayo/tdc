@@ -12,6 +12,12 @@
 
 ## Work backward from a verified morning edition
 
+- [x] Settle QQQ’s November 20 pre-open edition from a complete 390-minute regular session and verify the distinct Nasdaq closing auction. The official ledger now covers four ETFs on both November 19 and 20.
+- [x] Connect free OPRA trade volume to ordinary collection for SPY, QQQ and IWM, retain private evidence, and display the dated, rounded shares in the issued edition. The selected monthly expiry had no DIA or TLT contracts in this catalog.
+- [x] Compare the original TLT listing prices with independently sourced as-traded and split-only records for all 16 sessions from October 30 through November 20. Verify the post-close issuer dividend record through November 23. The scheduled native hourly qualification is ready for the owner’s free account.
+- [ ] Settle the fifth official ETF outcome from permitted native TLT prices. Confirm the authenticated opening and closing boundaries against those controls.
+- [x] Test initial SEC Schedule 13D filings for incremental IWM direction. With 716 historical outcomes the candidate’s held-out Brier error was 0.255371, compared with 0.255324 for the matched control. The 144-session test supplied no additional vote.
+
 **The first end-to-end milestone is one real session with five model-eligible daily outcomes.** The last edition readers could see before the opening bell must use inputs permitted for training for SPY, QQQ, IWM, DIA and TLT. After the regular close, five privately verified total-return price histories must settle that edition's targets. A session passes when the audit reports `evaluation.eligibleFiveEtfDaily.completedSessions >= 1` and `firstCompleted.resolved` contains all five ETFs for the same edition. This establishes that the forecast-to-outcome pipeline works. Forecast quality has a separate test.
 
 | Working backward | Required evidence | November 20 checkpoint |

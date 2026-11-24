@@ -1,18 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {ANALYST_ID,ANALYST_LICENSE,ANALYST_URL,collectAnalystRatings,parseAnalystRatings,refreshAnalystRatings,validateAnalystRatings} from '../lib/consensus/analyst-ratings.ts';
 import {freezeConsensus,asIssuedConsensus} from '../lib/consensus/as-issued.ts';
-import {observationDigest,validateSnapshot} from '../lib/consensus/history.ts';
+import {digest,observationDigest,validateSnapshot} from '../lib/consensus/history.ts';
 import {INSTRUMENTS,HORIZONS,type Snapshot} from '../lib/consensus/types.ts';
 import {retainLastKnown} from '../lib/consensus/last-known.ts';
 import {SourceTransportError} from '../lib/consensus/source-failure.ts';
-import {collectSnapshot} from '../lib/consensus/collector.ts';
+import {collectSnapshot,publicText} from '../lib/consensus/collector.ts';
+import { effectiveStatus } from '../lib/consensus/engines/v2.ts';
 const text=await readFile(new URL('./fixtures/quantisnow-analyst-ratings-2026-11-06.json',import.meta.url),'utf8');
 const at='2026-11-06T17:00:00.000Z',later='2026-11-07T17:00:00.000Z';
 const doc=(body=text,retrievedAt=at)=>({text:body,retrievedAt,sha256:createHash('sha256').update(body).digest('hex')});
 const read=async()=>doc();
+const months: ReturnType<typeof parseAnalystRatings>['months'] = JSON.parse(text).months;
+const csv = (rows = months) => ['month,month_to_date,upgrades,downgrades,ratio,initiations,reiterations,total',
+  ...rows.map(m => [m.month,m.monthToDate,m.values.upgrades,m.values.downgrades,m.values.ratio,
+    m.values.initiations,m.values.reiterations,m.values.total].join(','))].join('\n') + '\n';
+const readWith = (alternate: string, challenge = true, primary = '', status = 403) => async (url: string) =>
+  url === ANALYST_URL ? publicText(url, async () => new Response(primary, { status,
+    headers: challenge ? { 'cf-mitigated': 'challenge', 'content-type': 'text/html; charset=utf-8' } : {} })) : doc(alternate,later);
+const signal = (s: Snapshot) => s.signals.find(row => row.id === ANALYST_ID)!;
 const prior:Snapshot=JSON.parse(await readFile(new URL('../public/consensus/2026-11-06T13-14-19-532Z.json',import.meta.url),'utf8'));
 test('real monthly analyst counts distinguish closed October from incomplete November',async()=>{
  const parsed=parseAnalystRatings(text,at);assert.equal(parsed.updatedAt,'2026-11-06T06:15:37.000Z');
@@ -77,4 +88,71 @@ test('full and scoped collectors retain a stable tail order with no extra ETF co
  const full=await collectSnapshot(async(url)=>url===ANALYST_URL?new Response(text):new Response('unavailable',{status:503}));
  const scoped=await refreshAnalystRatings(prior,read,()=>at);const tail=(s:Snapshot)=>s.signals.filter(x=>x.id===ANALYST_ID||x.id.startsWith('twse-')||x.id==='fed-private-credit-loans').map(x=>x.id);
  assert.deepEqual(tail(full),tail(scoped));assert.equal(full.signals.find(s=>s.id===ANALYST_ID)!.status,'available');
+});
+
+test('a challenged JSON refresh retains the original analyst observation only if the provider CSV confirms every published figure', async () => {
+ const original = await refreshAnalystRatings(prior, read, () => at);
+ const previous = original.signals.find(s => s.id === ANALYST_ID)!;
+ const refreshed = await refreshAnalystRatings(original,readWith(csv()),()=>later);
+ const confirmed = signal(refreshed);
+ assert.equal(confirmed.status,'available');
+ assert.deepEqual(confirmed.source,previous.source);
+ assert.deepEqual(confirmed.series,previous.series);
+ assert.deepEqual(confirmed.metrics,previous.metrics);
+ assert.deepEqual(confirmed.scores,{daily:null,weekly:null,monthly:null});
+ assert.match(confirmed.collectionNote!,/CSV/);
+ assert.equal(observationDigest(original),observationDigest(refreshed));
+ assert.equal(effectiveStatus(confirmed,'2026-11-14T17:00:00.000Z'),'stale');
+ const revised=structuredClone(months);
+ const last=revised.at(-1)!.values; last.upgrades++;last.total++;last.ratio=last.upgrades/last.downgrades;
+ const revisedHistory=structuredClone(months);
+ const first=revisedHistory[0].values; first.upgrades++;first.total++;first.ratio=first.upgrades/first.downgrades;
+ const badPrimary=JSON.parse(text);badPrimary.license='personal use only';
+ for(const readSource of [readWith(csv(revised)),readWith(csv(revisedHistory)),readWith(csv(months.slice(1))),
+   readWith(csv().replace('0.','2.')),readWith(csv()+'\n'+csv()),readWith('<!doctype html>'),readWith(csv(),false),
+   readWith(csv(),false,JSON.stringify(badPrimary),200)]) {
+   const rejected=signal(await refreshAnalystRatings(original,readSource,()=>later));
+   assert.equal(rejected.status,'unavailable');assert.deepEqual(rejected.metrics,[]);
+ }
+ const full=await collectSnapshot(async url => url===ANALYST_URL?new Response('Challenge',{status:403,headers:{'content-type':'text/html','cf-mitigated':'challenge'}})
+   :url===ANALYST_URL.replace('.json','.csv')?new Response(csv()):new Response('offline',{status:503}),original);
+ assert.deepEqual(signal(full).source,previous.source);
+});
+
+test('an unavailable current edition recovers only its newest fresh, hash-verified original with matching CSV', async t => {
+ const root=await mkdtemp(join(tmpdir(),'daily-consensus-analyst-history-'));
+ try {
+  const archive=join(root,'public/consensus'), current=join(root,'lib/consensus/current.json');
+  await mkdir(archive,{recursive:true});await mkdir(join(root,'lib/consensus'),{recursive:true});
+  async function store(items: Snapshot[]) {
+   await writeFile(join(archive,'index.json'),JSON.stringify(items.map(s=>({
+    id:s.id,issuedAt:s.issuedAt,sha256:digest(s),engineVersion:s.engineVersion
+   }))));
+   for(const s of items) await writeFile(join(archive,s.id+'.json'),JSON.stringify(s));
+   await writeFile(current,JSON.stringify(items.at(-1)));
+  }
+  const original=freezeConsensus(await refreshAnalystRatings(prior,read,()=>at));
+  const gapAt='2026-11-06T21:00:00.000Z';
+  const gap=freezeConsensus(await refreshAnalystRatings(original,async()=>doc('{}',gapAt),()=>gapAt));
+  assert.equal(signal(gap).status,'unavailable');
+  await store([original,gap]);
+  const recover=(now=later)=>refreshAnalystRatings(gap,readWith(csv()),()=>now,root);
+  const restored=signal(await recover());
+  assert.equal(restored.status,'available');assert.deepEqual(restored.source,signal(original).source);assert.deepEqual(restored.metrics,signal(original).metrics);
+  t.mock.timers.enable({apis:['Date'],now:Date.parse(later)});
+  const full=await collectSnapshot(async url=>url===ANALYST_URL?new Response('Challenge',{status:403,headers:{'content-type':'text/html','cf-mitigated':'challenge'}})
+    :url===ANALYST_URL.replace('.json','.csv')?new Response(csv()):new Response('offline',{status:503}),gap,undefined,undefined,root);
+  assert.deepEqual(signal(full).source,signal(original).source);
+  t.mock.timers.reset();
+  assert.equal(signal(await recover('2026-11-14T17:00:00.000Z')).status,'unavailable');
+  assert.equal(signal(await refreshAnalystRatings({...gap,collectionErrors:['different base']},readWith(csv()),()=>later,root)).status,'unavailable');
+  await writeFile(join(archive,original.id+'.json'),JSON.stringify({...original,collectionErrors:['archive altered']}));
+  assert.equal(signal(await recover()).status,'unavailable');
+  const revision=JSON.parse(text), currentMonth=revision.months.at(-1);
+  currentMonth.values.initiations++;currentMonth.values.total++;currentMonth.breakdown[0].values.total++;
+  const revisedAt='2026-11-06T19:00:00.000Z'; revision.updatedAt='2026-11-06 18:15:37';
+  const revised=freezeConsensus(await refreshAnalystRatings(original,async()=>doc(JSON.stringify(revision),revisedAt),()=>revisedAt));
+  await store([original,revised,gap]);
+  assert.equal(signal(await recover()).status,'unavailable');
+ } finally {await rm(root,{recursive:true,force:true});}
 });

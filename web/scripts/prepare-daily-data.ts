@@ -5,6 +5,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
+import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
 import { attachForm144Sources } from "../lib/sec-form144-editorial.ts";
 import {
   collectEditorialEvidence,
@@ -55,6 +56,12 @@ try {
   }));
   const tltClosingTrend = await prepareTltClosingTrend(PROJECT_ROOT).catch((error: Error) =>
     ({ status: "unavailable", error: error.message.slice(0, 220) }));
+  const tltSettlementQualification = publicOnly ? { status: "skipped_public_only" } :
+    await prepareTltBoundaryQualification(PROJECT_ROOT, (from, through) =>
+      collect("research-market-history-boundaries.ts", [from, through, "--collect", "--settle-verified"], 120_000))
+      .catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({ status: "unavailable",
+        error: error.killed ? "TLT qualification exceeded 120 seconds" : error.stderr?.match(/^Error: (.+)$/m)?.[1] ||
+          error.message?.slice(0, 180) || "TLT qualification did not complete" }));
   const consensus = await collect("publish-consensus.ts");
   const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
@@ -72,6 +79,7 @@ try {
     form144,
     firstRate,
     tltClosingTrend,
+    tltSettlementQualification,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));

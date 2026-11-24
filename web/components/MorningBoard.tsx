@@ -28,6 +28,7 @@ import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
 import { KIBOT_RESEARCH_STUDIES, type KibotResearch } from "@/lib/consensus/kibot-research";
+import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
   Catalyst,
   Family,
@@ -155,6 +156,26 @@ function Sparkline({
         vectorEffect="non-scaling-stroke"
       />
     </svg>
+  );
+}
+function ListedOptions({ sample, instrument, reference }: { sample: NonNullable<Snapshot["optionActivity"]>; instrument: Instrument; reference: string }) {
+  const rows = sample.rows.filter(row => instrument === "MARKET" || row.symbol === instrument);
+  return (
+    <section className={styles.panel} aria-label="Listed ETF options volume">
+      <div className={styles.panelHead}>
+        <h3>Listed ETF options volume</h3>
+        <a href={sample.source} target="_blank" rel="noopener noreferrer" aria-label="Market History options data"><ExternalLink size={16} /></a>
+      </div>
+      <p className={styles.panelSubtitle}>Put share of traded contracts · {datedYear(sample.session)} · {datedYear(sample.expiry)} expiry{currentOptionActivity(sample.session, reference) ? "" : " · Older observation"}</p>
+      <dl className={styles.futuresOptionsRows}>
+        {rows.map(row => <div key={row.symbol}>
+          <dt>{row.symbol}</dt>
+          <dd>{row.status === "observed" ? <strong>{row.putPercent}% puts</strong>
+            : <span>{row.status === "unlisted" ? "Expiry absent from provider catalog" : "No verified sample"}</span>}</dd>
+        </div>)}
+      </dl>
+      <p className={styles.finePrint}>Each fund samples one standard call and put at the same strike, selected using the previous session’s price. Market History supplies consolidated OPRA trade volume. Buyers and sellers both contribute to the total.</p>
+    </section>
   );
 }
 function FuturesOptions({ signals, reference, onInspect }: { signals: Signal[]; reference: string; onInspect: () => void }) {
@@ -1926,6 +1947,7 @@ export default function MorningBoard({
                   </section>
                 </div>
                 <FuturesOptions signals={current} reference={reference} onInspect={() => setFamily("institutions")} />
+                {snapshot.optionActivity && <ListedOptions sample={snapshot.optionActivity} instrument={instrument} reference={reference} />}
                 {instrument !== "TLT" && snapshot.holdings && (
                   <InstitutionalHoldings
                     holdings={snapshot.holdings}

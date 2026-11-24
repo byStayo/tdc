@@ -1,15 +1,15 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-23T13:07:15.644Z",
+  "createdAt": "2026-11-24T01:43:32.986Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Two-year Treasury yield drops 13 basis points as the curve steepens",
-    "summary": "Friday’s decline in Treasury yields was largest at the short end. From November 19 to 20, the two-year yield fell from 4.76% to 4.63%, the ten-year from 5.04% to 4.92%, and the thirty-year from 5.40% to 5.31%.",
+    "headline": "Two- and ten-year yields hold steady after Friday’s decline",
+    "summary": "The two-year Treasury yield ended Monday at 4.63% and the ten-year at 4.92%, both level with Friday. The thirty-year yield edged down two basis points to 5.29%.",
     "bull": [
       {
-        "text": "The ten-year yield fell 12 basis points. All else equal, a lower benchmark reduces the discount rate applied to future corporate earnings.",
+        "text": "The rise in bond prices implied by Monday’s yield decline was concentrated at the long end. The thirty-year benchmark eased from 5.31% on November 20 to 5.29% on November 23.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -17,7 +17,7 @@
     ],
     "bear": [
       {
-        "text": "Long-term financing benchmarks eased less. The thirty-year yield finished 68 basis points above the two-year, up from 64 the previous day.",
+        "text": "Borrowers watching the ten-year benchmark saw no further easing on Monday. Its spread over the two-year held at 29 basis points.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -25,14 +25,14 @@
     ],
     "watch": [
       {
-        "text": "S&P 500 futures positioning was divided before Friday’s rate move. On November 17 asset managers were net long 895,049 contracts and leveraged funds were net short 234,978. The next report will show whether that gap persisted.",
+        "text": "The thirty-year yield ended 37 basis points above the ten-year, down from 39 on Friday. The next release will show whether that gap narrows further.",
         "sourceIds": [
-          "CFTC_ES"
+          "TREASURY_YIELD_CURVE"
         ]
       }
     ],
     "limitations": [
-      "Treasury publishes constant-maturity par yields. The CFTC observations are a Tuesday futures snapshot. The two sources cover different dates and do not measure Monday’s return."
+      "Treasury reports constant-maturity par yields. These benchmark levels measure borrowing conditions and do not establish the return or direction of a stock index."
     ]
   },
   "sources": [
@@ -40,11 +40,6 @@
       "id": "TREASURY_YIELD_CURVE",
       "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
       "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
-    },
-    {
-      "id": "CFTC_ES",
-      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
-      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
     }
   ]
 }

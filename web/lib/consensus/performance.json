@@ -1,14 +1,14 @@
 {
   "engineVersion": "consensus-rules-2.0.0",
-  "generatedAt": "2026-11-23T13:08:55.811Z",
+  "generatedAt": "2026-11-24T02:02:48.118Z",
   "status": "tracking",
-  "resolved": 67,
+  "resolved": 68,
   "calls": 0,
-  "abstentions": 67,
+  "abstentions": 68,
   "accuracy": null,
   "brier": null,
   "scoringPolicy": "last-edition-before-entry-open-v1",
-  "superseded": 219,
+  "superseded": 220,
   "pending": [
     {
       "snapshotId": "2026-11-03T06-28-30-460Z",
@@ -1897,12 +1897,6 @@
     {
       "snapshotId": "2026-11-20T09-18-55-698Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T09-18-55-698Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1964,12 +1958,6 @@
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "SPY",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-20T13-07-32-081Z",
-      "instrument": "QQQ",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2112,6 +2100,186 @@
     },
     {
       "snapshotId": "2026-11-23T13-08-51-071Z",
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "SPY",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "IWM",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "DIA",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "TLT",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-24T01-44-08-380Z",
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "SPY",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "IWM",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "DIA",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "TLT",
+      "horizon": "daily",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "reason": "No verified price evidence supplied for this instrument."
+    },
+    {
+      "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "TLT",
       "horizon": "monthly",
       "reason": "No verified price evidence supplied for this instrument."
@@ -2221,7 +2389,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 9,
+      "resolved": 10,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2655,13 +2823,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "QQQ",
       "horizon": "daily",
-      "samples": 1,
+      "samples": 2,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-daily-wf2-a80bb0cef3571934.json"
+      "artifact": "models/QQQ-daily-wf2-108477e9cf30c22e.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",

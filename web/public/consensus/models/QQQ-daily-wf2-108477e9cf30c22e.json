@@ -1,0 +1,16 @@
+{
+  "status": "insufficient_data",
+  "engineVersion": "consensus-rules-2.0.0",
+  "samples": 2,
+  "minimum": 500,
+  "datasetHash": "3db07e69da6c4f9faa9a946ebd5d5b9aba15c7864bb7583bdfb4c925b5da4511",
+  "promoted": false,
+  "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+  "promotionEvidence": null,
+  "instrument": "QQQ",
+  "horizon": "daily",
+  "priceAdjustment": "total-return-adjusted",
+  "evaluatedAt": "2026-11-24T01:35:37.818Z",
+  "activated": false,
+  "featureSchema": "family-score-plus-observation-mask-v1"
+}

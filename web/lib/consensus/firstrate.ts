@@ -14,6 +14,7 @@ import { collectResearchPrices, readResearchReceipt } from "./research-price-cap
 import { newYorkDate } from "./time.ts";
 import { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, technicalSignals } from "./firstrate-technicals.ts";
 import { firstRatePremarketSignal, type PremarketSample } from "./firstrate-premarket.ts";
+import { readQqqAuction, validQqqAuction, type QqqAuction } from "./firstrate-nasdaq-auction.ts";
 
 export { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, replaceTechnicalSignals } from "./firstrate-technicals.ts";
 export { replaceFirstRatePremarket } from "./firstrate-premarket.ts";
@@ -33,8 +34,8 @@ type SampleFailure = { symbol: Symbol; reason: string };
 type ListingProof = { session: string; source: string; sha256: string };
 type MinuteRepair = {
   session: string; captureSession: string; source: Omit<PriceSource, "rows">;
-  rawSha256: string; splitSha256: string; listing: ListingProof; minutes?: number;
-};
+  rawSha256: string; splitSha256: string; minutes?: number;
+} & ({ listing: ListingProof; auction?: never } | { listing?: never; auction: QqqAuction; daily: Bar });
 type ApprovedSymbol = {
   symbol: Symbol;
   reviewedThrough?: string;
@@ -85,10 +86,13 @@ function sessionMinutes(clock: Pick<SessionPrice, "openAt" | "closeAt">) {
   return (Date.parse(clock.closeAt) - Date.parse(clock.openAt)) / 60_000;
 }
 
+function withinBasisPoints(value: number, reference: number, limit: number) {
+  return Number.isFinite(value) && value > 0 && Number.isFinite(reference) && reference > 0 &&
+    Math.abs(value / reference - 1) * BASIS_POINTS <= limit;
+}
+
 function withinPriceLimits(row: Bar, reference: Bar) {
-  return [row.open, row.close, reference.open, reference.close].every(price => Number.isFinite(price) && price > 0) &&
-    Math.abs(row.open / reference.open - 1) * BASIS_POINTS <= 3 &&
-    Math.abs(row.close / reference.close - 1) * BASIS_POINTS <= 15;
+  return withinBasisPoints(row.open, reference.open, 3) && withinBasisPoints(row.close, reference.close, 15);
 }
 
 export function verifiedCorePair(pair: CoreBar | undefined, expected: Bar, listed: Bar | undefined, minutes: number) {
@@ -98,9 +102,17 @@ export function verifiedCorePair(pair: CoreBar | undefined, expected: Bar, liste
     Math.sign(pair.close - pair.open) === Math.sign(listed.close - listed.open);
 }
 
+function qqqContinuousPair(daily: Bar, pair: CoreBar | undefined, expected: Bar) {
+  return pair !== undefined && pair.minutes === 390 && pair.session === daily.session &&
+    pair.session === expected.session && pair.open === expected.open && pair.close === expected.close &&
+    withinPriceLimits(pair, expected) && withinBasisPoints(daily.open, expected.open, 3) &&
+    Math.sign(daily.close - daily.open) === Math.sign(pair.close - pair.open);
+}
+
 /** Use independent references to qualify regular-session prices and clocked minute pairs. */
 export function reconcileFirstRateRows(
   symbol: Symbol, candidate: Bar[], raw: SessionPrice[], splitOnly: SessionPrice[], listing: Bar[] = [], regularMinutes: CoreBar[] = [],
+  auctions: QqqAuction[] = [],
 ) {
   if (candidate.length !== raw.length || candidate.length !== splitOnly.length)
     throw new Error(`${symbol} FirstRate comparison has missing sessions`);
@@ -120,6 +132,12 @@ export function reconcileFirstRateRows(
     const priceChecked = withinPriceLimits(row, expected);
     const directionDisagrees = Math.sign(row.close - row.open) !== Math.sign(expected.close - expected.open) && !listedMatch;
     let reason: ApprovedSymbol["withheld"][number]["reason"] | undefined;
+    const auction = auctions.find(proof => proof.session === row.session);
+    if (symbol === "QQQ" && duration === 390 && !priceChecked && minutes && qqqContinuousPair(row, minutes, expected) &&
+        auction && auction.officialClose === row.close && validQqqAuction(auction)) {
+      regularMinuteSessions.push(row.session);
+      return [{ ...clock, open: minutes.open, close: minutes.close }];
+    }
     if (duration === 210 || (duration === 390 && directionDisagrees && priceChecked)) {
       if (minutes && verifiedCorePair(minutes, expected, listed, duration)) {
         regularMinuteSessions.push(row.session);
@@ -136,6 +154,16 @@ export function reconcileFirstRateRows(
     return [{ ...clock, open: row.open, close: row.close }];
   });
   return { rows, withheld, regularMinuteSessions };
+}
+
+function validMinuteWitness(repair: MinuteRepair, symbol: Symbol, row: SessionPrice, asOf: string) {
+  if (repair.auction) return symbol === "QQQ" && repair.minutes === 390 && repair.auction.session === row.session &&
+    repair.source.basis === "split-adjusted" && exchangeSession(repair.captureSession)!.closeAt <= repair.source.modifiedAt &&
+    repair.source.modifiedAt <= repair.source.capturedAt && repair.source.capturedAt <= asOf &&
+    validQqqAuction(repair.auction, asOf) && repair.auction.officialClose === repair.daily.close &&
+    !withinPriceLimits(repair.daily, row) && qqqContinuousPair(repair.daily, { ...row, minutes: 390 }, row);
+  return CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol) && repair.listing?.session === repair.session &&
+    repair.listing.source === ctaReferenceUrl(repair.session) && SHA256.test(repair.listing.sha256);
 }
 
 async function listingReferences(directory: string, symbol: Symbol, dates: string[]) {
@@ -204,9 +232,9 @@ export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
     if (new Set(repairs.map(repair => repair.session)).size !== repairs.length || repairs.some(repair =>
       !byDate.has(repair.session) || repair.captureSession < repair.session || repair.captureSession > reviewedThrough ||
       repair.source.symbol !== symbol || repair.source.url !== sourceURL(symbol) ||
-      repair.listing.session !== repair.session || repair.listing.source !== ctaReferenceUrl(repair.session) ||
+      !validMinuteWitness(repair, symbol, byDate.get(repair.session)!, approval.approvedAt) ||
       (repair.minutes !== undefined && repair.minutes !== sessionMinutes(byDate.get(repair.session)!)) ||
-      ![repair.source.sha256, repair.rawSha256, repair.splitSha256, repair.listing.sha256].every(hash => SHA256.test(hash))))
+      ![repair.source.sha256, repair.rawSha256, repair.splitSha256].every(hash => SHA256.test(hash))))
       throw new Error(`FirstRate ${symbol} minute repair lacks its pinned independent evidence`);
     const blocks: SessionPrice[][] = [];
     let block: SessionPrice[] = [];
@@ -226,9 +254,14 @@ export function firstRatePriceEvidence(approval: Approval): PriceEvidence[] {
 }
 
 async function readApproval(root: string) {
-  const stored = await readResearchReceipt<StoredApproval>(resolve(root, directoryName, "approved.json"));
+  const directory = resolve(root, directoryName);
+  const stored = await readResearchReceipt<StoredApproval>(resolve(directory, "approved.json"));
   if (stored && (stored.approval.schemaVersion !== 1 || stored.sha256 !== digest(stored.approval)))
     throw new Error("FirstRate approved prices differ from their private receipt");
+  for (const fund of stored?.approval.symbols ?? []) for (const repair of fund.proof.minuteRepairs ?? []) {
+    if (repair.auction && digest(await readQqqAuction(directory, repair.session, true)) !== digest(repair.auction))
+      throw new Error("FirstRate QQQ approval differs from its archived Nasdaq auction");
+  }
   return stored?.approval ?? null;
 }
 
@@ -301,7 +334,8 @@ export async function loadFirstRatePremarket(root: string, cutoff: string) {
 }
 
 async function reviewSample(directory: string, sample: Sample, through: string, from: string,
-  cachedOnly: boolean, observed: string, old?: ApprovedSymbol): Promise<ReviewedSymbol> {
+  cachedOnly: boolean, observed: string, old: ApprovedSymbol | undefined, auctionCacheOnly: boolean,
+  failures: SampleFailure[]): Promise<ReviewedSymbol> {
   const { rows, regularMinutes, ...source } = sample;
   const { symbol } = source;
   const dates = exchangeSessions(rows[0].session, through);
@@ -324,8 +358,20 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
   const listing = await listingReferences(directory, symbol,
     check.withheld.filter(row => row.reason === "direction" || (row.reason === "short-session" &&
       minutesToReview.some(bar => bar.session === row.session && bar.minutes === 210))).map(row => row.session));
-  const normalized = listing.length
-    ? reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly, listing.map(row => row.mark), minutesToReview)
+  const auctions: QqqAuction[] = [];
+  if (symbol === "QQQ") for (const { session, reason } of check.withheld) {
+    const i = candidates.findIndex(row => row.session === session);
+    if (reason !== "price" || !fullSession(session) ||
+        !qqqContinuousPair(candidates[i], minutesToReview.find(row => row.session === session), asTraded[i])) continue;
+    try {
+      const auction = await readQqqAuction(directory, session, auctionCacheOnly);
+      if (auction) auctions.push(auction);
+    } catch (error) {
+      failures.push({ symbol, reason: session + " auction verification: " + (error instanceof Error ? error.message.slice(0, 180) : "unavailable") });
+    }
+  }
+  const normalized = listing.length || auctions.length
+    ? reconcileFirstRateRows(symbol, candidates, asTraded, splitOnly, listing.map(row => row.mark), minutesToReview, auctions)
     : check;
   const merged = new Map(priorRows);
   const priorLast = old?.rows.at(-1)?.session;
@@ -349,9 +395,11 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
     if (repairs.has(session)) continue;
     const rawReference = raw.find(receipt => receipt.from <= session && receipt.through >= session)!;
     const splitReference = splits.find(receipt => receipt.from <= session && receipt.through >= session)!;
+    const auction = auctions.find(proof => proof.session === session);
     repairs.set(session, { session, captureSession: through, source, minutes: minutesToReview.find(bar => bar.session === session)!.minutes,
       rawSha256: rawReference.sha256,
-      splitSha256: splitReference.sha256, listing: references.find(reference => reference.session === session)! });
+      splitSha256: splitReference.sha256, ...(auction ? { auction, daily: rows.find(bar => bar.session === session)! } :
+        { listing: references.find(reference => reference.session === session)! }) });
   }
   return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
     withheld: normalized.withheld,
@@ -365,6 +413,9 @@ function approvedCounts(approval: Approval) {
 
 class NoVerifiedSample extends Error {}
 
+const reviewableIssue = (symbol: Symbol, reason: ApprovedSymbol["withheld"][number]["reason"]) =>
+  symbol === "QQQ" ? reason === "price" : CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol) && reason !== "price";
+
 async function reviewFirstRateSession(root: string, through: string, cachedOnly: boolean, reviewWithheld: boolean) {
   const directory = resolve(root, directoryName);
   const previous = await readApproval(root);
@@ -375,8 +426,7 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   const pending = FIRST_RATE_SYMBOLS.filter(symbol => {
     const old = approved.get(symbol);
     return reviewWithheld
-      ? old?.reviewedThrough === through && CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol) &&
-        old.withheld.some(row => row.reason !== "price")
+      ? old?.reviewedThrough === through && old.withheld.some(row => reviewableIssue(symbol, row.reason))
       : (old?.reviewedThrough ?? "") < through;
   });
   if (previous && !pending.length)
@@ -423,8 +473,8 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   for (const sample of availableSamples) {
     try {
       const old = approved.get(sample.symbol);
-      const match = await reviewSample(directory, sample, through, from, pinned, observed, old);
-      if (reviewWithheld && !old!.withheld.some(row => row.reason !== "price" &&
+      const match = await reviewSample(directory, sample, through, from, pinned, observed, old, cachedOnly, failures);
+      if (reviewWithheld && !old!.withheld.some(row => reviewableIssue(sample.symbol, row.reason) &&
           match.rows.some(bar => bar.session === row.session))) continue;
       if (listingFailure?.session === through && CTA_REFERENCE_SYMBOLS.some(symbol => symbol === sample.symbol) &&
           sample.regularMinutes.some(bar => bar.session === through && bar.minutes === 210) &&
@@ -478,6 +528,14 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   const dates = cachedOnly ? [latestFirstRateSession(now)] : firstRateCaptureDates(now, approvedThrough);
   const latest = dates.at(-1)!;
   let caughtUp;
+  const qqq = previous?.symbols.find(row => row.symbol === "QQQ");
+  if (!cachedOnly && qqq && qqq.withheld.some(row => reviewableIssue("QQQ", row.reason))) {
+    // A newer ZIP can arrive late. Keep the original ZIP, issuers and comparison prices pinned
+    // while collecting only the missing exchange evidence for the outstanding dispute.
+    const day = qqq.reviewedThrough ?? previous!.through;
+    const repair = await reviewFirstRateSession(root, day, false, true);
+    if (repair.status === "qualified") caughtUp = { session: day, result: repair };
+  }
   if (dates.length > 1) {
     try {
       const earlier = await reviewFirstRateSession(root, dates[0], cachedOnly, false);

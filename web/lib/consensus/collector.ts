@@ -16,6 +16,7 @@ import { collectAnalystRatings } from "./analyst-ratings.ts";
 import { collectEtfFlows } from "./etf-flows.ts";
 import { collectEtfiqRetailOrders, collectSecMidas } from "./order-activity.ts";
 import { collectFuturesOptions } from "./futures-options.ts";
+import { collectOptionActivity } from "./option-activity.ts";
 import { cftcTableClock, cftcReportCitation } from "./cftc-provenance.ts";
 import { collectTaiwan } from "./taiwan.ts";
 import { fedMarketProviders } from "./fed-market-data.ts";
@@ -902,6 +903,8 @@ export async function collectSnapshot(
   fetcher: Fetcher = fetch,
   previous?: Snapshot,
   operfReceiptDirectory?: string,
+  optionReceiptDirectory?: string,
+  archiveRoot?: string,
 ): Promise<Snapshot> {
   // Small independent source batches; each failed source is retained as unavailable.
   const [
@@ -929,6 +932,7 @@ export async function collectSnapshot(
     futuresOptions,
     retailOrders,
     exchangeOrders,
+    optionActivity,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -949,11 +953,15 @@ export async function collectSnapshot(
     collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
     collectTaiwan((url) => publicText(url, fetcher)),
-    collectAnalystRatings((url) => publicText(url, fetcher)),
+    collectAnalystRatings((url) => publicText(url, fetcher), undefined, previous, archiveRoot),
     collectEtfFlows((url) => publicText(url, fetcher)),
     collectFuturesOptions((url) => publicText(url, fetcher)),
     collectEtfiqRetailOrders((url) => publicText(url, fetcher)),
     collectSecMidas((url) => publicText(url, fetcher), fetcher, previous?.signals),
+    optionReceiptDirectory ? collectOptionActivity(optionReceiptDirectory, fetcher, new Date().toISOString(), previous?.optionActivity).catch((error: Error) => {
+      console.error("Market History options receipt check failed:", error.message);
+      return undefined;
+    }) : undefined,
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -1002,7 +1010,8 @@ export async function collectSnapshot(
     ],
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 54,
+    ...(optionActivity ? { optionActivity } : {}),
+    sourcesAttempted: MACRO_SERIES.length + 54 + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

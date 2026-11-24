@@ -20,6 +20,7 @@
     "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
     "consensus:prepare-firstrate": "node --experimental-strip-types scripts/prepare-firstrate.ts",
     "consensus:prepare-tlt-close": "node --experimental-strip-types scripts/prepare-tlt-close.ts",
+    "consensus:research-tlt-boundaries": "node --experimental-strip-types scripts/research-market-history-boundaries.ts",
     "consensus:research-tlt-close-indicator": "node --experimental-strip-types scripts/research-tlt-close-indicator.ts",
     "consensus:research-market-history-closes": "node --experimental-strip-types scripts/research-market-history-closes.ts",
     "consensus:audit": "node --experimental-strip-types scripts/verify-consensus.ts --audit",

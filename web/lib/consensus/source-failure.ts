@@ -1,6 +1,8 @@
 /** Only explicit transport failures may revive last-known observations. */
 export class SourceTransportError extends Error {}
 export class SourceMissingError extends Error {}
+/** An access challenge is still a validation failure. A source may check a separate documented delivery. */
+export class SourceChallengeError extends Error {}
 export const sourceFailureKind = (error: unknown): "transport" | "validation" =>
   error instanceof SourceTransportError ? "transport" : "validation";
 
@@ -15,6 +17,9 @@ export async function sourceResponse(
   catch (cause) { throw new SourceTransportError("Source connection failed", {cause}); }
   if (allowNotModified && response.status === 304) return response;
   if (!response.ok) {
+    if (response.status === 403 && response.headers.get("cf-mitigated") === "challenge" &&
+        response.headers.get("content-type")?.split(";")[0].trim().toLowerCase() === "text/html")
+      throw new SourceChallengeError("Source HTTP 403 challenge");
     if (response.status === 408 || response.status === 429 || response.status >= 500)
       throw new SourceTransportError(`Source HTTP ${response.status}`);
     if (response.status === 404) throw new SourceMissingError("Source HTTP 404");

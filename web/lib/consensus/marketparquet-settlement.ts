@@ -3,11 +3,13 @@ import { resolve } from "node:path";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { officialCashLocation, type CashDistribution } from "./corporate-adjustment.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import type { PriceEvidence } from "./evaluation.ts";
 import { loadFirstRatePrices } from "./firstrate.ts";
 import { digest } from "./history.ts";
 import { collectKibotSeries, KIBOT_PRICE_CITATION, MAX_KIBOT_RANGE_MS, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
 import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
+import { loadTltSettlement } from "./market-history-settlement.ts";
 
 type ETF = typeof ETF_SYMBOLS[number];
 const origin = "https://marketparquet.com";
@@ -181,10 +183,12 @@ export async function loadLicensedSettlement(root: string, asOf: string) {
 }
 
 export async function defaultEvaluationPrices(root: string, asOf: string, warn: (message: string) => void = console.error) {
-  const firstRate = await loadFirstRatePrices(root);
-  try { return [...firstRate, ...await loadLicensedSettlement(root, asOf)]; }
+  const prices: PriceEvidence[] = await loadFirstRatePrices(root);
+  try { prices.push(...await loadLicensedSettlement(root, asOf)); }
   catch {
     warn("Licensed MarketParquet settlement withheld. Its private capture or independent reconciliation could not be verified.");
-    return firstRate;
   }
+  try { prices.push(...await loadTltSettlement(root, asOf, warn)); }
+  catch { warn("Market History TLT settlement withheld. Its private storage or source comparison could not be verified."); }
+  return prices;
 }

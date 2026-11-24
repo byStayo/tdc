@@ -2,10 +2,12 @@ import { fileURLToPath } from "node:url";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { effectiveStatus } from "../lib/consensus/engines/v2.ts";
 import { ETF_FLOW_PREFIX } from "../lib/consensus/etf-flows.ts";
+import { exchangeSession } from "../lib/consensus/exchange-calendar.ts";
 import { SCORING_POLICY } from "../lib/consensus/evaluation.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { readPrivateResearchSessions } from "../lib/consensus/kibot-verified-session.ts";
 import { PROSPECTIVE_MINIMUM } from "../lib/consensus/learning-audit.ts";
+import { currentOptionActivity } from "../lib/consensus/option-activity-clock.ts";
 import { FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import type { Instrument } from "../lib/consensus/types.ts";
@@ -72,6 +74,22 @@ const familyGroups = (Object.keys(futuresByETF) as Instrument[]).flatMap(instrum
   });
 });
 
+// The OPRA trade-volume sample is recorded separately from the options-risk gate.
+// Pair only the original, already-issued sample with the selected settled session.
+const matchedOptionVolume = Object.keys(futuresByETF).map(instrument => {
+  const sessions = selected.filter(row => row.instrument === instrument);
+  const dates: string[] = [];
+  for (const session of sessions) {
+    const snapshot = byId.get(session.edition)!;
+    const sample = snapshot.optionActivity;
+    const row = sample?.rows.find(item => item.symbol === instrument);
+    if (sample && row?.status === "observed" && row.capturedAt <= snapshot.cutoff && sample.session < session.session &&
+        currentOptionActivity(sample.session, snapshot.cutoff) && currentOptionActivity(sample.session, exchangeSession(session.session)!.openAt))
+      dates.push(sample.session);
+  }
+  return { instrument, selectedSessions: sessions.length, pairedSessions: dates.length, distinctObservationDates: new Set(dates).size };
+});
+
 // Family pairing uses only the as-issued observations and verified settlement identities.
 console.log(JSON.stringify({ scope: "private-pairing-only", policy: SCORING_POLICY, horizon: "daily", through: checked.through,
-  minimumEligibleModelRows: PROSPECTIVE_MINIMUM, groups, familyGroups }, null, 2));
+  minimumEligibleModelRows: PROSPECTIVE_MINIMUM, groups, familyGroups, matchedOptionVolume }, null, 2));

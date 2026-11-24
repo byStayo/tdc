@@ -27,6 +27,7 @@ import { validateFirstRatePremarket } from "./firstrate-premarket.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
+import { validateOptionActivity } from "./option-activity.ts";
 import { validateTaiwan } from "./taiwan.ts";
 import { validateNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { validateJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
@@ -250,6 +251,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     )
       throw new Error("Invalid as-issued model forecast");
   }
+  if (snapshot.optionActivity) validateOptionActivity(snapshot.optionActivity, snapshot.cutoff);
   validateConsensusRecords(snapshot, mode === "candidate");
   const holdingSignals = snapshot.signals.filter(
     (s) => s.id.startsWith("sec-holdings-") && s.status === "available",
@@ -347,6 +349,9 @@ export function observationDigest(snapshot: Snapshot): string {
     catalysts: snapshot.catalysts,
     forecasts: snapshot.forecasts ?? [],
     news: snapshot.news ?? null,
+    ...(snapshot.optionActivity ? { optionActivity: { ...snapshot.optionActivity,
+      rows: snapshot.optionActivity.rows.map(row => row.status === "observed"
+        ? { symbol: row.symbol, status: row.status, putPercent: row.putPercent } : row) } } : {}),
     holdings:
       snapshot.holdings?.map((item) => ({
         ...item,

@@ -164,6 +164,8 @@ export interface Snapshot {
   news?: import("./news").NewsPulse;
   review?: import("./reviewed").ReviewPacket;
   holdings?: import("./holdings").InstitutionalHoldings[];
+  /** Scoped trade-volume observation, outside the scored options-risk input. */
+  optionActivity?: import("./option-activity").OptionActivity;
 }
 export interface HistoryEntry {
   id: string;

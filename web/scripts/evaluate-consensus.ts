@@ -17,6 +17,7 @@ import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { MARKETPARQUET_SOURCE } from "../lib/consensus/marketparquet.ts";
 import { defaultEvaluationPrices } from "../lib/consensus/marketparquet-settlement.ts";
+import { MARKET_HISTORY_SOURCE } from "../lib/consensus/market-history-settlement.ts";
 import type { PriceEvidence } from "../lib/consensus/evaluation.ts";
 import { planCandidate, evaluateCandidate } from "../lib/consensus/learning.ts";
 import type { TrainingRow } from "../lib/consensus/learning.ts";
@@ -237,7 +238,9 @@ try {
         (outcomes.some(row => row.source === FIRST_RATE_SOURCE)
           ? " Price source for covered equity outcomes is FirstRate Data. See the consensus attribution file." : "") +
         (outcomes.some(row => row.source === MARKETPARQUET_SOURCE)
-          ? " MarketParquet daily ETF prices and issuer distributions supply complete outcome windows. See the consensus attribution file." : ""),
+          ? " MarketParquet daily ETF prices and issuer distributions supply complete outcome windows. See the consensus attribution file." : "") +
+        (outcomes.some(row => row.source === MARKET_HISTORY_SOURCE)
+          ? " Verified Market History consolidated bars and iShares distributions supply covered TLT outcome windows." : ""),
     };
     if (outcomes.length) writes.push({ path: PRIVATE_OUTCOME_LEDGER, value: outcomes });
     writes.push(

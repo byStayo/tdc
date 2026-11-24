@@ -1762,5 +1762,17 @@
     "instrument": "DIA",
     "horizon": "daily",
     "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T09-18-55-698Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-20T13-07-32-081Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
   }
 ]

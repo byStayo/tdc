@@ -18,9 +18,9 @@ import type { SessionPrice } from "./evaluation.ts";
 const hash = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
 type ETF = SessionFundProof["symbol"];
 export const STOCKLAKE_HISTORY = "https://api.stocklake.dev/mcp";
-export function nasdaqDaily(symbol: ETF, day: string, fromdate = new Date(Date.parse(day + "T00:00:00Z") - 86_400_000).toISOString().slice(0, 10)) {
+export function nasdaqDaily(symbol: ETF, day: string, fromdate = new Date(Date.parse(day + "T00:00:00Z") - 86_400_000).toISOString().slice(0, 10), limit = 10) {
   const url = new URL(`https://api.nasdaq.com/api/quote/${symbol}/historical`);
-  url.search = new URLSearchParams({ assetclass: "etf", fromdate, todate: day, limit: "10" }).toString();
+  url.search = new URLSearchParams({ assetclass: "etf", fromdate, todate: day, limit: String(limit) }).toString();
   return url.href;
 }
 type RawMeta = { url: string; sha256: string; capturedAt: string; responseUrl?: string };
@@ -112,11 +112,14 @@ async function ctaReport(directory: string, day: string, collect: boolean, fetch
   return { ...report, capturedAt: meta.capturedAt };
 }
 
-function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) {
-  if (!meta || meta.status !== 200 || meta.kind !== "daily" || meta.symbol !== symbol ||
-      ![nasdaqDaily(symbol, day), nasdaqDaily(symbol, day, day)].includes(meta.url) || !Number.isFinite(Date.parse(meta.requestedAt)) ||
+type NasdaqRange = { from: string; through: string };
+function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp, sessionClock: typeof exchangeSession, range?: NasdaqRange) {
+  const targetClock = sessionClock(day);
+  const allowedUrls = range ? [nasdaqDaily(symbol, range.through, range.from, 50)] : [nasdaqDaily(symbol, day), nasdaqDaily(symbol, day, day)];
+  if (!meta || !targetClock || meta.status !== 200 || meta.kind !== "daily" || meta.symbol !== symbol ||
+      !allowedUrls.includes(meta.url) || !Number.isFinite(Date.parse(meta.requestedAt)) ||
       new Date(meta.requestedAt).toISOString() !== meta.requestedAt ||
-      meta.requestedAt < exchangeSession(day)!.closeAt || meta.requestedAt > meta.capturedAt)
+      meta.requestedAt < targetClock.closeAt || meta.requestedAt > meta.capturedAt)
     throw new Error("Missing dated Nasdaq ETF historical response");
   const bytes = Buffer.from(meta.body, "base64");
   if (!bytes.length || bytes.length > 100_000) throw new Error("Invalid Nasdaq history response size");
@@ -128,7 +131,7 @@ function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) 
     throw new SourceMissingError("Nasdaq has no historical ETF row for this date yet");
   if (status?.rCode !== 200 || data?.symbol !== symbol || table?.headers?.date !== "Date" ||
       table.headers.open !== "Open" || table.headers.close !== "Close/Last" || table.headers.low !== "Low" ||
-      table.headers.high !== "High" || !Array.isArray(table.rows) || table.rows.length > 2)
+      table.headers.high !== "High" || !Array.isArray(table.rows) || table.rows.length > (range ? 50 : 2))
     throw new Error("Nasdaq historical date, fund or price definition differs");
   const from = new URL(meta.url).searchParams.get("fromdate")!;
   const byDay = new Map<string, Record<string, unknown>>();
@@ -136,7 +139,7 @@ function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) 
     const parts = typeof row?.date === "string" && /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(row.date);
     if (!parts) throw new Error("Invalid Nasdaq historical row date");
     const session = `${parts[3]}-${parts[1]}-${parts[2]}`;
-    if ((session !== from && session !== day) || !exchangeSession(session) || byDay.has(session))
+    if (session < from || session > (range?.through ?? day) || !sessionClock(session) || byDay.has(session))
       throw new Error("Duplicate or out-of-range Nasdaq historical row");
     byDay.set(session, row);
   }
@@ -154,8 +157,14 @@ function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp) 
   return { open, close };
 }
 
-async function nasdaqControl(directory: string, symbol: ETF, day: string, collect: boolean, fetcher: Fetcher) {
-  const path = resolve(directory, symbol + "-daily.json"), url = nasdaqDaily(symbol, day);
+export async function readNasdaqHistoricalControl(directory: string, symbol: ETF, day: string, collect: boolean,
+  fetcher: Fetcher = fetch, sessionClock: typeof exchangeSession = exchangeSession, range?: NasdaqRange) {
+  if (range && (!sessionClock(range.from) || !sessionClock(range.through) || day < range.from || day > range.through ||
+      Date.parse(range.through) - Date.parse(range.from) > 35 * 86_400_000))
+    throw new Error("Nasdaq history comparison requires a bounded reviewed session range");
+  const url = range ? nasdaqDaily(symbol, range.through, range.from, 50) : nasdaqDaily(symbol, day);
+  const name = range ? symbol + "-daily-" + range.from + "-" + range.through + ".json" : symbol + "-daily.json";
+  const path = resolve(directory, name);
   let meta = await readResearchReceipt<NasdaqMeta>(path);
   if (!meta && collect) {
     const requestedAt = new Date().toISOString();
@@ -175,13 +184,13 @@ async function nasdaqControl(directory: string, symbol: ETF, day: string, collec
     const bytes = Buffer.concat(parts);
     meta = { requestedAt, capturedAt: new Date().toISOString(), sha256: hash(bytes), body: bytes.toString("base64"),
       kind: "daily", url, status: response.status, symbol };
-    decodeNasdaq(meta, symbol, day, { ...meta, source: url });
+    decodeNasdaq(meta, symbol, day, { ...meta, source: url }, sessionClock, range);
     await durableDirectory(directory, 0o700);
     await durableJSON(path, meta, true);
   }
   if (!meta) throw new Error("Missing dated Nasdaq ETF historical response");
   const stamp = { source: meta.url, capturedAt: meta.capturedAt, sha256: meta.sha256, basis: "Nasdaq historical Open and Close/Last" };
-  return { stamp, prices: decodeNasdaq(meta, symbol, day, stamp) };
+  return { stamp, prices: decodeNasdaq(meta, symbol, day, stamp, sessionClock, range) };
 }
 
 async function stocklakeControl(directory: string, symbol: ETF, day: string) {
@@ -240,7 +249,7 @@ function readSessionPrices(sourceRoot: string, day: string, collect: boolean, fe
       if (!bar || report.capturedAt < bar.summaryAt) throw new Error("CTA capture precedes its final report");
       control = { stamp: { source: report.source, capturedAt: report.capturedAt, sha256: report.sha256,
         basis: report.basis, summaryAt: bar.summaryAt }, prices: bar };
-    } else if (kind === "historical") control = await nasdaqControl(directory, symbol, day, collect, fetcher);
+    } else if (kind === "historical") control = await readNasdaqHistoricalControl(directory, symbol, day, collect, fetcher);
     else control = await stocklakeControl(directory, symbol, day);
     return { independent: { ...market!, open: control.prices.open, close: control.prices.close }, controlSource: control.stamp, kind };
   }

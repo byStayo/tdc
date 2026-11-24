@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-23T12:48:32.465Z",
-  "macroRetrievedAt": "2026-11-23T12:48:08.383Z",
-  "positioningRetrievedAt": "2026-11-23T12:48:09.284Z",
+  "collectedAt": "2026-11-24T01:41:48.642Z",
+  "macroRetrievedAt": "2026-11-24T01:37:12.535Z",
+  "positioningRetrievedAt": "2026-11-24T01:37:12.963Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -841,7 +841,7 @@
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-23T12:48:08.482Z",
+      "retrievedAt": "2026-11-24T01:37:12.516Z",
       "data": [
         {
           "id": "sec:0000320193:0001140361-26-044952",
@@ -927,7 +927,7 @@
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-23T12:48:08.763Z",
+      "retrievedAt": "2026-11-24T01:37:12.729Z",
       "data": [
         {
           "id": "sec:0000789019:0000789019-26-000236",
@@ -1013,8 +1013,28 @@
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-23T12:48:09.050Z",
+      "retrievedAt": "2026-11-24T01:37:13.014Z",
       "data": [
+        {
+          "id": "sec:0001045810:0001696841-26-000016",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "4",
+          "filedAt": "2026-11-23",
+          "reportDate": "2026-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000169684126000016/xslF345X06/wk-form4_1795470863.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0001045810:0001045810-26-000090",
+          "company": "NVIDIA CORP",
+          "cik": "0001045810",
+          "form": "8-K",
+          "filedAt": "2026-11-23",
+          "reportDate": "2026-11-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000090/nvda-20261122.htm",
+          "description": "8-K"
+        },
         {
           "id": "sec:0001045810:0001921094-26-001223",
           "company": "NVIDIA CORP",
@@ -1074,33 +1094,53 @@
           "reportDate": "2026-09-09",
           "url": "https://www.sec.gov/Archives/edgar/data/1045810/000215218826000007/xslF345X06/wk-form4a_1791925767.xml",
           "description": "FORM 4/A"
-        },
-        {
-          "id": "sec:0001045810:0001197647-26-000011",
-          "company": "NVIDIA CORP",
-          "cik": "0001045810",
-          "form": "4",
-          "filedAt": "2026-10-09",
-          "reportDate": "2026-10-07",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119764726000011/xslF345X06/wk-form4_1791579847.xml",
-          "description": "FORM 4"
-        },
-        {
-          "id": "sec:0001045810:0001696841-26-000014",
-          "company": "NVIDIA CORP",
-          "cik": "0001045810",
-          "form": "4",
-          "filedAt": "2026-09-23",
-          "reportDate": "2026-09-21",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000169684126000014/xslF345X06/wk-form4_1790196985.xml",
-          "description": "FORM 4"
         }
       ]
     },
     {
       "symbol": "WMT",
-      "retrievedAt": "2026-11-23T12:48:09.316Z",
+      "retrievedAt": "2026-11-24T01:37:13.305Z",
       "data": [
+        {
+          "id": "sec:0000104169:0001696737-26-000023",
+          "company": "Walmart Inc.",
+          "cik": "0000104169",
+          "form": "4",
+          "filedAt": "2026-11-23",
+          "reportDate": "2026-11-20",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000169673726000023/xslF345X06/wk-form4_1795469042.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0000104169:0001992808-26-000031",
+          "company": "Walmart Inc.",
+          "cik": "0000104169",
+          "form": "4",
+          "filedAt": "2026-11-23",
+          "reportDate": "2026-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000199280826000031/xslF345X06/wk-form4_1795469035.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0000104169:0001579299-26-000030",
+          "company": "Walmart Inc.",
+          "cik": "0000104169",
+          "form": "4",
+          "filedAt": "2026-11-23",
+          "reportDate": "2026-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000157929926000030/xslF345X06/wk-form4_1795469027.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0000104169:0001959173-26-008232",
+          "company": "Walmart Inc.",
+          "cik": "0000104169",
+          "form": "144",
+          "filedAt": "2026-11-23",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000195917326008232/xsl144X01/primary_doc.xml",
+          "description": "144 filing"
+        },
         {
           "id": "sec:0000104169:0001949846-26-000669",
           "company": "Walmart Inc.",
@@ -1139,46 +1179,6 @@
           "filedAt": "2026-11-16",
           "reportDate": "2026-11-13",
           "url": "https://www.sec.gov/Archives/edgar/data/104169/000173985926000003/xslF345X06/wk-form4_1794871039.xml",
-          "description": "FORM 4"
-        },
-        {
-          "id": "sec:0000104169:0000104169-26-000165",
-          "company": "Walmart Inc.",
-          "cik": "0000104169",
-          "form": "8-K",
-          "filedAt": "2026-11-16",
-          "reportDate": "2026-11-13",
-          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000165/wmt-20261113.htm",
-          "description": "8-K"
-        },
-        {
-          "id": "sec:0000104169:0001123292-26-001495",
-          "company": "Walmart Inc.",
-          "cik": "0000104169",
-          "form": "13F-HR",
-          "filedAt": "2026-11-06",
-          "reportDate": "2026-09-30",
-          "url": "https://www.sec.gov/Archives/edgar/data/104169/000112329226001495/xslForm13F_X02/primary_doc.xml",
-          "description": "13F-HR filing"
-        },
-        {
-          "id": "sec:0000104169:0001886367-26-000031",
-          "company": "Walmart Inc.",
-          "cik": "0000104169",
-          "form": "4",
-          "filedAt": "2026-11-05",
-          "reportDate": "2026-11-03",
-          "url": "https://www.sec.gov/Archives/edgar/data/104169/000188636726000031/xslF345X06/wk-form4_1793915990.xml",
-          "description": "FORM 4"
-        },
-        {
-          "id": "sec:0000104169:0002058309-26-000021",
-          "company": "Walmart Inc.",
-          "cik": "0000104169",
-          "form": "4",
-          "filedAt": "2026-11-05",
-          "reportDate": "2026-11-03",
-          "url": "https://www.sec.gov/Archives/edgar/data/104169/000205830926000021/xslF345X06/wk-form4_1793915984.xml",
           "description": "FORM 4"
         }
       ]

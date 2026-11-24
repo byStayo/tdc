@@ -256,5 +256,17 @@
     "issuedAt": "2026-11-23T13:08:51.071Z",
     "sha256": "ebee621747e732bca5ad3012a012dc4c2d8e4afee3c890778b060921c7e07a3c",
     "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "id": "2026-11-24T01-44-08-380Z",
+    "issuedAt": "2026-11-24T01:44:08.380Z",
+    "sha256": "d7b819885fe2c2230a9b15a3f252307c801500f690733aa3c76b2a94bea007dc",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "id": "2026-11-24T01-49-42-081Z",
+    "issuedAt": "2026-11-24T01:49:42.081Z",
+    "sha256": "89074a84348d9f36c4775e7ef7047b2aff2c0ffe8219a3a467bc27f15ee293ee",
+    "engineVersion": "consensus-rules-2.0.0"
   }
 ]

@@ -57,8 +57,9 @@ let snapshot: Snapshot = reviewOnly || technicalsOnly
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
   : taiwanOnly ? await refreshTaiwan(previous!, publicText)
   : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText)
-  : analystOnly ? await refreshAnalystRatings(previous!, publicText)
-  : await collectSnapshot(fetch, previous ?? undefined, resolve(root, ".consensus/private-operf-equity"));
+  : analystOnly ? await refreshAnalystRatings(previous!, publicText, undefined, root)
+  : await collectSnapshot(fetch, previous ?? undefined, resolve(root, ".consensus/private-operf-equity"),
+      resolve(root, ".consensus/private-opra-volume"), root);
 if (!scoped || technicalsOnly) {
   const readings = await loadFirstRateTechnicals(root, snapshot.cutoff).catch((error: Error) => {
     console.error(`FirstRate technical observations unavailable: ${error.message}`);
