@@ -4,7 +4,9 @@ import { homedir } from "node:os";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BLUESKY_METHOD, X_STANCE_METHOD, marketStances, type LanguageCue } from "../lib/consensus/bluesky.ts";
+import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
+import { xLongPostText } from "../lib/consensus/x-post-text.ts";
 
 const cues = ["upward", "downward", "mixed", "unclassified"] as const;
 const platforms = ["x", "instagram", "bluesky"] as const;
@@ -49,9 +51,7 @@ async function readPrivateCorpus() {
   }
 }
 
-async function main() {
-  const corpus = await readPrivateCorpus();
-  const now = new Date().toISOString();
+export function evaluateSocialCorpus(corpus: Record<string, unknown>, now = new Date().toISOString()) {
   if (corpus.schemaVersion !== 1 || !canonicalInstant(corpus.collectedAt) ||
       !canonicalInstant(corpus.expiresAt) || corpus.collectedAt > now || corpus.expiresAt <= now ||
       Date.parse(corpus.expiresAt) - Date.parse(corpus.collectedAt) > 86_400_000 ||
@@ -63,14 +63,19 @@ async function main() {
     const { platform, instrument, expected, text } = record(item);
     if (!platforms.includes(platform as typeof platforms[number]) ||
         !INSTRUMENTS.includes(instrument as Instrument) || !cues.includes(expected as LanguageCue) ||
-        typeof text !== "string" || !text.trim() || text.length > 3000)
+        typeof text !== "string" || !text.trim())
       throw new Error("Invalid labelled row");
+    let classifierText: string | null;
+    if (platform === "x") classifierText = xLongPostText(text);
+    else if (platform === "instagram") classifierText = instagramCaptionText(text);
+    else classifierText = text.length <= 3000 ? text : null;
+    if (classifierText === null) throw new Error("Invalid platform text");
     const group = `${platform}/${instrument}`;
     const key = JSON.stringify([group, text.trim().replace(/\s+/g, " ")]);
     if (seen.has(key)) throw new Error("Duplicate text for the same platform and instrument");
     seen.add(key);
     const matrix = groups.get(group) ?? cues.map(() => cues.map(() => 0));
-    const predicted = marketStances(text, platform === "x" ? "x" : undefined)[instrument as Instrument] ?? "unclassified";
+    const predicted = marketStances(classifierText, platform === "x" ? "x" : undefined)[instrument as Instrument] ?? "unclassified";
     matrix[cues.indexOf(expected as LanguageCue)][cues.indexOf(predicted)]++;
     groups.set(group, matrix);
   }
@@ -85,20 +90,23 @@ async function main() {
       directionalPrecision: directionalCalls ? (matrix[0][0] + matrix[1][1]) / directionalCalls : null,
     }];
   });
-  console.log(JSON.stringify({
+  return {
     scope: "private-language-interpretation-only",
+    inputPolicy: "native-text-v2",
     classifiers: { x: X_STANCE_METHOD, bluesky: BLUESKY_METHOD, instagram: BLUESKY_METHOD },
     labels: cues,
     minimumRowsPerGroup: minimumRows,
     suppressedGroups: groups.size - results.length,
     results,
-  }, null, 2));
+  };
 }
 
-try {
-  await main();
-} catch {
-  // Parse and filesystem errors can contain excerpts or identifying path names.
-  console.error("Social benchmark refused the corpus. Check the documented schema, freshness, duplicates and file permissions.");
-  process.exitCode = 1;
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    console.log(JSON.stringify(evaluateSocialCorpus(await readPrivateCorpus()), null, 2));
+  } catch {
+    // Parse and filesystem errors can contain excerpts or identifying path names.
+    console.error("Social benchmark refused the corpus. Check the documented schema, freshness, duplicates and file permissions.");
+    process.exitCode = 1;
+  }
 }

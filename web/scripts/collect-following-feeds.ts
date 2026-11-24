@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, xStanceAnalysis,
   type LanguageCue, type XAbstentionReason } from "../lib/consensus/bluesky.ts";
 import { rssItems } from "../lib/consensus/collector.ts";
+import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
@@ -230,9 +231,10 @@ export async function collectInstagram(input: unknown, cutoff: string) {
       if (!Array.isArray(media.data) || media.data.length > 10) throw new Error("Invalid Instagram media page");
       truncated ||= media.paging !== undefined && typeof object(media.paging).next === "string";
       for (const row of media.data.map(object)) {
-        if (typeof row.caption === "string" && row.caption.length <= 12_000 && typeof row.timestamp === "string")
-          posts.push({ author: profile.id, at: Date.parse(row.timestamp),
-            text: row.caption.replace(/(^|\s)#(SPY|QQQ|IWM|DIA|TLT)\b/gi, (_match, space, symbol) => space + "$" + symbol) });
+        const text = instagramCaptionText(row.caption);
+        if (text !== null && typeof row.timestamp === "string") {
+          posts.push({ author: profile.id, at: Date.parse(row.timestamp), text });
+        }
       }
     } catch { unavailableAccounts++; }
   }
