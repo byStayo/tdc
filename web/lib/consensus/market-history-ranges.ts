@@ -619,10 +619,13 @@ export async function prepareMarketHistoryRanges(root: string, opts: Preparation
             : dates.find((d) => Date.parse(exchangeSession(d)!.closeAt) <= watermark);
         let newRaw: [Loaded, Loaded] | null = null,
           newSplits: [Loaded, Loaded] | null = null;
+        let latestVerified: string | undefined;
         for (const day of dates) {
           const previous = (await reviewedMarketHistoryRangeSources(root, fund, day, clock()).catch(() => null))?.row;
           if (previous) {
-            diagnostics[fund] = "retained " + day;
+            if (!latestVerified) { latestVerified = day; diagnostics[fund] = "retained " + day; }
+            // Retain earlier TLT sessions from a multi-day delivery for private settlement checks.
+            if (fund === "TLT") continue;
             break;
           }
           let raw = await cachedPair(inventory.get(fund + "/raw") ?? [], fund, "raw", day, clock(), local);
@@ -634,7 +637,7 @@ export async function prepareMarketHistoryRanges(root: string, opts: Preparation
             clock(),
             local,
           );
-          if (day === target) {
+          if (day === target && !latestVerified) {
             // A transport failure on one fund preserves other funds' independent source checks.
             if (!raw)
               try {
@@ -652,7 +655,8 @@ export async function prepareMarketHistoryRanges(root: string, opts: Preparation
           raw ??= newRaw;
           splits ??= newSplits;
           if (raw && splits && (await pinReview(root, fund, day, [...raw, ...splits], clock()))) {
-            diagnostics[fund] = "verified " + day;
+            if (!latestVerified) { latestVerified = day; diagnostics[fund] = "verified " + day; }
+            if (fund === "TLT") continue;
             break;
           }
         }

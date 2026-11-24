@@ -5,6 +5,10 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test, { type TestContext } from "node:test";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
+import { ETF_CASH_SOURCES } from "../lib/consensus/corporate-adjustment.ts";
+import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
+import { defaultEvaluationPrices } from "../lib/consensus/marketparquet-settlement.ts";
+import { preparePendingTltInputs, TLT_PENDING_INPUTS } from "../lib/consensus/tlt-pending-boundaries.ts";
 import { observationDigest } from "../lib/consensus/history.ts";
 import { MARKET_HISTORY_ETF_IDS } from "../lib/consensus/market-history-boundaries.ts";
 import type {
@@ -337,4 +341,107 @@ test("two concurrent preparations and an ambiguous failed range request cannot d
   assert.deepEqual(p.signed, before);
   assert.equal(result.rows.length, 4);
   assert(!result.rows.some((r) => r.fund === "QQQ"));
+});
+
+const monday = "2026-11-23";
+async function officialTltCash(root: string, location = monday, capturedAt = clock()) {
+  const folder = join(root, ".consensus/private-firstrate/captures", location);
+  const body = JSON.stringify(Object.fromEntries(Object.entries({
+    exDate: [20261001, 20261102], totalDistribution: [0.41, 0.343177],
+  }).map(([name, value]) => [name, { name, fullName: "performance.distributions.table." + name, value }])));
+  await store(join(folder, "issuer-TLT.json"), { url: ETF_CASH_SOURCES.TLT, capturedAt, sha256: sha(body) });
+  await writeFile(join(folder, "issuer-TLT.bin"), body, { mode: 0o600 });
+  return folder;
+}
+async function prepareCachedHours(root: string) {
+  await prepareMarketHistoryRanges(root, { live: false, fetcher: noNet, clock });
+}
+
+test("ordinary TLT preparation pins newly delivered native and issuer inputs without replaying retired controls or admitting an outcome", async t => {
+  const root = await temp(t);
+  await cached(root, "TLT", monday, monday);
+  await prepareCachedHours(root);
+  // When day-specific issuer capture was unavailable, the next folder's genuinely post-close original qualifies.
+  const issuerDir = await officialTltCash(root, "2026-11-24");
+  let requests = 0;
+  const sessionClose = exchangeSession(monday)!.closeAt;
+  const opts = { cutoff: clock(), environmentKey: "synthetic-free", fetcher: (async (url, init) => {
+    requests++;
+    assert.equal(String(url), "https://getmarkethistory.com/api/v1/stocks/us/TLT");
+    assert.equal(new Headers(init?.headers).has("authorization"), false);
+    return Response.json({ dataset: "stocks/us", ticker: "TLT", contract: { exchange: "NASDAQ", status: "active" },
+      bars: { timeframes: [{ timeframe: "1m", feed: "consolidated", venue: "US consolidated tape", last: sessionClose, updated: sessionClose }] } });
+  }) satisfies typeof fetch };
+  const run = () => prepareTltBoundaryQualification(root, undefined, opts);
+  const [first, concurrent] = await Promise.all([run(), run()]);
+  assert.deepEqual(first, concurrent);
+  assert.equal(first.status, "candidate_pending");
+  assert.equal(first.nativeInputSessions, 1);
+  assert.equal(first.settlementSessions, 0);
+  assert.equal(first.newSettlementSessions, 0);
+  assert.equal(first.pending?.at(-1)?.status, "awaiting_independent_controls");
+  assert.equal(first.pending?.at(-1)?.evidenceAvailableAt, clock());
+  assert.ok(first.pending?.slice(0, -1).every(row => row.status === "waiting_for_free_hours"));
+  const ref = join(root, TLT_PENDING_INPUTS, monday + ".json"), preserved = await readFile(ref, "utf8");
+  assert.deepEqual(await run(), first);
+  assert.equal(requests, 3); // One anonymous catalogue per invocation; no price or issuer request.
+  assert.deepEqual(await readdir(dirname(ref)), [monday + ".json"]);
+  assert.equal(await readFile(ref, "utf8"), preserved);
+  assert.deepEqual(await defaultEvaluationPrices(root, clock()), []);
+  assert.equal(JSON.parse(preserved).issuer.session, "2026-11-24");
+  assert.doesNotMatch(preserved, /"open"|"close"|"amount"|"text"/);
+
+  await writeFile(join(issuerDir, "issuer-TLT.bin"), "substituted file");
+  assert.equal((await run()).pending?.at(-1)?.status, "saved_proof_invalid");
+  assert.equal(await readFile(ref, "utf8"), preserved);
+  assert.deepEqual(await defaultEvaluationPrices(root, clock()), []);
+});
+
+test("a range-equivalent split series with a different opening and an absent or early issuer keep a new day pending", async t => {
+  const bad = await temp(t);
+  await cached(bad, "TLT", monday, monday);
+  const changed = delivery("TLT", monday, monday, "Asia/Kolkata", "splits");
+  changed.text = changed.text.split("\n").filter(Boolean).map(line => {
+    const bar = JSON.parse(line);
+    if (bar.timestamp === exchangeSession(monday)!.openAt) bar.open += 0.1;
+    return JSON.stringify(bar);
+  }).join("\n") + "\n";
+  changed.sha256 = sha(changed.text);
+  await store(join(bad, path, "firstrate-controls", "TLT-" + monday + "-" + monday + "-splits-open.json"), changed);
+  await prepareCachedHours(bad);
+  assert.equal((await loadMarketHistoryRanges(bad, clock()))?.rows.find(row => row.fund === "TLT")?.session, monday);
+  assert.deepEqual(await preparePendingTltInputs(bad, [monday], clock()), [{ session: monday, status: "raw_split_boundaries_disagree" }]);
+
+  const root = await temp(t);
+  await cached(root, "TLT", monday, monday);
+  await prepareCachedHours(root);
+  const waiting = [{ session: monday, status: "waiting_for_postclose_issuer" }];
+  assert.deepEqual(await preparePendingTltInputs(root, [monday], clock()), waiting);
+  await officialTltCash(root, monday, exchangeSession(monday)!.closeAt);
+  assert.deepEqual(await preparePendingTltInputs(root, [monday], clock()), waiting);
+  assert.deepEqual(await preparePendingTltInputs(root, [monday], "2026-11-24T12:59:59.000Z"),
+    [{ session: monday, status: "waiting_for_free_hours" }]);
+  assert.deepEqual(await preparePendingTltInputs(root, ["2026-11-27"], "2026-11-27T23:00:00.000Z"),
+    [{ session: "2026-11-27", status: "short_session_auction_required" }]);
+  const review = JSON.parse(await readFile(join(root, privateRange, "reviews/TLT", monday + ".json"), "utf8"));
+  await store(join(root, privateRange, "objects", review.native[0] + ".json"), {});
+  assert.deepEqual(await preparePendingTltInputs(root, [monday], clock()), [{ session: monday, status: "hourly_sources_invalid" }]);
+  await assert.rejects(readdir(join(root, TLT_PENDING_INPUTS)), { code: "ENOENT" });
+});
+
+
+test("a multi-day TLT delivery retains both recent sessions when the provider advances beyond an unreviewed date", async t => {
+  const root = await temp(t), friday = "2026-11-20";
+  await cached(root, "TLT", friday, monday);
+  await officialTltCash(root);
+  const ranges = await prepareMarketHistoryRanges(root, { live: false, fetcher: noNet, clock });
+  assert.equal(ranges.funds.TLT, "verified " + monday);
+  assert.equal(ranges.rows.find(row => row.fund === "TLT")?.session, monday);
+  assert.deepEqual((await readdir(join(root, privateRange, "reviews/TLT"))).sort(), [friday + ".json", monday + ".json"]);
+  const pending = await preparePendingTltInputs(root, [friday, monday], clock());
+  assert.deepEqual(pending.map(row => [row.session, row.status]), [
+    [friday, "awaiting_independent_controls"], [monday, "awaiting_independent_controls"],
+  ]);
+  assert.notEqual(pending[0].receipt, pending[1].receipt);
+  assert.deepEqual(await defaultEvaluationPrices(root, clock()), []);
 });

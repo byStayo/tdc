@@ -45,6 +45,7 @@ test("a rotating preparation date reuses one fully revalidated settlement throug
     assert.equal(result.from, originalStart);
     assert.equal(result.through, friday);
     assert.equal(result.expected, runDay);
+    assert.deepEqual(result.awaitingDelivery, exchangeSessions(monday, runDay));
     assert.equal(result.settlementSessions, proof.sessions.length);
   }
 });

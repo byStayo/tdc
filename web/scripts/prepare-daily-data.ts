@@ -68,11 +68,8 @@ try {
   const priorPremarket = await prepareFirstRatePremarket(PROJECT_ROOT);
   const tltPremarket = await tltPremarketJob;
   const tltSettlementQualification = !mode.freePriceAccount ? { status: "skipped_public_only" } :
-    await prepareTltBoundaryQualification(PROJECT_ROOT, (from, through) =>
-      collect("research-market-history-boundaries.ts", [from, through, "--collect", "--settle-verified"], 120_000))
-      .catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({ status: "unavailable",
-        error: error.killed ? "TLT qualification exceeded 120 seconds" : error.stderr?.match(/^Error: (.+)$/m)?.[1] ||
-          error.message?.slice(0, 180) || "TLT qualification did not complete" }));
+    await prepareTltBoundaryQualification(PROJECT_ROOT)
+      .catch((error: Error) => ({ status: "unavailable", error: error.message.slice(0, 180) }));
   const tltClosingTrend = await prepareTltClosingTrend(PROJECT_ROOT).catch((error: Error) =>
     ({ status: "unavailable", error: error.message.slice(0, 220) }));
   const kibotSubscriber = mode.freePriceAccount

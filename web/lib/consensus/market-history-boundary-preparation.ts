@@ -4,6 +4,7 @@ import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions, hasReviewedCalend
 import { loadTltSettlement } from "./market-history-settlement.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { sourceChunk, sourceResponse } from "./source-failure.ts";
+import { preparePendingTltInputs } from "./tlt-pending-boundaries.ts";
 import { newYorkDate } from "./time.ts";
 
 type Summary = { scope: string; from: string; through: string; completeHourlyGrids: number; matched: number;
@@ -20,7 +21,7 @@ function lookback(day: string) {
 }
 
 /** The scheduled run uses the public catalogue to avoid spending free bars on an undelivered session. */
-export async function prepareTltBoundaryQualification(root: string, run: Run, { cutoff = new Date().toISOString(),
+export async function prepareTltBoundaryQualification(root: string, run?: Run, { cutoff = new Date().toISOString(),
   environmentKey = process.env.MARKET_HISTORY_KEY, fetcher = fetch, loadSettlements = loadTltSettlement } = {}) {
   const credentials = environmentKey ? null : await readResearchReceipt<{ apiKey: string }>(
     resolve(root, ".consensus/private-market-history/credentials.json"));
@@ -48,7 +49,8 @@ export async function prepareTltBoundaryQualification(root: string, run: Run, { 
   const dates = trailingExchangeSessions(lookback(today), today).filter(day => Date.parse(exchangeSession(day)!.closeAt) <= asOf);
   const available = dates.filter(day => Date.parse(exchangeSession(day)!.closeAt) <= delivered);
   const through = available.at(-1), expected = dates.at(-1);
-  if (!through) return { status: "awaiting_consolidated_prices", expected, dataThrough: series.last };
+  const awaitingDelivery = dates.filter(day => day >= firstForecastDate && (!through || day > through));
+  if (!through) return { status: "awaiting_consolidated_prices", expected, awaitingDelivery, dataThrough: series.last };
   const eligible = trailingExchangeSessions(lookback(through), through).filter(day => day >= firstForecastDate);
   if (!eligible.length) return { status: "no_issued_targets", expected, through, dataThrough: series.last };
   const settled = await loadSettlements(root, cutoff, message => console.warn(message));
@@ -61,9 +63,20 @@ export async function prepareTltBoundaryQualification(root: string, run: Run, { 
   if (existing) {
     const covered = existing.sessions.filter(row => row.session >= lookback(through) && row.session <= through &&
       hasReviewedCalendarRange(row.session, through));
-    return { status: "verified_private_settlement", reused: true, expected, from: covered[0].session, through,
+    return { status: "verified_private_settlement", reused: true, expected, awaitingDelivery, from: covered[0].session, through,
       dataThrough: series.last, sessions: covered.length, matched: covered.length, completeHourlyGrids: 2,
       adjustedSessions: covered.length, settlementSessions: covered.length };
+  }
+
+  if (!run) {
+    // The regular-range collector owns the free requests. Only replay its original deliveries here.
+    // A union of previously settled individual sessions is not a verified multi-session proof.
+    const settledDates = new Set(settled.flatMap(span => span.sessions.map(row => row.session)));
+    const missing = eligible.filter(day => !settledDates.has(day));
+    const pending = await preparePendingTltInputs(root, missing, cutoff);
+    return { status: "candidate_pending", expected, awaitingDelivery, from: eligible[0], through, dataThrough: series.last,
+      sessions: eligible.length, settlementSessions: eligible.length - missing.length, newSettlementSessions: 0,
+      nativeInputSessions: pending.filter(row => row.status === "awaiting_independent_controls").length, pending };
   }
 
   // Keep the original hourly query when it can fill a gap from updated controls. Otherwise anchor
