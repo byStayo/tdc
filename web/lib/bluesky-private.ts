@@ -26,6 +26,18 @@ async function loadExclusions(directory: string): Promise<Exclusions> {
     throw error;
   }
 }
+/** Read the current opt-outs for temporary annotation without acquiring or publishing a sample. */
+export async function readBlueskyAnnotationExclusions(root: string): Promise<Exclusions> {
+  const directory = resolve(root, ".consensus/bluesky-private");
+  try {
+    await privatePath(directory, true);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return { actors: [], records: [] };
+    throw error;
+  }
+  return loadExclusions(directory);
+}
+
 async function savePrivate(directory: string, name: string, data: unknown) {
   const path = resolve(directory, name), temporary = `${path}.${process.pid}.tmp`;
   await writeFile(temporary, JSON.stringify(data, null, 2) + "\n", { mode: 0o600, flag: "wx" });
