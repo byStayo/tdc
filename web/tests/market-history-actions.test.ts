@@ -57,6 +57,7 @@ test("splits, mixed security, shifted dates, duplicate actions, unknown issuers 
     [{ ...row, cusip:"464287432" }], [{ ...row, symbol:"TLT" }], [{ ...row, ex_date:null }],
     [row, { ...row, id:"second" }], [row,row], [{ ...row, source:"supplier:renamed-from:XYZ" }], [{ ...row, source:"issuer:ishares" }],
     [{ ...row, extra:JSON.stringify({ long_term_rate:.2, return_of_capital_rate:.1 }) }], [{ ...row, extra:{ currency:"CAD" } }],
+    [{ ...row, currency:"EUR" }],
     [{ ...row, due_bill_redemption_date:"2026-12-15" }]];
   for(const events of badRows) await isolated(async root => {
     await durableJSON(cache(root), sealMarketHistoryActionCapture(capture(events)), true);

@@ -73,6 +73,7 @@ function expectedCash(rows: CashDistribution[], from: string, through: string) {
 function verifyCashRow(a: Record<string, unknown>, symbol: MarketHistoryETF) {
   if (a.type !== "cash_dividends" && a.type !== "capital_gains_distributions") throw Error("Unsupported stock or corporate action");
   if (!Number.isFinite(a.rate) || (a.rate as number) <= 0 || a.old_rate != null || a.new_rate != null ||
+      (a.currency != null && a.currency !== "USD") ||
       (a.foreign != null && a.foreign !== false) || (a.special != null && typeof a.special !== "boolean") ||
       (a.due_bill_redemption_date != null && a.due_bill_redemption_date !== a.ex_date))
     throw Error("Corporate action has an unverified share, currency or ex-date basis");
