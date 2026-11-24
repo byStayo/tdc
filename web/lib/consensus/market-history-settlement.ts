@@ -36,6 +36,7 @@ export type TltSettlementReview = { schema: 1; from: string; through: string; op
   windowFrom: string; windowThrough: string;
   issuer: IssuerLocation & SourceStamp; controls: SessionInputs[] };
 type StoredSettlement = { review: TltSettlementReview; reviewedAt: string; sha256: string };
+export type ReviewedTltSettlement = { prices: PriceEvidence; retrievedAt: string; approvedAt: string; sha256: string };
 
 export async function readTltIssuer(root: string, location: IssuerLocation, asOf: string) {
   if (!/^\d{4}-\d\d-\d\d$/.test(location.session) || !["kibot", "firstrate"].includes(location.kind))
@@ -96,7 +97,7 @@ async function originalControls(root: string, day: string, input: SessionInputs,
 }
 
 /** Reconstruct a historical settlement from its complete original post-close inputs. */
-export async function tltSettlementPriceEvidence(root: string, review: TltSettlementReview, asOf: string): Promise<PriceEvidence> {
+async function replayTltSettlement(root: string, review: TltSettlementReview, asOf: string) {
   if (!isTime(asOf) || review.schema !== 1 || !hasHash(review.opening) || !hasHash(review.closing) || review.opening === review.closing ||
       !review.issuer || !hasHash(review.issuer.sha256) || Date.parse(review.through) - Date.parse(review.from) > 35 * 86_400_000)
     throw new Error("Invalid TLT settlement review");
@@ -137,8 +138,16 @@ export async function tltSettlementPriceEvidence(root: string, review: TltSettle
     if (index < 1 || Math.abs(rows[index - 1].close - rawCloses[index - 1]) >= action.amount / 2)
       throw new Error("TLT issuer adjustment requires the verified preceding session and its as-traded basis");
   }
-  return { instrument: "TLT", source: MARKET_HISTORY_SOURCE, adjustment: OUTCOME_PRICE_BASIS,
+  // These are the original signed response and corroborating capture clocks, separately from subsequent approval.
+  const retrievedAt = [issuer.capturedAt, ...[opening, closing].map(page => new Date(new Headers(page.headers).get("date")!).toISOString()),
+    ...review.controls.flatMap(row => [row.raw.capturedAt, row.split.capturedAt, row.listed.capturedAt])].sort().at(-1)!;
+  const prices: PriceEvidence = { instrument: "TLT", source: MARKET_HISTORY_SOURCE, adjustment: OUTCOME_PRICE_BASIS,
     expectedSessions: requested, sessions: adjustETFPrices(rows, actions, []) };
+  return { prices, retrievedAt };
+}
+
+export async function tltSettlementPriceEvidence(root: string, review: TltSettlementReview, asOf: string): Promise<PriceEvidence> {
+  return (await replayTltSettlement(root, review, asOf)).prices;
 }
 
 export async function recordTltSettlement(root: string, review: TltSettlementReview, asOf: string) {
@@ -154,21 +163,29 @@ export async function recordTltSettlement(root: string, review: TltSettlementRev
   return tltSettlementPriceEvidence(root, saved.review, saved.reviewedAt);
 }
 
-export async function loadTltSettlement(root: string, asOf: string, warn: (message: string) => void) {
-  const folder = resolve(directory(root), "settlements"), prices: PriceEvidence[] = [];
+export async function loadReviewedTltSettlements(root: string, asOf: string, warn: (message: string) => void, minimumThrough?: string) {
+  const folder = resolve(directory(root), "settlements"), entriesWithProof: ReviewedTltSettlement[] = [];
   let entries;
   try { entries = await readdir(folder); }
-  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return prices; throw error; }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return entriesWithProof; throw error; }
   for (const name of entries.sort().reverse()) {
     const match = /^(\d{4}-\d\d-\d\d)_(\d{4}-\d\d-\d\d)_([a-f0-9]{64})\.json$/.exec(name);
-    if (!match || prices.some(p => p.sessions[0].session <= match[2] && p.sessions.at(-1)!.session >= match[1])) continue;
+    if (!match || (minimumThrough && match[1] < minimumThrough) ||
+        entriesWithProof.some(({ prices }) => prices.sessions[0].session <= match[2] && prices.sessions.at(-1)!.session >= match[1])) continue;
     try {
       const entry = await readResearchReceipt<StoredSettlement>(resolve(folder, name)), review = entry?.review;
       if (!entry || !review || review.windowFrom !== match[2] || review.windowThrough !== match[1] || digest(review) !== match[3] ||
           !isTime(entry.reviewedAt) || digest({ review, reviewedAt: entry.reviewedAt }) !== entry.sha256)
         throw new Error("Invalid TLT settlement manifest");
-      if (entry.reviewedAt <= asOf) prices.push(await tltSettlementPriceEvidence(root, review, entry.reviewedAt));
+      if (entry.reviewedAt <= asOf) {
+        const replay = await replayTltSettlement(root, review, entry.reviewedAt);
+        entriesWithProof.push({ ...replay, approvedAt: entry.reviewedAt, sha256: entry.sha256 });
+      }
     } catch { warn(`Market History TLT settlement withheld for ${match[2]} through ${match[1]}. The original prices or controls did not verify.`); }
   }
-  return prices;
+  return entriesWithProof;
+}
+
+export async function loadTltSettlement(root: string, asOf: string, warn: (message: string) => void) {
+  return (await loadReviewedTltSettlements(root, asOf, warn)).map(entry => entry.prices);
 }

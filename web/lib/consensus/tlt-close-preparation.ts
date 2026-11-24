@@ -5,6 +5,8 @@ import { loadReviewedTltCash } from "./firstrate.ts";
 import { digest } from "./history.ts";
 import { closeMomentum, coreSessionCloses, importMarketHistoryHours, parseMarketHistoryHours,
   type DeliveredMarketHistoryHours, type MarketHistoryCapture } from "./market-history-closes.ts";
+import { loadReviewedTltSettlements, MARKET_HISTORY_SOURCE, type ReviewedTltSettlement } from "./market-history-settlement.ts";
+import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { collectResearchPrices, readResearchReceipt, type ResearchPriceReceipt } from "./research-price-capture.ts";
 import { SourceMissingError } from "./source-failure.ts";
 import { TLT_CLOSE_STALE_DAYS, tltCloseSignal } from "./tlt-close-signal.ts";
@@ -70,31 +72,76 @@ async function controls(dir: string, dates: string[], cachedOnly: boolean, produ
   return { raw, splits };
 }
 
-export async function loadTltClosingTrend(root: string, cutoff: string) {
+async function loadLegacyTltClosingTrend(root: string, cutoff: string, nativeThrough?: string) {
   const review = await latest(root);
-  if (!review || review.checkedAt > cutoff || Date.parse(cutoff) - Date.parse(exchangeSession(review.through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY) return null;
+  if (!review || review.checkedAt > cutoff || (nativeThrough && review.through <= nativeThrough) ||
+      Date.parse(cutoff) - Date.parse(exchangeSession(review.through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY) return null;
   if (review.controlAccess !== undefined && review.controlAccess !== "kibot-subscriber") throw new Error("Unrecognized TLT control permission");
   const { raw, splits } = await controls(directory(root), exchangeSessions(review.from, review.through), true,
     review.controlAccess === "kibot-subscriber" ? root : undefined);
   return verifiedCloses(review, raw, splits);
 }
 
-async function retained(root: string, now: string, status: string) {
-  const reading = await loadTltClosingTrend(root, now);
-  return { status: status === "reused" && !reading ? "withheld" : status, through: reading?.series[0]?.date ?? null,
-    retrievedAt: reading?.source.retrievedAt ?? null, metrics: reading?.metrics.length ?? 0 };
+/** Use a single native approval. Its rows already share a split and issuer-cash adjusted basis. */
+export function settledTltCloseSignal(entry: ReviewedTltSettlement, cutoff: string) {
+  const { prices, retrievedAt, approvedAt, sha256 } = entry;
+  const last = prices.sessions.at(-1);
+  if (!last || prices.instrument !== "TLT" || prices.source !== MARKET_HISTORY_SOURCE || prices.adjustment !== OUTCOME_PRICE_BASIS ||
+      !(retrievedAt <= approvedAt && approvedAt <= cutoff) || Date.parse(cutoff) - Date.parse(last.closeAt) > TLT_CLOSE_STALE_DAYS * DAY)
+    return null;
+  // The parent query can include unverified dates. Never join it to a different receipt or substitute another close.
+  const dates = exchangeSessions(prices.sessions[0].session, last.session);
+  if (!dates.every(day => prices.expectedSessions.includes(day))) return null;
+  const full = prices.sessions.filter(row => {
+    const official = exchangeSession(row.session);
+    return official && official.openAt === row.openAt && official.closeAt === row.closeAt &&
+      Date.parse(row.closeAt) - Date.parse(row.openAt) === 390 * 60_000;
+  });
+  if (full.at(-1)?.session !== last.session) return null;
+  const values = closeMomentum(full, dates, []).flatMap(row => row.issuerAdjustedChangePct === null ? [] : [row.issuerAdjustedChangePct]);
+  return values.length ? tltCloseSignal(last.session, values, retrievedAt, sha256, approvedAt) : null;
 }
 
-/** Under the preparation lock, import a completed owner-provided hourly delivery or replay the previously verified receipt. */
+async function loadSettledTltTrend(root: string, cutoff: string) {
+  const earliest = new Date(Date.parse(cutoff) - TLT_CLOSE_STALE_DAYS * DAY).toISOString().slice(0, 10);
+  const entries = await loadReviewedTltSettlements(root, cutoff, message => console.warn(message), earliest).catch(() => {
+    console.warn("TLT settlement receipts could not be read. Their closing trend is unavailable.");
+    return [];
+  });
+  for (const entry of entries) {
+    const signal = settledTltCloseSignal(entry, cutoff);
+    if (signal) return signal;
+  }
+  return null;
+}
+
+export async function loadTltClosingTrend(root: string, cutoff: string) {
+  const native = await loadSettledTltTrend(root, cutoff);
+  try {
+    // Use the newest independently verified observation, preferring the settlement review on the same session.
+    return await loadLegacyTltClosingTrend(root, cutoff, native?.series[0].date) ?? native;
+  } catch (error) {
+    if (!native) throw error;
+    console.warn("Old TLT closing-hour review could not be replayed; the current settlement review verified independently.");
+    return native;
+  }
+}
+
+/** Replay the approved native window first. The older standalone import remains available on hosts without that evidence. */
 export async function prepareTltClosingTrend(root: string, _recheck = false) {
   const now = new Date().toISOString(), dir = directory(root);
+  const prior = await loadTltClosingTrend(root, now);
+  if (prior?.source.approvedAt) return { status: "verified_settlement_closing_trend", through: prior.series[0].date,
+    origin: prior.source.url, retrievedAt: prior.source.retrievedAt, approvedAt: prior.source.approvedAt, metrics: prior.metrics.length };
+  const retained = (status: string) => ({ status: status === "reused" && !prior ? "withheld" : status,
+    through: prior?.series[0]?.date ?? null, retrievedAt: prior?.source.retrievedAt ?? null, metrics: prior?.metrics.length ?? 0 });
   const delivery = await readResearchReceipt<DeliveredMarketHistoryHours>(resolve(dir, "incoming-hourly.json"));
-  if (!delivery) return retained(root, now, "waiting_for_free_hourly_access");
+  if (!delivery) return retained("waiting_for_free_hourly_access");
   const capture = importMarketHistoryHours(delivery, "TLT", now);
   const issuer = await loadReviewedTltCash(root, now);
   const url = new URL(capture.source), end = url.searchParams.get("end")!;
-  if (!issuer || end > issuer.through) return retained(root, now, "waiting_for_issuer_history");
-  if (end < issuer.through) return retained(root, now, "waiting_for_free_hourly_access");
+  if (!issuer || end > issuer.through) return retained("waiting_for_issuer_history");
+  if (end < issuer.through) return retained("waiting_for_free_hourly_access");
   const start = new Date(Date.parse(issuer.through) - 35 * DAY).toISOString().slice(0, 10);
   const from = start < EXCHANGE_CALENDAR.from ? EXCHANGE_CALENDAR.from : start;
   if (url.searchParams.get("start") !== from) throw new Error("TLT hourly delivery must cover the entire reviewed range");
@@ -105,15 +152,15 @@ export async function prepareTltClosingTrend(root: string, _recheck = false) {
   const old = await latest(root);
   if (Date.parse(now) - Date.parse(exchangeSession(through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY ||
       (old && (through < old.through || (through === old.through && capture.capturedAt < old.capture.capturedAt))))
-    return retained(root, now, "waiting_for_free_hourly_access");
+    return retained("waiting_for_free_hourly_access");
   if (old && digest(old.capture) === digest(capture) && digest(old.issuer) === digest(issuer))
-    return retained(root, now, "reused");
+    return retained("reused");
   await durableDirectory(dir, 0o700);
   let comparison;
   try { comparison = await controls(dir, dates, false, root); }
   catch (error) {
     if (!(error instanceof SourceMissingError)) throw error;
-    return { ...await retained(root, now, "waiting_for_production_control"), reason: error.message };
+    return { ...retained("waiting_for_production_control"), reason: error.message };
   }
   const { raw, splits } = comparison;
   const review: Review = { method: METHOD, controlAccess: "kibot-subscriber", checkedAt: new Date().toISOString(), issuer, capture, from, through,

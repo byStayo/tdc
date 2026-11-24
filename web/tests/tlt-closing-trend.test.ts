@@ -8,8 +8,10 @@ import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { digest } from "../lib/consensus/history.ts";
 import { kibotHistorySource } from "../lib/consensus/kibot.ts";
-import { loadTltClosingTrend, prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
-import { tltCloseSignal, validateTltCloseSignal } from "../lib/consensus/tlt-close-signal.ts";
+import { loadTltClosingTrend, prepareTltClosingTrend, settledTltCloseSignal } from "../lib/consensus/tlt-close-preparation.ts";
+import { pendingSettledTltInputs, tltCloseSignal, validateTltCloseSignal } from "../lib/consensus/tlt-close-signal.ts";
+import { MARKET_HISTORY_SOURCE, type ReviewedTltSettlement } from "../lib/consensus/market-history-settlement.ts";
+import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 
 test("after the anonymous hourly feed retires preparation reports only an unexpired pinned observation", async t => {
   const root = await mkdtemp(join(tmpdir(), "tlt-hourly-retirement-"));
@@ -129,4 +131,37 @@ test("pending Nasdaq shortened sessions break each public TLT lookback that cros
   for (const [day, values] of [["2026-11-27", [1]], ["2026-11-30", [1]], ["2026-12-01", [1, 5]]] as const)
     assert.throws(() => tltCloseSignal(day, [...values], retrieved, hash), /full sessions/);
   assert.doesNotThrow(() => tltCloseSignal("2026-12-01", [1], retrieved, hash));
+});
+
+test("native TLT trends need 2, 6 and 21 consecutive full closes from one approval", () => {
+  const dates = exchangeSessions("2026-10-12", "2026-11-20").slice(-21);
+  const retrievedAt = "2026-11-23T00:00:00.000Z", approvedAt = "2026-11-23T00:05:00.000Z";
+  const root: ReviewedTltSettlement = {sha256: "1".repeat(64), retrievedAt, approvedAt,
+    prices: {source: MARKET_HISTORY_SOURCE, instrument: "TLT", adjustment: OUTCOME_PRICE_BASIS, expectedSessions: dates,
+      sessions: dates.map((day, i) => ({...exchangeSession(day)!, open: 100, close: 100+i}))}};
+  const read = (rows: typeof root.prices.sessions) => settledTltCloseSignal({...root, prices: {...root.prices, sessions: rows}}, approvedAt);
+  const rows = root.prices.sessions;
+  assert.equal(read(rows.slice(-1)), null);
+  for (const [size, horizons] of [[2,1],[5,1],[6,2],[16,2],[20,2],[21,3]])
+    assert.equal(read(rows.slice(-size))!.metrics.length, horizons);
+  assert.deepEqual(read(rows)!.metrics.map(m=>m.value), [0.8, 4.3, 20]);
+  assert.equal(read(rows.filter(row=>row.session!==dates.at(-4)))!.metrics.length,1);
+  const latestMissing = rows.at(-1)!;
+  assert.equal(read([...rows.slice(0,-1), {...latestMissing,closeAt:"2026-11-20T22:00:00.000Z"}]),null);
+  assert.equal(settledTltCloseSignal(root, "2026-11-25T21:00:00.001Z"), null);
+  assert.equal(settledTltCloseSignal(root, "2026-11-23T00:04:59.999Z"), null);
+  assert.equal(settledTltCloseSignal({...root,prices:{...root.prices,instrument:"SPY"}}, approvedAt), null);
+  assert.equal(settledTltCloseSignal({...root,prices:{...root.prices,source:"https://other.example"}}, approvedAt), null);
+  assert.equal(settledTltCloseSignal({...root,prices:{...root.prices,adjustment:"raw"}}, approvedAt), null);
+  const check = read(rows.slice(-6))!;
+  for (const change of [{approvedAt: "2026-11-22T23:00:00.000Z"}, {approvedAt: undefined}, {url:"https://getmarkethistory.com/docs/bars/"}])
+    assert.throws(()=>validateTltCloseSignal({...check,source:{...check.source,...change}}, approvedAt),/Invalid closing-hour/);
+  assert.throws(()=>validateTltCloseSignal(check,retrievedAt),/Invalid closing-hour/);
+  assert.match(pendingSettledTltInputs(check, dates.at(-1)),/opening range and twenty-session trend/);
+  assert.match(pendingSettledTltInputs(check, dates.at(-2)),/full-session range/);
+  assert.doesNotMatch(pendingSettledTltInputs(check, dates.at(-1)),/opening price/);
+  const shortDates=exchangeSessions("2026-11-19","2026-12-02");
+  const december = {...root,approvedAt:"2026-12-03T00:00:00.000Z",retrievedAt:"2026-12-02T23:00:00.000Z",
+    prices:{...root.prices,expectedSessions:shortDates,sessions:shortDates.map(day=>({...exchangeSession(day)!,open:100,close:100}))}};
+  assert.equal(settledTltCloseSignal(december, december.approvedAt)!.metrics.length, 1);
 });

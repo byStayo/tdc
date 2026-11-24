@@ -10,7 +10,7 @@ import { loadFirstRatePremarket, loadFirstRateTechnicals, replaceFirstRatePremar
 import { loadMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
 import { visibleSessionRanges } from "../lib/consensus/regular-session-range.ts";
 import { loadTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
-import { TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
+import { pendingSettledTltInputs, TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
 import { digest, publishCollectedSnapshot, publishSnapshot } from "../lib/consensus/history.ts";
 import { forecastSnapshot, permitsModelInputs } from "../lib/consensus/model.ts";
@@ -86,12 +86,13 @@ if (!scoped || technicalsOnly) {
     signals.push(tlt);
     if (missing?.instruments.includes("TLT")) {
       const others = missing.instruments.filter(symbol => symbol !== "TLT");
-      const rangeAvailable = ranges?.rows.some(row => row.fund === "TLT");
-      const reason = (rangeAvailable
+      const range = ranges?.rows.find(row => row.fund === "TLT");
+      const reason = (tlt.source.approvedAt ? pendingSettledTltInputs(tlt, range?.session) : range
         ? "TLT’s closing trend and close within its regular-session range are available. Its opening price still needs independent verification."
         : "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices.") +
         (others.length ? ` Full price-based technical readings are also pending for ${others.join(", ")}.` : "");
-      const title = others.length ? "Incomplete regular-session price inputs" : rangeAvailable ? "Regular-session open" : "Regular-session open and range";
+      const title = others.length ? "Incomplete regular-session price inputs" : tlt.source.approvedAt ? "Additional TLT technical inputs" :
+        range ? "Regular-session open" : "Regular-session open and range";
       Object.assign(missing, { title, shortLabel: title, summary: reason, limitation: reason, reason });
     }
   }

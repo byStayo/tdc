@@ -191,7 +191,7 @@ export function coreSessionCloses(hours: MarketHistoryHour[], calendar: CoreCloc
   return { closes, missingSessions };
 }
 
-export function closeMomentum(closes: CoreClose[], expectedSessions: string[], cash: CashDistribution[]) {
+export function closeMomentum(closes: Pick<CoreClose, "session" | "close">[], expectedSessions: string[], cash: CashDistribution[]) {
   const ordered = [...closes].sort((a, b) => a.session.localeCompare(b.session));
   if (new Set(ordered.map(row => row.session)).size !== ordered.length ||
       ordered.some(row => !expectedSessions.includes(row.session) || !Number.isFinite(row.close) || row.close <= 0) ||

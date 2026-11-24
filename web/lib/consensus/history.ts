@@ -95,7 +95,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateEtfFlows(signal);
     validateFirstRateTechnical(signal);
     validateFirstRatePremarket(signal, snapshot.cutoff);
-    validateTltCloseSignal(signal);
+    validateTltCloseSignal(signal, snapshot.cutoff);
     validateOrderActivity(signal);
     validateFuturesOptions(signal);
     validateMarketHistoryVolatility(signal);

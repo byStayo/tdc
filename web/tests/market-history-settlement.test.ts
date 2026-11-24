@@ -16,6 +16,7 @@ import { tltHourSource } from "../lib/consensus/market-history-hourly-access.ts"
 import { contiguousTltWindows } from "../lib/consensus/market-history-boundaries.ts";
 import { MARKET_HISTORY_SOURCE, recordTltSettlement, tltSettlementPriceEvidence, type TltSettlementReview } from "../lib/consensus/market-history-settlement.ts";
 import { defaultEvaluationPrices } from "../lib/consensus/marketparquet-settlement.ts";
+import { loadTltClosingTrend, prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { outcomeIndex } from "../lib/consensus/outcome-ledger.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
 
@@ -128,6 +129,32 @@ test("incomplete, mixed, stale, anonymous or changed source originals cannot ent
   const warnings: string[] = [];
   assert.deepEqual(await defaultEvaluationPrices(root, asOf, msg => warnings.push(msg)), []);
   assert.equal(warnings.length, 1);
+});
+
+test("the weekday closing trend replays the original settlement and issuer cash once, with witnessed and approval clocks", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-trend-origin-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(asOf) });
+  const network = t.mock.method(globalThis, "fetch", () => { throw new Error("Unexpected network"); });
+  const {dir, review} = await fixture(root);
+  await sealHistorical(dir, review, asOf);
+  assert.equal(await loadTltClosingTrend(root, "2026-11-03T02:59:59.999Z"), null);
+  const reading = (await loadTltClosingTrend(root, asOf))!;
+  assert.equal(reading.source.url, MARKET_HISTORY_SOURCE);
+  assert.deepEqual([reading.source.observedAt, reading.source.retrievedAt, reading.source.approvedAt],
+    ["2026-11-02T21:00:00.000Z", "2026-11-03T02:00:00.000Z", asOf]);
+  assert.deepEqual(reading.metrics.map(row => row.value), [Number(((100.3 / (100.5 - 0.343177) - 1) * 100).toFixed(1))]);
+  assert.deepEqual(reading.directionalInstruments, []);
+  assert.deepEqual(await prepareTltClosingTrend(root), {status: "verified_settlement_closing_trend", through: days[1],
+    origin: MARKET_HISTORY_SOURCE, retrievedAt: reading.source.retrievedAt, approvedAt: asOf, metrics: 1});
+  await assert.rejects(access(join(root, ".consensus/private-market-history/tlt-closing-trend")));
+  const incoming = join(root, ".consensus/private-market-history/tlt-closing-trend/incoming-hourly.json");
+  await durableJSON(incoming, {unrelated: "obsolete manual import"});
+  assert.equal((await prepareTltClosingTrend(root)).status, "verified_settlement_closing_trend");
+  await rm(join(dir, "controls", days[1], "TLT-splits.json"));
+  t.mock.method(console, "warn", () => {});
+  assert.equal(await loadTltClosingTrend(root, asOf), null);
+  assert.equal(network.mock.callCount(), 0);
 });
 
 test("November's unproven early-close auction withholds the short day and crossing weekly target; both flanking windows settle", async t => {
