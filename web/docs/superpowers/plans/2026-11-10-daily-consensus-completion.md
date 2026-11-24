@@ -1,5 +1,13 @@
 # The Daily Consensus completion plan
 
+### Verified in the November 24 pre-open studies
+
+- [x] Wire independent private enrollment, first qualified native settlement, immutable 300/100/100 partitions and non-overlapping held-out clocks for all five prior-premarket comparisons. Four equity inputs were sealed for the November 24 open. TLT’s November 23 input missed the cutoff.
+- [x] Give the original four technical comparisons, the SPY implied-volatility comparison and the TLT payroll comparison a prospective path through separate training, validation and test. The publisher witnessed the SPY options input. The other five source inputs were unavailable for this target. [Private study commands](../../CONSENSUS_OPERATIONS.md#testing-the-original-technical-options-and-payroll-features)
+- [x] Confirm direct price availability and commercial plan boundaries for FinzData and exercise Tick Data’s listing auction flags on its actual sample. Verify a large all-five X aggregate, actual Stocktwits annotations and an original ratings sample. Zero text examples qualified for the social benchmark. [Source decisions](../../FREE_FEED_PATH.md)
+- [ ] Reconcile the five November 23 outcomes, including independent TLT listing and share-basis controls. Collect eligible prospective outcomes, extend the common exchange calendar as new official notices arrive, and validate the remaining directional families. The common calendar presently contains at most 248 eligible ordinary premarket comparison dates through November 25, 2027. The strict production gate remains open.
+
+
 ### Verified in the November 24 settlement review
 
 - [x] Recover the first verified time of all 370 settled outcomes from the publishing host. The evaluator now uses each outcome's recorded availability for training, validation and test windows. The monthly retail evaluator independently authenticated 210 daily and 160 weekly timestamps. The five daily candidates each had two eligible sessions. The 15 candidates qualified zero models. [Validation procedure](../../CONSENSUS_OPERATIONS.md#promotion-and-rollback)
