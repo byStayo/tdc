@@ -5,6 +5,7 @@ The immutable owner-only output contains forecast measurements but no ETF return
 """
 import argparse
 import base64
+import bisect
 from collections import Counter, defaultdict
 import csv
 from decimal import Decimal, ROUND_HALF_UP
@@ -23,6 +24,8 @@ HERE = Path(__file__).resolve().parent
 SPEC = "9e2615f0e735d5e527506317243607c82294b1d4c0b6928607db5e5fb18b7119"
 COHORT = "7c2608afbed7bd9fa23a0f5a5ca4455a07366fcb4d821ac6b6441ef8b390839b"
 SUPPLEMENT = "e3280ee5a3e7b8ef40c5b24416002ab7a4f68c265bb8337baf21ba3817c74078"
+MATURITY_POLICY = "5c69e67e38cd74afb1b6b1af9388d88e0f4c11a76a757fe3df6772e74825e584"
+FROZEN_BASE = "39c14be4941b6cac590a4a106a430ce1d1706a7eb74837bd1805db036a68b1b0"
 MIRROR_MAPPINGS = {
     "8368720102b2bfe39ead11a00ecb02ab0f225c5826a59c3281104f362df1a9e3",
     "d5acb696f021a22d56a15dbe4b4ad796704233e4f37ea5ec376ae0256fd4ff4b",
@@ -127,7 +130,61 @@ def federal_lag(start, end, holidays):
                for day in (start + dt.timedelta(days=i) for i in range(1, (end - start).days + 1)))
 
 
-def qualify(root, archive_directory=None):
+def encoded_receipt(receipt):
+    return (json.dumps(receipt, sort_keys=True, indent=2) + "\n").encode()
+
+
+def admitted_after_maturity(rows, qualified, originals, conflicts, holidays, calendar):
+    reserved_days = {r["session"] for r in rows}
+    reserved_economics = {r["economic"] for r in rows}
+    sessions = sorted(calendar)
+    candidates = {}
+    omissions = Counter()
+    for moment, source, pair in qualified:
+        a, b = pair
+        observed, physical = b[0], moment.astimezone(vintage.DISPLAY_ZONE).date()
+        if source not in vintage.NATIVE or observed in conflicts or observed.isoformat() in reserved_economics:
+            continue
+        if not (0 < (observed - a[0]).days <= 7 and 0 <= (physical - observed).days <= 7):
+            continue
+        if federal_lag(observed, physical, holidays) >= 2:
+            continue
+        maturity = observed
+        while federal_lag(observed, maturity, holidays) < 2:
+            maturity += dt.timedelta(days=1)
+        available_day = max(maturity, physical)
+        index = bisect.bisect_right(sessions, available_day)
+        if index >= len(sessions) or (available_day - observed).days > 7:
+            continue
+        day = sessions[index]
+        if not calendar[day] or day.isoformat() in reserved_days:
+            omissions["shortened or existing target"] += 1
+            continue
+        cutoff = dt.datetime.combine(day, dt.time(7, 48), vintage.DISPLAY_ZONE)
+        if moment >= cutoff or day >= dt.date(2026, 11, 3):
+            raise ValueError("An early original cannot be dated after its registered historical forecast")
+        record = originals[(moment, source, pair)]
+        candidate = (observed, moment, {
+            "session": day.isoformat(), "economic": observed.isoformat(), "publishedBy": record["available"],
+            "maturityDate": maturity.isoformat(),
+            "issue": cutoff.astimezone(dt.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+            "source": source, "sha256": record["rawSha256"],
+            "features": [float(a[1] - b[1]), float(a[2] + a[3] - b[2] - b[3])]
+        })
+        if day not in candidates or candidate[:2] > candidates[day][:2]:
+            candidates[day] = candidate
+    added = []
+    for target in sorted(candidates):
+        row = candidates[target][2]
+        if row["economic"] in reserved_economics:
+            omissions["repeated economic date"] += 1
+            continue
+        reserved_economics.add(row["economic"])
+        added.append(row)
+    return added, dict(sorted(omissions.items()))
+
+
+def qualify(root, archive_directory=None, with_maturity=False):
     vintage.hashed(HERE / "ofr-geographic-study-policy.json", SPEC)
     if archive_directory is not None:
         vintage.hashed(HERE / "ofr-geographic-supplement.json", SUPPLEMENT)
@@ -228,7 +285,26 @@ def qualify(root, archive_directory=None):
         summary["pre2022CapturesUnderMinimumFederalLag"] = sum(
             federal_lag(pair[-1][0], moment.astimezone(vintage.DISPLAY_ZONE).date(), holidays) < 2
             for moment, _, pair in older_rows)
-    return {"policySHA256": SUPPLEMENT if archive_directory is not None else SPEC, "originalInventorySHA256": COHORT, "summary": summary, "rows": features}
+    result = {"policySHA256": SUPPLEMENT if archive_directory is not None else SPEC,
+              "originalInventorySHA256": COHORT, "summary": summary, "rows": features}
+    if not with_maturity:
+        return result
+    vintage.hashed(HERE / "ofr-geographic-maturity.json", MATURITY_POLICY)
+    if hashlib.sha256(encoded_receipt(result)).hexdigest() != FROZEN_BASE or len(features) != 109:
+        raise ValueError("Previously selected dates, values, clocks or topology changed")
+    added, duplicate_reasons = admitted_after_maturity(features, qualified, originals, conflicts, holidays, calendar)
+    combined = sorted(features + added, key=lambda r: r["session"])
+    summary = {**summary, "originalBaseTargets": len(features), "distinctTargets": len(combined),
+               "addedAfterMaturity": len(added), "wholeOriginalsInNewRows": len(added),
+               "additionalSourceCounts": dict(sorted(Counter(r["source"] for r in added).items())),
+               "deferredOmissions": duplicate_reasons,
+               "sourceTargetCounts": dict(sorted(Counter(r["source"] for r in combined).items())),
+               "baseOnlyNativeTargets": summary["nativeOnlyTargets"],
+               "firstTarget": combined[0]["session"], "lastTarget": combined[-1]["session"],
+               "sourceFloorMet": len(combined) >= 120 and len(overlap - conflicts) >= 10}
+    del summary["nativeOnlyTargets"]
+    return {"policySHA256": MATURITY_POLICY, "priorSelectionSHA256": FROZEN_BASE,
+            "originalInventorySHA256": COHORT, "summary": summary, "rows": combined}
 
 
 def main():
@@ -237,9 +313,12 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--native-precision-archives", type=Path,
                         help="Verify the separately preregistered supplement and earlier original captures")
+    parser.add_argument("--after-maturity", action="store_true", help="Use only newly eligible witnessed native source dates")
     args = parser.parse_args()
-    result = qualify(args.source_root.resolve(), args.native_precision_archives)
-    encoded = (json.dumps(result, sort_keys=True, indent=2) + "\n").encode()
+    if args.after_maturity and not args.native_precision_archives:
+        parser.error("--after-maturity requires --native-precision-archives")
+    result = qualify(args.source_root.resolve(), args.native_precision_archives, args.after_maturity)
+    encoded = encoded_receipt(result)
     path = args.output.resolve()
     if path.exists():
         if path.is_symlink() or path.stat().st_mode & 0o077 or path.read_bytes() != encoded:

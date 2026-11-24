@@ -1,0 +1,215 @@
+{
+  "method": "prelaunch-ofr-international-stress-dia-v1-witnessed-maturity",
+  "frozenAt": "2026-11-24T11:30:50.638Z",
+  "etfPricesOpenedBeforeFreeze": false,
+  "selectedSHA256": "a842d6890ccba86bcbf33b5a0125c458c8ed067192cbd4ca45c80e47afb74335",
+  "approvedThrough": "2026-11-03T06:28:30.460Z",
+  "sourceCodeSHA256": {
+    "scripts/research-ofr-geographic.ts": "ac16c6196034671471aa9dc5ab701a8e9e71c4e79a6ca4859b269b0f80810abf",
+    "scripts/qualify-ofr-geographic.py": "582394429e35bb57c2170c6d5b1c6f36ec11d42eeedc2775e201e1db1ddc27fb",
+    "scripts/collect-ofr-geographic-archives.py": "13eeeb9f17aff3f5bc468caaab50114ade53a901922ce09f7581aef48e02fb9e",
+    "scripts/verify-ofr-volatility-vintages.py": "9748eb61c064130e5b1187698c051bdb114fc7fe2e7c9e28271febd2b17302c5",
+    "lib/consensus/learning.ts": "d109a465c5f9c5d7db9e0f9ec1bd4f27451e65f4b77d09f3c774ec89bab6f8b9",
+    "lib/consensus/model.ts": "5a89d62c6a732ba3fecde8839104a1ae375097d38c6a0b34fd9a8c0521666fd6",
+    "lib/consensus/extended-research-calendar.ts": "02525ae0038f2cd7cb9040a52d031a164446eab5b8f0b5ef25fbaba3369732c5",
+    "lib/consensus/research-price-capture.ts": "a1f8fb8b8a6c5d36f8e12f2bad0390ee0a5d14439f09ebe56a395b0b3451caee"
+  },
+  "sample": {
+    "train": 88,
+    "validation": 29,
+    "test": 30,
+    "testStarts": "2026-09-21",
+    "testEnds": "2026-11-02"
+  },
+  "prediction": "Positive coefficient on negative change in non-US stress, on top of a U.S.-stress matched-only logistic model. Fixed training up-rate and 0.50. Strict 0.01 Brier improvement against all. Same dates and initial cutoff in policy.",
+  "sourcePermissions": "Only geographically grouped OFR-published summary inputs. The U.S. Treasury Office of Financial Research identifies its own derived regional index series and preserves third-party rights in external inputs. Use the raw and split-only Kibot files strictly for private historical evaluation. Kibot limits guest delivery to evaluation and separately allows publication of indistinguishable aggregated research statistics without bars, date-level prices, signals, private labels or parameters. No paid access or public operational use. Consumer-facing publication is a separate review; no raw source or model files leave private owner storage.",
+  "sourceURLs": [
+    "https://www.financialresearch.gov/financial-stress-index/regions/",
+    "https://www.financialresearch.gov/working-papers/2023/06/27/transition-alternative-reference-rates-in-ofr-financial-stress-index/",
+    "https://www.kibot.com/license.html",
+    "https://www.kibot.com/api/api-overview.html"
+  ],
+  "correction": {
+    "studySlots": 32,
+    "comparisons": 3,
+    "familySize": 96,
+    "scope": "29 already public research slots listed in order plus each of the 3 geographic protocol variants, 2 of which stayed below the source floor. Conservative Bonferroni multiplication by 96 applies to the full-vs-U.S., full-vs-training incidence and full-vs-coin paired comparisons. Other unregistered exploration was not enumerated, so no field-wide discovery claim.",
+    "uncertainty": "Fixed 3 sequential test-target moving blocks, 10,000 resamples, deterministic original OFR LCG from e6248d83. Two-sided descriptive 95% percentiles. This enforces the explicit 3-target specification at n=30; the older generic helper chooses length 4 at this size. Secondary one-sided paired loss improvement is tested by enumerating all 2^10 sign flips of ten disjoint 3-target blocks under independent/equiprobable block signs. Report raw and multiplied p-values. Stronger serial dependence can invalidate that assumption. With 1024 permutations, the minimum 96-fold-adjusted p is 0.09375, so neither this sensitivity nor the short retrospectively built sample can establish a family-wide 5% discovery. Keep the registered economic gate visibly separate."
+  },
+  "priorPublicSlotIdentities": [
+    {
+      "publicSlot": 1,
+      "family": "technicals",
+      "instrument": "SPY",
+      "id": null
+    },
+    {
+      "publicSlot": 2,
+      "family": "technicals",
+      "instrument": "QQQ",
+      "id": null
+    },
+    {
+      "publicSlot": 3,
+      "family": "technicals",
+      "instrument": "IWM",
+      "id": null
+    },
+    {
+      "publicSlot": 4,
+      "family": "technicals",
+      "instrument": "DIA",
+      "id": null
+    },
+    {
+      "publicSlot": 5,
+      "family": "technicals",
+      "instrument": "TLT",
+      "id": null
+    },
+    {
+      "publicSlot": 6,
+      "family": "institutions",
+      "instrument": "SPY",
+      "id": null
+    },
+    {
+      "publicSlot": 7,
+      "family": "institutions",
+      "instrument": "QQQ",
+      "id": null
+    },
+    {
+      "publicSlot": 8,
+      "family": "institutions",
+      "instrument": "IWM",
+      "id": null
+    },
+    {
+      "publicSlot": 9,
+      "family": "institutions",
+      "instrument": "DIA",
+      "id": null
+    },
+    {
+      "publicSlot": 10,
+      "family": "institutions",
+      "instrument": "TLT",
+      "id": null
+    },
+    {
+      "publicSlot": 11,
+      "family": "events",
+      "instrument": "SPY",
+      "id": null
+    },
+    {
+      "publicSlot": 12,
+      "family": "events",
+      "instrument": "QQQ",
+      "id": null
+    },
+    {
+      "publicSlot": 13,
+      "family": "events",
+      "instrument": "IWM",
+      "id": null
+    },
+    {
+      "publicSlot": 14,
+      "family": "events",
+      "instrument": "DIA",
+      "id": null
+    },
+    {
+      "publicSlot": 15,
+      "family": "events",
+      "instrument": "TLT",
+      "id": null
+    },
+    {
+      "publicSlot": 16,
+      "family": "news",
+      "instrument": "SPY",
+      "id": null
+    },
+    {
+      "publicSlot": 17,
+      "family": "news",
+      "instrument": "QQQ",
+      "id": null
+    },
+    {
+      "publicSlot": 18,
+      "family": "news",
+      "instrument": "IWM",
+      "id": null
+    },
+    {
+      "publicSlot": 19,
+      "family": "news",
+      "instrument": "DIA",
+      "id": null
+    },
+    {
+      "publicSlot": 20,
+      "family": "rates",
+      "instrument": "TLT",
+      "id": null
+    },
+    {
+      "publicSlot": 21,
+      "family": "international",
+      "instrument": "DIA",
+      "id": null
+    },
+    {
+      "publicSlot": 22,
+      "family": "technicals",
+      "instrument": "SPY",
+      "id": "prelaunch-spy-close-location-2025-v1"
+    },
+    {
+      "publicSlot": 23,
+      "family": "events",
+      "instrument": "SPY",
+      "id": "prelaunch-spy-fomc-eve-2016-2025-v1"
+    },
+    {
+      "publicSlot": 24,
+      "family": "earnings",
+      "instrument": "QQQ",
+      "id": "prelaunch-qqq-original-revenue-guidance-v1"
+    },
+    {
+      "publicSlot": 25,
+      "family": "capital",
+      "instrument": "TLT",
+      "id": "prelaunch-tlt-tic-treasury-demand-v1"
+    },
+    {
+      "publicSlot": 26,
+      "family": "retail",
+      "instrument": "SPY",
+      "id": "prelaunch-spy-swvxx-retail-prime-flow-v1"
+    },
+    {
+      "publicSlot": 27,
+      "family": "options",
+      "instrument": "SPY",
+      "id": "SPY-prior-CFE-VX-monthly-front-second-v1"
+    },
+    {
+      "publicSlot": 28,
+      "family": "news",
+      "instrument": "TLT",
+      "id": "prelaunch-tlt-original-bls-payroll-revisions-v1"
+    },
+    {
+      "publicSlot": 29,
+      "family": "macro",
+      "instrument": "SPY",
+      "id": "ofr-volatility-contribution-prelaunch-v1-time-attested-four-decimal"
+    }
+  ]
+}
