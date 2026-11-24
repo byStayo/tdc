@@ -1,4 +1,6 @@
 """Verify public SEC Form N-PORT B.6 as a private fiscal-quarter ETF share-flow control."""
+from __future__ import annotations
+
 import argparse
 import calendar
 import fcntl
@@ -370,6 +372,7 @@ def main():
     modes.add_argument("--collect-samples", action="store_true", help="verify five fixed example accessions")
     modes.add_argument("--collect-latest", action="store_true", help="check newest reported quarters and amendments")
     parser.add_argument("--private-dir", type=Path, default=ROOT, help="owner-only private receipt directory")
+    parser.add_argument("--summary", action="store_true", help="print only checked accessions and actionable failures")
     args = parser.parse_args()
     root = args.private_dir.absolute()
     collect = args.collect_samples or args.collect_latest
@@ -406,7 +409,11 @@ def main():
     report = {"status": "incomplete" if held else "verified", "observation": "issuer-reported fiscal-quarter net share sales",
               "selection": "latest SEC inventory" if args.collect_latest else "pinned samples" if args.collect_samples else "cached originals",
               "rows": rows, "withheld": held, **period_comparison(rows)}
-    print(json.dumps(report, sort_keys=True, indent=2))
+    if args.summary:
+        print(json.dumps({"status": report["status"], "funds": {symbol: row["accession"] for symbol, row in rows.items()},
+                          "withheld": held}, sort_keys=True))
+    else:
+        print(json.dumps(report, sort_keys=True, indent=2))
     return int(bool(held))
 
 

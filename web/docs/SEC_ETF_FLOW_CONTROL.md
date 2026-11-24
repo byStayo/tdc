@@ -20,7 +20,7 @@ The April–June figures for SPY, QQQ and IWM were all accepted by August 28 at 
 
 ## Collection and replay
 
-Run from `web` using Python 3.10 or later. The code reads public EDGAR data under the SEC’s fair-access guidance. Data.gov identifies the structured Form N-PORT dataset as an open government data asset. The report uses the numerical filing facts with links to the original. The XML, index and local receipt stay under the ignored `.consensus/private-sec-etf-flows/v1/` directory. [SEC EDGAR access](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data) · [SEC open-data listing and rights](https://catalog.data.gov/dataset/form-n-port-data-sets)
+The weekday harvester checks all five accession inventories. When an accession has already been verified, it replays its local XML and filing index. New filings and amendments receive their own original receipts. A source failure prints the affected fund and allows the other daily collection to continue. Run from `web` using Python 3.9 or later. The XML, index and local receipt stay under the ignored `.consensus/private-sec-etf-flows/v1/` directory. Data.gov identifies the structured Form N-PORT dataset as an open government data asset. [SEC EDGAR access](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data) · [SEC open-data listing and rights](https://catalog.data.gov/dataset/form-n-port-data-sets)
 
 ```sh
 python3 -B scripts/collect-sec-etf-flows.py --collect-latest
