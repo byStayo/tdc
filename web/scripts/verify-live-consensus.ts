@@ -6,6 +6,7 @@ import { PUBLIC_ORIGIN, recordPreopenReceipt, scheduledPreopenSession } from "..
 import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
 import { analystStudy } from "../lib/consensus/analyst-study.ts";
+import { dealerStudy } from "../lib/consensus/dealer-study.ts";
 import { etfFlowStudy } from "../lib/consensus/etf-flow-study.ts";
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 import { enrollJointRetail } from "../lib/consensus/retail-joint.ts";
@@ -76,10 +77,12 @@ async function verify(snapshot: Snapshot, session?: string) {
       console.error("Private fund-flow enrollment failed.", error instanceof Error ? error.message : String(error));
       fundFlows = { status: "failed" };
     }
-    try { secondaryFamilies.analysts = await analystStudy.enroll(root, session, snapshot.id); }
-    catch (error) {
-      console.error("Private analyst study enrollment failed.", error instanceof Error ? error.message : String(error));
-      secondaryFamilies.analysts = { status: "failed", enrolled: 0 };
+    for (const [name, study] of [["analysts", analystStudy], ["institutions", dealerStudy]] as const) {
+      try { secondaryFamilies[name] = await study.enroll(root, session, snapshot.id); }
+      catch (error) {
+        console.error("Private enrollment failed for", name, error instanceof Error ? error.message : String(error));
+        secondaryFamilies[name] = { status: "failed", enrolled: 0 };
+      }
     }
     if ("available" in familyFeatures) {
       const missing = new Set(familyFeatures.missing.map(m => m.id + "/" + m.instrument));

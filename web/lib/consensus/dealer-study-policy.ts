@@ -1,0 +1,14 @@
+import { PREMARKET_STUDY_POLICY } from "./premarket-study-policy.ts";
+
+export const DEALER_STUDY_POLICY = {
+  method: "as-issued-fr2004a-tlt-long-vs-adjacent-v1", family: "institutions", instruments: ["TLT"],
+  target: PREMARKET_STUDY_POLICY.target,
+  source: "Federal Reserve Bank of New York, Primary Dealer Statistics, SBN2024. Retain the signed weekly changes for nominal Treasury coupons maturing in over 21 years (PDPOSGSC-G21C) and over 11 through 21 years (PDPOSGSC-G11L21C), in USD billions. Reconcile both to consecutive as-known weekly balances. Verify the long series separately and reject reporting-basis changes against the Fed's dated additions and removals. The publisher makes the transformations. https://www.newyorkfed.org/markets/counterparties/primary-dealers-statistics and https://www.newyorkfed.org/privacy/termsofuse.",
+  previousStudy: "Historical source registration 23b15a7a6e6bac18000650698e0bef7f16b79840cdf968282b8afa8da99ba80b and gate clarification 8c5e7cf9eded1aaf17546f5fde6d483a0bc64c57740a8948952c449e6f1704af. No historical member transfers to this new study.",
+  inputs: "Negative signed long-maturity dealer inventory change as candidate; the unchanged signed adjacent-maturity inventory change as control. Reuse the first retained official weekly vintage and its preceding official weekly balances from the same series break. Count each weekly report once. Revisions cannot create a second enrollment.",
+  enrollment: "A future native reporting release must first be received after registration, 8–14 New York calendar days after its reporting date. Target only the first ordinary session whose 07:48 New York cutoff strictly follows that native receipt, no more than 15 calendar days after the reporting date. Both balances, reported changes and current official dealer roster must be verifiable by that cutoff and the actual issued cutoff; controls collected later do not move the target. Use the final publicly witnessed morning issue and seal enrollment before entry.",
+  custody: PREMARKET_STUDY_POLICY.custody, partition: PREMARKET_STUDY_POLICY.partition,
+  model: "Fit the standard private prospective logistic models against the adjacent-maturity change, training prevalence and 0.50. The signed candidate must have a positive incremental coefficient (negative on the original long-maturity change). Fix 600 gradient steps, penalties 0.01, 0.1, 1 and 10, with lowest validation Brier and first on ties.",
+  inference: "Require more than 0.01 Brier improvement over each of three comparators, all paired block-bootstrap 95% lower endpoints positive, each one-sided p at most 0.01/(15 families * 5 funds * 3 comparisons). A single TLT test is registered. No automatic vote, trading call, public probability or reopening a prior core holdout.",
+  train: 300, validation: 100, test: 100, alpha: 0.01 / (15 * 5 * 3),
+} as const;

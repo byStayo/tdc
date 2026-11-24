@@ -13,7 +13,7 @@ import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
 import { collectRetailWithOriginals } from "./prospective-retail.ts";
-import { collectPrimaryDealerPositions } from "./primary-dealer-positions.ts";
+import { collectDealerPositionsWithStudy, DEALER_DIRECTORY } from "./dealer-study-sources.ts";
 import { collectSchwabRetailFlows } from "./schwab-retail-flows.ts";
 import { collectVxCurve, VX_CURVE_ID } from "./vx-curve.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
@@ -945,8 +945,8 @@ export async function collectSnapshot(
       archiveRoot ? join(archiveRoot, ".consensus/private-retail-nmfp/live-collector") : undefined),
     collectVxCurve(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-vx-curve/live") : undefined,
       previous?.signals.find(signal => signal.id === VX_CURVE_ID)),
-    collectPrimaryDealerPositions(url => publicText(url, fetcher),
-      archiveRoot ? join(archiveRoot, ".consensus/private-primary-dealer-positions") : undefined),
+    collectDealerPositionsWithStudy(url => publicText(url, fetcher),
+      archiveRoot ? join(archiveRoot, DEALER_DIRECTORY) : undefined),
     collectBlsPayrollNews(fetcher, undefined,
       archiveRoot ? join(archiveRoot, ".consensus/private-bls-payroll-news/current-collector") : undefined),
     collectInflationAndMoney(fetcher, archiveRoot),

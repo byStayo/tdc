@@ -66,23 +66,24 @@ function base(at: string): Signal {
   };
 }
 
-type DealerReceipt = { history: PublicDocument; weekly: PublicDocument };
+export type DealerReceipt = { history: PublicDocument; weekly: PublicDocument };
 const observedAt = (r: DealerReceipt) => [r.weekly.retrievedAt, r.history.retrievedAt].sort()[1];
-function verifyOriginals(r: DealerReceipt, asOf: string) {
+export function verifyDealerOriginals(r: DealerReceipt, asOf: string) {
   for (const d of [r.history, r.weekly]) {
     if (!instant(d.retrievedAt) || d.retrievedAt > asOf || d.sha256 !== hash(d.text))
       throw new Error("Dealer source receipt differs from the original");
   }
   return dealerPositionReading(r.history.text, r.weekly.text, observedAt(r));
 }
+export const dealerSourceHash = (r: DealerReceipt) => hash(r.history.sha256 + ":" + r.weekly.sha256);
 export async function collectPrimaryDealerPositions(read: (url: string) => Promise<PublicDocument>, directory?: string,
   now = () => new Date().toISOString()): Promise<Signal> {
   try {
     const [history, weekly] = await Promise.all([read(historyUrl), read(weeklyUrl)]);
-    const fresh = {history, weekly}, at = now(), series = verifyOriginals(fresh, at);
+    const fresh = {history, weekly}, at = now(), series = verifyDealerOriginals(fresh, at);
     const fingerprint = hash(JSON.stringify(series));
     const saved = await immutableSourceReceipt(directory, fingerprint + ".json", async () => fresh, receipt => {
-      if (hash(JSON.stringify(verifyOriginals(receipt, at))) !== fingerprint) throw new Error("Changed dealer position receipt");
+      if (hash(JSON.stringify(verifyDealerOriginals(receipt, at))) !== fingerprint) throw new Error("Changed dealer position receipt");
     });
     const output = base(observedAt(fresh));
     const [prior, current] = series;
@@ -90,7 +91,7 @@ export async function collectPrimaryDealerPositions(read: (url: string) => Promi
     output.status = "available";
     output.summary = "Primary dealers reported a net position of $" + (current.value / 1000).toLocaleString("en-US", {maximumFractionDigits: 3}) + " billion in nominal Treasury coupons due in more than 21 years.";
     output.source = { ...output.source, observedAt: current.date, vintageAt: observedAt(saved),
-      sha256: hash(saved.history.sha256 + ":" + saved.weekly.sha256) };
+      sha256: dealerSourceHash(saved) };
     output.series = series;
     output.metrics = [{ label: changeLabel, date: current.date, value, unit }];
     validatePrimaryDealerPositions(output, at);
