@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 12,
+  "schemaVersion": 13,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-23",
@@ -465,6 +465,26 @@
       "controlImprovement95": [
         -0.0118,
         0.0114
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-cambria-tail-risk-v1",
+      "family": "options",
+      "instrument": "SPY",
+      "timingBasis": "historical-reconstruction",
+      "samples": 258,
+      "testSamples": 52,
+      "modelBrier": 0.2584,
+      "controlBrier": 0.2568,
+      "baseRateBrier": 0.2592,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "excludedTargetOverlap": 137,
+      "excludedInputOverlap": 96,
+      "controlImprovement95": [
+        -0.0092,
+        0.0043
       ],
       "clearedMargin": false
     }
