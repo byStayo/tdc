@@ -31,6 +31,7 @@ import { validateOptionActivity } from "./option-activity.ts";
 import { validateTaiwan } from "./taiwan.ts";
 import { validateNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { validateJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
+import { validateUsTrade } from "./us-trade.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
 import {
@@ -86,6 +87,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateTaiwan(signal, legacyTaiwanAttribution);
     validateNyFedStockOutlook(signal);
     validateJapanPortfolioFlows(signal);
+    validateUsTrade(signal);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||
       !signal.instruments.length ||

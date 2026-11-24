@@ -12,6 +12,10 @@
 
 ## Work backward from a verified morning edition
 
+- [x] Connect the original U.S. export release and check a frozen international candidate against 129 actual DIA outcomes. Adding the export change increased error on the 26-date holdout. The production observation is attributable to Census and BEA. [Study and source](../../FREE_FEED_PATH.md#november-23-late-study-of-us-exports-prices-and-option-volume)
+- [x] Qualify a separate anonymous price source against all 16 TLT sessions and an official half-day auction. All prices matched. A downstream training and retained-output grant remains open for Plover. [Qualification](../../FREE_FEED_PATH.md#november-23-late-study-of-us-exports-prices-and-option-volume)
+- [x] Independently compare the traded volumes of all six selected November 20 option contracts. Both IWM volumes matched. Four SPY and QQQ legs differed. [Contract comparison](../../FREE_FEED_PATH.md#november-23-late-study-of-us-exports-prices-and-option-volume)
+
 - [x] Settle QQQ’s November 20 pre-open edition from a complete 390-minute regular session and verify the distinct Nasdaq closing auction. The official ledger now covers four ETFs on both November 19 and 20.
 - [x] Connect free OPRA trade volume to ordinary collection for SPY, QQQ and IWM, retain private evidence, and display the dated, rounded shares in the issued edition. The selected monthly expiry had no DIA or TLT contracts in this catalog.
 - [x] Compare the original TLT listing prices with independently sourced as-traded and split-only records for all 16 sessions from October 30 through November 20. Verify the post-close issuer dividend record through November 23. The scheduled native hourly qualification is ready for the owner’s free account.

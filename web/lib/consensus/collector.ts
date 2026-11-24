@@ -10,6 +10,7 @@ import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
+import { collectUsTrade } from "./us-trade.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { collectAnalystRatings } from "./analyst-ratings.ts";
@@ -52,6 +53,8 @@ const HOSTS = new Set([
   "markets.newyorkfed.org",
   "home.treasury.gov",
   "www.mof.go.jp",
+  "www.census.gov",
+  "www.bea.gov",
   "www.oregon.gov",
   "www.boj.or.jp",
   "www.bankofengland.co.uk",
@@ -925,6 +928,7 @@ export async function collectSnapshot(
     bocSurvey,
     householdOutlook,
     japanPortfolioFlows,
+    usExports,
     holdings,
     taiwan,
     analystRatings,
@@ -951,6 +955,7 @@ export async function collectSnapshot(
     collectBocSurvey((url) => publicText(url, fetcher)),
     collectNyFedStockOutlook((url) => publicText(url, fetcher)),
     collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),
+    collectUsTrade((url) => publicText(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
     collectTaiwan((url) => publicText(url, fetcher)),
     collectAnalystRatings((url) => publicText(url, fetcher), undefined, previous, archiveRoot),
@@ -980,6 +985,7 @@ export async function collectSnapshot(
       bocSurvey,
       householdOutlook,
       japanPortfolioFlows,
+      usExports,
       ...holdings.signals,
       ...missingSignals(issuedAt),
       // Match the scoped addition's position so a full refresh cannot create
@@ -1011,7 +1017,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 54 + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 56 + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

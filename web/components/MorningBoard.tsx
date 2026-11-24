@@ -27,7 +27,7 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
-import { KIBOT_RESEARCH_STUDIES, type KibotResearch } from "@/lib/consensus/kibot-research";
+import { FT900_RESEARCH, KIBOT_RESEARCH_STUDIES, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
   Catalyst,
@@ -2411,7 +2411,7 @@ export default function MorningBoard({
                         <tr role="row">
                           <th scope="col" role="columnheader">ETF</th>
                           <th scope="col" role="columnheader">Sessions checked</th>
-                          {kibotResearch.schemaVersion === 2 && <th scope="col" role="columnheader">Sessions with eligible inputs</th>}
+                          {kibotResearch.schemaVersion !== 1 && <th scope="col" role="columnheader">Sessions with eligible inputs</th>}
                           <th scope="col" role="columnheader">Forecast calls</th>
                         </tr>
                       </thead>
@@ -2420,7 +2420,7 @@ export default function MorningBoard({
                           <tr key={row.instrument} role="row">
                             <th scope="row" role="rowheader">{row.instrument}</th>
                             <td role="cell" data-label="Sessions checked">{row.sessions}</td>
-                            {kibotResearch.schemaVersion === 2 && <td role="cell" data-label="Sessions with eligible inputs">{row.eligibleSessions}</td>}
+                            {kibotResearch.schemaVersion !== 1 && <td role="cell" data-label="Sessions with eligible inputs">{row.eligibleSessions}</td>}
                             <td role="cell" data-label="Forecast calls">{row.calls}</td>
                           </tr>
                         ))}
@@ -2429,14 +2429,14 @@ export default function MorningBoard({
                   </div>
                   <div className={styles.tableScroll}>
                     <table role="table">
-                      <caption>Historical holdout tests on prelaunch sessions. The candidate had to beat the training base rate and a 50/50 baseline (0.2500) by more than 0.01 Brier.</caption>
+                      <caption>Historical tests on sessions before the first public forecast. Lower Brier scores are better. Each model had to improve on the training base rate and a 50/50 forecast by more than 0.01.</caption>
                       <thead role="rowgroup">
                         <tr role="row">
                           <th scope="col" role="columnheader">Study</th>
                           <th scope="col" role="columnheader">ETF</th>
-                          <th scope="col" role="columnheader">Test sessions</th>
+                          <th scope="col" role="columnheader">Held out / total</th>
                           <th scope="col" role="columnheader">Model Brier</th>
-                          <th scope="col" role="columnheader">Base-rate Brier</th>
+                          <th scope="col" role="columnheader">Comparison Brier</th>
                           <th scope="col" role="columnheader">Result</th>
                         </tr>
                       </thead>
@@ -2447,15 +2447,30 @@ export default function MorningBoard({
                               {KIBOT_RESEARCH_STUDIES.find(study => study.family === row.family)?.label}
                             </th>
                             <td role="cell" data-label="ETF">{row.instrument}</td>
-                            <td role="cell" data-label="Test sessions">{row.testSamples}</td>
+                            <td role="cell" data-label="Held out / total">{row.testSamples} / {row.samples}</td>
                             <td role="cell" data-label="Model Brier">{row.modelBrier.toFixed(4)}</td>
-                            <td role="cell" data-label="Base-rate Brier">{row.baseRateBrier.toFixed(4)}</td>
-                            <td role="cell" data-label="Result">{row.clearedMargin ? "Passed" : "Below threshold"}</td>
+                            <td role="cell" data-label="Comparison Brier">
+                              Base rate {row.baseRateBrier.toFixed(4)}
+                              {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}<br />50/50 {row.coinBrier.toFixed(4)}</>}
+                            </td>
+                            <td role="cell" data-label="Result">
+                              {row.clearedMargin ? "Passed" : "Below threshold"}
+                              {row.family === "international" && <><br />Export coefficient {row.exportCoefficientSign}</>}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                  {kibotResearch.schemaVersion === 3 && (instrument === "MARKET" || instrument === "DIA") && (
+                    <p className={styles.muted}>
+                      The DIA study tested whether the monthly change in U.S. exports added predictive value beyond the euro–dollar rate.
+                      It used the first 7:48 a.m. New York cutoff after publication and excluded shortened sessions. Passing also required a positive export
+                      coefficient and an improvement of more than 0.01 over FX alone. These historical dates overlap earlier studies.{" "}
+                      <a href={FT900_RESEARCH.census} target="_blank" rel="noopener noreferrer">U.S. Census Bureau and BEA trade releases</a>
+                      {" · "}<a href={FT900_RESEARCH.ecb} target="_blank" rel="noopener noreferrer">ECB exchange rates</a>
+                    </p>
+                  )}
                   <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">
                     Kibot research data terms <ExternalLink size={13} />
                   </a>

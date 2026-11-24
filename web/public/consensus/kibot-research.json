@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-20",
@@ -214,6 +214,18 @@
       "testSamples": 27,
       "modelBrier": 0.2523,
       "baseRateBrier": 0.2551,
+      "clearedMargin": false
+    },
+    {
+      "family": "international",
+      "instrument": "DIA",
+      "samples": 129,
+      "testSamples": 26,
+      "modelBrier": 0.321,
+      "baseRateBrier": 0.2842,
+      "fxOnlyBrier": 0.3168,
+      "coinBrier": 0.25,
+      "exportCoefficientSign": "negative",
       "clearedMargin": false
     }
   ]
