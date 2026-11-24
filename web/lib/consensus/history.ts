@@ -18,6 +18,9 @@ import { INSTRUMENTS, HORIZONS } from "./types.ts";
 import { CALENDAR_ZONES } from "./time.ts";
 import { holdingsSignal, validateHoldings } from "./holdings.ts";
 import { validateIssuerGuidance } from "./issuer-guidance-match.ts";
+import { validateTicRelease } from "./tic-release.ts";
+import { validateSchwabRetailFlows } from "./schwab-retail-flows.ts";
+import { validateVxCurve } from "./vx-curve.ts";
 import { validatePrivateCredit } from "./private-credit.ts";
 import { validateOperfCapital } from "./operf-capital.ts";
 import { validateHouseholdEquity } from "./household-equity.ts";
@@ -78,6 +81,9 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
   for (const signal of snapshot.signals) {
     validatePrivateCredit(signal);
     validateIssuerGuidance(signal, snapshot.cutoff);
+    validateTicRelease(signal, snapshot.cutoff);
+    validateSchwabRetailFlows(signal, snapshot.cutoff);
+    validateVxCurve(signal, snapshot.cutoff);
     validateOperfCapital(signal, snapshot.cutoff);
     validateHouseholdEquity(signal);
     validateAnalystRatings(signal);

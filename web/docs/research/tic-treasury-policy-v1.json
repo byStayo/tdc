@@ -1,0 +1,17 @@
+{
+  "registeredAt": "2026-11-24T04:46:00.585945+00:00",
+  "policy": {
+    "method": "prelaunch-tlt-tic-treasury-demand-v1",
+    "fromTarget": "2016-01-01",
+    "throughTarget": "2026-11-02",
+    "ticker": "TLT",
+    "horizon": "following full NYSE session regular open to close",
+    "hypothesis": "Greater net foreign demand for US Treasury bonds and notes predicts a positive incremental next-session TLT return direction.",
+    "inputs": "Monthly original dated Treasury TIC press release or corresponding native release archive. In USD billions not seasonally adjusted: gross sales and purchases of domestic long-term US securities, total net, and net foreign private and official purchases of US Treasury bonds and notes. Use the final column for the observation month and distinguish trailing totals. Verify native date and observation month, line identities and arithmetic. Do not substitute later revised data.",
+    "cutoff": "Treasury release at 16:00 Eastern under documented post-Sep2014 schedule; require dated publication and matching original evidence. When multiple reports share a release date use latest observed month only. Use next actual exchange session, reject half days without moving the outcome. Ignore releases whose next session is outside the date bounds. Issue at 07:48 Eastern before target open.",
+    "features": "Control: 100*(total net domestic long-term minus net Treasury bonds and notes)/(gross sales+gross purchases), with a second binary control beginning February 2023 observation for the expanded form SLT. Candidate adds 100*(private Treasury net+official Treasury net)/(gross sales+gross purchases). Private and official nets are signed from foreign investor perspective.",
+    "labels": "TLT regular-session close > open equals 1, require matching as-traded and split-only outcome directions from private source. Never substitute another date or fund. Fail closed on source contradictions. Complete source cohort fixed before outcome access.",
+    "evaluation": "Existing chronological trainCandidate v1 using candidate vs controls on identical dates, minimum 120 distinct dates and at least 50/20/20 train/validation/test. Pass requires positive incremental Treasury coefficient and test Brier more than 0.01 below each control, training base rate, and 0.25. No retuning, no production training or holdout consumption."
+  },
+  "sha256": "8396c501e2f980deb22bb863b7b0222424576cb7f8f40c8d4367f6e48f0f7d99"
+}

@@ -58,6 +58,8 @@
     "consensus:research-spy-close-location": "node --experimental-strip-types scripts/research-spy-close-location.ts",
     "consensus:research-issuer-guidance-qqq": "node --experimental-strip-types scripts/research-issuer-guidance-qqq.ts",
     "consensus:research-fomc-eve": "node --experimental-strip-types scripts/research-fomc-eve.ts",
+    "consensus:research-tic-treasury": "node --experimental-strip-types scripts/research-tic-treasury.ts",
+    "consensus:research-market-history-minutes": "node --experimental-strip-types scripts/research-market-history-minutes.ts",
     "consensus:research-us-trade": "node --experimental-strip-types scripts/research-ft900-exports.ts",
     "consensus:research-option-volume-agreement": "node --experimental-strip-types scripts/research-option-volume-agreement.ts",
     "consensus:research-plover-prices": "node --experimental-strip-types scripts/research-plover-prices.ts",

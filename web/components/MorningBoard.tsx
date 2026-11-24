@@ -27,7 +27,8 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
-import { FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
+import { FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
+  TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
   Catalyst,
@@ -687,6 +688,7 @@ function CapitalPanels({
   onInspect: () => void;
 }) {
   const inward = signals.find((s) => s.id === "tic-for_lt_total"),
+    treasuryRelease = signals.find((s) => s.ticRelease)?.ticRelease,
     outward = signals.find((s) => s.id === "tic-us_lt_total"),
     privateEquity = signals.find((s) => s.id === "sec-private-equity-assets"),
     privateCredit = signals.find((s) => s.id === "fed-private-credit-loans"),
@@ -828,6 +830,16 @@ function CapitalPanels({
             : "Both totals must share a reporting month."}{" "}
           Negative means net sales.
         </p>
+        {treasuryRelease && treasuryRelease.observationMonth === latest?.date.slice(0, 7) && (
+          <details className={styles.olderCapital}>
+            <summary>Who bought Treasuries in {month}</summary>
+            <p>Foreign private investors recorded net {treasuryRelease.netTreasuryPrivate < 0 ? "sales" : "purchases"} of
+              {" "}${number(Math.abs(treasuryRelease.netTreasuryPrivate), 1)} billion. Foreign official institutions recorded
+              net {treasuryRelease.netTreasuryOfficial < 0 ? "sales" : "purchases"} of
+              {" "}${number(Math.abs(treasuryRelease.netTreasuryOfficial), 1)} billion.</p>
+            <a href={treasuryRelease.url}>Treasury release of {datedYear(treasuryRelease.releasedAt.slice(0, 10))}</a>
+          </details>
+        )}
         <p className={styles.finePrint}>
           Lagged monthly flows, excluding short-term and banking flows. Changes
           in asset values are separate. No daily directional vote.
@@ -1279,6 +1291,7 @@ export default function MorningBoard({
     (signal) => effectiveStatus(signal, reference) === "available",
   );
   const householdEquity = current.find(signal => signal.householdEquity && signal.series.length && signal.source.releasedAt);
+  const schwabRetail = current.find(signal => signal.schwabRetailFlows && signal.status === "available");
   const agedSincePublication = historical
     ? 0
     : current.filter(
@@ -2101,6 +2114,16 @@ export default function MorningBoard({
                   </details>
                 )}
                 <RetailOutlook historical={historical} />
+                {schwabRetail?.schwabRetailFlows && (
+                  <details className={styles.olderCapital}>
+                    <summary>Schwab retail money fund · {datedYear(schwabRetail.source.observedAt!)}
+                      {effectiveStatus(schwabRetail, reference) === "stale" ? " · stale" : ""}
+                    </summary>
+                    <p>{schwabRetail.summary}</p>
+                    <p>{schwabRetail.limitation}</p>
+                    <a href={schwabRetail.source.url}>SEC filing of {datedYear(schwabRetail.schwabRetailFlows.filed)}</a>
+                  </details>
+                )}
                 {communityEnabled && <CommunityPanel instrument={instrument} historical={historical} />}
               </ResearchSection>
               <section className={styles.scenario}>
@@ -2490,6 +2513,8 @@ export default function MorningBoard({
                               {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}</>}
                               {"returnOnlyBrier" in row && <><br />{row.studyId === FOMC_EVE_RESEARCH.id ? "Prior session return only" : "Same-day return only"} {row.returnOnlyBrier.toFixed(4)}</>}
                               {"ageOnlyBrier" in row && <><br />Filing age only {row.ageOnlyBrier.toFixed(4)}</>}
+                              {"controlBrier" in row && <><br />{[TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH]
+                                .find(study => study.id === row.studyId)?.controlLabel} {row.controlBrier.toFixed(4)}</>}
                               {"coinBrier" in row && <><br />50/50 {row.coinBrier.toFixed(4)}</>}
                             </td>
                             <td role="cell" data-label="Result">
@@ -2498,6 +2523,7 @@ export default function MorningBoard({
                               {"eveCoefficientSign" in row && <><br />Calendar coefficient {row.eveCoefficientSign}</>}
                               {"earningsCoefficientSign" in row && <><br />Surprise coefficient {row.earningsCoefficientSign}
                                 <br />95% interval for improvement over filing age alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}</>}
+                              {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
                           </tr>
                         ))}
@@ -2542,6 +2568,23 @@ export default function MorningBoard({
                       for source availability. Eleven of the final 25 dates also appeared in the older QQQ momentum test.{" "}
                       <a href={QQQ_ISSUER_GUIDANCE_RESEARCH.sec} target="_blank" rel="noopener noreferrer">Original SEC filings</a>
                       {" · "}<a href={QQQ_ISSUER_GUIDANCE_RESEARCH.timing} target="_blank" rel="noopener noreferrer">EDGAR release timing</a>
+                    </p>
+                  )}
+                  {kibotResearch.schemaVersion >= 7 && (instrument === "MARKET" || instrument === "TLT") && (
+                    <p className={styles.muted}>
+                      The TLT study followed 126 original monthly Treasury releases. It tested whether foreign demand for Treasury
+                      bonds and notes added information beyond demand for other U.S. securities and the 2023 reporting change.{" "}
+                      <a href={TIC_TREASURY_RESEARCH.source}>Treasury release times</a>
+                    </p>
+                  )}
+                  {kibotResearch.schemaVersion >= 7 && (instrument === "MARKET" || instrument === "SPY") && (
+                    <p className={styles.muted}>
+                      The retail study followed the final full reporting week of each month for the same Schwab investor share class.
+                      Its comparison used the fund’s yield. The volatility study compared the two nearest monthly VIX futures against
+                      the second contract alone. Both settlements matched the exchange on all 247 reconstructed dates. Four dates
+                      also had an independently dated copy before the next 8 a.m. cutoff.{" "}
+                      <a href={SWVXX_FLOW_RESEARCH.source}>SEC fund filings</a>
+                      {" · "}<a href={VX_CURVE_RESEARCH.source}>Futures settlement data</a>
                     </p>
                   )}
                   <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">

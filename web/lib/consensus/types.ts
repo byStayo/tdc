@@ -73,6 +73,9 @@ export interface Signal {
   unit: string;
   /** Original management range and a separately filed consolidated quarterly result. */
   issuerGuidance?: import("./issuer-guidance-match.ts").IssuerGuidanceMatch;
+  /** First-release Treasury components with their own observation and publication clock. */
+  ticRelease?: import("./tic-release.ts").TicReleaseEvidence;
+  schwabRetailFlows?: import("./schwab-retail-flows.ts").SchwabRetailFlowsEvidence;
   /** Aggregate coverage for two adjacent Oregon public pension schedules. */
   operfCapital?: import("./operf-capital.ts").OperfEvidence;
   /** Reviewed Fed release metadata; stored with the edition, never inferred from today's release. */

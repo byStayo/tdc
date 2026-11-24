@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 6,
+  "schemaVersion": 7,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-20",
@@ -270,6 +270,53 @@
         -0.0041,
         0.0117
       ]
+    },
+    {
+      "studyId": "prelaunch-tlt-tic-treasury-demand-v1",
+      "family": "capital",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 126,
+      "testSamples": 26,
+      "modelBrier": 0.2512,
+      "controlBrier": 0.2485,
+      "baseRateBrier": 0.2473,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-swvxx-retail-prime-flow-v1",
+      "family": "retail",
+      "instrument": "SPY",
+      "timingBasis": "dated-release",
+      "controlImprovement95": [
+        -0.0114,
+        -0.0009
+      ],
+      "samples": 120,
+      "testSamples": 24,
+      "modelBrier": 0.3223,
+      "controlBrier": 0.3155,
+      "baseRateBrier": 0.25,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "SPY-prior-CFE-VX-monthly-front-second-v1",
+      "family": "options",
+      "instrument": "SPY",
+      "timingBasis": "historical-reconstruction",
+      "strictBeforeCutoff": 4,
+      "samples": 247,
+      "testSamples": 50,
+      "modelBrier": 0.2558,
+      "controlBrier": 0.254,
+      "baseRateBrier": 0.2518,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "clearedMargin": false
     }
   ]
 }

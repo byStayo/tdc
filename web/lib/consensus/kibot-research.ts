@@ -37,8 +37,24 @@ export const QQQ_ISSUER_GUIDANCE_RESEARCH = {
   sec: "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   timing: "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing",
 } as const;
+export const TIC_TREASURY_RESEARCH = {
+  id: "prelaunch-tlt-tic-treasury-demand-v1", family: "capital", instrument: "TLT",
+  label: "Foreign purchases of U.S. Treasury bonds and notes", controlLabel: "Other long-term securities and reporting regime",
+  source: "https://home.treasury.gov/data/treasury-international-capital-tic-system/release-dates-of-tic-data",
+} as const;
+export const SWVXX_FLOW_RESEARCH = {
+  id: "prelaunch-spy-swvxx-retail-prime-flow-v1", family: "retail", instrument: "SPY",
+  label: "Schwab retail money fund subscriptions and redemptions", controlLabel: "Seven-day fund yield",
+  source: "https://www.sec.gov/data-research/sec-markets-data/dera-form-n-mfp-data-sets",
+} as const;
+export const VX_CURVE_RESEARCH = {
+  id: "SPY-prior-CFE-VX-monthly-front-second-v1", family: "options", instrument: "SPY",
+  label: "First and second monthly VIX futures", controlLabel: "Second monthly VIX future",
+  source: "https://getmarkethistory.com/docs/guides/vix-historical-data/",
+} as const;
+const datedStudies = [TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH] as const;
 export const KIBOT_RESEARCH_STUDIES = [
-  ...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH,
+  ...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, ...datedStudies,
 ] as const;
 
 type Symbol = typeof KIBOT_RESEARCH_SYMBOLS[number];
@@ -62,17 +78,23 @@ export type QqqIssuerGuidanceRow = StudyMetrics & {
   ageOnlyBrier: number; coinBrier: number; earningsCoefficientSign: "positive" | "negative" | "zero";
   controlImprovement95: [number, number];
 };
+type StudyIdentity<T extends typeof datedStudies[number]> = { studyId: T["id"]; family: T["family"]; instrument: T["instrument"] };
+export type DatedStudyRow = StudyMetrics & { controlBrier: number; coinBrier: number; coefficientSign: "positive" | "negative" | "zero" } & (
+  (StudyIdentity<typeof TIC_TREASURY_RESEARCH> & { timingBasis: "dated-release" }) |
+  (StudyIdentity<typeof SWVXX_FLOW_RESEARCH> & { timingBasis: "dated-release"; controlImprovement95: [number, number] }) |
+  (StudyIdentity<typeof VX_CURVE_RESEARCH> & { timingBasis: "historical-reconstruction"; strictBeforeCutoff: number })
+);
 type LegacyStudyRow = StudyMetrics & {
   family: typeof KIBOT_LEGACY_RESEARCH_STUDIES[number]["family"]; instrument: Symbol;
 };
 
 export interface KibotResearch {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
   daily: { instrument: Symbol; sessions: number; calls: number; eligibleSessions?: number }[];
-  studies: (LegacyStudyRow | Ft900StudyRow | SpyCloseLocationStudyRow | FomcEveStudyRow | QqqIssuerGuidanceRow)[];
+  studies: (LegacyStudyRow | Ft900StudyRow | SpyCloseLocationStudyRow | FomcEveStudyRow | QqqIssuerGuidanceRow | DatedStudyRow)[];
 }
 
 function exact(value: unknown, keys: string[]): value is Record<string, unknown> {
@@ -145,11 +167,33 @@ function isQqqIssuerGuidanceRow(row: unknown): row is QqqIssuerGuidanceRow {
   return row.clearedMargin ? row.earningsCoefficientSign === "positive" && edge >= 100 : row.earningsCoefficientSign !== "positive" || edge <= 100;
 }
 
+function isDatedStudyRow(row: unknown, study: typeof datedStudies[number]): row is DatedStudyRow {
+  const keys = [...studyKeys, "studyId", "controlBrier", "coinBrier", "coefficientSign", "timingBasis"];
+  if (study === SWVXX_FLOW_RESEARCH) keys.push("controlImprovement95");
+  if (study === VX_CURVE_RESEARCH) keys.push("strictBeforeCutoff");
+  if (!exact(row, keys) || !validMetrics(row) || row.studyId !== study.id || row.family !== study.family ||
+      row.instrument !== study.instrument || !brier(row.modelBrier) || !brier(row.baseRateBrier) ||
+      !brier(row.controlBrier) || row.coinBrier !== 0.25 || !["positive", "negative", "zero"].some(sign => sign === row.coefficientSign))
+    return false;
+  const samples = study === TIC_TREASURY_RESEARCH ? 126 : study === SWVXX_FLOW_RESEARCH ? 120 : 247;
+  if (row.samples !== samples || row.testSamples !== samples - Math.floor(samples * 0.8) ||
+      row.timingBasis !== (study === VX_CURVE_RESEARCH ? "historical-reconstruction" : "dated-release")) return false;
+  if (study === VX_CURVE_RESEARCH && row.strictBeforeCutoff !== 4) return false;
+  if (study === SWVXX_FLOW_RESEARCH) {
+    const interval = row.controlImprovement95;
+    if (!Array.isArray(interval) || interval.length !== 2 || !interval.every(v => typeof v === "number" && brier(Math.abs(v))) ||
+        interval[0] > interval[1]) return false;
+  }
+  const signMatches = row.coefficientSign === (study === TIC_TREASURY_RESEARCH ? "positive" : "negative");
+  const edge = Math.round(10000 * (Math.min(row.controlBrier, row.baseRateBrier, row.coinBrier) - row.modelBrier));
+  return row.clearedMargin ? signMatches && edge >= 100 : !signMatches || edge <= 100;
+}
+
 /** Only aggregate counts and rounded research errors are public. */
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      ![1, 2, 3, 4, 5, 6].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
+      ![1, 2, 3, 4, 5, 6, 7].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -161,8 +205,11 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
   const hasFt900 = Number(value.schemaVersion) >= 3;
   const hasCloseLocation = Number(value.schemaVersion) >= 4;
   const hasFomcEve = Number(value.schemaVersion) >= 5;
-  const hasIssuerGuidance = value.schemaVersion === 6;
-  if (value.studies.length !== legacyCount + Number(hasFt900) + Number(hasCloseLocation) + Number(hasFomcEve) + Number(hasIssuerGuidance) ||
+  const hasIssuerGuidance = Number(value.schemaVersion) >= 6;
+  const newStudies = value.schemaVersion === 7 ? datedStudies : [];
+  const existing = legacyCount + Number(hasFt900) + Number(hasCloseLocation) + Number(hasFomcEve) + Number(hasIssuerGuidance);
+  const studyRows = value.studies;
+  if (studyRows.length !== existing + newStudies.length || newStudies.some((study, i) => !isDatedStudyRow(studyRows[existing + i], study)) ||
       (hasFt900 && !isFt900Row(value.studies[legacyCount])) ||
       (hasCloseLocation && !isSpyCloseLocationRow(value.studies[legacyCount + 1])) ||
       (hasFomcEve && !isFomcEveRow(value.studies[legacyCount + 2])) ||

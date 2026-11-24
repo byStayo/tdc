@@ -142,3 +142,40 @@ test("version six retains prior studies and bounds the QQQ earnings comparisons 
   }
   assert.throws(() => validateKibotResearch({ ...report, schemaVersion: 5 }, history[0]));
 });
+
+test("version seven appends the three dated studies to the unchanged twenty-four historical rows and keeps versions one through six readable", async () => {
+  const root = new URL("../",import.meta.url);
+  const {history} = await verifyPublicationTree(fileURLToPath(root));
+  const shipped = JSON.parse(await readFile(new URL("public/consensus/kibot-research.json",root),"utf8"));
+  validateKibotResearch(shipped,history[0]);
+  const v6 = {...shipped,schemaVersion:6 as const,studies:shipped.studies.slice(0,24)};
+  const cases = [20,20,21,22,23,24];
+  for (const [i,end] of cases.entries()) {
+    const earlier = {...v6,schemaVersion:i+1,studies:v6.studies.slice(0,end),
+      daily:i===0 ? v6.daily.map(({instrument,sessions,calls})=>({instrument,sessions,calls})) : v6.daily};
+    validateKibotResearch(earlier,history[0]);
+    assertRetainedStudyRows(earlier,v6);
+  }
+  const rows = [
+    {studyId:"prelaunch-tlt-tic-treasury-demand-v1",family:"capital",instrument:"TLT",timingBasis:"dated-release",samples:126,testSamples:26,
+      modelBrier:0.2512,controlBrier:0.2485,baseRateBrier:0.2473,coinBrier:0.25,coefficientSign:"positive",clearedMargin:false},
+    {studyId:"prelaunch-spy-swvxx-retail-prime-flow-v1",family:"retail",instrument:"SPY",timingBasis:"dated-release",samples:120,testSamples:24,
+      modelBrier:0.3223,controlBrier:0.3155,baseRateBrier:0.25,coinBrier:0.25,coefficientSign:"negative",clearedMargin:false,controlImprovement95:[-0.0114,-0.0009]},
+    {studyId:"SPY-prior-CFE-VX-monthly-front-second-v1",family:"options",instrument:"SPY",timingBasis:"historical-reconstruction",samples:247,testSamples:50,
+      modelBrier:0.2558,controlBrier:0.254,baseRateBrier:0.2518,coinBrier:0.25,coefficientSign:"negative",clearedMargin:false,strictBeforeCutoff:4},
+  ];
+  const v7 = {...v6,schemaVersion:7,studies:[...v6.studies,...rows]};
+  validateKibotResearch(v7,history[0]);
+  assertRetainedStudyRows(v6,v7);
+  assert.deepEqual(v7.studies.slice(24).map(researchStudyFor).map(r=>r.id),rows.map(r=>r.studyId));
+  const bad = (i:number,patch:Record<string,unknown>) => ({...v7,studies:[...v6.studies,...rows.map((r,j)=>j===i?{...r,...patch}:r)]});
+  for (const altered of [
+    {...v7,schemaVersion:6},{...v7,studies:v7.studies.slice(0,-1)},{...v7,studies:[...v6.studies,...rows.toReversed()]},
+    bad(0,{controlBrier:0.24851}),bad(0,{samples:129}),bad(0,{instrument:"SPY"}),bad(0,{clearedMargin:true}),
+    bad(0,{sourceHashes:[]}),bad(1,{controlImprovement95:[0.4,0.1]}),bad(1,{coefficientSign:["negative"]}),
+    bad(1,{strictBeforeCutoff:120}),bad(1,{weeklyFlows:[]}),bad(2,{timingBasis:"dated-release"}),bad(2,{strictBeforeCutoff:247}),
+    bad(2,{strictBeforeCutoff:3}),bad(2,{settlements:[]}),bad(2,{testSamples:49}),bad(2,{coinBrier:0.2499}),bad(2,{clearedMargin:true}),
+  ]) assert.throws(()=>validateKibotResearch(altered,history[0]),/reviewed aggregate schema/);
+  const changed = {...v7,studies:[{...v6.studies[0],samples:v6.studies[0].samples+1},...v7.studies.slice(1)]};
+  assert.throws(()=>assertRetainedStudyRows(v6,changed),/previously published/);
+});

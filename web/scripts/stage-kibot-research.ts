@@ -5,6 +5,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { readDatedStudyRows } from "../lib/consensus/dated-study-review.ts";
 import { replayFt900Study } from "./research-ft900-exports.ts";
 import { replaySpyCloseLocation } from "./research-spy-close-location.ts";
 import { FOMC_EVE_POLICY_SHA, replayFomcEveStudy } from "./research-fomc-eve.ts";
@@ -142,13 +143,13 @@ async function main() {
         };
       });
     });
-    const [exportsStudy, closingStudy, meetingStudy, earningsStudy] = await Promise.all([
+    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies] = await Promise.all([
       readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt), readFomcEveStudy(snapshots[0].issuedAt),
-      readQqqIssuerGuidanceStudy(snapshots[0].issuedAt),
+      readQqqIssuerGuidanceStudy(snapshots[0].issuedAt), readDatedStudyRows(root, snapshots[0].issuedAt),
     ]);
-    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy);
+    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies);
     const aggregate: KibotResearch = {
-      schemaVersion: 6, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 7, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

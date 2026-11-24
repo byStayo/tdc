@@ -1,5 +1,6 @@
 import type { PublicDocument } from "./calendars.ts";
 import { sourceFailureKind } from "./source-failure.ts";
+import { addTicRelease, currentTicRelease } from "./tic-release.ts";
 import { INSTRUMENTS, type Signal, type Point } from "./types.ts";
 
 export const TIC_URLS = [1, 2].map(
@@ -92,8 +93,11 @@ export function ticSeries(
 export async function collectCapital(
   fetchText: (url: string) => Promise<PublicDocument>,
 ): Promise<Signal[]> {
-  const documents = await Promise.allSettled(TIC_URLS.map(fetchText));
-  return ASSETS.map((asset): Signal => {
+  const [documents, release] = await Promise.all([
+    Promise.allSettled(TIC_URLS.map(fetchText)),
+    currentTicRelease(fetchText).catch(() => null),
+  ]);
+  const signals = ASSETS.map((asset): Signal => {
     const result = documents[asset.table - 1],
       at = new Date().toISOString();
     const signal: Signal = {
@@ -179,4 +183,5 @@ export async function collectCapital(
       return {...signal, failureKind: "validation"};
     }
   });
+  return release ? signals.map(signal => addTicRelease(signal, release)) : signals;
 }

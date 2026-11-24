@@ -12,6 +12,8 @@ import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.
 import { collectBocSurvey } from "./boc-survey.ts";
 import { collectNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
 import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
+import { collectSchwabRetailFlows } from "./schwab-retail-flows.ts";
+import { collectVxCurve, VX_CURVE_ID } from "./vx-curve.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
 import { collectUsTrade } from "./us-trade.ts";
 import { collectPolicyRates } from "./policy.ts";
@@ -945,6 +947,8 @@ export async function collectSnapshot(
     optionActivity,
     volatility,
     issuerGuidance,
+    retailFundFlow,
+    vxCurve,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -991,6 +995,10 @@ export async function collectSnapshot(
       }
       return signals;
     })(),
+    collectSchwabRetailFlows(fetcher, undefined,
+      archiveRoot ? join(archiveRoot, ".consensus/private-retail-nmfp/live-collector") : undefined),
+    collectVxCurve(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-vx-curve/live") : undefined,
+      previous?.signals.find(signal => signal.id === VX_CURVE_ID)),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -1026,6 +1034,8 @@ export async function collectSnapshot(
       // Preserve the insertion anchors used by existing scoped refreshes.
       householdEquity,
       ...issuerGuidance,
+      retailFundFlow,
+      vxCurve,
     ];
   const id = issuedAt.replace(/[:.]/g, "-");
   return applyScoringPolicy({
