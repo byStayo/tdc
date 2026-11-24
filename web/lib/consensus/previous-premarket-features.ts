@@ -11,7 +11,6 @@ import { loadTltPremarket } from "./market-history-premarket.ts";
 import { reviewedMarketHistoryRangeSources } from "./market-history-ranges.ts";
 import { RANGE_FUNDS, rangeInstant, validateSessionRanges, type RangeFund, type SessionRange } from "./regular-session-range.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
-import { newYorkDate } from "./time.ts";
 import { TLT_PREMARKET_ID } from "./tlt-premarket-signal.ts";
 import type { Signal, Snapshot } from "./types.ts";
 
@@ -89,13 +88,17 @@ export async function readPreviousPremarketFeature(
   let failure = "invalid-premarket-session-or-edition";
   try {
     const target = exchangeSession(targetSession);
-    if (!RANGE_FUNDS.includes(instrument) || !ordinary(target)) return unavailable("target-is-not-an-ordinary-session");
+    if (!RANGE_FUNDS.includes(instrument) || !target || !ordinary(target)) return unavailable("target-is-not-an-ordinary-session");
     if (snapshot.origin !== "prospective" || !rangeInstant(snapshot.issuedAt) || !rangeInstant(snapshot.cutoff) ||
         snapshot.id !== snapshot.issuedAt.replace(/[:.]/g, "-") || snapshot.cutoff > snapshot.issuedAt ||
-        snapshot.issuedAt >= target!.openAt || [snapshot.cutoff, snapshot.issuedAt].some(at => newYorkDate(at) !== targetSession))
+        snapshot.issuedAt >= target.openAt)
       return unavailable("edition-is-not-before-this-session-open");
-    const session = latestFirstRateSession(snapshot.cutoff);
-    if (!ordinary(exchangeSession(session))) return unavailable("immediately-prior-session-is-not-ordinary");
+    // An edition issued after the prior close can be witnessed again on the target morning.
+    // Bind the input to the scheduled target itself, so an older archive cannot slide past an intervening session.
+    const session = latestFirstRateSession(new Date(Date.parse(target.openAt) - 1).toISOString());
+    const prior = exchangeSession(session);
+    if (!prior || !ordinary(prior)) return unavailable("immediately-prior-session-is-not-ordinary");
+    if (snapshot.cutoff < prior.closeAt) return unavailable("edition-cutoff-precedes-the-immediately-prior-close");
     failure = "as-issued-archive-unverified";
     if (!await sameArchive(root, snapshot)) return unavailable(failure);
 

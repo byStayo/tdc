@@ -13,6 +13,8 @@ import { MARKET_HISTORY_ETF_IDS } from "../lib/consensus/market-history-boundari
 import { etfHourSource } from "../lib/consensus/market-history-hourly-access.ts";
 import { loadTltPremarket, prepareTltPremarket } from "../lib/consensus/market-history-premarket.ts";
 import { prepareMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
+import { recordPreopenReceipt, verifyPreopenWithMorningConfirmation } from "../lib/consensus/preopen-receipt.ts";
+import { newYorkDate } from "../lib/consensus/time.ts";
 import { readPreviousPremarketFeature } from "../lib/consensus/previous-premarket-features.ts";
 import { RANGE_POLICY_V2 } from "../lib/consensus/regular-session-range.ts";
 import { tltPremarketClocks } from "../lib/consensus/tlt-premarket-signal.ts";
@@ -173,8 +175,9 @@ test("a later hourly review cannot change an earlier cutoff; independently verif
 
 test("TLT after an ordinary Friday replays its hourly originals, both boundary minutes, and v1 or v2 source attribution", async t => {
   const root = await temporary(t);
-  await hourly(root, "TLT");
-  const at = target + "T12:26:00.000Z";
+  // Sunday evening in New York is after the 48-hour provider embargo on Friday's tape.
+  await hourly(root, "TLT", 105, target + "T01:23:00.000Z");
+  const at = target + "T01:26:00.000Z";
   const mock: typeof fetch = async (input) => {
     const u = new URL(String(input));
     assert.equal(u.origin, "https://getmarkethistory.com");
@@ -193,6 +196,25 @@ test("TLT after an ordinary Friday replays its hourly originals, both boundary m
   assert.equal(r.status, "available");
   if (r.status !== "available") return;
   assert.deepEqual([r.candidate, r.control, r.availableAt], [-0.3, 1, at]);
+
+  const sunday = await snapshot(root, target + "T01:29:00.000Z");
+  assert.equal(newYorkDate(sunday.issuedAt), "2026-11-22");
+  assert.deepEqual(await readPreviousPremarketFeature(root, sunday, "TLT", target), r);
+  const bytes = await readFile(join(root, "public/consensus", sunday.id + ".json"));
+  const index = Buffer.from(JSON.stringify([{ id: sunday.id, issuedAt: sunday.issuedAt, sha256: digest(sunday), engineVersion: sunday.engineVersion }]));
+  const sundayClock = target + "T01:31:00.000Z", mondayClock = target + "T12:31:00.000Z";
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(sundayClock) });
+  await recordPreopenReceipt(root, target, sunday.id, bytes, index, sundayClock);
+  const evening = await verifyPreopenWithMorningConfirmation(root, target, sunday.id, bytes, mondayClock);
+  assert.notEqual(newYorkDate(evening.observedAt), target);
+  t.mock.timers.setTime(Date.parse(mondayClock));
+  await recordPreopenReceipt(root, target, sunday.id, bytes, index, mondayClock);
+  const morning = await verifyPreopenWithMorningConfirmation(root, target, sunday.id, bytes, mondayClock);
+  assert.equal(morning.observedAt, mondayClock);
+  assert.equal(morning.archiveSha256, evening.archiveSha256);
+  assert.deepEqual(await readPreviousPremarketFeature(root, sunday, "TLT", "2026-11-24"),
+    { status: "unavailable", reason: "edition-cutoff-precedes-the-immediately-prior-close" });
+
   const row = issued.regularSessionRanges!.rows[0];
   issued.regularSessionRanges = { method: RANGE_POLICY_V2, rows: [{ ...row, source: "market-history" }] };
   assert.deepEqual(await readPreviousPremarketFeature(root, await archive(root, issued), "TLT", target), r);
