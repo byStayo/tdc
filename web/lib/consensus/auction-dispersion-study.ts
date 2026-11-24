@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   AUCTION_SOURCE_DIRECTORY,
   captureAuctionDispersion,
+  nextEligibleMorning,
   readAuctionNative,
   replayAuctionDispersion,
   targetAfterAuction,
@@ -16,6 +17,7 @@ import { MARKETPARQUET_SOURCE } from "./marketparquet.ts";
 import { verifyPreopenWithMorningConfirmation } from "./preopen-receipt.ts";
 import { publicText, type Fetcher } from "./public-source.ts";
 import { createSecondaryStudy, type StudyPoint } from "./secondary-study.ts";
+import { treasuryAuctionObservation } from "./treasury-auction-observation.ts";
 import { newYorkDate } from "./time.ts";
 import type { Snapshot } from "./types.ts";
 
@@ -119,19 +121,58 @@ export async function collectMarketCalendarsWithAuction(
     if (url === TREASURY_ANNOUNCED) announced = source;
     return source;
   });
-  if (!root || !announced) return calendars;
+  const calendar = calendars.signals.find((signal) => signal.id === "treasury-calendar");
+  const observation = await observationForEdition(
+    root,
+    announced,
+    calendar?.status === "available",
+    read,
+    fetcher,
+  );
+  return { ...calendars, signals: [...calendars.signals, observation] };
+}
+
+async function observationForEdition(
+  root: string | undefined,
+  announced: PublicDocument | undefined,
+  calendarAvailable: boolean,
+  read: (url: string) => Promise<PublicDocument>,
+  fetcher: Fetcher,
+) {
+  const missing = () => treasuryAuctionObservation(null, new Date().toISOString());
+  if (!root || !announced) return missing();
   try {
     const registration = await auctionDispersionStudy.registration(root);
-    if (registration)
-      await captureAuctionDispersion(
-        join(root, AUCTION_SOURCE_DIRECTORY),
-        registration.registeredAt,
-        announced,
-        read,
-        (url) => readAuctionNative(url, fetcher),
-      );
+    if (!registration) return missing();
+    const directory = join(root, AUCTION_SOURCE_DIRECTORY);
+    const status = await captureAuctionDispersion(
+      directory,
+      registration.registeredAt,
+      announced,
+      read,
+      (url) => readAuctionNative(url, fetcher),
+    );
+    const now = new Date().toISOString();
+    const target = nextEligibleMorning(now);
+    if (status !== "source_witnessed" || !target || !calendarAvailable) return missing();
+    const matched = await replayAuctionDispersion(
+      directory,
+      registration.registeredAt,
+      target.session,
+      announced,
+      now,
+    );
+    if (!matched) return missing();
+    return treasuryAuctionObservation(
+      {
+        ...matched.observation,
+        catalogue: { sha256: announced.sha256, retrievedAt: announced.retrievedAt },
+        verifiedAt: matched.observedThrough,
+      },
+      now,
+    );
   } catch {
-    console.error("Private Treasury auction comparison could not verify the complete dated source panel.");
+    console.error("Treasury competitive results could not verify the complete dated auction panel.");
+    return missing();
   }
-  return calendars;
 }

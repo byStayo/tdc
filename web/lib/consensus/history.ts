@@ -32,6 +32,7 @@ import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrat
 import { validateTltPremarket } from "./tlt-premarket-signal.ts";
 import { validateFirstRatePremarket, validatePremarketBreadth } from "./firstrate-premarket.ts";
 import { RANGE_POLICY_V2, validateSessionRanges } from "./regular-session-range.ts";
+import { TREASURY_AWARD_ID, validateTreasuryAuctionObservation } from "./treasury-auction-observation.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
@@ -101,6 +102,9 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateFirstRatePremarket(signal, snapshot.cutoff);
     validateTltPremarket(signal, snapshot.cutoff);
     validateTltCloseSignal(signal, snapshot.cutoff);
+    if (signal.id === TREASURY_AWARD_ID || signal.treasuryAuction !== undefined) {
+      validateTreasuryAuctionObservation(signal, snapshot.cutoff, snapshot.signals.find(item => item.id === "treasury-calendar"));
+    }
     validateOrderActivity(signal);
     validateFuturesOptions(signal);
     validateMarketHistoryVolatility(signal);

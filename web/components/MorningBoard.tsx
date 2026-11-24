@@ -515,8 +515,8 @@ function SourceDrawer({
               )}
               {!firstVerified && signal.source.vintageAt && (!isCftcPosition(signal.id) || signal.source.vintageAt !== signal.source.releasedAt) && (
                 <div>
-                  <dt>{isCftcPosition(signal.id) ? "CFTC table row updated" : "Provider vintage"}</dt>
-                  <dd>{datedYear(signal.source.vintageAt)}{isCftcPosition(signal.id) && ` · ${time(signal.source.vintageAt)} ET`}</dd>
+                  <dt>{signal.treasuryAuction ? "Treasury result file updated" : isCftcPosition(signal.id) ? "CFTC table row updated" : "Provider vintage"}</dt>
+                  <dd>{datedYear(signal.source.vintageAt)}{(signal.treasuryAuction || isCftcPosition(signal.id)) && ` · ${time(signal.source.vintageAt)} ET`}</dd>
                 </div>
               )}
               {signal.source.approvedAt && (

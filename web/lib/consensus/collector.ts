@@ -1010,7 +1010,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 64 + taiwan.length + inflationAndMoney.length + REVENUE_ISSUERS.length + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 65 + taiwan.length + inflationAndMoney.length + REVENUE_ISSUERS.length + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

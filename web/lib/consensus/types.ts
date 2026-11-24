@@ -73,6 +73,8 @@ export interface Signal {
   unit: string;
   /** Original management range and a separately filed consolidated quarterly result. */
   issuerGuidance?: import("./issuer-guidance-match.ts").IssuerGuidanceMatch;
+  /** Native competitive auction and three same-tenor award comparisons. */
+  treasuryAuction?: import("./treasury-auction-observation.ts").TreasuryAuctionEvidence;
   /** First-release Treasury components with their own observation and publication clock. */
   ticRelease?: import("./tic-release.ts").TicReleaseEvidence;
   schwabRetailFlows?: import("./schwab-retail-flows.ts").SchwabRetailFlowsEvidence;

@@ -23,7 +23,12 @@ import {
   collectMarketCalendarsWithAuction,
 } from "../lib/consensus/auction-dispersion-study.ts";
 import { exchangeCalendarVersion, exchangeSession } from "../lib/consensus/exchange-calendar.ts";
-import { digest } from "../lib/consensus/history.ts";
+import { digest, validateSnapshot } from "../lib/consensus/history.ts";
+import { calculateConsensus, effectiveStatus } from "../lib/consensus/engine.ts";
+import {
+  TREASURY_AWARD_ID,
+  validateTreasuryAuctionObservation,
+} from "../lib/consensus/treasury-auction-observation.ts";
 import { MARKET_HISTORY_SOURCE } from "../lib/consensus/market-history-settlement.ts";
 import { recordPreopenReceipt } from "../lib/consensus/preopen-receipt.ts";
 import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
@@ -186,12 +191,16 @@ test("current and legacy original formats reconcile percentage yields and their 
   const a = native(recent[0], false, receiptAt),
     b = native(recent[2], true, receiptAt);
   assert.deepEqual(verifyAuctionOriginal(rows[0], a, receiptAt), {
+    releaseMinuteAt: null,
+    fileVersionAt: "2026-11-24T18:02:45.000Z",
     spread: 65,
     cover: 238,
     sourceClock: "2026-11-24T18:02:45.000Z",
     witnessedAt: receiptAt,
   });
   assert.deepEqual(verifyAuctionOriginal(rows[2], b, receiptAt), {
+    releaseMinuteAt: "2026-09-23T17:02:00.000Z",
+    fileVersionAt: "2026-09-23T17:02:45.000Z",
     spread: 73,
     cover: 227,
     sourceClock: "2026-09-23T17:03:00.000Z",
@@ -279,13 +288,126 @@ test("an inactive or unavailable private auction source preserves the ordinary p
   };
   let result = await collectMarketCalendarsWithAuction(read, rejectRead, root);
   assert.equal(alternativeRequests, 0);
+  const missing = result.signals.find((s) => s.id === TREASURY_AWARD_ID)!;
+  assert.equal(missing.status, "unavailable");
+  validateTreasuryAuctionObservation(missing, now());
   assert.equal(result.signals.find((s) => s.id === "treasury-calendar")?.status, "available");
   await auctionDispersionStudy.register(root);
   set(t, receiptAt);
   result = await collectMarketCalendarsWithAuction(read, rejectRead, root);
   assert.equal(alternativeRequests, 1);
+  assert.equal(result.signals.find((s) => s.id === TREASURY_AWARD_ID)?.status, "unavailable");
   assert.equal(result.signals.find((s) => s.id === "treasury-calendar")?.status, "available");
   await assert.rejects(readFile(join(dir, "panels", target + ".json")), { code: "ENOENT" });
+});
+
+test("ordinary collector exposes only the four official auction statistics until the next full opening", async (t) => {
+  const { root } = await workspace(t);
+  await auctionDispersionStudy.register(root);
+  set(t, receiptAt);
+  let rows = recent;
+  let resultRequests = 0;
+  const read = async (url: string) => {
+    if (url === TREASURY_AUCTIONED) resultRequests++;
+    else if (url !== TREASURY_ANNOUNCED) throw Error("Unrelated calendar");
+    return document(catalogue(rows));
+  };
+  const transport = async (url: string) => {
+    resultRequests++;
+    const doc = await documents(url);
+    return new Response(doc.text, { headers: { "last-modified": doc.lastModified! } });
+  };
+  await collectMarketCalendarsWithAuction(read, transport, root);
+  assert.equal(resultRequests, 5);
+  set(t, issuedAt);
+  const feed = await collectMarketCalendarsWithAuction(read, transport, root);
+  const signal = feed.signals.find((s) => s.id === TREASURY_AWARD_ID)!;
+  const calendar = feed.signals.find((s) => s.id === "treasury-calendar")!;
+  assert.equal(resultRequests, 5);
+  assert.equal(signal.status, "available");
+  assert.deepEqual(
+    signal.metrics.map((m) => [m.value, m.unit]),
+    [
+      [6.5, "bp"],
+      [5, "bp"],
+      [2.38, "×"],
+      [2.33, "×"],
+    ],
+  );
+  assert.deepEqual(signal.directionalInstruments, []);
+  assert.deepEqual(signal.scores, { daily: null, weekly: null, monthly: null });
+  assert.equal(signal.source.url, native(recent[0]).url);
+  assert.equal(signal.source.sha256, native(recent[0]).sha256);
+  assert.equal(signal.source.observedAt, "2026-11-24");
+  assert.equal(signal.source.releasedAt, "2026-11-24");
+  assert.equal(signal.source.vintageAt, "2026-11-24T18:02:45.000Z");
+  assert.equal(signal.source.retrievedAt, receiptAt);
+  assert.equal(signal.source.approvedAt, issuedAt);
+  assert.equal(signal.treasuryAuction!.bidDeadlineAt, "2026-11-24T18:00:00.000Z");
+  assert.equal(effectiveStatus(signal, "2026-11-25T09:29:59-05:00"), "available");
+  assert.equal(effectiveStatus(signal, "2026-11-25T09:30:00-05:00"), "stale");
+  const before = calculateConsensus([calendar], "TLT", "daily", issuedAt);
+  const after = calculateConsensus([calendar, signal], "TLT", "daily", issuedAt);
+  assert.equal(after.directionalCoverage, before.directionalCoverage);
+  assert.equal(after.score, before.score);
+  const snapshot: Snapshot = {
+    schemaVersion: 1,
+    id: edition,
+    issuedAt,
+    cutoff: issuedAt,
+    engineVersion: "test-v1",
+    origin: "prospective",
+    signals: [calendar, signal],
+    catalysts: [],
+    sourcesAttempted: 2,
+    collectionErrors: [],
+  };
+  validateSnapshot(snapshot);
+  const assertRejected = (modify: (s: Signal) => void) => {
+    const altered = structuredClone(signal);
+    modify(altered);
+    assert.throws(() => validateSnapshot({ ...snapshot, signals: [calendar, altered] }), /Treasury/);
+  };
+  assertRejected((s) => {
+    s.scores.daily = 0.1;
+  });
+  assertRejected((s) => {
+    s.source.releasedAt = issuedAt;
+  });
+  assertRejected((s) => {
+    s.treasuryAuction!.expiresAt = "2026-11-30T14:30:00.000Z";
+  });
+  assertRejected((s) => {
+    s.treasuryAuction!.results[1].auctionDate = "2026-08-01";
+  });
+  assertRejected((s) => {
+    s.treasuryAuction!.results[2].resultUrl = s.source.url;
+  });
+  assertRejected((s) => {
+    s.metrics[0].value = 6.9;
+  });
+  assertRejected((s) => {
+    s.treasuryAuction!.catalogue.sha256 = "1".repeat(64);
+  });
+  assert.throws(() => validateSnapshot({ ...snapshot, signals: [signal] }), /calendar/);
+  assert.throws(
+    () =>
+      validateSnapshot({ ...snapshot, signals: [{ ...calendar, treasuryAuction: signal.treasuryAuction }] }),
+    /identity/,
+  );
+  for (const changed of [
+    [{ ...recent[0], medianYield: "4.334" }, ...recent.slice(1)],
+    [...recent, { ...recent[0], cusip: "912000009" }],
+  ]) {
+    rows = changed;
+    const latest = await collectMarketCalendarsWithAuction(read, transport, root);
+    const missing = latest.signals.find((s) => s.id === TREASURY_AWARD_ID)!;
+    assert.equal(missing.status, "unavailable");
+    assert.deepEqual(missing.metrics, []);
+    assert.equal(missing.treasuryAuction, undefined);
+    assert.equal(latest.signals.find((s) => s.id === "treasury-calendar")?.status, "available");
+    assert.equal(resultRequests, 5);
+  }
 });
 
 async function publish(root: string, signal: Signal) {

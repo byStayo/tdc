@@ -3,6 +3,9 @@ import { gzipSync, gunzipSync } from "node:zlib";
 import { join } from "node:path";
 import { immutableSourceReceipt } from "../publication-storage.ts";
 import { publicDate } from "../public-normalization.ts";
+import { nextEligibleMorning, targetAfterAuction } from "./auction-dispersion-calendar.ts";
+import type { AuctionResultObservation } from "./treasury-auction-observation.ts";
+export { nextEligibleMorning, targetAfterAuction } from "./auction-dispersion-calendar.ts";
 import type { PublicDocument } from "./calendars.ts";
 import { exchangeSession, hasReviewedCalendar } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
@@ -20,31 +23,6 @@ const hash = (b: string | Buffer) => createHash("sha256").update(b).digest("hex"
 const stamp = (s: string) =>
   typeof s === "string" && Number.isFinite(Date.parse(s)) && new Date(s).toISOString() === s;
 const dateOnly = (s: string) => typeof s === "string" && /^\d{4}-\d\d-\d\d$/.test(s) && publicDate(s) === s;
-
-function nextDate(day: string) {
-  return new Date(Date.parse(day) + millisPerDay).toISOString().slice(0, 10);
-}
-
-function firstFull(day: string) {
-  for (let n = 0; n < 8; n++, day = nextDate(day)) {
-    if (!hasReviewedCalendar(day)) return null;
-    const c = exchangeSession(day);
-    if (c && Date.parse(c.closeAt) - Date.parse(c.openAt) === fullDay) return c;
-  }
-  return null;
-}
-
-export function targetAfterAuction(day: string) {
-  if (!dateOnly(day) || !hasReviewedCalendar(day)) return null;
-  return firstFull(nextDate(day));
-}
-
-export function nextEligibleMorning(now: string) {
-  if (!stamp(now)) return null;
-  const day = newYorkDate(now),
-    c = firstFull(day);
-  return c && now < c.openAt ? c : c && firstFull(nextDate(day));
-}
 
 function requiredDay(value: unknown) {
   const s = typeof value === "string" ? value : "";
@@ -324,6 +302,8 @@ export function verifyAuctionOriginal(row: Row, doc: AuctionNative, asOf: string
   if (!reported && !sameDay) throw Error("No contemporary Treasury competitive result clock");
   // A Last-Modified header dates this file version. Actual receipt proves it was available to this host.
   return {
+    releaseMinuteAt: reported ? new Date(Date.parse(reported) - 60_000).toISOString() : null,
+    fileVersionAt: sameDay,
     spread: high - median,
     cover,
     sourceClock: [reported, sameDay]
@@ -374,12 +354,29 @@ function replayPanel(receipt: Receipt, session: string, registeredAt: string, th
   const cleared = selectAuctionPanel(unpack(receipt.auctioned, receipt.sealedAt), session);
   if (!rows || !cleared || digest(rows) !== digest(cleared) || receipt.originals.length !== 4)
     throw Error("Announcements and competitive result catalogue select different auctions");
-  const [a, b, c, d] = rows.map((r, i) => verifyAuctionOriginal(r, receipt.originals[i], receipt.sealedAt));
+  const verified = rows.map((r, i) => verifyAuctionOriginal(r, receipt.originals[i], receipt.sealedAt));
+  const [a, b, c, d] = verified;
   if ([receipt.announced, receipt.auctioned].some((source) => source.retrievedAt < a.sourceClock))
     throw Error("Treasury catalogue predates the selected original result");
   if ([b, c, d].some((r) => r.sourceClock >= a.sourceClock))
     throw Error("Treasury controls postdate the selected release");
   return {
+    observation: {
+      tenorYears: rows[0].tenor,
+      currentCusip: rows[0].cusip,
+      bidDeadlineAt: rows[0].close,
+      releaseMinuteAt: a.releaseMinuteAt,
+      fileVersionAt: a.fileVersionAt,
+      firstObservedAt: a.witnessedAt,
+      expiresAt: exchangeSession(session)!.openAt,
+      results: rows.map((row, i) => ({
+        auctionDate: row.day,
+        spreadBp: verified[i].spread / 10,
+        bidToCover: verified[i].cover / 100,
+        resultUrl: receipt.originals[i].url,
+        sha256: receipt.originals[i].sha256,
+      })),
+    } satisfies AuctionResultObservation,
     eventId: "treasury-awards:" + rows[0].day + ":" + rows[0].cusip,
     candidate: -(a.spread - median3(b.spread, c.spread, d.spread)) / 10,
     control: (a.cover - median3(b.cover, c.cover, d.cover)) / 100,
