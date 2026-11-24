@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { Plus } from "lucide-react";
 import styles from "./MorningBoard.module.css";
 
@@ -16,8 +16,13 @@ export default function ResearchSection({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  // The browser can open the native disclosure before React attaches onToggle.
+  const readInitialOpen = useCallback((section: HTMLDetailsElement | null) => {
+    if (section) setOpen(section.open);
+  }, []);
   return (
     <details
+      ref={readInitialOpen}
       className={styles.researchSection}
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
