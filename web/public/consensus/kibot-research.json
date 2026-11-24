@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 13,
+  "schemaVersion": 14,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
   "through": "2026-11-23",
@@ -485,6 +485,28 @@
       "controlImprovement95": [
         -0.0092,
         0.0043
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-tlt-canadian-policy-change-v1-bank-effective-register",
+      "family": "international",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 139,
+      "testSamples": 28,
+      "modelBrier": 0.2408,
+      "controlBrier": 0.244,
+      "baseRateBrier": 0.2452,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "scheduledDecisions": 152,
+      "dailyHistoryEligible": 88,
+      "excludedOverlap": 13,
+      "testRateChanges": 4,
+      "controlImprovement95": [
+        -0.0111,
+        0.021
       ],
       "clearedMargin": false
     }
