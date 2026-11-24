@@ -6,7 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { gunzipSync } from "node:zlib";
 import { treasuryYieldFile } from "../lib/consensus/fed-market-data.ts";
-import { attachTreasuryCurve, collectTreasuryCurve, TREASURY_CURVE_ID, type TreasuryCurveData } from "../lib/treasury-curve-editorial.ts";
+import { attachTreasuryCurve, collectOfficialTreasuryCurve, collectTreasuryCurve, TREASURY_CURVE_ID, type TreasuryCurveData } from "../lib/treasury-curve-editorial.ts";
 import { assertPublicURL, collectEditorialEvidence, type EditorialSource } from "../scripts/collect-editorial-evidence.ts";
 import { validateEditorialPublication } from "../scripts/publish-editorial-brief.ts";
 
@@ -28,7 +28,7 @@ const candidate = (source: EditorialSource) => ({ status:"ok", scope:"market", c
     watch:[{text:"The ten-year yield reached 5.04%.",sourceIds:[source.id]}], limitations:["Observation dates come from Treasury."] },
   sources:[{ id:source.id, title:source.title, url:source.url }] });
 
-test("normal editorial collection keeps one original source, two coherent curve dates and one deduplicated private capture", async t => {
+test("weekday collection recovers an HTTP 503 and seals the successful Treasury bytes and retrieval time", async t => {
   t.mock.timers.enable({ apis:["Date"], now });
   const root = await mkdtemp(join(tmpdir(), "tdc-curve-"));
   try {
@@ -38,16 +38,19 @@ test("normal editorial collection keeps one original source, two coherent curve 
       if (new URL(url).hostname !== "home.treasury.gov") return new Response("unavailable", {status:503});
       urls.push(url);
       assert.equal(init?.redirect, "error");
+      if (urls.length === 1) return new Response("temporary response", {status: 503, headers: {"Retry-After":"0"}});
+      t.mock.timers.setTime(now + 1000);
       return new Response(xml);
     }, {archiveRoot:root});
-    assert.deepEqual(urls, [treasuryYieldFile(2026)]);
+    assert.deepEqual(urls, [treasuryYieldFile(2026), treasuryYieldFile(2026)]);
     const source = e.sources.find(s => s.id === TREASURY_CURVE_ID)!;
     assert.equal(source.status, "ok");
-    assert.equal(source.retrievedAt, stamp);
+    const recoveredAt = new Date(now + 1000).toISOString();
+    assert.equal(source.retrievedAt, recoveredAt);
     const data = source.data as TreasuryCurveData;
     assert.deepEqual(data.latest, expected);
     assert.deepEqual(data.previous,{date:"2026-11-18",twoYearPercent:4.80,tenYearPercent:5.07,thirtyYearPercent:5.41});
-    assert.deepEqual(data.documents, [{url:urls[0],retrievedAt:stamp,sha256:hash(xml)}]);
+    assert.deepEqual(data.documents, [{url:urls[0],retrievedAt:recoveredAt,sha256:hash(xml)}]);
     assert.deepEqual(source.observationDates, [data.latest.date,data.previous.date]);
     await collectTreasuryCurve(async () => capture(xml), root);
     const folder = join(root, ".editorial/treasury-curves");
@@ -55,8 +58,82 @@ test("normal editorial collection keeps one original source, two coherent curve 
     const file = join(folder, hash(xml)+".json");
     assert.equal((await stat(file)).mode & 0o077, 0);
     assert.equal(gunzipSync(Buffer.from(JSON.parse(await readFile(file, "utf8")).gzipBase64, "base64")).toString(),xml);
-    assert.equal(validateEditorialPublication(candidate(source), evidence([source]), now).brief.sources?.[0]?.id, source.id);
+    assert.equal(validateEditorialPublication({...candidate(source), createdAt: recoveredAt}, {...evidence([source]), collectedAt:recoveredAt}, now + 1000).brief.sources?.[0]?.id, source.id);
   } finally { await rm(root, {recursive:true,force:true}); }
+});
+
+test("permanent HTTP or XML failures and long throttles stop immediately with sanitized diagnostics", async t => {
+  t.mock.timers.enable({ apis: ["Date"], now });
+  const secret = "private-response-marker";
+  for (const [status, body, retryAfter, expectedError] of [
+    [403, secret, null, /HTTP 403/], [404, secret, null, /HTTP 404/],
+    [429, secret, "120", /HTTP 429.*three seconds/], [503, secret, "invalid", /HTTP 503.*retry delay/],
+    [200, "<html>" + secret + "</html>", null, /verification/],
+  ] as const) {
+    let requests = 0;
+    const source = await collectOfficialTreasuryCurve(async () => {
+      requests++;
+      return new Response(body, { status, headers: retryAfter === null ? {} : { "Retry-After": retryAfter } });
+    });
+    assert.equal(requests, 1);
+    assert.equal(source.status, "unavailable");
+    assert.match(source.error!, expectedError);
+    assert.doesNotMatch(source.error!, /private-response-marker/);
+    assert.equal(source.data, null);
+    assert.deepEqual(source.observationDates, []);
+  }
+});
+
+test("one collection-wide retry at year rollover preserves the first annual receipt and both source times", async t => {
+  const january = Date.parse("2027-01-05T12:00:00Z");
+  t.mock.timers.enable({ apis: ["Date"], now: january });
+  const requests: string[] = [];
+  const source = await collectOfficialTreasuryCurve(async url => {
+    requests.push(url);
+    t.mock.timers.setTime(january + requests.length * 1000);
+    if (requests.length === 2) return new Response(null, { status: 503, headers: { "Retry-After": "0" } });
+    return new Response(head + row(url === treasuryYieldFile(2027) ? "2027-01-04" : "2026-12-31") + "</feed>");
+  });
+  assert.equal(source.status, "ok");
+  assert.deepEqual(requests, [treasuryYieldFile(2027), treasuryYieldFile(2026), treasuryYieldFile(2026)]);
+  assert.deepEqual(source.observationDates, ["2027-01-04", "2026-12-31"]);
+  assert.deepEqual((source.data as TreasuryCurveData).documents.map(d => d.retrievedAt),
+    [new Date(january + 1000).toISOString(), new Date(january + 3000).toISOString()]);
+
+  let reads = 0;
+  const failed = await collectOfficialTreasuryCurve(async () => {
+    reads++;
+    if (reads === 2) return new Response(head + row("2027-01-04") + "</feed>");
+    return new Response("private-response-marker", { status: 503, headers: { "Retry-After": "0" } });
+  });
+  assert.equal(reads, 3);
+  assert.equal(failed.status, "unavailable");
+  assert.match(failed.error!, /HTTP 503.*retry/);
+  assert.doesNotMatch(failed.error!, /private-response-marker/);
+  const packet = evidence([source]);
+  const original = JSON.stringify(packet);
+  assert.throws(() => attachTreasuryCurve(packet, failed, new Date(january + 3000).toISOString()), /separately verified/);
+  assert.equal(JSON.stringify(packet), original);
+});
+
+test("a connection reset can recover; an invalid TLS certificate cannot qualify by retry", async t => {
+  t.mock.timers.enable({ apis: ["Date"], now });
+  for (const [code, expectedCalls, expectedStatus] of [
+    ["ECONNRESET", 2, "ok"], ["CERT_HAS_EXPIRED", 1, "unavailable"],
+  ] as const) {
+    let calls = 0;
+    const source = await collectOfficialTreasuryCurve(async () => {
+      calls++;
+      if (calls === 1) {
+        const cause = Object.assign(new Error("private-provider-detail"), { code });
+        throw new TypeError("sensitive connection description", { cause });
+      }
+      return new Response(xml);
+    });
+    assert.equal(calls, expectedCalls);
+    assert.equal(source.status, expectedStatus);
+    assert.doesNotMatch(JSON.stringify(source), /private-provider-detail|sensitive connection description/);
+  }
 });
 
 test("future, intraday pre-observation, incomplete, duplicate and mismatched dates fail closed", async t => {

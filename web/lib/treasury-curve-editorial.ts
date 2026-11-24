@@ -1,8 +1,11 @@
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
+import { setTimeout as wait } from "node:timers/promises";
 import { gzipSync, gunzipSync } from "node:zlib";
 import type { EditorialEvidence, EditorialSource } from "../scripts/collect-editorial-evidence.ts";
+import { publicBytes } from "./consensus/collector.ts";
 import { TREASURY_YIELD_CITATION, treasuryYieldFile, treasuryYieldPoints } from "./consensus/fed-market-data.ts";
+import { SourceTransportError } from "./consensus/source-failure.ts";
 import { newYorkDate, newYorkTimestamp } from "./consensus/time.ts";
 import { readResearchReceipt } from "./consensus/research-price-capture.ts";
 import { publicDate } from "./public-normalization.ts";
@@ -11,6 +14,7 @@ import { durableDirectory, durableJSON } from "./publication-storage.ts";
 export const TREASURY_CURVE_ID = "TREASURY_YIELD_CURVE";
 const title = "U.S. Treasury · Daily Treasury Par Yield Curve Rates";
 const unit = "percent per annum";
+const maxCurveBytes = 2 * 1024 * 1024;
 const tenor = { DGS2: "twoYearPercent", DGS10: "tenYearPercent", DGS30: "thirtyYearPercent" } as const;
 type CurveRow = { date: string; twoYearPercent: number; tenYearPercent: number; thirtyYearPercent: number };
 type Stamp = { url: string; retrievedAt: string; sha256: string };
@@ -20,6 +24,68 @@ const instant = (s: unknown): s is string => typeof s === "string" && Number.isF
 const exact = (v: unknown, keys: string[]) => !!v && typeof v === "object" && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
 const isRate = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 100;
 const hash = (v: Buffer) => createHash("sha256").update(v).digest("hex");
+const retryableHTTP = new Set([408, 429, 500, 502, 503, 504]);
+const transientCodes = new Set(["EAI_AGAIN", "ECONNRESET", "ECONNREFUSED", "ETIMEDOUT", "EPIPE",
+  "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT", "UND_ERR_SOCKET"]);
+type TreasuryFetch = (url: string, init?: RequestInit) => Promise<Response>;
+
+class TreasuryDeliveryError extends Error {
+  readonly retryDelay: number | null;
+
+  constructor(reason: string, retryDelay: number | null) {
+    super(reason);
+    this.retryDelay = retryDelay;
+  }
+}
+
+function retryDelay(hint: string | null): number | null {
+  if (hint === null) return 1000;
+  let delay: number;
+  if (/^\d+$/.test(hint)) {
+    delay = Number(hint) * 1000;
+  } else {
+    const at = new Date(hint);
+    if (!Number.isFinite(at.getTime()) || at.toUTCString() !== hint) return null;
+    delay = Math.max(0, at.getTime() - Date.now());
+  }
+  return delay <= 3000 ? delay : null;
+}
+
+function transientConnection(cause: unknown): boolean {
+  for (let depth = 0; depth < 3 && cause instanceof Error; depth++) {
+    if (cause.name === "TimeoutError" || cause.name === "AbortError" ||
+        transientCodes.has((cause as NodeJS.ErrnoException).code ?? "")) return true;
+    cause = cause.cause;
+  }
+  return false;
+}
+
+export function collectOfficialTreasuryCurve(fetcher: TreasuryFetch = fetch, archiveRoot?: string): Promise<EditorialSource> {
+  return collectTreasuryCurve(async url => {
+    assertTreasuryCurveURL(url);
+    const delivery: { response?: Response } = {};
+    try {
+      const { bytes, retrievedAt, sha256 } = await publicBytes(url, async (target, init) => {
+        delivery.response = await fetcher(target, init);
+        return delivery.response;
+      }, maxCurveBytes);
+      return { text: bytes.toString("utf8"), retrievedAt, sha256 };
+    } catch (error) {
+      const response = delivery.response;
+      if (response && !response.ok) {
+        await response.body?.cancel().catch(() => undefined);
+        const transient = retryableHTTP.has(response.status);
+        const delay = transient ? retryDelay(response.headers.get("Retry-After")) : null;
+        const detail = transient && delay === null ? " The provider's retry delay is invalid or exceeds three seconds." : "";
+        throw new TreasuryDeliveryError(`Treasury returned HTTP ${response.status}.` + detail, delay);
+      }
+      if (error instanceof SourceTransportError) {
+        throw new TreasuryDeliveryError("The Treasury connection failed or was interrupted.", transientConnection(error.cause) ? 1000 : null);
+      }
+      throw error;
+    }
+  }, archiveRoot);
+}
 
 function table(year: number): string {
   const url = new URL(TREASURY_YIELD_CITATION);
@@ -58,16 +124,28 @@ async function retain(root: string, bytes: Buffer, sha256: string) {
     catch (e) { if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e; }
     saved = await readResearchReceipt<Saved>(path);
   }
-  if (!saved || !gunzipSync(Buffer.from(saved.gzipBase64, "base64"), { maxOutputLength: 2 * 1024 * 1024 }).equals(bytes))
+  if (!saved || !gunzipSync(Buffer.from(saved.gzipBase64, "base64"), { maxOutputLength: maxCurveBytes }).equals(bytes))
     throw new Error("Treasury capture failed its private byte check");
 }
 
 export async function collectTreasuryCurve(read: (url: string) => Promise<Capture>, archiveRoot?: string): Promise<EditorialSource> {
   const currentYear = Number(newYorkDate(new Date().toISOString()).slice(0, 4));
   const sources: Stamp[] = [];
+  let retryUsed = false;
   const readYear = async (year: number) => {
-    const url = treasuryYieldFile(year), doc = await read(url), bytes = Buffer.from(doc.text);
-    if (!instant(doc.retrievedAt) || doc.retrievedAt > new Date().toISOString() || bytes.length > 2 * 1024 * 1024 || hash(bytes) !== doc.sha256)
+    const url = treasuryYieldFile(year);
+    let doc: Capture;
+    try {
+      doc = await read(url);
+    } catch (error) {
+      if (retryUsed || !(error instanceof TreasuryDeliveryError) || error.retryDelay === null) throw error;
+      // Both annual files share one retry. A successful first year is never fetched again.
+      retryUsed = true;
+      if (error.retryDelay > 0) await wait(error.retryDelay);
+      doc = await read(url);
+    }
+    const bytes = Buffer.from(doc.text);
+    if (!instant(doc.retrievedAt) || doc.retrievedAt > new Date().toISOString() || bytes.length > maxCurveBytes || hash(bytes) !== doc.sha256)
       throw new Error("Invalid Treasury capture");
     const rows = curveRows(doc, year);
     if (archiveRoot) await retain(archiveRoot, bytes, doc.sha256);
@@ -85,10 +163,11 @@ export async function collectTreasuryCurve(read: (url: string) => Promise<Captur
       observationDates: [latest.date, previous.date], data: { unit, latest, previous, documents: sources } satisfies TreasuryCurveData };
     validateTreasuryCurveSource(source);
     return source;
-  } catch {
+  } catch (cause) {
     const retrievedAt = new Date().toISOString(), year = Number(newYorkDate(retrievedAt).slice(0, 4));
+    const reason = cause instanceof TreasuryDeliveryError ? cause.message : "Treasury curve evidence failed date, content, or archive verification.";
     return { ...base, status: "unavailable", url: table(year), retrievalUrl: treasuryYieldFile(year), retrievedAt, observationDates: [], data: null,
-      error: "Two verified dated U.S. Treasury par yield curves were unavailable." };
+      error: retryUsed ? reason + " The collection used its one retry." : reason };
   }
 }
 

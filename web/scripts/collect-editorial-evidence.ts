@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EDITORIAL_ISSUERS, latestPublicPositioning, parseSECSubmissions, publicDate, PUBLIC_CONTRACT_CODES } from '../lib/public-normalization.ts';
 import { assertFedMinutesURL, attachFedMinutesSource, collectFedMinutes, FED_MINUTES_FEED, privateFedMinutesText } from '../lib/fed-minutes-editorial.ts';
-import { assertTreasuryCurveURL, attachTreasuryCurve, collectTreasuryCurve } from '../lib/treasury-curve-editorial.ts';
+import { assertTreasuryCurveURL, attachTreasuryCurve, collectOfficialTreasuryCurve } from '../lib/treasury-curve-editorial.ts';
 import { durableDirectory, durableJSON } from '../lib/publication-storage.ts';
 
 export const PUBLIC_HOSTS = new Set(['publicreporting.cftc.gov', 'www.cftc.gov', 'fred.stlouisfed.org', 'www.sec.gov', 'data.sec.gov', 'www.bls.gov', 'www.bankofengland.co.uk', 'www.federalreserve.gov', 'home.treasury.gov']);
@@ -189,7 +189,7 @@ export async function collectEditorialEvidence(fetcher: Fetcher = fetch, options
   const cutoff = new Date().toISOString();
   const parts = await Promise.all([collectCFTC(fetcher), collectFRED(fetcher), collectSEC(fetcher), collectMethod(fetcher),
     collectFedMinutesEvidence(fetcher, options.archiveRoot ?? options.fedMinutesArchiveRoot, cutoff).then(source => [source]),
-    collectTreasuryCurve(url => fetchText(url, fetcher), options.archiveRoot).then(source => [source])]);
+    collectOfficialTreasuryCurve(fetcher, options.archiveRoot).then(source => [source])]);
   return { schemaVersion: 1, scope: 'market', collectedAt: new Date().toISOString(), sources: parts.flat(), limitations: [
     'This is bounded public evidence, not an exhaustive market feed. Missing sources remain unavailable.',
     'CFTC data is futures-only and weekly, generally observed Tuesday and released Friday. Contract counts have different units and must not be summed across markets.',
@@ -228,7 +228,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       if ((await stat(path)).size > MAX_RESPONSE_BYTES) throw new Error('Saved editorial evidence exceeds the bounded size');
       const original = JSON.parse(await readFile(path, 'utf8')) as EditorialEvidence;
       if (args[0] === '--enrich-treasury-curve') {
-        const source = await collectTreasuryCurve(url => fetchText(url, fetch), PROJECT_ROOT);
+        const source = await collectOfficialTreasuryCurve(fetch, PROJECT_ROOT);
+        if (source.status !== 'ok') throw new Error(source.error);
         evidence = attachTreasuryCurve(original, source, new Date().toISOString());
       } else {
         const source = await collectFedMinutesEvidence(fetch, PROJECT_ROOT);
