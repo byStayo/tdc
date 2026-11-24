@@ -7,10 +7,11 @@ import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { collectKibotPrices, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { authenticateKibotSubscriber, type KibotSubscriberProof } from "../lib/consensus/kibot-subscriber.ts";
+import { collectMarketParquetDaily, marketParquetDailyPolicy } from "../lib/consensus/marketparquet-daily.ts";
 import { MARKETPARQUET_HOURLY_REFERENCE, marketParquetHourlyControls, verifyMarketParquetHorizonSigns,
   type MarketParquetHourlyReference } from "../lib/consensus/marketparquet-market-history.ts";
-import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement, verifyMarketParquetControlEntitlement,
-  type LicensedControlChunk, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
+import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement, reserveMarketParquetControl, verifyMarketParquetControlEntitlement,
+  type LicensedControlChunk, type LicensedMarketParquetLedger, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
 import { ETF_SYMBOLS, reconcileMarketParquet, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 
 // Independent check of the private vendor ledger. Prints differences, never prices.
@@ -21,17 +22,33 @@ const referenceAt = args.indexOf("--reference");
 const referencePath = referenceAt < 0 ? undefined : args.splice(referenceAt, 2)[1];
 const controlAt = args.indexOf("--control");
 const selected = controlAt < 0 ? undefined : args.splice(controlAt, 2)[1];
-const control = selected ?? (licensed && !referencePath ? process.env.MARKETPARQUET_CONTROL : undefined) ?? "kibot";
+const root = fileURLToPath(new URL("../", import.meta.url));
+const configured = selected ?? (licensed && !referencePath ? process.env.MARKETPARQUET_CONTROL || undefined : undefined);
+const policy = licensed && !referencePath && (!configured || configured === "market-history") ? await marketParquetDailyPolicy(root) : null;
+const control = configured ?? policy?.control ?? "kibot";
 if (args.length || (referenceAt >= 0 && !referencePath) || (controlAt >= 0 && (!selected || !licensed || referencePath)) ||
     !["kibot", "market-history"].includes(control))
   throw new Error("Usage: reconcile-marketparquet.ts [--licensed] [--control kibot|market-history] [--reference /absolute/private/reference.json] [--record-review]");
 if (licensed && record && referencePath)
   throw new Error("Operator-supplied reference files support private comparison. Recording a new licensed review requires verified production control provenance.");
 
-const root = fileURLToPath(new URL("../", import.meta.url));
 const directory = resolve(root, ".consensus/private-marketparquet");
 const release = await acquirePublicationLock(root, "marketparquet-reconciliation");
 let failure: { error: unknown } | undefined;
+let daily: Awaited<ReturnType<typeof collectMarketParquetDaily>> | undefined;
+
+function dailyUpdate() {
+  return daily ? { daily, shouldRunProspectiveEvaluation: daily.accepted.length > 0 } : {};
+}
+
+function unavailableScope(error: unknown) {
+  const message = error instanceof Error ? error.message : "";
+  if (message.includes("shortened session")) return "short_session_auction_missing";
+  if (message.includes("licensed capture calendar")) return "incomplete_archive_calendar";
+  if (message.includes("already fixed") || message.includes("selected another source")) return "comparison_source_fixed";
+  if (message.includes("horizon direction")) return "different_horizon_direction";
+  return "independent_review_unavailable";
+}
 try {
   const startedAt = new Date().toISOString();
   const ledgerText = await readFile(resolve(directory, licensed ? "licensed.json" : "sample.json"), "utf8");
@@ -58,6 +75,13 @@ try {
   let controlChunks: LicensedControlChunk[] | undefined;
   let hourlyProof: MarketParquetHourlyReference | undefined;
   let subscriber: KibotSubscriberProof | undefined;
+  if (licensed && !referencePath) {
+    if (record && control === "market-history" && policy) {
+      daily = await collectMarketParquetDaily(root, JSON.parse(ledgerText) as LicensedMarketParquetLedger, policy);
+    }
+    const input = verifyMarketParquetControlEntitlement(ledgerText, through, startedAt);
+    await reserveMarketParquetControl(directory, input.ledger, control === "market-history" ? control : "kibot");
+  }
   let tolerance = { openBps: 3, closeBps: 15 };
   if (referencePath) {
     if (!isAbsolute(referencePath)) throw new Error("Provide an absolute private reference path");
@@ -73,7 +97,6 @@ try {
     hashes = { reference: createHash("sha256").update(text).digest("hex") };
     tolerance = { openBps: 0.5, closeBps: 0.5 };
   } else if (licensed && control === "market-history") {
-    verifyMarketParquetControlEntitlement(ledgerText, through, startedAt);
     const controls = await marketParquetHourlyControls(root, calendar, cash);
     reference = controls.reference;
     hourlyProof = controls.proof;
@@ -130,17 +153,21 @@ try {
       splitBasisVerified: true, earlyClosesVerified: result.earlyClosesVerified, evidence: evidenceName, reviewedAt: now });
     reviewed = true;
   }
-  console.log(JSON.stringify({ mode: summary.mode, sessions: result.sessions, reference: source, tolerance,
+  console.log(JSON.stringify({ mode: summary.mode, sessions: result.sessions, reference: source, tolerance, ...dailyUpdate(),
+    ...(daily ? { multiSession: { status: reviewed ? "reviewed" : "withheld", reason: reviewed ? null : "incomplete_reconciliation" } } : {}),
     passed: result.passed, verifiedThrough: result.verifiedThrough, capturedAfterClose,
     earlyClosesVerified: result.earlyClosesVerified, boundarySymbolsVerified: result.boundarySymbolsVerified,
     symbols: result.symbols.map(({ symbol, compared, unmatched, differing, maxOpenBps, maxCloseBps, boundaries }) =>
       ({ symbol, compared, unmatched, differing, maxOpenBps: +maxOpenBps.toFixed(3), maxCloseBps: +maxCloseBps.toFixed(3), boundaries })),
     evidence: evidenceName, reviewRecorded: reviewed, journalEligible: licensed && !referencePath && reviewed }, null, 2));
   if (record && !reviewed) console.error("Review not recorded. Every session and distribution boundary must reconcile and the issuer capture must follow the final close.");
-  if (!result.passed || (record && !reviewed)) process.exitCode = 2;
+  if ((!result.passed || (record && !reviewed)) && !daily?.accepted.length) process.exitCode = 2;
 } catch (error) {
   failure = { error };
-  throw error;
+  if (!daily) throw error;
+  console.log(JSON.stringify({ mode: "licensed", reference: MARKETPARQUET_HOURLY_REFERENCE, passed: false,
+    reviewRecorded: false, journalEligible: false, ...dailyUpdate(), multiSession: { status: "withheld", reason: unavailableScope(error) } }, null, 2));
+  if (!daily.accepted.length) process.exitCode = 2;
 } finally {
   await finishPublicationLock(release, failure);
 }

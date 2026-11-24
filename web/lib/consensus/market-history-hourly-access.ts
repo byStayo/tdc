@@ -21,20 +21,23 @@ export function tltHourSource(from: string, through: string, grid: MarketHistory
   return etfHourSource("TLT", from, through, grid);
 }
 
-export type FreeHourlyAccount = { key: string; remaining?: number };
+export type FreeHourlyAccount = { key: string; remaining?: number; signal?: AbortSignal };
 
 /** A rejected free request is unbilled. Honor one bounded provider retry without repeating successful reads. */
-export function authenticatedFreeMarketHistoryResponse(url: string, key: string, fetcher: typeof fetch = fetch) {
+export function authenticatedFreeMarketHistoryResponse(url: string, key: string, fetcher: typeof fetch = fetch, signal?: AbortSignal) {
   const source = new URL(url);
   if (source.origin !== "https://getmarkethistory.com" || source.username || source.password ||
       !source.pathname.startsWith("/query/v1/") || !key.trim() || /[\r\n]/.test(key)) throw new Error("Invalid free Market History request");
   return sourceResponse(async (target, options) => {
-    const read = () => fetcher(target, { ...options, signal: AbortSignal.timeout(25_000) });
+    const read = () => {
+      const timeout = AbortSignal.timeout(25_000);
+      return fetcher(target, { ...options, signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+    };
     const response = await read();
     const seconds = response.headers.get("retry-after");
     if (response.status !== 429 || seconds === null || !/^\d{1,2}$/.test(seconds) || Number(seconds) > 60) return response;
     await response.body?.cancel();
-    await wait(Number(seconds) * 1000);
+    await wait(Number(seconds) * 1000, undefined, { signal });
     return read();
   }, source.href, { redirect: "error", credentials: "omit", headers: { Authorization: "Bearer " + key, Accept: "application/x-ndjson" } });
 }
@@ -49,7 +52,7 @@ export async function fetchFreeEtfHours(symbol: MarketHistoryETF, from: string, 
   account: FreeHourlyAccount, fetcher: typeof fetch = fetch, adjustment: MarketHistoryAdjustment = "raw"): Promise<DeliveredMarketHistoryHours> {
   const source = etfHourSource(symbol, from, through, grid, adjustment);
   if (typeof account.key !== "string" || !account.key.trim() || /[\r\n]/.test(account.key)) throw new Error("Invalid owner-provided Market History key");
-  const authenticated = (url: string) => authenticatedFreeMarketHistoryResponse(url, account.key, fetcher);
+  const authenticated = (url: string) => authenticatedFreeMarketHistoryResponse(url, account.key, fetcher, account.signal);
   if (account.remaining === undefined) {
     // This authenticated endpoint is unmetered. A mixed balance has no documented free-first spending order.
     const status = await authenticated("https://getmarkethistory.com/query/v1/fee-rules?dataset=stocks%2Fus&scheme=regulatory_levy&at=" + through);

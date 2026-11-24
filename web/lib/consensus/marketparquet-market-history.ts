@@ -9,7 +9,7 @@ import { ETF_SYMBOLS, type MarketParquetDay, type ReferenceBars } from "./market
 
 export const MARKETPARQUET_HOURLY_REFERENCE = "https://getmarkethistory.com/docs/bars/";
 export type MarketParquetIssuerCash = Record<MarketHistoryETF, CashDistribution[]>;
-type FundProof = { symbol: MarketHistoryETF; raw: string; splits: string; actions: string };
+export type FundProof = { symbol: MarketHistoryETF; raw: string; splits: string; actions: string };
 type Chunk = { from: string; through: string; funds: FundProof[] };
 export type MarketParquetHourlyReference = {
   source: typeof MARKETPARQUET_HOURLY_REFERENCE; capturedAt: string; chunks: Chunk[];
@@ -57,6 +57,13 @@ export function marketParquetFundReference(symbol: MarketHistoryETF, days: strin
   };
 }
 
+export async function collectMarketParquetFundReference(root: string, symbol: MarketHistoryETF, days: string[],
+  cash: CashDistribution[], cachedOnly: boolean, options: { asOf?: string; fetcher?: typeof fetch; signal?: AbortSignal }) {
+  const hours = await collectMarketHistoryPriceControls(root, symbol, days, cachedOnly, options);
+  const actions = await firstRateIssuerActionProof(root, symbol, days[0], days.at(-1)!, cash, cachedOnly, options);
+  return marketParquetFundReference(symbol, days, hours.raw[0], hours.splits[0], actions);
+}
+
 /**
  * Every hash covers the complete original source response in the private native store.
  * Replay uses that same store with collection disabled. It cannot select a different
@@ -67,7 +74,7 @@ export async function marketParquetHourlyControls(root: string, dates: string[],
   const windows = marketParquetHourlyWindows(dates);
   const now = options.now ?? (() => new Date().toISOString());
   const asOf = options.replay?.capturedAt;
-  if (options.replay && (options.replay.source !== MARKETPARQUET_HOURLY_REFERENCE ||
+  if (options.replay && (Object.keys(options.replay).sort().join() !== "capturedAt,chunks,source" || options.replay.source !== MARKETPARQUET_HOURLY_REFERENCE ||
       typeof asOf !== "string" || !Number.isFinite(Date.parse(asOf)) || new Date(asOf).toISOString() !== asOf ||
       asOf > now() || asOf < exchangeSession(dates.at(-1)!)!.closeAt))
     throw new Error("Invalid Market History reference source or replay clock");
@@ -85,9 +92,7 @@ export async function marketParquetHourlyControls(root: string, dates: string[],
     const chunk: Chunk = { from, through, funds: [] };
     for (const symbol of ETF_SYMBOLS) {
       deadline.throwIfAborted();
-      const hours = await collectMarketHistoryPriceControls(root, symbol, days, cachedOnly, { asOf, fetcher });
-      const actions = await firstRateIssuerActionProof(root, symbol, from, through, cash[symbol], cachedOnly, { asOf, fetcher });
-      const fund = marketParquetFundReference(symbol, days, hours.raw[0], hours.splits[0], actions);
+      const fund = await collectMarketParquetFundReference(root, symbol, days, cash[symbol], cachedOnly, { asOf, fetcher, signal: deadline });
       chunk.funds.push(fund.proof);
       reference[symbol].push(...fund.prices);
     }

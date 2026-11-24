@@ -8,7 +8,7 @@ import { exchangeSession, exchangeSessions, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE
 import { outcomeKey, outcomeWindowSessions, SCORING_POLICY, type PriceEvidence } from "./evaluation.ts";
 import { firstRatePriceEvidence, loadFirstRatePrices, FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS } from "./firstrate.ts";
 import { readQqqAuction } from "./firstrate-nasdaq-auction.ts";
-import { replayLicensedSettlement, loadLicensedSettlement, type LicensedSettlement } from "./marketparquet-settlement.ts";
+import { replayLicensedSettlement, loadApprovedMarketParquetPrices, type LicensedSettlement } from "./marketparquet-settlement.ts";
 import { MARKETPARQUET_SOURCE } from "./marketparquet.ts";
 import { loadTltSettlement, MARKET_HISTORY_SOURCE } from "./market-history-settlement.ts";
 import { PROSPECTIVE_MINIMUM, readReservations, type EvaluationReservation } from "./learning-audit.ts";
@@ -290,7 +290,7 @@ async function readApprovedLabels(root: string, requests: Request[], index: Iden
         if (last?.sha256!==first.sha256) throw Error("FirstRate approval changed during prospective evaluation");
         return rows;
       })();
-      else if (source === MARKETPARQUET_SOURCE) prices = loadLicensedSettlement(root,asOf);
+      else if (source === MARKETPARQUET_SOURCE) prices = loadApprovedMarketParquetPrices(root,asOf);
       else prices = loadTltSettlement(root,asOf,()=>{});
       providers.set(source,prices);
     }

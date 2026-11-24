@@ -15,6 +15,9 @@ import { loadEvaluationOutcomes, outcomeIndex } from "../lib/consensus/outcome-l
 import { missingSignals } from "../lib/consensus/registry.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
+import { authenticatedFreeMarketHistoryResponse } from "../lib/consensus/market-history-hourly-access.ts";
+import { evaluateOutcome } from "../lib/consensus/evaluation.ts";
+import { collectMarketParquetDaily, loadMarketParquetDaily, registerMarketParquetDaily } from "../lib/consensus/marketparquet-daily.ts";
 import { marketHistoryActionCachePath, sealMarketHistoryActionCapture, type MarketHistoryActionCapture } from "../lib/consensus/market-history-actions.ts";
 import { marketParquetHourlyWindows, verifyMarketParquetHorizonSigns, type MarketParquetIssuerCash } from "../lib/consensus/marketparquet-market-history.ts";
 import { writeHourlyFixtures } from "./fixtures/firstrate-hourly-controls.ts";
@@ -289,8 +292,13 @@ test("a chosen native hourly comparator seals every ordinary session and replays
     for (const symbol of ETF_SYMBOLS) await writeHourlyFixtures(root, symbol, rows);
   }
 
-  // The independent original initially omits the TLT issuer payment.
+  // The independent original initially omits the TLT issuer payment. The same paid original stays bound to the chosen comparator after failure.
   assert.throws(() => run(["--control", "market-history"]), /corporate-action|corporate actions|free Market History/i);
+  assert.throws(() => run(["--control", "kibot"]), /source was already fixed/);
+  const otherPackaging = structuredClone(ledger);
+  otherPackaging.bars[0].sha256 = hash("unrelated ETF metadata changed");
+  otherPackaging.licensedCapture.downloads[0].sha256 = otherPackaging.bars[0].sha256;
+  await assert.rejects(settlement.reserveMarketParquetControl(vendor, otherPackaging, "kibot"), /source was already fixed/);
   await assert.rejects(readFile(join(vendor, "settlement-review.json")), { code: "ENOENT" });
   const nativeActions = marketHistoryActionCachePath(root, "TLT", windows[0][0], windows[0].at(-1)!);
   const saved = JSON.parse(await readFile(nativeActions, "utf8")).capture as MarketHistoryActionCapture;
@@ -380,4 +388,79 @@ test("native controls with agreeing daily signs can disagree over a weekly or mo
     refs.QQQ[span - 1].close = 100.001;
     assert.doesNotThrow(() => verifyMarketParquetHorizonSigns(ledger.bars, refs, cash));
   }
+});
+
+test("prospective daily approvals survive a mismatched fund, a missing older vendor file and a shortened session", async t => {
+  const root = await mkdtemp(join(tmpdir(), "marketparquet-daily-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-19T19:00:00.000Z") });
+  t.mock.method(globalThis, "fetch", async () => { throw new Error("Unexpected network"); });
+  const policy = await registerMarketParquetDaily(root);
+  assert.equal(policy.registeredAt, "2026-11-19T19:00:00.000Z");
+  const store = join(root, ".consensus/private-marketparquet");
+  const makeLedger = (through: string) => {
+    const { ledger } = proof(exchangeSessions("2026-11-18", through));
+    for (const row of ledger.distributions) { row.cash = []; row.actionsSha256 = hash(""); }
+    return ledger;
+  };
+  for (const day of ["2026-11-20", "2026-11-25", "2026-11-30"]) {
+    for (const symbol of ETF_SYMBOLS) {
+      const close = day === "2026-11-20" && symbol === "QQQ" ? 100.73 : 101;
+      await writeHourlyFixtures(root, symbol, [{ ...exchangeSession(day)!, open: 100, close }]);
+    }
+  }
+  t.mock.timers.setTime(Date.parse("2026-11-20T23:30:00.000Z"));
+  const initially = await collectMarketParquetDaily(root, makeLedger("2026-11-20"), policy);
+  assert.equal(initially.accepted.length, 4);
+  assert.deepEqual(initially.withheld, [{ symbol: "QQQ", day: "2026-11-20", reason: "price_difference" }]);
+  assert.equal((await registerMarketParquetDaily(root)).registeredAt, policy.registeredAt);
+
+  t.mock.timers.setTime(Date.parse("2026-11-30T23:30:00.000Z"));
+  const latest = makeLedger("2026-11-30"), missing = "2026-11-19";
+  latest.bars = latest.bars.filter(row => row.session !== missing);
+  latest.licensedCapture.downloads = latest.licensedCapture.downloads.filter(row => row.session !== missing);
+  await durableJSON(join(store, "licensed.json"), latest);
+  await mkdir(join(root, "scripts"));
+  await copyFile(new URL("../scripts/reconcile-marketparquet.ts", import.meta.url), join(root, "scripts/reconcile-marketparquet.ts"));
+  await symlink(new URL("../lib/", import.meta.url), join(root, "lib"));
+  await writeFile(join(root, "package.json"), '{"type":"module"}');
+  const setClock = "const Real=Date, now=" + Date.now() +
+    "; globalThis.Date=class extends Real { constructor(...a){super(...(a.length?a:[now]))} static now(){return now} }; globalThis.fetch=async()=>{throw Error('Unexpected network')}";
+  const run = () => execFileSync(process.execPath, ["--disable-warning=ExperimentalWarning", "--experimental-strip-types",
+    "--import", "data:text/javascript," + encodeURIComponent(setClock), join(root, "scripts/reconcile-marketparquet.ts"),
+    "--licensed", "--record-review"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, MARKETPARQUET_CONTROL: "", MARKET_HISTORY_KEY: "" } });
+  // The cumulative paid archive fails. The separately frozen daily lane has already committed its qualified funds.
+  const report = JSON.parse(run());
+  assert.deepEqual(report.multiSession, { status: "withheld", reason: "incomplete_archive_calendar" });
+  assert.deepEqual(report.daily.shortenedSessions, ["2026-11-27"]);
+  assert.equal(report.shouldRunProspectiveEvaluation, true);
+  assert.equal(report.daily.accepted.length, 10);
+  const asOf = new Date().toISOString(), prices = await loadMarketParquetDaily(root, asOf);
+  assert.equal(prices.length, 14);
+  assert.ok(prices.every(series => series.sessions.length === 1 && series.expectedSessions.length === 2 && series.expectedSessions[0] < series.sessions[0].session));
+  assert.deepEqual(prices.filter(series => series.sessions[0].session === "2026-11-30").map(row => row.instrument).sort(), [...ETF_SYMBOLS].sort());
+  assert.ok(prices.every(row => row.sessions[0].session !== "2026-11-27" && row.sessions[0].session > "2026-11-19"));
+  assert.equal(prices.find(row => row.instrument === "QQQ" && row.sessions[0].session === "2026-11-20"), undefined);
+  assert.equal((await settlement.defaultEvaluationPrices(root, asOf)).length, prices.length);
+  const issue = "2026-11-29T23:00:00.000Z";
+  const snapshot: Snapshot = { schemaVersion: 1, origin: "prospective", id: issue.replace(/[:.]/g, "-"), issuedAt: issue,
+    cutoff: issue, engineVersion: "consensus-rules-2.0.0", signals: missingSignals(issue), catalysts: [], sourcesAttempted: 1, collectionErrors: [] };
+  const mondayQqq = prices.find(row => row.instrument === "QQQ" && row.sessions[0].session === "2026-11-30")!;
+  assert.equal(evaluateOutcome(snapshot, mondayQqq, "daily", asOf)?.instrument, "QQQ");
+  assert.ok(prices.every(row => evaluateOutcome(snapshot, row, "weekly", asOf) === null && evaluateOutcome(snapshot, row, "monthly", asOf) === null));
+  assert.deepEqual(await settlement.loadLicensedSettlement(root, asOf), []);
+});
+
+test("a bounded native review relinquishes its lock deadline during provider backoff", async () => {
+  const deadline = new AbortController();
+  let requests = 0;
+  const source = "https://getmarkethistory.com/query/v1/fee-rules?dataset=stocks%2Fus";
+  const result = authenticatedFreeMarketHistoryResponse(source, "synthetic-free-key", async () => {
+    requests++;
+    setImmediate(() => deadline.abort());
+    return new Response(null, { status: 429, headers: { "retry-after": "60" } });
+  }, deadline.signal);
+  await assert.rejects(result);
+  assert.equal(requests, 1);
 });

@@ -29,8 +29,8 @@ export function readMarketHistoryPriceControl(symbol: MarketHistoryETF, days: st
 }
 
 export async function collectMarketHistoryPriceControls(root: string, symbol: MarketHistoryETF, days: string[], cachedOnly: boolean,
-  { fetcher = fetch, environmentKey = process.env.MARKET_HISTORY_KEY, asOf }: {
-    fetcher?: typeof fetch; environmentKey?: string; asOf?: string } = {}) {
+  { fetcher = fetch, environmentKey = process.env.MARKET_HISTORY_KEY, asOf, signal }: {
+    fetcher?: typeof fetch; environmentKey?: string; asOf?: string; signal?: AbortSignal } = {}) {
   const from = days[0], through = days.at(-1)!;
   const close = exchangeSession(through)?.closeAt;
   if (!close || !days.length || !exchangeSession(from) || exchangeSessions(from, through).join() !== days.join())
@@ -57,7 +57,7 @@ export async function collectMarketHistoryPriceControls(root: string, symbol: Ma
         const key = environmentKey || (await readResearchReceipt<{ apiKey: string }>(
           resolve(root, ".consensus/private-market-history/credentials.json")))?.apiKey;
         if (!key) throw new ComparisonUnavailable("No active free Market History account for the hourly price comparison");
-        account = { key };
+        account = { key, signal };
       }
       const catalogue = JSON.parse((await marketHistoryPreview("stocks/us/" + symbol, fetcher)).text);
       const frames = catalogue.bars?.timeframes?.filter((r: { timeframe: string; feed: string; venue: string }) =>

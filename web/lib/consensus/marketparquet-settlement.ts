@@ -22,7 +22,7 @@ export type LicensedCapture = {
     size: number; sha256: string; authorizationSha256: string; pricesSha256: string }[];
 };
 type Issuer = { symbol: ETF; source: string; responseUrl: string; capturedAt: string; sha256: string; actionsSha256: string; cash: CashDistribution[] };
-type Ledger = { schemaVersion: number; capturedAt: string; expectedSessions: string[]; bars: MarketParquetDay[];
+export type LicensedMarketParquetLedger = { schemaVersion: number; capturedAt: string; expectedSessions: string[]; bars: MarketParquetDay[];
   distributions: Issuer[]; licensedCapture: LicensedCapture };
 type ControlResponses = { hashes: Record<string, string>; csv: Record<ETF, string> };
 type ControlCapture = { source: string; capturedAt: string };
@@ -128,7 +128,7 @@ type LedgerReview = Pick<LicensedSettlement, "mode" | "through" | "reconciledAt"
 function verifiedLicensedLedger(review: LedgerReview, asOf: string) {
   if (review.mode !== "licensed" || typeof review.ledgerText !== "string" || hash(review.ledgerText) !== review.ledgerSha256)
     throw new Error("Invalid licensed ledger fingerprint");
-  const ledger: Ledger = JSON.parse(review.ledgerText);
+  const ledger: LicensedMarketParquetLedger = JSON.parse(review.ledgerText);
   const dates = ledger.expectedSessions, first = dates[0], through = review.through;
   const close = exchangeSession(through)?.closeAt;
   if (ledger.schemaVersion !== 1 || !close || !same(dates, exchangeSessions(first, through)) || dates.at(-1) !== through ||
@@ -168,7 +168,41 @@ function verifiedLicensedLedger(review: LedgerReview, asOf: string) {
 
 /** Confirm the owner-activated archive and source evidence before spending comparison credits. */
 export function verifyMarketParquetControlEntitlement(ledgerText: string, through: string, asOf: string) {
-  verifiedLicensedLedger({ mode: "licensed", through, reconciledAt: asOf, ledgerText, ledgerSha256: hash(ledgerText) }, asOf);
+  return verifiedLicensedLedger({ mode: "licensed", through, reconciledAt: asOf, ledgerText, ledgerSha256: hash(ledgerText) }, asOf);
+}
+
+function referenceInputIdentity(ledger: LicensedMarketParquetLedger) {
+  return digest({ sessions: ledger.expectedSessions, fiveFundPrices: ledger.licensedCapture.downloads.map(day => day.pricesSha256),
+    actions: ledger.distributions.map(row => ({ symbol: row.symbol, actions: row.cash.filter(
+      action => action.session >= ledger.expectedSessions[0] && action.session <= ledger.expectedSessions.at(-1)!)
+      .map(action => [action.session, action.amount] as const).sort(([a], [b]) => a.localeCompare(b)),
+    })).sort((a, b) => a.symbol.localeCompare(b.symbol)) });
+}
+
+/** Seal the comparator before seeing any controls. New fetch clocks alone do not create a new input. */
+export async function reserveMarketParquetControl(directory: string, ledger: LicensedMarketParquetLedger,
+  provider: "kibot" | "market-history") {
+  const input = referenceInputIdentity(ledger);
+  const path = resolve(directory, "control-selections", input + ".json");
+  const choice = { schemaVersion: 1, input, provider };
+  const existing = await readResearchReceipt<typeof choice>(path);
+  if (existing) {
+    if (!same(existing, choice)) throw new Error("The MarketParquet comparison source was already fixed for this input");
+    return;
+  }
+  const latest = await readResearchReceipt<Pointer>(resolve(directory, "settlement-review.json"));
+  if (latest && sha(latest.sha256)) {
+    const prior = await readResearchReceipt<LicensedSettlement>(resolve(directory, "settlements", latest.sha256 + ".json"));
+    if (!prior || digest(prior) !== latest.sha256) throw new Error("The prior MarketParquet review cannot be verified");
+    if (referenceInputIdentity(JSON.parse(prior.ledgerText)) === input &&
+        (prior.schemaVersion === 4 ? "market-history" : "kibot") !== provider)
+      throw new Error("The existing MarketParquet journal selected another source for this input");
+  }
+  await durableDirectory(resolve(directory, "control-selections"), 0o700);
+  try { await durableJSON(path, choice, true); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST" || !same(await readResearchReceipt(path), choice)) throw error;
+  }
 }
 
 function verifiedSettlementPrices(review: LicensedSettlement, dates: string[], files: MarketParquetDay[],
@@ -211,6 +245,8 @@ export async function recordLicensedSettlement(directory: string, receipt: Licen
     await replayLicensedSettlement(directory, prior, asOf);
     return;
   }
+  const { ledger } = verifiedLicensedLedger(receipt, asOf);
+  await reserveMarketParquetControl(directory, ledger, receipt.schemaVersion === 4 ? "market-history" : "kibot");
   await replayLicensedSettlement(directory, receipt, asOf);
   await durableDirectory(store, 0o700);
   if (!prior) await durableJSON(file, receipt, true);
@@ -233,12 +269,20 @@ export async function loadLicensedSettlement(root: string, asOf: string, current
   return replayLicensedSettlement(directory, receipt, asOf);
 }
 
+export async function loadApprovedMarketParquetPrices(root: string, asOf: string, warn: (message: string) => void = console.error) {
+  const prices: PriceEvidence[] = [];
+  try { prices.push(...await loadLicensedSettlement(root, asOf)); }
+  catch { warn("Licensed MarketParquet settlement withheld. Its full-window independent reconciliation could not be verified."); }
+  try {
+    const { loadMarketParquetDaily } = await import("./marketparquet-daily.ts");
+    prices.push(...await loadMarketParquetDaily(root, asOf, warn));
+  } catch { warn("Private MarketParquet daily approvals withheld. Their registration or evidence store could not be read."); }
+  return prices;
+}
+
 export async function defaultEvaluationPrices(root: string, asOf: string, warn: (message: string) => void = console.error) {
   const prices: PriceEvidence[] = await loadFirstRatePrices(root);
-  try { prices.push(...await loadLicensedSettlement(root, asOf)); }
-  catch {
-    warn("Licensed MarketParquet settlement withheld. Its private capture or independent reconciliation could not be verified.");
-  }
+  prices.push(...await loadApprovedMarketParquetPrices(root, asOf, warn));
   try { prices.push(...await loadTltSettlement(root, asOf, warn)); }
   catch { warn("Market History TLT settlement withheld. Its private storage or source comparison could not be verified."); }
   return prices;

@@ -88,6 +88,7 @@
     "consensus:research-kibot-issuer-prices": "node --experimental-strip-types scripts/research-kibot-issuer-prices.ts",
     "consensus:validate-social-private": "node --experimental-strip-types scripts/validate-social-private.ts",
     "consensus:evaluate-marketparquet": "node --experimental-strip-types scripts/evaluate-marketparquet.ts",
+    "consensus:marketparquet-daily": "node --experimental-strip-types scripts/register-marketparquet-daily.ts",
     "consensus:reconcile-marketparquet": "node --experimental-strip-types scripts/reconcile-marketparquet.ts"
   },
   "dependencies": {

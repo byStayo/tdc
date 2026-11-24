@@ -35,7 +35,7 @@ export type MarketHistoryActionProof = {
   from: string; through: string; sha256: string; primaryCount: number; issuerMirrorCount: number;
 };
 type Stored = ReturnType<typeof sealMarketHistoryActionCapture>;
-type Options = { asOf?: string; fetcher?: typeof fetch; environmentKey?: string };
+type Options = { asOf?: string; fetcher?: typeof fetch; environmentKey?: string; signal?: AbortSignal };
 
 function requireRange(symbol: MarketHistoryETF, from: string, through: string) {
   if (!Object.hasOwn(identity, symbol) || publicDate(from) !== from || publicDate(through) !== through ||
@@ -154,7 +154,7 @@ async function acquire(root: string, symbol: MarketHistoryETF, from: string, thr
   const last = Date.parse(frames?.[0]?.last);
   if (meta.ticker !== symbol || meta.dataset !== "stocks/us" || meta.contract?.status !== "active" || meta.contract.exchange !== identity[symbol][2] ||
       frames?.length !== 1 || !Number.isFinite(last) || last < close || last > cutoff) throw Error("ETF price catalogue has not verified the requested close");
-  const authenticated = (url: string) => authenticatedFreeMarketHistoryResponse(url, key, fetcher);
+  const authenticated = (url: string) => authenticatedFreeMarketHistoryResponse(url, key, fetcher, options.signal);
   const fee = await authenticated(authority + "/query/v1/fee-rules?dataset=stocks%2Fus&scheme=regulatory_levy&at=" + through);
   try {
     if (freeMarketHistoryBalance(fee.headers) < 1000) throw Error("Insufficient free bars for corporate actions");
