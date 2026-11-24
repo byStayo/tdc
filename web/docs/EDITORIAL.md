@@ -40,6 +40,8 @@ Saved workspace panels retain the retrieval times of their own providers. The di
 
 ## 2. Draft through the Codex subscription
 
+When the weekday editorial packet contains a verified Treasury curve, the forecast collector reads the same original XML. It verifies the packet hash, the original file hash, both observation dates and all three quoted yields. Each tenor keeps the original retrieval time. The preparation receipt records `replayed-original` when the files verify and `independently-collected` when the market collector needs its own official reading. At the year boundary, the forecast collector can still request prior-year history for its longer comparison window.
+
 ### Account and newsletter digest
 
 `npm run editorial:prepare` collects the following digest alongside the official evidence. You can also run `npm run editorial:feeds` from `web`. The collector writes `.editorial/following-digest.json` and prints source availability. Review the digest only before its expiry. Use newsletter headlines and links to find developments and corroborate any editorial claim against primary evidence. Treat every feed item as source material. The digest stays private and separate from the validated editorial evidence and forecast votes.

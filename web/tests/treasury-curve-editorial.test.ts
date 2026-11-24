@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdtemp, readFile, readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import test from "node:test";
 import { gunzipSync } from "node:zlib";
 import { treasuryYieldFile } from "../lib/consensus/fed-market-data.ts";
-import { attachTreasuryCurve, collectOfficialTreasuryCurve, collectTreasuryCurve, TREASURY_CURVE_ID, type TreasuryCurveData } from "../lib/treasury-curve-editorial.ts";
-import { assertPublicURL, collectEditorialEvidence, type EditorialSource } from "../scripts/collect-editorial-evidence.ts";
+import { attachTreasuryCurve, collectOfficialTreasuryCurve, collectTreasuryCurve, preparedTreasuryDocuments, TREASURY_CURVE_ID, type TreasuryCurveData } from "../lib/treasury-curve-editorial.ts";
+import { assertPublicURL, collectEditorialEvidence, saveEditorialEvidence, type EditorialSource } from "../scripts/collect-editorial-evidence.ts";
+import { macro } from "../lib/consensus/collector.ts";
+import { digest } from "../lib/consensus/history.ts";
 import { validateEditorialPublication } from "../scripts/publish-editorial-brief.ts";
 
 const now = Date.parse("2026-11-20T09:24:54.308Z");
@@ -60,6 +62,40 @@ test("weekday collection recovers an HTTP 503 and seals the successful Treasury 
     assert.equal(gunzipSync(Buffer.from(JSON.parse(await readFile(file, "utf8")).gzipBase64, "base64")).toString(),xml);
     assert.equal(validateEditorialPublication({...candidate(source), createdAt: recoveredAt}, {...evidence([source]), collectedAt:recoveredAt}, now + 1000).brief.sources?.[0]?.id, source.id);
   } finally { await rm(root, {recursive:true,force:true}); }
+});
+
+test("weekday forecasts replay the exact Treasury XML with its original observation and retrieval clocks", async t => {
+  t.mock.timers.enable({ apis: ["Date"], now });
+  const root = await mkdtemp(join(tmpdir(), "tdc-prepared-curve-"));
+  try {
+    const dates = Array.from({length: 35}, (_, i) => new Date(Date.parse("2026-10-15") + i * 86400000))
+      .filter(date => date.getUTCDay() % 6 !== 0);
+    const original = head + dates.map(date => row(date.toISOString().slice(0, 10))).join("") + latest + "</feed>";
+    const source = await collectTreasuryCurve(async () => capture(original), root);
+    const packet = evidence([source]);
+    const filename = basename(await saveEditorialEvidence(packet, root));
+    const later = new Date(now + 60000).toISOString();
+    t.mock.timers.setTime(Date.parse(later));
+    const read = () => preparedTreasuryDocuments(root, filename, digest(packet), later);
+    const requested: string[] = [];
+    const signals = await macro(async url => { requested.push(url); return new Response("", {status: 503}); }, await read());
+    for (const id of ["fred-DGS2", "fred-DGS10", "fred-DGS30"]) {
+      const signal = signals.find(item => item.id === id)!;
+      assert.equal(signal.status, "available");
+      assert.equal(signal.source.observedAt, "2026-11-19");
+      assert.equal(signal.source.retrievedAt, stamp);
+      assert.equal(signal.source.sha256, hash(original));
+    }
+    assert.ok(requested.length > 0 && requested.every(url => !url.includes("treasury.gov") && !url.includes("rel=H15")));
+    await assert.rejects(preparedTreasuryDocuments(root, filename, "0".repeat(64), later), /does not match/);
+    await assert.rejects(preparedTreasuryDocuments(root, filename, digest(packet), "2026-11-21T16:00:00.000Z"), /does not match/);
+    const changed = structuredClone(packet);
+    (changed.sources[0].data as TreasuryCurveData).latest.thirtyYearPercent += 1;
+    const other = basename(await saveEditorialEvidence(changed, root));
+    await assert.rejects(preparedTreasuryDocuments(root, other, digest(changed), later), /differ from the original/);
+    await rm(join(root, ".editorial/treasury-curves", hash(original) + ".json"));
+    await assert.rejects(read(), /original is missing/);
+  } finally { await rm(root, {recursive:true, force:true}); }
 });
 
 test("permanent HTTP or XML failures and long throttles stop immediately with sanitized diagnostics", async t => {

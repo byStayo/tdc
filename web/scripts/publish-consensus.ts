@@ -2,6 +2,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 import { durableJSON } from "../lib/publication-storage.ts";
+import { preparedTreasuryDocuments } from "../lib/treasury-curve-editorial.ts";
 import { collectSnapshot, publicText, refreshInflationAndMoney } from "../lib/consensus/collector.ts";
 import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
@@ -56,6 +57,11 @@ if (scoped && !previous)
   throw new Error(
     "A scoped publication requires an existing source snapshot",
   );
+const treasuryPacket = process.argv[2] === "--prepared-treasury";
+if (treasuryPacket && (process.argv.length !== 5 || scoped))
+  throw new Error("Expected a prepared Treasury evidence filename and packet hash");
+const treasuryDocuments = treasuryPacket
+  ? await preparedTreasuryDocuments(root, process.argv[3], process.argv[4], now).catch(() => undefined) : undefined;
 let snapshot: Snapshot = reviewOnly || technicalsOnly
   ? { ...previous!, id: now.replace(/[:.]/g, "-"), issuedAt: now, cutoff: now }
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
@@ -64,7 +70,7 @@ let snapshot: Snapshot = reviewOnly || technicalsOnly
   : analystOnly ? await refreshAnalystRatings(previous!, publicText, undefined, root)
   : inflationAndMoneyOnly ? await refreshInflationAndMoney(previous!, fetch, root)
   : await collectSnapshot(fetch, previous ?? undefined, resolve(root, ".consensus/private-operf-equity"),
-      resolve(root, ".consensus/private-opra-volume"), root);
+      resolve(root, ".consensus/private-opra-volume"), root, treasuryDocuments);
 if (snapshot.regularSessionRanges) {
   const retained = visibleSessionRanges(snapshot.regularSessionRanges, "MARKET", "daily", snapshot.cutoff);
   if (retained.length) snapshot.regularSessionRanges = {...snapshot.regularSessionRanges, rows:retained};
@@ -151,6 +157,7 @@ if (process.argv.includes("--publish")) {
   console.log(
     JSON.stringify({
       draft: ".consensus/last-collection.json",
+      ...(treasuryPacket ? { preparedTreasury: treasuryDocuments ? "replayed-original" : "independently-collected" } : {}),
       regularSessionRanges: snapshot.regularSessionRanges?.rows.map(row => ({
         fund: row.fund, session: row.session, source: row.source ?? "market-history",
       })) ?? [],

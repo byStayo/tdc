@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import { resolve } from "node:path";
 import { setTimeout as wait } from "node:timers/promises";
 import { gzipSync, gunzipSync } from "node:zlib";
@@ -9,6 +10,7 @@ import { SourceTransportError } from "./consensus/source-failure.ts";
 import { newYorkDate, newYorkTimestamp } from "./consensus/time.ts";
 import { readResearchReceipt } from "./consensus/research-price-capture.ts";
 import { publicDate } from "./public-normalization.ts";
+import { digest } from "./consensus/history.ts";
 import { durableDirectory, durableJSON } from "./publication-storage.ts";
 
 export const TREASURY_CURVE_ID = "TREASURY_YIELD_CURVE";
@@ -201,6 +203,37 @@ export function validateTreasuryCurveSource(source: EditorialSource): void {
   const year = Number(data.latest.date.slice(0, 4));
   if (data.previous.date >= data.latest.date || source.url !== table(year) || source.retrievalUrl !== treasuryYieldFile(year) ||
       (data.documents.length === 2 && !data.previous.date.startsWith(String(captureYear - 1) + "-"))) invalid();
+}
+
+/** Reuse only the original XML sealed in this preparation's dated evidence packet. */
+export async function preparedTreasuryDocuments(root: string, filename: string, packetHash: string, asOf: string) {
+  if (!/^evidence-\d{4}-\d{2}-\d{2}(?:-\d{6}-[a-f0-9]{8})?\.json$/.test(filename) || !instant(asOf))
+    throw new Error("Invalid prepared Treasury packet reference");
+  const packet = await readResearchReceipt<EditorialEvidence>(resolve(root, ".editorial", filename));
+  if (!packet || digest(packet) !== packetHash || !instant(packet.collectedAt) || packet.collectedAt > asOf ||
+      newYorkDate(packet.collectedAt) !== newYorkDate(asOf))
+    throw new Error("Treasury packet does not match the current preparation");
+  const sources = packet.sources.filter(item => item.id === TREASURY_CURVE_ID);
+  if (sources.length !== 1 || sources[0].status !== "ok" || sources[0].retrievedAt > packet.collectedAt)
+    throw new Error("Prepared Treasury curve is unavailable");
+  const source = sources[0];
+  validateTreasuryCurveSource(source);
+  const data = source.data as TreasuryCurveData;
+  const documents = new Map<string, Capture>();
+  const rows: CurveRow[] = [];
+  for (const stamp of data.documents) {
+    const saved = await readResearchReceipt<{gzipBase64: string}>(resolve(root, ".editorial/treasury-curves", stamp.sha256 + ".json"));
+    if (!saved) throw new Error("Prepared Treasury original is missing");
+    const bytes = gunzipSync(Buffer.from(saved.gzipBase64, "base64"), {maxOutputLength: maxCurveBytes});
+    if (hash(bytes) !== stamp.sha256) throw new Error("Prepared Treasury original failed its checksum");
+    const document = { text: bytes.toString("utf8"), sha256: stamp.sha256, retrievedAt: stamp.retrievedAt };
+    const year = Number(new URL(stamp.url).searchParams.get("field_tdr_date_value"));
+    rows.push(...curveRows(document, year));
+    documents.set(stamp.url, document);
+  }
+  if (!isDeepStrictEqual(rows.slice(0, 2), [data.latest, data.previous]))
+    throw new Error("Prepared Treasury values differ from the original");
+  return documents;
 }
 
 export function attachTreasuryCurve(evidence: EditorialEvidence, source: EditorialSource, assembledAt: string): EditorialEvidence {

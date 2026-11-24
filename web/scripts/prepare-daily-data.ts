@@ -1,8 +1,10 @@
 import { execFile } from "node:child_process";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { promisify } from "node:util";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
+import { digest } from "../lib/consensus/history.ts";
+import { TREASURY_CURVE_ID } from "../lib/treasury-curve-editorial.ts";
 import { prepareKibotPrimary } from "../lib/consensus/kibot-eod-primary.ts";
 import { prepareFirstRateRanges } from "../lib/consensus/firstrate-ranges.ts";
 import { prepareTltPremarket } from "../lib/consensus/market-history-premarket.ts";
@@ -75,7 +77,8 @@ try {
   const kibotSubscriber = mode.freePriceAccount
     ? await prepareKibotPrimary(PROJECT_ROOT).catch(() => ({ status: "source_unavailable" }))
     : { status: "skipped_public_only" };
-  const consensus = await collect("publish-consensus.ts");
+  const curve = evidence.sources.find(source => source.id === TREASURY_CURVE_ID && source.status === "ok");
+  const consensus = await collect("publish-consensus.ts", curve ? ["--prepared-treasury", basename(output), digest(evidence)] : []);
   const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
       status: "unavailable",

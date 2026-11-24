@@ -4,7 +4,7 @@ import { collectNews } from "./news.ts";
 import { collectBlsPayrollNews } from "./bls-payroll-news.ts";
 import { newYorkTimestamp } from "./time.ts";
 export { newYorkTimestamp } from "./time.ts";
-import { collectMarketCalendars } from "./calendars.ts";
+import { collectMarketCalendars, type PublicDocument } from "./calendars.ts";
 import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
@@ -109,9 +109,9 @@ function changeScore(
       )
     : null;
 }
-export async function macro(fetcher: Fetcher): Promise<Signal[]> {
+export async function macro(fetcher: Fetcher, treasuryDocuments?: ReadonlyMap<string, PublicDocument>): Promise<Signal[]> {
   const now = new Date().toISOString();
-  const read = (url: string) => publicText(url, fetcher);
+  const read = async (url: string) => treasuryDocuments?.get(url) ?? publicText(url, fetcher);
   const providers = { ...fedMarketProviders(read, now), ...federalReserveBoardProviders(read) };
   return Promise.all(
     MACRO_SERIES.map(async (descriptor) => {
@@ -858,6 +858,7 @@ export async function collectSnapshot(
   operfReceiptDirectory?: string,
   optionReceiptDirectory?: string,
   archiveRoot?: string,
+  treasuryDocuments?: ReadonlyMap<string, PublicDocument>,
 ): Promise<Snapshot> {
   // Small independent source batches; each failed source is retained as unavailable.
   const [
@@ -896,7 +897,7 @@ export async function collectSnapshot(
     payrollNews,
     inflationAndMoney,
   ] = await Promise.all([
-    macro(fetcher),
+    macro(fetcher, treasuryDocuments),
     currencies(fetcher),
     positioning(fetcher),
     centralBanks(fetcher),
