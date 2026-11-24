@@ -1,10 +1,13 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { BOC_DECISION_RESEARCH, isBocDecisionStudyRow } from "../lib/consensus/boc-decision-study.ts";
 import { kibotHistorySource } from "../lib/consensus/kibot.ts";
 import { agreeingCanadianOutcome, selectCanadianStudyPrices } from "../scripts/research-boc-decisions-tlt.ts";
 import { readBocDecisionStudy } from "../scripts/stage-boc-decisions-tlt.ts";
+import { researchStudyFor, validateKibotResearch } from "../lib/consensus/kibot-research.ts";
+import { assertRetainedStudyRows } from "../scripts/stage-kibot-research.ts";
 
 const published = {
   studyId: BOC_DECISION_RESEARCH.id, family: "international", instrument: "TLT", timingBasis: "dated-release",
@@ -21,6 +24,21 @@ test("public historical row restricts scope, overlap, treatment incidence and pr
     { symbol: "TLT" }, { prices: [100] }, { coefficient: .37 }, { clearedMargin: true },
     { controlImprovement95: [0, .021] }, { modelBrier: 0.24081035 }, { family: "events" },
   ]) assert(!isBocDecisionStudyRow({ ...published, ...edit }));
+});
+
+test("version fourteen appends the Canadian decision study while version thirteen retains exactly 35 entries", async () => {
+  const origin = new URL("../public/consensus/", import.meta.url);
+  const [first] = JSON.parse(await readFile(new URL("index.json", origin), "utf8"));
+  const live = JSON.parse(await readFile(new URL("kibot-research.json", origin), "utf8"));
+  const previous = { ...live, schemaVersion: 13, studies: live.studies.slice(0, 35) };
+  const next = { ...previous, schemaVersion: 14, studies: [...previous.studies, published] };
+  validateKibotResearch(previous, first);
+  validateKibotResearch(next, first);
+  assertRetainedStudyRows(previous, next);
+  assert.equal(researchStudyFor(next.studies[35]), BOC_DECISION_RESEARCH);
+  assert.throws(() => validateKibotResearch({ ...next, schemaVersion: 13 }, first));
+  assert.throws(() => validateKibotResearch({ ...previous, schemaVersion: 14 }, first));
+  assert.throws(() => validateKibotResearch({ ...next, studies: [...previous.studies, { ...published, open: 100 }] }, first));
 });
 
 test("only the genuine TLT basis and the selected historical row enter the price comparison", () => {

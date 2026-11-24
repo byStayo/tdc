@@ -9,6 +9,7 @@ import { readDatedStudyRows } from "../lib/consensus/dated-study-review.ts";
 import { readG17ManufacturingStudy } from "./research-g17-manufacturing.ts";
 import { readOnsServicesStudy } from "./research-ons-services.ts";
 import { readTailRiskStudy } from "./stage-tail-risk-spy.ts";
+import { readBocDecisionStudy } from "./stage-boc-decisions-tlt.ts";
 import { readH6RetailStudy } from "./read-h6-retail-study.ts";
 import { readIemElectionStudy } from "./stage-iem-events.ts";
 import { readOfrGeographicStudy } from "./stage-ofr-geographic.ts";
@@ -203,13 +204,14 @@ async function main() {
         };
       });
     });
-    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy, ukInflationStudy, retail, tailRiskStudy] = await Promise.all([
+    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy, ukInflationStudy, retail, tailRiskStudy, bocStudy] = await Promise.all([
       readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt), readFomcEveStudy(snapshots[0].issuedAt),
       readQqqIssuerGuidanceStudy(snapshots[0].issuedAt), readDatedStudyRows(root, snapshots[0].issuedAt),
       readBlsPayrollNewsStudy(snapshots[0].issuedAt), readOfrVolatilityStudy(root, snapshots[0].issuedAt),
       readOfrGeographicStudy(root, snapshots[0].issuedAt), readIemElectionStudy(root, snapshots[0].issuedAt),
       readG17ManufacturingStudy(root, snapshots[0].issuedAt), readOnsServicesStudy(snapshots[0].issuedAt),
       readH6RetailStudy(root, snapshots[0].issuedAt), readTailRiskStudy(root, snapshots[0].issuedAt),
+      readBocDecisionStudy(root, snapshots[0].issuedAt),
     ]);
     studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy, ukInflationStudy);
     if (retail.method !== H6_RETAIL_RESEARCH.id || retail.sealedSHA256 !== "022d23d33b1643fdea09faa8309e1e25faea503d94c2bf8ef72176ba7c9c6370" ||
@@ -219,9 +221,9 @@ async function main() {
       samples:retail.paired,testSamples:retail.test,modelBrier:roundH6(retail.modelBrier),controlBrier:roundH6(retail.controlBrier),
       baseRateBrier:roundH6(retail.baseRateBrier),coinBrier:retail.coinBrier,coefficientSign:retail.coefficient<0?"negative":retail.coefficient>0?"positive":"zero",
       excludedPriorDates:32,controlImprovement95:[roundH6(retail.controlInterval95[0]),roundH6(retail.controlInterval95[1])],clearedMargin:retail.passed});
-    studies.push(tailRiskStudy);
+    studies.push(tailRiskStudy, bocStudy);
     const aggregate: KibotResearch = {
-      schemaVersion: 13, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 14, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { eventUpcoming } from "@/lib/consensus/time";
 import { BOC_SURVEY_ID } from "@/lib/consensus/boc-survey";
+import { BOC_DECISION_RESEARCH } from "@/lib/consensus/boc-decision-study";
 import { policyReadings } from "@/lib/consensus/policy";
 import type { NewsPulse } from "@/lib/consensus/news";
 import { effectiveStatus } from "@/lib/consensus/engine";
@@ -2628,6 +2629,12 @@ export default function MorningBoard({
                                 {" · "}<a href={TAIL_RISK_RESEARCH.prices} target="_blank" rel="noopener noreferrer">Kibot price history</a>
                               </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
+                              {"testRateChanges" in row && <>
+                                <br />The Bank of Canada changed its rate at {row.testRateChanges} of the {row.testSamples} held-out decisions.
+                                <br />95% interval for improvement over prior rate changes {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                                <br /><a href={BOC_DECISION_RESEARCH.source}>Bank of Canada policy rates</a>
+                                {" · "}<a href={BOC_DECISION_RESEARCH.usControl}>Federal Reserve policy rates</a>
+                              </>}
                             </td>
                           </tr>
                         ))}

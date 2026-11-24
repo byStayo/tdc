@@ -3,6 +3,7 @@ import { exchangeSession, hasReviewedCalendar } from "./exchange-calendar.ts";
 import { newYorkDate } from "./time.ts";
 import { INSTRUMENTS } from "./types.ts";
 import type { HistoryEntry } from "./types.ts";
+import { BOC_DECISION_RESEARCH, isBocDecisionStudyRow, type BocDecisionStudyRow } from "./boc-decision-study.ts";
 
 export const KIBOT_RESEARCH_FILE = "kibot-research.json";
 export const KIBOT_RESEARCH_LICENSE = "https://www.kibot.com/license.html";
@@ -114,7 +115,8 @@ const versionNineStudies = [...versionEightStudies, OFR_GEOGRAPHIC_RESEARCH] as 
 const versionTenStudies = [...versionNineStudies, IEM_ELECTION_RESEARCH] as const;
 const versionElevenStudies = [...versionTenStudies, G17_MANUFACTURING_RESEARCH] as const;
 const versionTwelveStudies = [...versionElevenStudies, ONS_SERVICES_RESEARCH, H6_RETAIL_RESEARCH] as const;
-export const KIBOT_DATED_RESEARCH = [...versionTwelveStudies, TAIL_RISK_RESEARCH] as const;
+const versionThirteenStudies = [...versionTwelveStudies, TAIL_RISK_RESEARCH] as const;
+export const KIBOT_DATED_RESEARCH = [...versionThirteenStudies, BOC_DECISION_RESEARCH] as const;
 export const KIBOT_RESEARCH_STUDIES = [
   ...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, ...KIBOT_DATED_RESEARCH,
 ] as const;
@@ -162,14 +164,14 @@ export type DatedStudyRow = StudyMetrics & { controlBrier: number; coinBrier: nu
   (StudyIdentity<typeof H6_RETAIL_RESEARCH> & { timingBasis: "dated-release"; excludedPriorDates: number;
     controlImprovement95: [number, number] }) |
   (StudyIdentity<typeof TAIL_RISK_RESEARCH> & { timingBasis: "historical-reconstruction"; excludedTargetOverlap: number;
-    excludedInputOverlap: number; controlImprovement95: [number, number] })
+    excludedInputOverlap: number; controlImprovement95: [number, number] }) | BocDecisionStudyRow
 );
 type LegacyStudyRow = StudyMetrics & {
   family: typeof KIBOT_LEGACY_RESEARCH_STUDIES[number]["family"]; instrument: Symbol;
 };
 
 export interface KibotResearch {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
@@ -248,6 +250,7 @@ function isQqqIssuerGuidanceRow(row: unknown): row is QqqIssuerGuidanceRow {
 }
 
 function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number]): row is DatedStudyRow {
+  if (study === BOC_DECISION_RESEARCH) return isBocDecisionStudyRow(row);
   const keys = [...studyKeys, "studyId", "controlBrier", "coinBrier", "coefficientSign", "timingBasis"];
   const hasInterval = study === SWVXX_FLOW_RESEARCH || study === BLS_PAYROLL_RESEARCH ||
     study === OFR_VOLATILITY_RESEARCH || study === OFR_GEOGRAPHIC_RESEARCH || study === IEM_ELECTION_RESEARCH ||
@@ -307,7 +310,7 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      ![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
+      ![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -322,7 +325,8 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
   const hasIssuerGuidance = Number(value.schemaVersion) >= 6;
   const version = Number(value.schemaVersion);
   const versions: Partial<Record<number, readonly (typeof KIBOT_DATED_RESEARCH[number])[]>> = {
-    7:versionSevenStudies, 8:versionEightStudies, 9:versionNineStudies, 10:versionTenStudies, 11:versionElevenStudies, 12:versionTwelveStudies, 13:KIBOT_DATED_RESEARCH,
+    7:versionSevenStudies, 8:versionEightStudies, 9:versionNineStudies, 10:versionTenStudies, 11:versionElevenStudies,
+    12:versionTwelveStudies, 13:versionThirteenStudies, 14:KIBOT_DATED_RESEARCH,
   };
   const newStudies = versions[version] ?? [];
   const existing = legacyCount + Number(hasFt900) + Number(hasCloseLocation) + Number(hasFomcEve) + Number(hasIssuerGuidance);

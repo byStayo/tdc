@@ -5,6 +5,7 @@
 - [x] Requalify all 56 existing FirstRate equity sessions against newly collected, authenticated raw and split-only prices and issuer distributions. Preserve the earlier price approvals and the actual availability time of the new evidence.
 - [x] Wire independent five- and 21-session direction checks into both free price paths. Replay all 52 available five-session windows, including two cash-distribution crossings. No source yet spans a full eligible monthly outcome. [Operating procedure](../../CONSENSUS_OPERATIONS.md#free-price-settlement-across-five-and-21-sessions)
 - [x] Re-run prospective evaluation and the strict completion audit. All 370 settled records reproduced. The five November 23 daily outcomes still await qualified prices. The two eligible five-fund cohorts both abstained on all five funds.
+- [x] Test the international family with 152 scheduled Bank of Canada decisions. The study excluded 13 previously reviewed dates and verified all 139 remaining TLT outcomes. The held-out Brier improvement was 0.0031 against the required 0.01. [Source records and independent replay](../../research/BOC_DECISIONS_TLT.md)
 
 ### November 24 outcome and holding-period verification
 
