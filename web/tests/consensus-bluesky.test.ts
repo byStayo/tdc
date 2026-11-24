@@ -198,7 +198,73 @@ test("recent cursor verifies both boundaries before returning a sample", async (
   assert.equal(sample.durationSeconds, 60);
   assert.equal(sample.readings[0].participants, 1);
   scenario = "truncated";
-  await assert.rejects(() => collectBlueskySample({ recentSeconds: 60 }), /unavailable/);
+  await assert.rejects(() => collectBlueskySample({ recentSeconds: 60 }), { reason: "cursor_window_incomplete" });
   scenario = "ignored-cursor";
-  await assert.rejects(() => collectBlueskySample({ recentSeconds: 60 }), /unavailable/);
+  await assert.rejects(() => collectBlueskySample({ recentSeconds: 60 }), { reason: "cursor_window_incomplete" });
+});
+
+test("one cursor socket distinguishes native transport, stream rejection and each collection cap", async (t) => {
+  type Scenario = "transport" | "provider_rejected" | "event_limit" | "byte_limit" | "stream_schema";
+  let scenario: Scenario = "transport";
+  let opened = 0;
+  let closed = 0;
+  class DiagnosticSocket extends EventTarget {
+    constructor(endpoint: string) {
+      super();
+      opened++;
+      const cursor = Number(new URL(endpoint).searchParams.get("cursor")) / 1_000;
+      queueMicrotask(() => {
+        this.dispatchEvent(new Event("open"));
+        if (scenario === "transport") {
+          this.dispatchEvent(new Event("error"));
+          return;
+        }
+        const cases = {
+          provider_rejected: JSON.stringify({ $type: "error", message: "synthetic private provider text" }),
+          event_limit: frame(0, "$SPY bullish", { time: new Date(cursor + 10).toISOString() }),
+          byte_limit: "x".repeat(1025),
+          stream_schema: new Uint8Array([1]),
+        };
+        this.dispatchEvent(new MessageEvent("message", { data: cases[scenario] }));
+      });
+    }
+    close() {
+      closed++;
+      this.dispatchEvent(new Event("close"));
+    }
+  }
+  const original = globalThis.WebSocket;
+  globalThis.WebSocket = DiagnosticSocket as unknown as typeof WebSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  for (const reason of ["transport", "provider_rejected", "event_limit", "byte_limit", "stream_schema"] as const) {
+    scenario = reason;
+    await assert.rejects(() => collectBlueskySample({ recentSeconds: 840, maxEvents: 1, maxBytes: 1024 }), { reason });
+  }
+  assert.equal(opened, 5);
+  assert.equal(closed, 5);
+});
+
+test("the handshake and cursor replay have independent bounded deadlines", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout", "Date"], now });
+  let openSocket = false;
+  let closed = 0;
+  class IdleSocket extends EventTarget {
+    constructor() {
+      super();
+      if (openSocket) queueMicrotask(() => this.dispatchEvent(new Event("open")));
+    }
+    close() { closed++; }
+  }
+  const original = globalThis.WebSocket;
+  globalThis.WebSocket = IdleSocket as unknown as typeof WebSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  const handshake = assert.rejects(collectBlueskySample({ recentSeconds: 840 }), { reason: "connect_timeout" });
+  t.mock.timers.tick(15_000);
+  await handshake;
+  openSocket = true;
+  const cursor = assert.rejects(collectBlueskySample({ recentSeconds: 840 }), { reason: "cursor_timeout" });
+  await Promise.resolve();
+  t.mock.timers.tick(90_000);
+  await cursor;
+  assert.equal(closed, 2);
 });

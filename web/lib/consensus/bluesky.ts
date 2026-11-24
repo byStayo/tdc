@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { BlueskyFailure, type BlueskyFailureReason } from "./bluesky-failure.ts";
 import { INSTRUMENTS, type Instrument } from "./types.ts";
 
 /** Never persist network frames, post text, account identifiers or record URIs. */
@@ -280,37 +281,55 @@ export async function collectBlueskySample(options: { seconds?: number; recentSe
   const maxBytes = options.maxBytes ?? 50_000_000;
   const recentSeconds = options.recentSeconds;
   if (recentSeconds !== undefined && (options.seconds !== undefined || !Number.isInteger(recentSeconds) || recentSeconds < 60 || recentSeconds > 840))
-    throw new Error("Invalid bounded sample options");
-  if (!Number.isFinite(seconds) || seconds < 10 || seconds > 900 || !Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 100_000 || !Number.isInteger(maxBytes) || maxBytes < 1024 || maxBytes > 50_000_000) throw new Error("Invalid bounded sample options");
+    throw new BlueskyFailure("invalid_arguments");
+  if (!Number.isFinite(seconds) || seconds < 10 || seconds > 900 || !Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 100_000 || !Number.isInteger(maxBytes) || maxBytes < 1024 || maxBytes > 50_000_000) throw new BlueskyFailure("invalid_arguments");
   return await new Promise((resolve, reject) => {
     let window: BlueskyWindow | null = null, bytes = 0, events = 0, settled = false, lastReceivedAt = 0;
+    let connectTimer: ReturnType<typeof setTimeout> | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const cutoff = recentSeconds === undefined ? null : Date.now() - 15_000;
     const cursorStart = cutoff === null || recentSeconds === undefined ? null : cutoff - recentSeconds * 1000;
     let sawStart = false;
     const endpoint = new URL(BLUESKY_STREAM);
     if (cursorStart !== null) endpoint.searchParams.set("cursor", String(cursorStart * 1000));
-    const socket = new WebSocket(endpoint.href, "xrpc.v1.json");
-    const finish = (reason?: BlueskySample["stopReason"]) => {
-      if (settled) return;
-      settled = true; clearTimeout(connectTimer); clearTimeout(timer);
-      socket.close();
-      if (!reason || !window || events === 0 || Date.now() - lastReceivedAt > 30_000 || (cutoff !== null && reason !== "recent_window_complete")) reject(new Error("Bluesky live sample unavailable; no content logged or published"));
-      else {
-        const sample = window.finish(new Date(cutoff ?? Date.now()).toISOString(), reason);
-        if (sample.filters.originalRecords === 0 || sample.malformedEvents > sample.receivedEvents * 0.01) reject(new Error("Bluesky stream schema could not be verified; no content logged or published"));
-        else resolve(sample);
-      }
+    let socket: WebSocket;
+    try { socket = new WebSocket(endpoint.href, "xrpc.v1.json"); }
+    catch { reject(new BlueskyFailure("transport")); return; }
+    const stop = () => {
+      settled = true;
+      clearTimeout(connectTimer);
+      clearTimeout(timer);
+      try { socket.close(); } catch { /* A closed connection supplies no further frames. */ }
     };
-    const connectTimer = setTimeout(() => finish(), 15_000);
+    const fail = (reason: BlueskyFailureReason) => {
+      if (settled) return;
+      stop();
+      reject(new BlueskyFailure(reason));
+    };
+    const finish = (reason: BlueskySample["stopReason"]) => {
+      if (settled) return;
+      if (cutoff !== null && reason !== "recent_window_complete") {
+        if (reason === "event_limit" || reason === "byte_limit") return fail(reason);
+        return fail("cursor_timeout");
+      }
+      if (!window || !events || Date.now() - lastReceivedAt > 30_000) return fail("stream_inactive");
+      try {
+        const sample = window.finish(new Date(cutoff ?? Date.now()).toISOString(), reason);
+        if (sample.filters.originalRecords === 0 || sample.malformedEvents > sample.receivedEvents * 0.01) return fail("stream_schema");
+        stop();
+        resolve(sample);
+      } catch { fail("stream_schema"); }
+    };
+    connectTimer = setTimeout(() => fail("connect_timeout"), 15_000);
     socket.addEventListener("open", () => {
+      if (settled) return;
       clearTimeout(connectTimer);
       window = new BlueskyWindow(new Date(cursorStart ?? Date.now()).toISOString(), options.exclusions, cursorStart !== null);
       timer = setTimeout(() => finish("time_limit"), cursorStart === null ? seconds * 1000 : 90_000);
     });
     socket.addEventListener("message", (event) => {
       if (settled || !window) return;
-      if (typeof event.data !== "string") { finish(); return; }
+      if (typeof event.data !== "string") { fail("stream_schema"); return; }
       lastReceivedAt = Date.now();
       bytes += Buffer.byteLength(event.data);
       if (bytes > maxBytes) { finish("byte_limit"); return; }
@@ -318,11 +337,11 @@ export async function collectBlueskySample(options: { seconds?: number; recentSe
         let when = NaN;
         try {
           const envelope = JSON.parse(event.data);
-          if (envelope?.$type === "error") { finish(); return; }
+          if (envelope?.$type === "error") { fail("provider_rejected"); return; }
           when = Date.parse(envelope?.payload?.time);
         } catch { /* The window counts malformed frames without retaining them. */ }
         if (Number.isFinite(when)) {
-          if (!sawStart && Math.abs(when - cursorStart) > 30_000) { finish(); return; }
+          if (!sawStart && Math.abs(when - cursorStart) > 30_000) { fail("cursor_window_incomplete"); return; }
           sawStart = true;
           if (when >= cutoff) { finish("recent_window_complete"); return; }
         }
@@ -331,7 +350,10 @@ export async function collectBlueskySample(options: { seconds?: number; recentSe
       window.ingest(event.data, Date.now());
       if (events >= maxEvents) finish("event_limit");
     });
-    socket.addEventListener("error", () => finish());
-    socket.addEventListener("close", () => finish());
+    socket.addEventListener("error", () => fail("transport"));
+    socket.addEventListener("close", event => {
+      if (!window || cutoff === null || (event.code && event.code !== 1000 && event.code !== 1001)) fail("transport");
+      else fail("cursor_window_incomplete");
+    });
   });
 }
