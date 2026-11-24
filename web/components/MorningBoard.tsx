@@ -53,6 +53,7 @@ import GuidancePanel from "./GuidancePanel";
 import ReportedEpsComparison from "./ReportedEpsComparison";
 import EtfFlows from "./EtfFlows";
 import EtfOrderActivity from "./EtfOrderActivity";
+import EtfPriceChecks from "./EtfPriceChecks";
 import PrivateCreditContext from "./PrivateCreditContext";
 import OffExchangeActivity from "./OffExchangeActivity";
 import layout from "./MorningLayout.module.css";
@@ -2522,6 +2523,7 @@ export default function MorningBoard({
                   </div>
                 </section>
               )}
+              {!historical && <EtfPriceChecks instrument={instrument} />}
               {kibotResearch && (
                 <section className={`${styles.panel} ${styles.experiments}`}>
                   <div className={styles.panelHead}>

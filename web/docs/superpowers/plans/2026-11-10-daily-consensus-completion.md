@@ -1,5 +1,11 @@
 # The Daily Consensus completion plan
 
+### November 24 quarterly dividend verification
+
+- [x] Test regular opens, closes and issuer distributions for SPY, QQQ, IWM, DIA and TLT across a complete distribution month before launch. Independently reproduce 115 daily sessions, 95 five-session windows, 15 monthly windows and six issuer events using the original bytes of both feeds. [Operating procedure](../../CONSENSUS_OPERATIONS.md#historical-price-check-across-a-quarterly-distribution-cycle)
+- [x] Correct interpretation of encoded X index names and quoted forecasts in both the daily digest and the independent annotation workflow. Preserve earlier classifier results and duplicates by author and statement. [Social benchmark](../../BLUESKY_SAMPLE.md)
+- [ ] Settle the five November 23 targets with approved production evidence. The historical price comparison does not supply these five opens and closes.
+
 ### November 24 free-source settlement
 
 - [x] Requalify all 56 existing FirstRate equity sessions against newly collected, authenticated raw and split-only prices and issuer distributions. Preserve the earlier price approvals and the actual availability time of the new evidence.

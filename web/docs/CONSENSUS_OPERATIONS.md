@@ -1,5 +1,13 @@
 # Visual consensus publication and evaluation
 
+## Historical price check across a quarterly distribution cycle
+
+From `web`, run `npm run consensus:qualify-quarterly-etf-prices` to replay all five ETFs offline. The fixed sample runs from August 31 through October 1, 2026. It brackets the last full quarter-end month before the first public forecast. The publishing host keeps the original plan and receipts under `.consensus/private-quarterly-price-qualification/2026-09/`. The authenticated Market History controls and the issuer originals stay in their existing private directories. Use `-- --collect` to complete a missing authorized research capture and `-- --stage` to stage the verified count-only result for the existing History & learning page. Staging requires both independent calculations to read the native sources. An existing result is immutable. The pre-open collector does not need to repeat this finished study.
+
+For each of 23 regular sessions per ETF, the test compares Kibot's guest prices with Market History’s consolidated opening and closing hourly bars, in raw and split-only form. The existing limits are three basis points at the open and fifteen at the close, with matching daily direction. Each five- or 21-session window has to pass on every constituent day and agree after adjusting each price series using its own preceding close. State Street, Invesco and iShares supply the distributions. Market History separately confirms the dated amounts. The independent Python replay uses decimal arithmetic. [Kibot access](https://www.kibot.com/api/api-overview.html) · [Kibot research output licence](https://www.kibot.com/license.html) · [Market History data licence](https://getmarkethistory.com/docs/terms/)
+
+All 115 daily sessions, 95 five-session windows, 15 monthly windows and six issuer distribution dates passed. Eighteen weekly and fourteen monthly windows crossed a distribution. One TLT weekly return changed sign in both series after including cash. These overlapping historical comparisons test the price inputs. The prospective evaluator continues to use forecasts witnessed before entry and approved prices after exit. [Aggregate results](../../public/research/etf-price-check-2026-09.json)
+
 ## Free price settlement across five and 21 sessions
 
 The daily publisher checks the first regular-session open against the last regular-session close over the exact forecast horizon. For each cash distribution after entry, FirstRate and its independent control each use their own preceding close. The TLT replay checks both its native as-traded reference and its listing reference. A missing middle session or a difference in the adjusted direction withholds that window. Each fund’s other verified windows remain available.

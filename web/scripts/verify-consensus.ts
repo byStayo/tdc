@@ -11,6 +11,7 @@ import { assertEvaluationReleaseState } from "../lib/consensus/evaluation-transa
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { FAMILIES } from "../lib/consensus/registry.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
+import { QUARTERLY_PRICE_FILE, validateQuarterlyPriceCheck } from "../lib/consensus/quarterly-price-check.ts";
 import type { PerformanceReport } from "../lib/consensus/performance-types.ts";
 
 const args = process.argv.slice(2);
@@ -20,6 +21,7 @@ if (args.length && (!audit || args.length !== (requireComplete ? 2 : 1)))
   throw new Error("Usage: verify-consensus.ts [--audit [--require-complete]]");
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { current, history, snapshots } = await verifyPublicationTree(root);
+validateQuarterlyPriceCheck(JSON.parse(await readFile(resolve(root, "public" + QUARTERLY_PRICE_FILE), "utf8")));
 await assertEvaluationReleaseState(root);
 const outcomes: unknown = JSON.parse(
   await readFile(resolve(root, PUBLIC_OUTCOME_INDEX), "utf8"),
