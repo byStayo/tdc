@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test, { type TestContext } from "node:test";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
-import { FIRST_RATE_SYMBOLS, confirmFirstRateHoldingPeriods, prepareFirstRate } from "../lib/consensus/firstrate.ts";
+import { FIRST_RATE_SYMBOLS, confirmFirstRateHoldingPeriods, loadFirstRateTechnicals, prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import { writeHourlyFixtures } from "./fixtures/firstrate-hourly-controls.ts";
 import { digest } from "../lib/consensus/history.ts";
 import { evaluateOutcome } from "../lib/consensus/evaluation.ts";
@@ -124,12 +124,15 @@ test("a legacy price archive gains weekly eligibility only at its independent re
   await writeFile(pointer, stored);
   await writeFile(join(privateDir, "approvals", through + ".json"), stored, { mode: 0o600 });
   const before = await defaultEvaluationPrices(root, initialAt);
+  const originalTechnicals = await loadFirstRateTechnicals(root, initialAt);
+  assert.ok(originalTechnicals.length > 0);
   assert.ok(before.length === 4 && before.every(p => p.confirmedHoldingPeriods?.weekly.length === 0));
   t.mock.timers.setTime(Date.parse(reviewedAt));
   assert.deepEqual((await confirmFirstRateHoldingPeriods(root, true)).confirmed, FIRST_RATE_SYMBOLS);
   const after = await defaultEvaluationPrices(root, reviewedAt);
   assert.ok(after.length === 4 && after.every(p => p.confirmedHoldingPeriods?.weekly.includes(through)));
   assert.deepEqual(await defaultEvaluationPrices(root, initialAt), before);
+  assert.deepEqual(await loadFirstRateTechnicals(root, initialAt), originalTechnicals);
   assert.deepEqual(await defaultEvaluationPrices(root, "2026-11-01T12:00:00.000Z"), []);
   assert.equal((await confirmFirstRateHoldingPeriods(root, true)).status, "already_reviewed");
   // Now exercise a normal new approval independently of the historical supplement.

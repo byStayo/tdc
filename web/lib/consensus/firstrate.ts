@@ -410,7 +410,7 @@ export async function loadFirstRatePrices(root: string, cutoff = new Date().toIS
 }
 
 export async function loadReviewedTltCash(root: string, cutoff: string) {
-  const approval = await readApproval(root);
+  const approval = await readApproval(root, undefined, cutoff);
   if (!approval || approval.approvedAt > cutoff) return null;
   verifyIssuers(approval.issuers, approval.through, approval.approvedAt);
   const issuer = approval.issuers.find(row => row.symbol === "TLT")!;
@@ -438,7 +438,7 @@ export function firstRateTechnicalSignals(approval: Approval, cutoff: string) {
 }
 
 export async function loadFirstRateTechnicals(root: string, cutoff: string) {
-  const approval = await readApproval(root);
+  const approval = await readApproval(root, undefined, cutoff);
   return approval ? firstRateTechnicalSignals(approval, cutoff) : [];
 }
 
@@ -508,7 +508,7 @@ export async function loadFirstRatePremarket(root: string, cutoff: string) {
       const sealed = await readResearchReceipt<StoredPremarketReview>(resolve(premarketDirectory(root, latest), symbol + ".json"));
       if (sealed && sealed.review.approvedAt <= cutoff)
         return [replayPremarket(sealed, await capturedPremarket(root, symbol, latest, true), cutoff)];
-      const approval = await (legacy ??= readApproval(root));
+      const approval = await (legacy ??= readApproval(root, undefined, cutoff));
       if (!approval || approval.source !== FIRST_RATE_SOURCE || approval.approvedAt > cutoff) return [];
       const matches = approval.symbols.filter(row => row.symbol === symbol);
       if (matches.length !== 1) return [];
