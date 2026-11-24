@@ -1,8 +1,6 @@
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
-import { lstat, readdir, readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { createInterface } from "node:readline";
+import { readdir, readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { digest, verifyPublicationTree } from "./history.ts";
 import { exchangeSession, exchangeSessions, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, exchangeCalendarVersion } from "./exchange-calendar.ts";
 import { outcomeKey, outcomeWindowSessions, SCORING_POLICY, type PriceEvidence } from "./evaluation.ts";
@@ -14,13 +12,16 @@ import { readKibotPrimarySession } from "./kibot-eod-primary.ts";
 import { MARKETPARQUET_SOURCE } from "./marketparquet.ts";
 import { loadTltSettlement, MARKET_HISTORY_SOURCE } from "./market-history-settlement.ts";
 import { PROSPECTIVE_MINIMUM, readReservations, type EvaluationReservation } from "./learning-audit.ts";
-import { PUBLIC_OUTCOME_INDEX, PRIVATE_OUTCOME_LEDGER, COMPLETED_EVALUATIONS, EVALUATION_RELEASE_STATE, validateOutcomeIndex } from "./outcome-ledger.ts";
+import { PUBLIC_OUTCOME_INDEX, PRIVATE_OUTCOME_LEDGER, EVALUATION_RELEASE_STATE, validateOutcomeIndex } from "./outcome-ledger.ts";
 import { assertEvaluationReleaseState } from "./evaluation-transaction.ts";
+import { completedOutcomeWriteSeals, ownerSettlementLines, readOutcomeClockSlots } from "./outcome-clock-slots.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { PROSPECTIVE_FAMILY_DEFINITIONS, PROSPECTIVE_FAMILY_RULES, readProspectiveFamilyFeatures } from "./prospective-family-features.ts";
 import { FAMILIES } from "./registry.ts";
 import { HORIZONS, type Instrument, type Outcome, type Snapshot } from "./types.ts";
+
+export { completedOutcomeWriteSeals } from "./outcome-clock-slots.ts";
 
 type Features = Awaited<ReturnType<typeof readProspectiveFamilyFeatures>>;
 type Feature = Features["rows"][number];
@@ -36,18 +37,17 @@ const selectionPath = "public/consensus/outcome-selection.json";
 const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
 
 /** planCandidate needs at least 500 rows and begins validation at floor(n * .6).
- * Count every archive through the physical close, even superseded and model-ineligible
- * editions. Every forecast whose outcome overlaps this session must already have
- * been issued by then. Consequently this bounds each ETF/horizon separately, including
- * charts of older weekly/monthly intervals that extend past the date being examined.
+ * Count every archive issued through verified first availability, including superseded
+ * and model-ineligible editions. This also protects a weekly or monthly test whose
+ * decision arrived between the economic close and receipt of the actual outcome.
  */
 export function familyTrainingPrefix(issued: readonly Edition[], reservations: readonly EvaluationReservation[],
-  instrument: Instrument, issuedAt: string, closeAt: string) {
-  const priorEditions = issued.filter(entry => entry.issuedAt <= closeAt).length;
+  instrument: Instrument, issuedAt: string, through: string) {
+  const priorEditions = issued.filter(entry => entry.issuedAt <= through).length;
   const upperLimit = Math.floor(PROSPECTIVE_MINIMUM * 0.6);
   for (const record of reservations) {
     if (record.instrument !== instrument) continue;
-    if (record.testWindows.some(w => w.issuedAt <= closeAt && w.labelKnownAt >= issuedAt)) return "reserved_window";
+    if (record.testWindows.some(w => w.issuedAt <= through && w.labelKnownAt >= issuedAt)) return "reserved_window";
     if (issuedAt <= record.consumedThrough) return "consumed_window";
   }
   return priorEditions < upperLimit ? "training_prefix" : "possible_validation_or_test";
@@ -96,7 +96,8 @@ type Request = { slot: number; identity: Identity; issuedAt: string; session: st
 type Join = "paired" | "price_use_not_verified" | "approved_price_unavailable";
 type Pair = { status: "paired"; up: 0 | 1 } | { status: Exclude<Join,"paired"> };
 type LabelReader = (requests: Request[]) => Promise<Map<number, Pair>>;
-type Reason = "awaiting_close" | "short_session" | "superseded_edition" | "repeated_source_event" | "waiting_for_settlement" |
+type PairSource = { root: string; transaction: string } | { clockSlots: readonly string[] | null; readLabels: LabelReader };
+type Reason = "awaiting_verified_label_clock" | "awaiting_close" | "short_session" | "superseded_edition" | "repeated_source_event" | "waiting_for_settlement" |
   "reserved_window" | "consumed_window" | "possible_validation_or_test" | "price_use_not_verified" | "approved_price_unavailable";
 type RuleCount = { witnessed: number; mature: number; prefixEligible: number; settled: number; paired: number; missingFeatures: number;
   missingReasons: Record<string, number>; reasons: Partial<Record<Reason,number>> };
@@ -106,7 +107,9 @@ const increment = (values: Record<string,number>, key: string) => { values[key] 
 /** The caller supplies the already replayed feature archive. Prices are requested only after all authorization clocks and production windows pass. */
 export async function prospectiveFamilyPairCounts(features: Features, editions: readonly Edition[], settled: Identity[],
   selection: Selection, reservations: readonly EvaluationReservation[], asOf: string,
-  labelSource: LabelReader | { root: string; transaction: string }) {
+  evidence: PairSource | LabelReader) {
+  // A legacy callback alone carries no settlement clock and cannot authorize a price read.
+  const labelSource: PairSource = typeof evidence === "function" ? { readLabels:evidence, clockSlots:null } : evidence;
   const { byEdition, bySession, slots } = prospectiveSelection(editions,settled,selection,asOf);
   const rules = PROSPECTIVE_FAMILY_RULES.map(rule => ({
     id: rule.id, instrument: rule.instrument, family: rule.family, expectedSign: rule.expectedSign,
@@ -116,6 +119,7 @@ export async function prospectiveFamilyPairCounts(features: Features, editions: 
   }));
   const tracking = new Map(rules.map(rule => [pairedKey(rule.id, rule.instrument),rule]));
   const events = new Set<string>(), matches = new Map<number,{ request: Request; rows: Feature[] }>();
+  let clockSlots: readonly string[] | null | undefined;
   if (features.registeredAt && (!isInstant(features.registeredAt) || features.registeredAt > asOf)) throw Error("Invalid prospective feature registration clock");
   for (const m of features.missing) {
     const track = tracking.get(pairedKey(m.id,m.instrument));
@@ -143,11 +147,23 @@ export async function prospectiveFamilyPairCounts(features: Features, editions: 
     const event = JSON.stringify([row.id,row.instrument,row.eventId]);
     if (events.has(event)) { increment(track.reasons,"repeated_source_event"); continue; }
     events.add(event);
-    const proof = familyTrainingPrefix(editions,reservations,row.instrument,row.issuedAt,clock.closeAt);
-    if (proof !== "training_prefix") { increment(track.reasons,proof); continue; }
-    track.prefixEligible++;
     const slot = slots.get(outcomeKey({snapshotId:row.edition,instrument:row.instrument,horizon:"daily"}));
+    if (slot !== undefined && clockSlots === undefined) {
+      clockSlots = "root" in labelSource
+        ? await readOutcomeClockSlots(labelSource.root, settled, labelSource.transaction)
+        : labelSource.clockSlots;
+      if (clockSlots !== null && (clockSlots.length !== settled.length || !clockSlots.every(isInstant)))
+        throw Error("Prospective availability clocks differ from the outcome index");
+    }
+    const knownAt = slot === undefined ? undefined : clockSlots?.[slot];
+    if (knownAt && knownAt < clock.closeAt) throw Error("Prospective outcome availability predates its exchange close");
+    const available = knownAt !== undefined && knownAt < asOf;
+    // A physical close can establish an exclusion. Only an already witnessed availability clock can authorize reading a label.
+    const proof = familyTrainingPrefix(editions,reservations,row.instrument,row.issuedAt,available ? knownAt : clock.closeAt);
+    if (proof !== "training_prefix") { increment(track.reasons,proof); continue; }
     if (slot === undefined) { increment(track.reasons,"waiting_for_settlement"); continue; }
+    if (!available) { increment(track.reasons,"awaiting_verified_label_clock"); continue; }
+    track.prefixEligible++;
     track.settled++;
     const match = matches.get(slot) ?? {request:{slot,identity:settled[slot],issuedAt:e.issuedAt,...clock},rows:[]};
     match.rows.push(row);
@@ -155,8 +171,9 @@ export async function prospectiveFamilyPairCounts(features: Features, editions: 
   }
   if (matches.size) {
     const requests = [...matches.values()].map(m=>m.request);
-    const values = typeof labelSource === "function" ? await labelSource(requests) :
-      await readApprovedLabels(labelSource.root,requests,settled,labelSource.transaction,asOf);
+    const values = "root" in labelSource
+      ? await readApprovedLabels(labelSource.root, requests, settled, labelSource.transaction, asOf)
+      : await labelSource.readLabels(requests);
     if (values.size !== matches.size) throw Error("Incomplete verified settlement response");
     for (const [slot, match] of matches) {
       const value = values.get(slot);
@@ -183,42 +200,12 @@ export async function prospectiveFamilyPairCounts(features: Features, editions: 
     }), training:"collection_only" as const };
 }
 
-async function ownerFile(path: string) {
-  const [file,dir] = await Promise.all([lstat(path),lstat(dirname(path))]);
-  if (!file.isFile() || file.mode & 0o077 || !dir.isDirectory() || dir.mode & 0o077)
-    throw Error("Owner-only regular settlement evidence required");
-  return createInterface({input:createReadStream(path,{ encoding:"utf8" }),crlfDelay:Infinity});
-}
-
-/** The completed transaction can contain other outcomes. Read only its path, identity and digest fields. */
-export async function completedOutcomeWriteSeals(root: string, transaction: string, indexHash: string) {
-  if (!/^[a-f0-9-]{36}$/.test(transaction)) throw Error("No completed production outcome transaction");
-  const stream = await ownerFile(resolve(root, COMPLETED_EVALUATIONS, transaction + ".json"));
-  let id: string | undefined, path: string | undefined;
-  const seals = new Map<string,string>();
-  for await (const line of stream) {
-    if (line.startsWith('  "id": ')) id = JSON.parse(line.trim().slice(6).replace(/,$/,""));
-    if (line === "    {" || line === "    }," || line === "    }") path = undefined;
-    const dest = /^      "path": "([^"]+)",$/.exec(line);
-    if (dest) path = dest[1];
-    const after = /^      "after": "([a-f0-9]{64})",?$/.exec(line);
-    if (path && after) {
-      if (seals.has(path)) throw Error("Duplicate path in completed settlement transaction");
-      seals.set(path,after[1]);
-    }
-  }
-  const seal = seals.get(PRIVATE_OUTCOME_LEDGER);
-  if (id !== transaction || !checksum(seal) || seals.get(PUBLIC_OUTCOME_INDEX) !== indexHash)
-    throw Error("Private price ledger and public identities lack a matching completed transaction");
-  return { ledgerSha256: seal, after: seals };
-}
-
 /** durableJSON writes an ordered array with one field per line. Hash every record as
  * opaque canonical JSON; retain and decode only the authorized public-index slots.
  * No protected outcome object is parsed, returned or logged, including on failure.
  */
 async function verifiedOutcomeSlots(path: string, seal: string, count: number, slots: Set<number>) {
-  const stream = await ownerFile(path);
+  const stream = await ownerSettlementLines(path);
   const hash = createHash("sha256"), picked = new Map<number,string[]>();
   let index = -1;
   for await (const line of stream) {
