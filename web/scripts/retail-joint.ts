@@ -4,14 +4,14 @@ import { publisherSecondaryStudies } from "../lib/consensus/secondary-studies.ts
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 
 const flags = process.argv.slice(2);
-const group = flags[0] === "--premarket" || flags[0] === "--families" ? flags[0] : "--retail";
+const group = ["--premarket", "--fund-flows", "--families"].includes(flags[0]) ? flags[0] : "--retail";
 if (group !== "--retail") flags.shift();
 const [action = "--status", ...extra] = flags;
 if (extra.length || !["--register", "--status", "--advance"].includes(action))
   throw Error("Choose one of --status, --register and --advance");
 const root = fileURLToPath(new URL("../", import.meta.url));
 const selected = group === "--families" ? secondaryFamilyStudies :
-  publisherSecondaryStudies.filter(({name}) => name === (group === "--premarket" ? "premarket" : "retail"));
+  publisherSecondaryStudies.filter(({name}) => name === group.slice(2));
 async function run() {
   const reports = [];
   for (const {name, study} of selected) {

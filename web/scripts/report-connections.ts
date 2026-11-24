@@ -31,6 +31,7 @@ const signals = snapshot.signals.map(signal => ({
   summary: signal.summary,
   limitation: signal.limitation,
   metrics: signal.metrics,
+  ...(signal.etfFlowPeers && { etfFlowPeers: signal.etfFlowPeers }),
   historyPoints: signal.series.length,
 }));
 const sourceLabels = [...new Set(signals.map(signal => signal.providerLabel))].filter(label => label !== null).sort();

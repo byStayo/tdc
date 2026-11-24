@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import type { PublicDocument } from './calendars.ts';
 import type { Instrument, Signal, Snapshot } from './types.ts';
 import { sourceFailureKind } from './source-failure.ts';
+import { captureFlowPeers, validateFlowPeers } from './etf-flow-peers.ts';
 
 export const ETF_FLOW_URL = 'https://etfiq.com/data/flows/daily/latest.json';
 export const ETF_FLOW_LICENSE = 'https://etfiq.com/license/';
@@ -16,7 +17,7 @@ const integer = (x: unknown): x is number => typeof x === 'number' && Number.isS
 const finite = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
 const instant = (x: string) => Number.isFinite(Date.parse(x)) && new Date(x).toISOString() === x;
 const date = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d\d-\d\d$/.test(x) && Number.isFinite(Date.parse(x)) && new Date(x).toISOString().slice(0,10) === x;
-type Flow = { ticker: string; status: 'ok' | 'held' | 'spans-sessions'; flowUsd: number | null; roundTripUsd: number | null; flowPct: number | null; navDate: string | null };
+type Flow = { ticker: string; category: 'Stocks' | 'Bonds' | null; status: 'ok' | 'held' | 'spans-sessions'; flowUsd: number | null; roundTripUsd: number | null; flowPct: number | null; navDate: string | null };
 
 /** Copy only the provider's computed fields; issuer assets/NAVs are validation inputs, never output. */
 export function parseEtfFlows(text: string, cutoff: string) {
@@ -45,7 +46,8 @@ export function parseEtfFlows(text: string, cutoff: string) {
             Math.abs(row.flowPctOfStartNetAssets - Math.round(row.flowUsd / row.startNetAssetsUsd * 10_000) / 100) > 1e-8) fail();
       }
     } else if (row.flowUsd !== null || row.roundTripUsd !== null || row.flowPctOfStartNetAssets !== null) fail();
-    return { ticker: row.ticker, status: row.status as Flow['status'], flowUsd: row.flowUsd as number | null,
+    return { ticker: row.ticker, category: row.category === 'Stocks' || row.category === 'Bonds' ? row.category : null,
+      status: row.status as Flow['status'], flowUsd: row.flowUsd as number | null,
       roundTripUsd: row.roundTripUsd as number | null, flowPct: row.flowPctOfStartNetAssets as number | null, navDate: row.navDate as string | null };
   });
   const available = funds.filter(row => row.status === 'ok'), held = funds.filter(row => row.status === 'held').length;
@@ -66,12 +68,14 @@ function baseSignal(symbol: typeof symbols[number], retrievedAt: string): Signal
     series: [], metrics: [], scores: { daily: null, weekly: null, monthly: null }, staleAfterDays: 7, unit: 'USD net flow' };
 }
 
-export async function collectEtfFlows(read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString()): Promise<Signal[]> {
+export async function collectEtfFlows(read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString(), archiveRoot?: string): Promise<Signal[]> {
   const started = now();
   try {
     const doc = await read(ETF_FLOW_URL);
     if (!instant(doc.retrievedAt) || doc.retrievedAt > now() || createHash('sha256').update(doc.text).digest('hex') !== doc.sha256) fail();
     const parsed = parseEtfFlows(doc.text, doc.retrievedAt);
+    const comparisons = archiveRoot ? await captureFlowPeers(archiveRoot, doc, parsed.asOf, parsed.funds, read, ETF_FLOW_LICENSE, now)
+      .catch(error => { console.warn('ETFIQ peer capture failed.', String(error)); return undefined; }) : undefined;
     return symbols.map(symbol => {
       const base = baseSignal(symbol, doc.retrievedAt), row = parsed.funds.find(row => row.ticker === symbol);
       if (symbol === 'MARKET' && parsed.total.funds === 0) return {...base,summary:`No eligible one-day observations in the provider file dated ${parsed.asOf}; held and multi-session rows do not establish a zero flow.`};
@@ -86,14 +90,16 @@ export async function collectEtfFlows(read: (url: string) => Promise<PublicDocum
         {label:'Funds excluded for multi-session counts',value:parsed.total.excludedSessions},
       ].map(m => ({...m,unit:'funds',date:parsed.asOf})));
       else if (row!.flowPct !== null) metrics.push({label:'Flow / previous net assets',value:row!.flowPct!,unit:'%',date:parsed.asOf});
-      return {...base,status:'available',series:[{date:parsed.asOf,value}],metrics,
+      const peer = symbol === 'MARKET' ? undefined : comparisons?.get(symbol);
+      return {...base,status:'available',series:[{date:parsed.asOf,value}],metrics,...(peer && {etfFlowPeers:peer}),
         summary:`${symbol === 'MARKET' ? `${parsed.total.funds} covered ETFs` : symbol}: ${value.toLocaleString('en-US')} USD net flow dated ${parsed.asOf}.${symbol === 'MARKET' ? ` ${parsed.total.heldFunds} funds held for review and ${parsed.total.excludedSessions} multi-session counts excluded.` : ` Source NAV date: ${row!.navDate ?? 'unavailable'}.`} Dated creations/redemptions context; no directional vote.`,
         source:{...base.source,observedAt:parsed.asOf,sha256:doc.sha256}};
     });
   } catch (error) { return symbols.map(symbol => ({...baseSignal(symbol,started),failureKind:sourceFailureKind(error)})); }
 }
 
-export function validateEtfFlows(signal: Signal): void {
+export function validateEtfFlows(signal: Signal, cutoff = signal.source.retrievedAt): void {
+  validateFlowPeers(signal, cutoff);
   if (!signal.id.startsWith(ETF_FLOW_PREFIX)) return;
   const symbol = signal.id.slice(ETF_FLOW_PREFIX.length);
   if (!symbols.includes(symbol as typeof symbols[number]) || signal.family !== 'capital' || signal.instruments.join() !== symbol ||
@@ -116,8 +122,8 @@ export function validateEtfFlows(signal: Signal): void {
   } else if (rest.length > 1 || rest.some(m => m.label !== 'Flow / previous net assets' || m.unit !== '%')) throw new Error('Invalid ETF flow metrics');
 }
 
-export async function refreshEtfFlows(previous: Snapshot, read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString()): Promise<Snapshot> {
-  const flows = await collectEtfFlows(read,now), issuedAt = now();
+export async function refreshEtfFlows(previous: Snapshot, read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString(), archiveRoot?: string): Promise<Snapshot> {
+  const flows = await collectEtfFlows(read,now,archiveRoot), issuedAt = now();
   const signals = previous.signals.filter(s => !s.id.startsWith(ETF_FLOW_PREFIX));
   const anchor = signals.findIndex(s => s.id === 'quantisnow-monthly-ratings' || s.id.startsWith('twse-') || s.id === 'fed-private-credit-loans');
   signals.splice(anchor < 0 ? signals.length : anchor,0,...flows);

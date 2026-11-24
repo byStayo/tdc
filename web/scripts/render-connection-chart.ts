@@ -58,10 +58,14 @@ function signalCard(s: Signal, reading: Reading) {
   const observed = s.source.observedAt ? escape(s.source.observedAt) : "Unavailable";
   const release = s.source.releasedAt ? ' · Released ' + escape(s.source.releasedAt) : "";
   const source = reading.providerLabel ? sourceLink(s.source.url, reading.providerLabel) : "No connected source";
+  const peers = s.etfFlowPeers;
+  const peerReading = peers ? '<p>Other ' + (peers.category === "Stocks" ? "stock" : "bond") + ' ETFs · ' +
+    peers.creations + ' with inflows, ' + peers.redemptions + ' with outflows, ' + peers.flat + ' flat. ' +
+    sourceLink(peers.url, "ETFIQ fund history") + '</p>' : '';
   return '<details id="' + fragment(s.id) + '"><summary><strong>' + escape(s.title) + '</strong><span>' +
     statusLabel[reading.status] + '</span></summary><div class="body"><p>' + source + ' · ' + s.instruments.map(label).join(", ") +
     '</p><p>' + escape(s.summary) + '</p><p class="muted">Observed ' + observed + release + '</p>' +
-    (s.limitation ? '<p>' + escape(s.limitation) + '</p>' : '') +
+    peerReading + (s.limitation ? '<p>' + escape(s.limitation) + '</p>' : '') +
     (fields ? '<table><thead><tr><th scope="col">Measurement</th><th scope="col">Value</th><th scope="col">Observation</th></tr></thead><tbody>' +
       fields + '</tbody></table>' : '') +
     (series ? '<details class="history"><summary>' + s.series.length + ' dated values · ' + escape(s.unit) + '</summary><pre>' +

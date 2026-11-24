@@ -23,6 +23,9 @@ export default function EtfFlows({ signals, instrument, reference }: {signals:Si
           {signal.collectionNote && <p className={styles.missing}>{signal.collectionNote}</p>}
           {symbol!=='MARKET'&&<div className={styles.track} aria-hidden="true"><i className={point.value<0?styles.negative:styles.positive} style={{width:`${Math.abs(point.value)/scale*100}%`}}/></div>}
           {signal.metrics.slice(1).filter(m=>m.unit==='funds'||m.unit==='%').map(metric=><p key={metric.label} className={styles.metric}>{metric.label}: <strong>{new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(metric.value)}{metric.unit==='%'?'%':''}</strong></p>)}
+          {signal.etfFlowPeers && <p className={styles.metric}>Other {signal.etfFlowPeers.category === 'Stocks' ? 'stock' : 'bond'} ETFs
+            {' · '}{signal.etfFlowPeers.creations} with inflows, {signal.etfFlowPeers.redemptions} with outflows, {signal.etfFlowPeers.flat} flat.
+            {' '}<a href={signal.etfFlowPeers.url} target="_blank" rel="noreferrer">Fund history ↗</a></p>}
         </>:<p className={styles.missing}>{signal.summary}</p>}
         <a href={signal.source.url} target="_blank" rel="noreferrer">ETFIQ source ↗</a>
       </article>;

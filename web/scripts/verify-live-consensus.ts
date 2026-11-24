@@ -5,6 +5,7 @@ import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt, scheduledPreopenSession } from "../lib/consensus/preopen-receipt.ts";
 import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
+import { etfFlowStudy } from "../lib/consensus/etf-flow-study.ts";
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 import { enrollJointRetail } from "../lib/consensus/retail-joint.ts";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
@@ -48,7 +49,7 @@ async function verify(snapshot: Snapshot, session?: string) {
   if (mismatches.length) throw new Error("Live consensus differs from the saved edition for " + mismatches.join(", "));
   const preopen = session ? await recordPreopenReceipt(root, session, snapshot.id,
     verified.get(snapshot.id + ".json")!, verified.get("index.json")!, new Date().toISOString()) : undefined;
-  let familyFeatures, retailFeatures, jointRetail, priorPremarket;
+  let familyFeatures, retailFeatures, jointRetail, priorPremarket, fundFlows;
   const secondaryFamilies: Record<string, {status: string; enrolled: number}> = {};
   if (session && preopen) {
     try {
@@ -68,6 +69,11 @@ async function verify(snapshot: Snapshot, session?: string) {
     } catch (error) {
       console.error("Private premarket enrollment failed.", error instanceof Error ? error.message : String(error));
       priorPremarket = { status: "failed" };
+    }
+    try { fundFlows = await etfFlowStudy.enroll(root, session, snapshot.id); }
+    catch (error) {
+      console.error("Private fund-flow enrollment failed.", error instanceof Error ? error.message : String(error));
+      fundFlows = { status: "failed" };
     }
     if ("available" in familyFeatures) {
       const missing = new Set(familyFeatures.missing.map(m => m.id + "/" + m.instrument));
@@ -92,7 +98,7 @@ async function verify(snapshot: Snapshot, session?: string) {
     }
   }
   console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-    matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket, secondaryFamilies }));
+    matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket, fundFlows, secondaryFamilies }));
 }
 
 const readCurrent = async (): Promise<Snapshot> => JSON.parse((await file("lib/consensus/current.json")).toString());

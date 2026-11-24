@@ -59,7 +59,7 @@ let snapshot: Snapshot = reviewOnly || technicalsOnly
   ? { ...previous!, id: now.replace(/[:.]/g, "-"), issuedAt: now, cutoff: now }
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
   : taiwanOnly ? await refreshTaiwan(previous!, publicText)
-  : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText)
+  : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText, undefined, root)
   : analystOnly ? await refreshAnalystRatings(previous!, publicText, undefined, root)
   : await collectSnapshot(fetch, previous ?? undefined, resolve(root, ".consensus/private-operf-equity"),
       resolve(root, ".consensus/private-opra-volume"), root);

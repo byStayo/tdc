@@ -977,7 +977,7 @@ export async function collectSnapshot(
     collectHoldings((url) => publicText(url, fetcher)),
     collectTaiwan((url) => publicText(url, fetcher)),
     collectAnalystRatings((url) => publicText(url, fetcher), undefined, previous, archiveRoot),
-    collectEtfFlows((url) => publicText(url, fetcher)),
+    collectEtfFlows((url) => publicText(url, fetcher), undefined, archiveRoot),
     collectFuturesOptions((url) => publicText(url, fetcher)),
     collectEtfiqRetailOrders((url) => publicText(url, fetcher)),
     collectSecMidas((url) => publicText(url, fetcher), fetcher, previous?.signals),

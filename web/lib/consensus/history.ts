@@ -93,7 +93,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateOperfCapital(signal, snapshot.cutoff);
     validateHouseholdEquity(signal);
     validateAnalystRatings(signal);
-    validateEtfFlows(signal);
+    validateEtfFlows(signal, snapshot.cutoff);
     validateFirstRateTechnical(signal);
     validateFirstRatePremarket(signal, snapshot.cutoff);
     validateTltPremarket(signal, snapshot.cutoff);
@@ -353,6 +353,10 @@ export function observationDigest(snapshot: Snapshot): string {
       ...signal,
       summary: signal.status === "unavailable" ? null : signal.summary,
       collectionNote: undefined,
+      etfFlowPeers: signal.etfFlowPeers && {
+        category: signal.etfFlowPeers.category, creations: signal.etfFlowPeers.creations,
+        redemptions: signal.etfFlowPeers.redemptions, flat: signal.etfFlowPeers.flat, navDate: signal.etfFlowPeers.navDate,
+      },
       metrics: signal.metrics.map((metric) => ({
         ...metric,
         date:

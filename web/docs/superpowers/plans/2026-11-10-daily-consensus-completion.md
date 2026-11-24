@@ -2,6 +2,9 @@
 
 ### Verified on November 24 after the first pre-open registrations
 
+- [x] Reconcile the revised November 20 ETFIQ daily flows to original individual histories for SPY, QQQ, IWM, DIA and TLT. Add separate stock and bond comparison groups to the publisher and native prospective validation path. [Five funds and study requirements](../../ETF_FLOWS.md)
+- [ ] Admit the first post-registration, prior-session ETFIQ flow for a final witnessed morning edition. The corrected Friday file arrived too late for Monday's forecast. [Flow date checks](../../../lib/consensus/etf-flow-study.ts)
+
 - [x] Test international financial stress on 147 dated DIA sessions, including 38 newly qualified dates. Both independent implementations reproduced the 30-session held-out error of 0.2743 against 0.2705 for U.S. stress alone. The comparison added zero daily votes. [Study and scoring record](../../OFR_GEOGRAPHIC_RESEARCH.md)
 
 - [x] Recover newly approved source-native signs across a publisher interruption before the public release starts. The integration tests terminate the writer after the journal, the private sign and the private admission. Manual prices, an altered archive or reservation record, and older settlements did not enter a study. [Recovery procedure](../../CONSENSUS_OPERATIONS.md#recovering-a-newly-settled-study-input)
