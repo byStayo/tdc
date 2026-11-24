@@ -87,6 +87,12 @@ The `zeroshot/twitter-financial-news-sentiment` card declares MIT and says its t
 
 The Instagram consumer-sentiment study describes over eleven million posts and makes data available on reasonable request. Its article license does not establish access or a grant for the underlying captions. Searches of public official-account material also failed to produce a sufficiently verified caption-and-timestamp sample. No real X or Instagram benchmark has been completed. Next acquisition requires approved platform access with the stated analysis rights, or a directly licensed caption sample that includes collection and use permissions. [Study and data statement](https://eprints.whiterose.ac.uk/210080/1/1-s2.0-S0165176524001216-main.pdf)
 
+### November 24 historical annotation checks
+
+FiQA’s organizers report 774 annotated microblogs across their original training and test sets. Both official downloads returned HTTP 404 in the check. Per-fund target counts remain unknown. The organizers specify noncommercial use for both splits. [FiQA data terms](https://sites.google.com/view/fiqa/home) · [Organizers’ paper](https://andrefreitas.org/papers/www_fiqa_2018.pdf)
+
+SemEval’s published example includes SPY and QQQ in the same post. The annotators inferred QQQ’s direction from its correlation with SPY. Its platform is unspecified in the example. The complete gold labels require a signed academic release and the posts retain their platform terms. TweetFinSent’s author-published target fields contain zero SPY, QQQ, IWM, DIA or TLT annotations in 2,113 records. These three collections supplied zero qualifying contributors for the five-fund X and Instagram benchmark. [SemEval paper](https://aclanthology.org/S17-2089.pdf) · [Release agreement](https://alt.qcri.org/semeval2017/task5/data/uploads/gsdatareleaseagreement-semeval-task5.pdf) · [Authors’ TweetFinSent release](https://github.com/jpmcair/tweetfinsent/tree/515d2aed8014d5209ec5cce482d41edc480ae594)
+
 ### November 11 access and costs
 
 | Route | Credentials and approval | Metered cost and limits |
