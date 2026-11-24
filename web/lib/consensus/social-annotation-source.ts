@@ -5,7 +5,8 @@ import { instagramCaptionText } from "./instagram-post-text.ts";
 import { xDisplayText, xPostText } from "./x-post-text.ts";
 
 const day = 86_400_000;
-const sources = ["x-v2", "instagram-business-discovery", "bluesky-appview", "white-house-twitter-v1"] as const;
+export const BLUESKY_CONSENT_SOURCE = "bluesky-consent-appview";
+const sources = ["x-v2", "instagram-business-discovery", "bluesky-appview", BLUESKY_CONSENT_SOURCE, "white-house-twitter-v1"] as const;
 type Source = typeof sources[number];
 type Platform = "x" | "instagram" | "bluesky";
 type Original = { author: string; post: string; at: number; text: string };
@@ -61,21 +62,28 @@ function instagramOriginals(page: Record<string, unknown>): Original[] {
   });
 }
 
+export function publicBlueskyPost(row: Record<string, unknown>) {
+  const profile = socialObject(row.author), record = socialObject(row.record);
+  const did = profile.did;
+  const viewer = profile.viewer === undefined ? {} : socialObject(profile.viewer);
+  if (viewer.blocking || viewer.blockedBy || (profile.labels !== undefined &&
+      (!Array.isArray(profile.labels) || profile.labels.length))) return null;
+  if (typeof did !== "string" || !/^did:(?:plc:[a-z2-7]{24}|web:[a-z0-9._:%-]+)$/.test(did) ||
+      typeof row.uri !== "string" || !row.uri.startsWith("at://" + did + "/app.bsky.feed.post/") ||
+      !/^[a-zA-Z0-9._~:-]{1,512}$/.test(row.uri.slice(("at://" + did + "/app.bsky.feed.post/").length)) ||
+      record.$type !== "app.bsky.feed.post" || typeof record.text !== "string" || !record.text.trim() ||
+      record.text.length > 3000 || typeof record.createdAt !== "string" || !Array.isArray(record.langs) ||
+      !record.langs.includes("en") || (row.labels !== undefined && (!Array.isArray(row.labels) || row.labels.length)) ||
+      record.labels !== undefined) return null;
+  return { did, uri: row.uri, record, text: record.text, createdAt: record.createdAt };
+}
+
 function blueskyOriginals(page: Record<string, unknown>): Original[] {
   return list(page.posts).flatMap(row => {
-    const profile = socialObject(row.author), record = socialObject(row.record);
-    const did = profile.did;
-    const viewer = profile.viewer === undefined ? {} : socialObject(profile.viewer);
-    if (viewer.blocking || viewer.blockedBy || (profile.labels !== undefined &&
-        (!Array.isArray(profile.labels) || profile.labels.length))) return [];
-    if (typeof did !== "string" || !/^did:(?:plc:[a-z2-7]{24}|web:[a-z0-9._:%-]+)$/.test(did) ||
-        typeof row.uri !== "string" || !row.uri.startsWith("at://" + did + "/app.bsky.feed.post/") ||
-        !/^[a-zA-Z0-9._~:-]{1,512}$/.test(row.uri.slice(("at://" + did + "/app.bsky.feed.post/").length)) ||
-        record.$type !== "app.bsky.feed.post" || typeof record.text !== "string" || !record.text.trim() ||
-        record.text.length > 3000 || typeof record.createdAt !== "string" || !Array.isArray(record.langs) ||
-        !record.langs.includes("en") || record.reply || (row.labels !== undefined && (!Array.isArray(row.labels) || row.labels.length)) ||
-        record.labels !== undefined || (record.embed && String(socialObject(record.embed).$type).includes("record"))) return [];
-    return [{ author: did, post: row.uri, at: Date.parse(record.createdAt), text: record.text }];
+    const post = publicBlueskyPost(row);
+    if (!post || post.record.reply ||
+        (post.record.embed && String(socialObject(post.record.embed).$type).includes("record"))) return [];
+    return [{ author: post.did, post: post.uri, at: Date.parse(post.createdAt), text: post.text }];
   });
 }
 
@@ -113,11 +121,12 @@ export function socialAnnotationTemplate(input: unknown, now: string, nonce = ra
       from >= through || through > collectedAt || collectedAt > now || expiresAt <= now ||
       Date.parse(expiresAt) - Date.parse(collectedAt) > day || !/^[0-9a-f]{32}$/.test(nonce))
     throw new Error("Expected a current, time-bounded native source");
-  const platform: Platform = source === "instagram-business-discovery" ? "instagram" : source === "bluesky-appview" ? "bluesky" : "x";
+  const blueskySource = source === "bluesky-appview" || source === BLUESKY_CONSENT_SOURCE;
+  const platform: Platform = source === "instagram-business-discovery" ? "instagram" : blueskySource ? "bluesky" : "x";
   const observedVisibility = new Map<string, boolean>();
   const decode = source === "x-v2" ? (page: Record<string, unknown>) => xOriginals(page, observedVisibility) :
     source === "instagram-business-discovery" ? instagramOriginals :
-    source === "bluesky-appview" ? blueskyOriginals : federalOriginals;
+    blueskySource ? blueskyOriginals : federalOriginals;
   const excludedActors = new Set(exclusions?.actors), excludedPosts = new Set(exclusions?.records);
   const originals = new Map<string, Original>();
   const chosen = new Map<Instrument, Map<string, Original>>();

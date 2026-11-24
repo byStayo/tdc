@@ -57,6 +57,39 @@ The X benchmark uses `native-contributors-v4` and checks displayed text for dupl
 
 On November 24, 2026 the two private commands processed a bounded sample from three government Twitter archive ZIPs containing 31,685 native posting records. The literal ETF cashtag, hashtag and index-name filter produced zero eligible contributors for SPY, QQQ, IWM, DIA and TLT. One institutional account contributed to the broad market subject. All six groups were suppressed, no independent labels were supplied, and the temporary packet was removed. [Designated original downloads](https://obamawhitehouse.archives.gov/blog/2017/01/05/new-lenses-first-social-media-presidency)
 
+### Optional Bluesky consent by direct reply
+
+A willing contributor can reply directly, from the same Bluesky account, to their own public, English-tagged original post discussing one of the five ETFs. Use an explicit cashtag such as `$SPY` in the original. In the reply, use the following wording on one line, substituting the exact ETF ticker and a UTC deadline no more than 24 hours after replying. Send the original and consent-reply links to the publisher through an authorized private channel.
+
+```text
+For the original SPY post I am replying to, I permit The Daily Consensus to collect and show it to independent reviewers for private blind annotation and evaluation, with local storage until YYYY-MM-DDTHH:MM:SSZ and retention of private anonymized evaluation totals.
+```
+
+The publisher records the two links as canonical `at://DID/app.bsky.feed.post/RECORD_KEY` identifiers. For an ordinary Bluesky link, the path identifies the account handle or DID and the record key. Resolve a handle to its DID before entering it. Use the DID that controls both posts. The grant covers one version of one original, the named ETF, review on the publisher’s host and private anonymized evaluation totals. Public or model use requires a separate grant. [Handle resolution schema](https://github.com/bluesky-social/atproto/blob/58ca16d32ccb50b30e1d4c800c6263af7511a4ff/lexicons/com/atproto/identity/resolveHandle.json)
+
+Choose the sample and its original-post time window before any review. Store this manifest in owner-only temporary storage. Replace the two placeholders and both example timestamps with the actual selection. The inclusive `from` and exclusive `through` use UTC ISO timestamps with milliseconds. Originals must have been created and indexed inside that window, which must fall within the 24 hours before collection. Each consent reply must have been indexed by collection time. The command takes up to 100 unique pairs and reads the explicitly listed records only.
+
+```json
+{
+  "schemaVersion": 1,
+  "from": "2026-11-24T15:00:00.000Z",
+  "through": "2026-11-24T16:00:00.000Z",
+  "entries": [{"instrument": "SPY", "postUri": "ORIGINAL_AT_URI", "consentUri": "CONSENT_AT_URI"}]
+}
+```
+
+Set `packet` to a new file in the owner-only corpus directory described above and `manifest` to the local manifest. Run preparation and scoring on the publisher’s host. The reviewer completes only `expected` in the blind packet before viewing classifier or price results.
+
+```sh
+npm run consensus:validate-social-private -- --bluesky-consent --prepare "$packet" < "$manifest"
+npm run consensus:validate-social-private -- --bluesky-consent "$packet" < "$manifest"
+npm run consensus:validate-social-private -- --bluesky-consent --withdraw "$packet"
+```
+
+The unauthenticated AppView response supplies both post views, their actor DIDs and their content identifiers. The consent reply’s two strong references must both match the current original’s URI and content identifier. The verifier uses Bluesky’s AppView as its provenance source. It checks the current account and record exclusions, public visibility, exact consent wording and times, and keeps all provider responses in memory. The packet stores blind review text and two digests covering the frozen selection and the verified native records. Scoring fetches both records again and requires both digests and membership to match. The command reports counts only, and the existing ten-annotated-contributor minimum applies per ETF. [Public API hosts](https://bsky.network/docs/api-directory/) · [Pinned post lookup](https://github.com/bluesky-social/bsky/blob/d92c6fe74100d33b5250f076b767e6bb8cea9026/lexicons/app/bsky/feed/getPosts.json) · [Pinned reply schema](https://github.com/bluesky-social/bsky/blob/d92c6fe74100d33b5250f076b767e6bb8cea9026/lexicons/app/bsky/feed/post.json) · [Contributor ownership](https://bsky.social/about/support/tos)
+
+A contributor can withdraw by deleting the consent reply or the original, or by reporting a withdrawal to the publisher for immediate local exclusion. The publisher can remove the entire packet with `--withdraw`. A missing, changed, excluded or expired consent detected during scoring removes the packet. Deletions reach the verifier as soon as AppView reflects them. API or input errors prevent scoring. Remove the local packet and manifest by the earliest grant deadline or earlier on withdrawal. Ordinary operation is a manual command, so cleanup at expiry is the publisher’s responsibility when there is no later invocation. The implementation tests use synthetic fixtures. The integration check received zero genuine approvals.
+
 ### Annotation from an ordinary authorized digest
 
 The weekday following digest can prepare a separate owner-only blind packet while it is already reading X or Instagram. An API token permits access to the service. This optional use requires its own owner activation and documented grant for temporary annotation and private aggregate evaluation. X keeps its existing per-day read reservation, query and page limits. Free-only and reused X digests have no original posts available to this path. An active packet is reused until expiry or withdrawal. Instagram requests each media item's native ID on the same existing Business Discovery read when this use is enabled.

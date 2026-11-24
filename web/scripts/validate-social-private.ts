@@ -4,11 +4,12 @@ import { homedir, tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BLUESKY_METHOD, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, marketStances, type Exclusions, type LanguageCue } from "../lib/consensus/bluesky.ts";
+import { BlueskyConsentRefused, collectBlueskyConsent } from "../lib/consensus/bluesky-consent.ts";
 import { nativeAnnotationFolder, openCapturedSocialAnnotation, withdrawCapturedSocialAnnotation } from "../lib/consensus/social-annotation-capture.ts";
 import { readBlueskyAnnotationExclusions } from "../lib/bluesky-private.ts";
 import { instagramCaptionText } from "../lib/consensus/instagram-post-text.ts";
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
-import { isSocialClock as canonicalInstant, socialAnnotationTemplate, socialTextKey, socialObject as record } from "../lib/consensus/social-annotation-source.ts";
+import { BLUESKY_CONSENT_SOURCE, isSocialClock as canonicalInstant, socialAnnotationTemplate, socialTextKey, socialObject as record } from "../lib/consensus/social-annotation-source.ts";
 import { xLongPostText } from "../lib/consensus/x-post-text.ts";
 
 const cues = ["upward", "downward", "mixed", "unclassified"] as const;
@@ -137,26 +138,28 @@ function scoreCheckedSocialCorpus(corpus: Record<string, unknown>, now: string,
   };
 }
 
-async function readNativeSource() {
+async function readSocialInput(limit: number) {
   if (process.stdin.isTTY) throw new Error("The independent native export must be supplied on stdin");
   const chunks: Buffer[] = [];
   let bytes = 0;
   for await (const chunk of process.stdin) {
     const buffer = Buffer.from(chunk);
     bytes += buffer.length;
-    if (bytes > 4_000_000) throw new Error("Native source exceeds limit");
+    if (bytes > limit) throw new Error("Native source exceeds limit");
     chunks.push(buffer);
   }
-  const native = record(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+  return record(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+}
+
+async function readNativeSource() {
+  const native = await readSocialInput(4_000_000);
+  if (native.source === BLUESKY_CONSENT_SOURCE) throw new Error("Bluesky consent requires live verification");
   const exclusions = native.source === "bluesky-appview" ? await readBlueskyAnnotationExclusions(resolve(root, "web")) : undefined;
   return { native, exclusions };
 }
 
-async function preparePrivateCorpus(path: string) {
-  const target = await privateCorpusPath(path);
-  const { native, exclusions } = await readNativeSource();
-  const template = socialAnnotationTemplate(native, new Date().toISOString(), undefined, exclusions);
-  const body = JSON.stringify(template, null, 2) + "\n";
+async function writePrivatePacket(target: string, packet: Record<string, unknown>) {
+  const body = JSON.stringify(packet, null, 2) + "\n";
   if (Buffer.byteLength(body) > maxBytes) throw new Error("Annotation packet exceeds its size limit");
   const file = await open(target, constants.O_WRONLY | constants.O_NOFOLLOW | constants.O_CREAT | constants.O_EXCL, 0o600);
   try {
@@ -167,8 +170,53 @@ async function preparePrivateCorpus(path: string) {
   } finally {
     await file.close();
   }
+}
+
+async function preparePrivateCorpus(path: string) {
+  const target = await privateCorpusPath(path);
+  const { native, exclusions } = await readNativeSource();
+  const template = socialAnnotationTemplate(native, new Date().toISOString(), undefined, exclusions);
+  await writePrivatePacket(target, template);
   return { status: "prepared", sourceGroups: template.groups.length, selectedRows: template.items.length,
     expiresAt: template.expiresAt };
+}
+
+async function runBlueskyConsentBenchmark(path: string, operation: "prepare" | "score" | "withdraw") {
+  const target = await privateCorpusPath(path);
+  const exclusions = () => readBlueskyAnnotationExclusions(resolve(root, "web"));
+  if (operation === "prepare") {
+    const verified = await collectBlueskyConsent(await readSocialInput(64_000), { exclusions });
+    const template = socialAnnotationTemplate(verified.native, new Date().toISOString(), undefined, verified.exclusions);
+    if (!template.items.length) throw new Error("No eligible consenting Bluesky contributors");
+    await writePrivatePacket(target, { ...template, consentDigest: verified.consentDigest,
+      consentManifestDigest: verified.consentManifestDigest });
+    return { status: "prepared", verifiedConsentRecords: verified.approvedPosts, sourceGroups: template.groups.length,
+      selectedRows: template.items.length, expiresAt: template.expiresAt };
+  }
+  const packet = await readPrivateCorpus(path);
+  const { consentDigest, consentManifestDigest, expiresAt, collectedAt } = packet;
+  if (packet.source !== BLUESKY_CONSENT_SOURCE || packet.schemaVersion !== 2 || !canonicalInstant(expiresAt) ||
+      !canonicalInstant(collectedAt) || typeof consentDigest !== "string" || !/^[a-f0-9]{64}$/.test(consentDigest) ||
+      typeof consentManifestDigest !== "string" || !/^[a-f0-9]{64}$/.test(consentManifestDigest))
+    throw new Error("Expected an owner-only Bluesky consent packet");
+  if (operation === "withdraw") {
+    await unlink(target);
+    return { status: "withdrawn" };
+  }
+  if (expiresAt <= new Date().toISOString()) {
+    await unlink(target);
+    throw new Error("Bluesky consent packet expired");
+  }
+  try {
+    const verified = await collectBlueskyConsent(await readSocialInput(64_000), { collectedAt, exclusions,
+      expectedManifestDigest: consentManifestDigest });
+    if (verified.consentDigest !== consentDigest) throw new BlueskyConsentRefused("The native consent proof changed");
+    return { ...evaluateSocialCorpus(packet, new Date().toISOString(), verified.native, verified.exclusions),
+      contributorVerification: "reverified-public-bluesky-consent", verifiedConsentRecords: verified.approvedPosts };
+  } catch (error) {
+    if (error instanceof BlueskyConsentRefused || expiresAt <= new Date().toISOString()) await unlink(target);
+    throw error;
+  }
 }
 
 export async function runCapturedSocialBenchmark(storage: string, platform: "x" | "instagram", withdraw = false,
@@ -189,11 +237,16 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     let result;
     if (args.length === 2 && args[0] === "--prepare") {
       result = await preparePrivateCorpus(args[1]);
+    } else if (args[0] === "--bluesky-consent" && args.length === 3 && (args[1] === "--prepare" || args[1] === "--withdraw")) {
+      result = await runBlueskyConsentBenchmark(args[2], args[1] === "--prepare" ? "prepare" : "withdraw");
+    } else if (args.length === 2 && args[0] === "--bluesky-consent") {
+      result = await runBlueskyConsentBenchmark(args[1], "score");
     } else if (args.length === 2 && ["--captured", "--withdraw-captured"].includes(args[0]) &&
         (args[1] === "x" || args[1] === "instagram")) {
       result = await runCapturedSocialBenchmark(nativeAnnotationFolder(), args[1], args[0] === "--withdraw-captured");
     } else if (args.length === 1) {
       const corpus = await readPrivateCorpus(args[0]);
+      if (corpus.source === BLUESKY_CONSENT_SOURCE) throw new Error("Bluesky consent requires live verification");
       const source = corpus.schemaVersion === 2 ? await readNativeSource() : undefined;
       result = evaluateSocialCorpus(corpus, new Date().toISOString(), source?.native, source?.exclusions);
     } else {
