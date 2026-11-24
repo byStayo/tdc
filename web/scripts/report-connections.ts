@@ -5,6 +5,7 @@ import { effectiveStatus as currentStatus, ENGINE_VERSION } from "../lib/consens
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
 import { renderConnectionChart } from "./render-connection-chart.ts";
+import { connectionProductStatus } from "./connection-product-status.ts";
 
 const args = process.argv.slice(2);
 const formats = args.filter(arg => arg.startsWith("--"));
@@ -63,10 +64,11 @@ const views = INSTRUMENTS.flatMap(instrument => HORIZONS.map(horizon => {
 
 const byStatus = { available: 0, stale: 0, unavailable: 0, not_formed: 0 };
 for (const signal of signals) byStatus[signal.status]++;
+const product = !ids.length && formats.length ? await connectionProductStatus(root, current, snapshots) : undefined;
 if (formats[0] === "--html") {
-  console.log(renderConnectionChart(entry, snapshot, signals, sources, views));
+  console.log(renderConnectionChart(entry, snapshot, signals, sources, views, product));
 } else if (formats[0] === "--json") {
-  console.log(JSON.stringify({ edition: entry, cutoff: snapshot.cutoff, byStatus, sources, signals, views }, null, 2));
+  console.log(JSON.stringify({ edition: entry, cutoff: snapshot.cutoff, byStatus, sources, signals, views, ...(product && { product }) }, null, 2));
 } else {
   console.log(`${entry.id} · Observations at ${snapshot.cutoff}`);
   console.log(`${signals.length} source records · ${byStatus.available} current · ${byStatus.stale} stale · ${byStatus.unavailable} unavailable · ${byStatus.not_formed} not formed\n`);

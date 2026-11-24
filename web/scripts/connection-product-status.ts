@@ -1,0 +1,33 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { Snapshot } from "../lib/consensus/types.ts";
+import type { PerformanceReport } from "../lib/consensus/performance-types.ts";
+import { assertEvaluationReleaseState } from "../lib/consensus/evaluation-transaction.ts";
+import { auditOutcomeCoverage } from "../lib/consensus/outcome-coverage-audit.ts";
+import { PUBLIC_OUTCOME_INDEX, validateOutcomeIndex } from "../lib/consensus/outcome-ledger.ts";
+import { QUARTERLY_PRICE_FILE, validateQuarterlyPriceCheck } from "../lib/consensus/quarterly-price-check.ts";
+import { publisherSecondaryStudies } from "../lib/consensus/secondary-studies.ts";
+
+/** The latest operating results have their own clock and must never appear inside an as-issued report. */
+export async function connectionProductStatus(root: string, current: Snapshot, snapshots: Snapshot[]) {
+  await assertEvaluationReleaseState(root);
+  const json = async (file: string) => JSON.parse(await readFile(join(root, file), "utf8"));
+  const [outcomes, report, registry, research, price] = await Promise.all([
+    json(PUBLIC_OUTCOME_INDEX), json("lib/consensus/performance.json") as Promise<PerformanceReport>,
+    json("lib/consensus/models.json"), json("public/consensus/kibot-research.json"), json("public" + QUARTERLY_PRICE_FILE),
+  ]);
+  validateOutcomeIndex(outcomes);
+  validateQuarterlyPriceCheck(price);
+  const cutoff = { asOf: report.generatedAt, ledgerObservedAt: report.generatedAt };
+  const coverage = auditOutcomeCoverage(snapshots, outcomes, report.pending, report.engineVersion, cutoff);
+  const forwardFamilies = [...new Set(publisherSecondaryStudies.map(({ name }) => name === "fund-flows" ? "capital" : name))];
+  return {
+    asOf: report.generatedAt, editions: snapshots.length, measurements: current.signals.reduce((n, s) => n + s.metrics.length, 0),
+    targets: coverage.expectedTargets, settledRecords: outcomes.length, selected: report.resolved,
+    calls: report.calls, abstentions: report.abstentions, due: coverage.pendingByStatus.priceEvidenceDue,
+    future: coverage.pendingByStatus.awaitingHorizon, calendarMissing: coverage.pendingByStatus.calendarCoverageMissing,
+    unaccounted: coverage.unaccountedTargets, completeDailyCohorts: coverage.eligibleFiveEtfDaily.completedSessions,
+    priceDueByInstrument: coverage.priceDueByInstrument, historicalStudies: research.studies.length as number,
+    activeModels: registry.models.length as number, candidates: report.learning.length, forwardFamilies, price,
+  };
+}

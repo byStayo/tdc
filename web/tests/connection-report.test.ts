@@ -5,22 +5,25 @@ import { fileURLToPath } from "node:url";
 import type { Consensus, FamilyReading, HistoryEntry, Snapshot } from "../lib/consensus/types.ts";
 import { RANGE_ATTRIBUTION, RANGE_POLICY, RANGE_POLICY_V2, RANGE_SOURCE } from "../lib/consensus/regular-session-range.ts";
 import { renderConnectionChart } from "../scripts/render-connection-chart.ts";
+import type { connectionProductStatus } from "../scripts/connection-product-status.ts";
 
 type ConnectionView = Omit<Consensus, "families"> & {
   families: (FamilyReading & { contributors: { signal: string; score: number }[] })[];
 };
-function report(edition: string): {
+function report(edition?: string): {
   views: ConnectionView[];
   signals: { id: string; providerLabel: string | null; status: string }[];
   byStatus: Record<string, number>;
+  product?: Awaited<ReturnType<typeof connectionProductStatus>>;
 } {
   const script = fileURLToPath(new URL("../scripts/report-connections.ts", import.meta.url));
-  return JSON.parse(execFileSync(process.execPath, ["--experimental-strip-types", script, edition, "--json"],
+  return JSON.parse(execFileSync(process.execPath, ["--experimental-strip-types", script, ...(edition ? [edition] : []), "--json"],
     { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 }));
 }
 
 test("traces neutral and scope-limited votes to the saved sources", () => {
   const result = report("2026-11-24T03-23-41-372Z");
+  assert.equal(result.product, undefined);
   assert.equal(result.views.length, 18);
   assert.deepEqual(result.byStatus, { available: 104, stale: 12, unavailable: 16, not_formed: 0 });
   const tlt = result.views.find(view => view.instrument === "TLT" && view.horizon === "daily")!;
@@ -32,6 +35,16 @@ test("traces neutral and scope-limited votes to the saved sources", () => {
   assert.ok(rates.some(source => source.signal === "fred-DGS10" && source.score === 0));
   assert.ok(!rates.some(source => source.signal === "fred-DGS2"));
   assert.equal(result.signals.find(signal => signal.id === "off-exchange")!.providerLabel, null);
+});
+
+test("the current inventory accounts for elapsed and future outcomes and includes the independent five-fund price comparison", () => {
+  const result = report();
+  const product = result.product!;
+  assert.equal(product.targets, product.settledRecords + product.due + product.future + product.calendarMissing + product.unaccounted);
+  assert.equal(product.selected, product.calls + product.abstentions);
+  assert.equal(product.price.funds.length, 5);
+  assert.ok(product.forwardFamilies.includes("institutions"));
+  assert.ok(product.measurements > result.signals.length);
 });
 
 test("uses the archived engine on an issue that predates frozen forecast views", () => {

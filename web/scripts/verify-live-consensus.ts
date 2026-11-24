@@ -7,6 +7,7 @@ import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../li
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
 import { analystStudy } from "../lib/consensus/analyst-study.ts";
 import { dealerStudy } from "../lib/consensus/dealer-study.ts";
+import { QUARTERLY_PRICE_FILE } from "../lib/consensus/quarterly-price-check.ts";
 import { etfFlowStudy } from "../lib/consensus/etf-flow-study.ts";
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 import { enrollJointRetail } from "../lib/consensus/retail-joint.ts";
@@ -38,6 +39,11 @@ async function verify(snapshot: Snapshot, session?: string) {
     const [current, expected] = await Promise.all([live(path), file("public" + path)]);
     if (!current.equals(expected)) throw new Error(`Live bytes differ for ${path}`);
     if (session && (name === snapshot.id + ".json" || name === "index.json")) verified.set(name, current);
+  }
+  // A deployment check also verifies the historical comparison. Pre-open witnesses only depend on as-issued evidence.
+  if (!session) {
+    const [current, expected] = await Promise.all([live(QUARTERLY_PRICE_FILE), file("public" + QUARTERLY_PRICE_FILE)]);
+    if (!current.equals(expected)) throw new Error("The live historical ETF price comparison differs from this release");
   }
   const mismatches: string[] = [];
   for (const symbol of INSTRUMENTS) {
@@ -107,7 +113,7 @@ async function verify(snapshot: Snapshot, session?: string) {
     }
   }
   console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-    matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket, fundFlows, secondaryFamilies }));
+    matchedPublicFiles: session ? 4 : 5, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket, fundFlows, secondaryFamilies }));
 }
 
 const readCurrent = async (): Promise<Snapshot> => JSON.parse((await file("lib/consensus/current.json")).toString());

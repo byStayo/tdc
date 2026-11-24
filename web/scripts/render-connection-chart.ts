@@ -1,5 +1,8 @@
 import { RANGE_POLICY, sessionRangeSource } from "../lib/consensus/regular-session-range.ts";
 import type { Consensus, FamilyReading, HistoryEntry, Signal, SignalStatus, Snapshot } from "../lib/consensus/types.ts";
+import type { connectionProductStatus } from "./connection-product-status.ts";
+
+type Product = Awaited<ReturnType<typeof connectionProductStatus>>;
 
 type View = Omit<Consensus, "families"> & {
   families: (FamilyReading & { contributors: { signal: string; score: number }[] })[];
@@ -135,15 +138,59 @@ th{font-weight:600}td,pre,summary span{font-variant-numeric:tabular-nums}.view t
 meter{height:1rem;width:4.5rem;accent-color:var(--accent)}.history{margin-top:1rem}.history pre{max-height:17rem;overflow:auto}
 ul{padding-inline-start:1.4rem}.providers{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));gap:.6rem 1rem;padding:0}
 .providers details{border:1px solid var(--line);padding:0 .7rem}.providers ul{margin:0 0 1rem}
-@media(max-width:42rem){.view table thead,section#signals thead{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
+@media(max-width:42rem){.view table thead,section#signals thead,section#product thead{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
 tbody,tr,td,tbody th{display:block}tr{border-bottom:1px solid var(--line);padding:.6rem 0}
 tbody th,td{border:0;padding:.15rem 0}td:before{content:attr(data-label) " ";color:var(--muted);font-size:.85rem}
 .body{padding-left:.3rem}summary span{display:block;margin-left:1rem}}
 @media print{body{background:white}header{padding-top:0}nav{display:none}h2{break-after:avoid}tr{break-inside:avoid}}
 `;
 
-/** Portable, script-free chart. The verified edition supplies every displayed measurement and status. */
-export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot, readings: Reading[], sources: Provider[], views: View[]) {
+function currentProduct(product: Product, snapshot: Snapshot, readings: Reading[], views: View[], sources: Provider[]) {
+  const market = views.find(v => v.instrument === "MARKET" && v.horizon === "daily")!;
+  const active = readings.filter(r => r.status === "available");
+  const social = active.filter(r => r.id === "social-x" || r.id === "social-instagram").length;
+  const news = snapshot.news;
+  const options = snapshot.optionActivity?.rows ?? [];
+  const features = [
+    ["Weekday publication", "Latest archived issue " + snapshot.issuedAt + ". The public health endpoint reports delivery."],
+    ["Market and ETF reports", new Set(views.map(v => v.instrument)).size + " instrument views, including the market and five ETFs."],
+    ["Consensus", views.length + " fund and horizon combinations. " + voteCount(market) + " families voted on the market daily view."],
+    ["Evidence panels", sources.length + " named source labels, " + readings.length + " signal records and " + product.measurements + " measurements."],
+    ["News and catalysts", (news ? news.storyCount + " stories from " + news.publishers + " publishers" : "No news batch") + " and " + snapshot.catalysts.length + " calendar entries."],
+    ["Holdings, orders and flows", (snapshot.holdings?.length ?? 0) + " holdings disclosures and " + active.filter(r => r.id.startsWith("etfiq-")).length + " current ETFIQ readings."],
+    ["Historical model research", product.historicalStudies + " published historical comparisons with their held-out results."],
+    ["Edition history", product.editions + " archived forecasts remain available as issued."],
+    ["Settlement and replay", product.settledRecords + " settled archive records. Selecting the last forecast before entry gives " + product.selected + " outcomes for the current engine."],
+    ["Social and newsletters", social + " of the two X and Instagram signal feeds supplied a current observation. Private reading lists and expired social samples supply no public vote."],
+    ["ETF price and dividend checks", "Two historical price series and issuer distributions checked for all five funds. The table below shows the separate prospective gaps."],
+    ["Prospective model validation", product.activeModels + " active models across " + product.candidates + " candidates. " + product.calls + " calls and " + product.abstentions + " abstentions in the selected outcomes."],
+    ["Issuer releases", active.filter(r => r.id.startsWith("sec-issuer-guidance-")).length + " current SEC issuer guidance readings."],
+    ["Editorial collection", snapshot.sourcesAttempted + " source attempts in this issue, with " + snapshot.collectionErrors.length + " reported collection errors."],
+    ["Listed options volume", options.filter(r => r.status === "observed").length + " of " + options.length + " tracked options rows supplied observed contract volume."],
+  ];
+  const grid = features.map(([name, result]) => '<tr><th scope="row">' + escape(name) + '</th><td data-label="Status">' +
+    escape(result) + '</td></tr>').join("");
+  const prices = product.price.funds.map(row => {
+    const due = product.priceDueByInstrument[row.symbol];
+    const values: [string, string | number][] = [["Daily", row.daily.passed + "/" + row.daily.checked],
+      ["5-session", row.weekly.passed + "/" + row.weekly.checked], ["21-session", row.monthly.passed + "/" + row.monthly.checked],
+      ["Dividends", row.dividends.passed + "/" + row.dividends.checked], ["Elapsed forecasts awaiting prices", due.daily + due.weekly + due.monthly]];
+    return '<tr><th scope="row">' + row.symbol + '</th>' + values.map(([key, value]) =>
+      '<td data-label="' + key + '">' + escape(value) + '</td>').join("") + '</tr>';
+  }).join("");
+  const forward = market.families.filter(family => product.forwardFamilies.some(id => id === family.id)).map(family => family.label);
+  return '<section id="product"><h2>Features and operating status</h2><p>Issue inputs are dated at the cutoff. The model and settlement report was evaluated ' +
+    stamp(product.asOf) + '.</p><table><thead><tr><th scope="col">Feature</th><th scope="col">Verified in the release</th></tr></thead><tbody>' + grid +
+    '</tbody></table><h3>ETF price checks and outstanding outcomes</h3><p>The first four columns count passed checks across August 31 to October 1, 2026, before launch. The last column counts outstanding prices for real, elapsed forecasts.</p>' +
+    '<table><thead><tr><th scope="col">ETF</th><th scope="col">Daily</th><th scope="col">5-session</th><th scope="col">21-session</th><th scope="col">Dividends</th><th scope="col">Elapsed forecasts awaiting prices</th></tr></thead><tbody>' +
+    prices + '</tbody></table><p>' + product.completeDailyCohorts + ' input-eligible daily sessions have settled for all five ETFs. Across the archive, ' +
+    product.due + ' elapsed targets await prices and ' + product.future + ' have future exits. ' + product.calendarMissing + ' await calendar coverage and ' +
+    product.unaccounted + ' are unaccounted for.</p><p>The weekday publisher attaches witnessed inputs to future ETF outcomes for ' +
+    escape(forward.join(", ")) + '. Each comparison applies to its registered funds.</p></section>';
+}
+
+/** Archive views use only their original evidence. The optional current product inventory has a separate evaluation clock. */
+export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot, readings: Reading[], sources: Provider[], views: View[], product?: Product) {
   const byId = new Map(snapshot.signals.map(s => [s.id, s]));
   const current = readings.filter(s => s.status === "available").length;
   const market = views.find(v => v.instrument === "MARKET" && v.horizon === "daily")!;
@@ -163,8 +210,9 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
     '<h1>' + voteCount(market) + ' of ' + market.families.length + ' families vote on the daily market outlook</h1>' +
     '<p>' + current + ' of ' + readings.length + ' source records were current at the evidence cutoff.</p><p class="muted">Issued ' +
     stamp(edition.issuedAt) + ' · Evidence through ' + stamp(snapshot.cutoff) + '</p><nav aria-label="Report sections"><a href="#views">Forecasts</a>' +
-    '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
+    (product ? '<a href="#product">Product status</a>' : '') + '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
     '<a href="' + archive + '">Original edition</a></nav></header><main>' +
+    (product ? currentProduct(product, snapshot, readings, views, sources) : '') +
     '<section id="views"><h2>How the inputs voted</h2><p>Each row shows the current inputs in one family and the values that contributed to its score. A zero score is a neutral vote.</p>' +
     (market.directionalCoverage === undefined ? '' : '<p>For each instrument and horizon the rules average the eligible input scores within each family, then average the voting families using their weights. Observation coverage averages the share of current inputs in each family. The reasons below explain any withheld call.</p>') +
     views.map(view => viewChart(view, byId, view === market)).join("") + '</section>' + context + '<section id="providers"><h2>Sources named by signal records</h2>' +

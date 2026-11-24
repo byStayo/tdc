@@ -1,0 +1,19 @@
+{
+  "scope": "evaluation-only, no forecast or reserved label",
+  "chosenAt": "2026-11-24T17:07:28.248094+00:00",
+  "commit": "75a51821a396d3fd067216401f62ae11b0960a80",
+  "from": "2026-08-31",
+  "through": "2026-10-01",
+  "reason": "Last full quarterly ETF distribution month before first public issue; add the prior and next trading session. Use every reviewed session and all five funds.",
+  "symbols": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "TLT"
+  ],
+  "prices": "Kibot EOD guest raw and split-only versus Market History free authenticated consolidated raw and split-only two hourly grids; native issuer distributions plus Market History dated actions",
+  "rules": "Report exact date and reason for each difference. Daily checks use the registered ordinary full-session limits: 3 open, 15 close basis points and same sign, and equal raw/split bars within each vendor. Report all 5- and 21-session return directions using existing published cash method, and the number also passing every constituent daily price and cash-boundary check. Do not drop or substitute dates.",
+  "issuerVintage": "2026-11-23",
+  "access": "Existing free-only Market History allowance, public Kibot guest for evaluation and native private issuer captures only. Strictly private source materials."
+}

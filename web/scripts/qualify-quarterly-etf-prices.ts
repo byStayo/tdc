@@ -31,7 +31,7 @@ type ETF = (typeof ETF_SYMBOLS)[number];
 type Basis = "raw" | "splits";
 type NativePrices = { source: string; receivedAt: string; csv: string; sha256: string };
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
-const selection = await readFile(resolve(folder, "selection.json"), "utf8");
+const selection = await readFile(resolve(root, "scripts/quarterly-etf-price-policy.json"), "utf8");
 if (hash(selection) !== "1d234ee9330e9671c99a1d2c397f4965a555e7425aced4b78e9fe7524c63b418")
   throw new Error("The dated, pre-collection comparison plan has changed");
 const selectedAt = Date.parse(JSON.parse(selection).chosenAt);
