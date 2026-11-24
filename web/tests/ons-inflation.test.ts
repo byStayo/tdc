@@ -4,6 +4,7 @@ import test from "node:test";
 import { collectOnsInflation, onsHistoricalClock, onsPath, onsReleasePath, ONS_CODES, ONS_ORIGIN,
   validateOnsInflation, type OnsReader } from "../lib/consensus/ons-inflation.ts";
 import type { PublicDocument } from "../lib/consensus/calendars.ts";
+import { validateSourceCitation } from "../lib/consensus/source-citation.ts";
 
 const time = "2026-11-24T12:50:12.000Z";
 const clock = () => time;
@@ -46,6 +47,7 @@ test("the weekday source uses the first October release, the preceding September
   assert.equal(s.onsInflation?.current.services.introducedAt,introductions[3]);
   assert(s.onsInflation?.current.services.uri.endsWith("/previous/v4"));
   validateOnsInflation(s,time);
+  validateSourceCitation(s.source.url);
   assert.throws(()=>validateOnsInflation({...s,scores:{...s.scores,daily:1}},time));
   assert.throws(()=>validateOnsInflation({...s,metrics:[...s.metrics].reverse()},time));
   assert.throws(()=>validateOnsInflation(s,"2026-11-01T00:00:00.000Z"));
@@ -65,7 +67,7 @@ test("a contradictory source chain, changed original bytes, cancellation or late
     }
     const s=await collectOnsInflation(read,clock);
     assert.equal(s.status,"unavailable",change);
-    assert.equal(s.metrics.length,0);validateOnsInflation(s,time);
+    assert.equal(s.metrics.length,0);validateOnsInflation(s,time);validateSourceCitation(s.source.url);
   }
 });
 test("London winter and summer time and the first pandemic release convention convert correctly",()=>{

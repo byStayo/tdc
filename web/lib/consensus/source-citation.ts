@@ -7,7 +7,7 @@ const HOSTS = new Set([
   "www.apple.com", "www.bankofcanada.ca", "www.bankofengland.co.uk", "www.bls.gov", "www.boj.or.jp", "www.ecb.europa.eu",
   "www.federalreserve.gov", "www.gdeltproject.org", "www.microsoft.com", "www.optionseducation.org",
   "www.mof.go.jp", "www.newyorkfed.org", "www.oregon.gov", "www.census.gov", "www.bea.gov",
-  "www.sec.gov", "www.treasurydirect.gov",
+  "www.sec.gov", "www.treasurydirect.gov", "www.ons.gov.uk",
   "etfiq.com", "openapi.twse.com.tw", "www.quantisnow.com",
 ]);
 
