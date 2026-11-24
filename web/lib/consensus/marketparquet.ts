@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
-import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
+import { SESSION_HORIZONS, type PriceEvidence, type SessionPrice } from "./evaluation.ts";
 import { exchangeSession, hasReviewedCalendarRange, isUnresolvedExchangeDate, verifyExpectedSessions } from "./exchange-calendar.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { MARKETPARQUET_SOURCE } from "./marketparquet-aggregate.ts";
@@ -72,6 +72,52 @@ export function reviewedMarketParquetDays(files: MarketParquetDay[], reviewedEar
 export type ReferenceBars = Record<ETF, { session: string; open: number; close: number }[]>;
 export interface ReconciliationTolerance { openBps: number; closeBps: number }
 
+type Direction = "up" | "down" | "flat";
+type HoldingPeriodDifference = {
+  symbol: ETF; horizon: "weekly" | "monthly"; from: string; through: string;
+  vendorDirection: Direction; referenceDirection: Direction;
+};
+
+function direction(open: number, close: number): Direction {
+  return close > open ? "up" : close < open ? "down" : "flat";
+}
+
+/** Both series must span every session. A hole starts a new dividend-adjustment block. */
+function holdingPeriodDifferences(symbol: ETF, calendar: string[], files: Map<string, MarketParquetDay>,
+  reference: Map<string, ReferenceBars[ETF][number]>, cash: CashDistribution[]): HoldingPeriodDifference[] {
+  const differences: HoldingPeriodDifference[] = [];
+  if (calendar.length < SESSION_HORIZONS.weekly) return differences;
+  type Pair = { vendor: SessionPrice; control: SessionPrice };
+  const blocks: Pair[][] = [];
+  let block: Pair[] | undefined;
+  for (const day of calendar) {
+    const vendor = files.get(day)?.bars[symbol], control = reference.get(day);
+    if (!vendor || !control) { block = undefined; continue; }
+    if (!block) { block = []; blocks.push(block); }
+    const clock = exchangeSession(day)!;
+    block.push({ vendor: { ...clock, ...vendor }, control: { ...clock, ...control } });
+  }
+  for (const pairs of blocks) {
+    if (pairs.length < SESSION_HORIZONS.weekly) continue;
+    const first = pairs[0].vendor.session, last = pairs.at(-1)!.vendor.session;
+    const actions = cash.filter(row => first <= row.session && row.session <= last);
+    const vendor = adjustETFPrices(pairs.map(pair => pair.vendor), actions, []);
+    const control = adjustETFPrices(pairs.map(pair => pair.control), actions, []);
+    for (const horizon of ["weekly", "monthly"] as const) {
+      const span = SESSION_HORIZONS[horizon];
+      for (let exit = span - 1; exit < pairs.length; exit++) {
+        const entry = exit - span + 1;
+        const vendorDirection = direction(vendor[entry].open, vendor[exit].close);
+        const referenceDirection = direction(control[entry].open, control[exit].close);
+        if (vendorDirection !== referenceDirection)
+          differences.push({ symbol, horizon, from: vendor[entry].session, through: vendor[exit].session,
+            vendorDirection, referenceDirection });
+      }
+    }
+  }
+  return differences;
+}
+
 /**
  * Compare vendor bars with an independent unadjusted reference. The reference
  * must be on the as-traded share basis, so a vendor split restatement or cash
@@ -88,6 +134,7 @@ export function reconcileMarketParquet(
   if (![tolerance.openBps, tolerance.closeBps].every(limit => Number.isFinite(limit) && limit > 0 && limit <= 25))
     throw new Error("Invalid reconciliation tolerance");
   const byDate = new Map(files.map(file => [file.session, file]));
+  const horizonDifferences: HoldingPeriodDifference[] = [];
   const early = files.map(file => file.session).filter(session => {
     const bar = exchangeSession(session)!;
     return Date.parse(bar.closeAt) - Date.parse(bar.openAt) < 6.5 * 3600000;
@@ -98,6 +145,8 @@ export function reconcileMarketParquet(
         rows.some(row => ![row.open, row.close].every(price => Number.isFinite(price) && price > 0)))
       throw new Error(`Invalid independent reference for ${symbol}`);
     const independent = new Map(rows.map(row => [row.session, row]));
+    if (requireDirection)
+      horizonDifferences.push(...holdingPeriodDifferences(symbol, calendar, byDate, independent, cash[symbol]));
     const matched: string[] = [], unmatched: string[] = [], differing: string[] = [];
     let maxOpenBps = 0, maxCloseBps = 0;
     for (const file of files) {
@@ -126,15 +175,16 @@ export function reconcileMarketParquet(
       earlyClosesVerified: early.filter(session => matched.includes(session)) };
   });
   const complete = (session: string) => symbols.every(row => row.matched.includes(session));
+  const differingExits = new Set(horizonDifferences.map(row => row.through));
   // The share basis is verified only across an unbroken run of matched sessions.
   let verifiedThrough: string | null = null;
   for (const session of calendar) {
-    if (!complete(session) || symbols.some(row => row.boundaries.some(
+    if (!complete(session) || differingExits.has(session) || symbols.some(row => row.boundaries.some(
       boundary => boundary.exDate === session && boundary.status !== "verified",
     ))) break;
     verifiedThrough = session;
   }
-  return { sessions: files.map(file => file.session), symbols, verifiedThrough,
+  return { sessions: files.map(file => file.session), symbols, verifiedThrough, horizonDifferences,
     passed: verifiedThrough === calendar.at(-1),
     earlyClosesVerified: early.filter(complete),
     boundarySymbolsVerified: symbols.filter(row => row.boundaries.some(item => item.status === "verified")).map(row => row.symbol) };
@@ -153,13 +203,16 @@ export function marketParquetIssuerFingerprints(
 }
 
 export function matchesMarketParquetReview(
-  evidence: { mode: string; passed: boolean; capturedAfterClose: boolean; verifiedThrough: string;
+  evidence: { mode: string; schemaVersion?: number; horizonDifferences?: unknown[]; passed: boolean; capturedAfterClose: boolean; verifiedThrough: string;
     files: { session: string; sha256: string }[]; issuerActions: { symbol: string; sha256: string }[] },
   mode: "sample" | "licensed", through: string,
   files: MarketParquetDay[], issuers: { symbol: string; sha256: string }[],
 ): boolean {
   if (evidence.mode !== mode || evidence.passed !== true || evidence.capturedAfterClose !== true ||
       evidence.verifiedThrough !== through || !Array.isArray(evidence.files) || !Array.isArray(evidence.issuerActions))
+    return false;
+  // Licensed receipts replay their original comparator. Private sample reviews rely on this recorded check.
+  if (mode === "sample" && (evidence.schemaVersion !== 2 || !Array.isArray(evidence.horizonDifferences) || evidence.horizonDifferences.length))
     return false;
   const prefix = files.filter(file => file.session <= through);
   return evidence.files.length > 0 && evidence.files.length === prefix.length &&

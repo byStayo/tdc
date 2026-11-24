@@ -124,6 +124,47 @@ test("a licensed daily settlement rejects an opposite intraday direction inside 
   assert.deepEqual(result.symbols.find(row => row.symbol === "TLT")!.differing, [dividendCalendar[0]]);
 });
 
+test("licensed reconciliation reports all reversed windows, preserves daily matches and stops the cumulative review at their first exit", () => {
+  const days = exchangeSessions("2026-10-23", "2026-11-20");
+  const files = days.map(day => bar(day, 100, 100.001));
+  const reference = referenceFor(files);
+  Object.assign(reference.DIA[4], { open: 99.99, close: 99.999 });
+  // The last five sessions still rise on both feeds. Only this fund's 21-session sign reverses.
+  reference.QQQ[16].open = 99.995;
+  Object.assign(reference.QQQ[20], { open: 99.99, close: 99.999 });
+  const compare = () => reconcileMarketParquet(days, files, noCash, reference,
+    { openBps: 3, closeBps: 15 }, { requireDirection: true });
+  const result = compare();
+  assert.equal(result.symbols.every(row => row.matched.length === 21), true);
+  assert.equal(result.passed, false);
+  assert.equal(result.verifiedThrough, days[3]);
+  assert.deepEqual(result.horizonDifferences.map(row => [row.symbol, row.horizon, row.from, row.through, row.vendorDirection, row.referenceDirection]).sort(), [
+    ["DIA", "weekly", days[0], days[4], "up", "down"],
+    ["QQQ", "monthly", days[0], days[20], "up", "down"],
+  ]);
+  reference.DIA.splice(2, 1);
+  reference.QQQ[20].close = 100;
+  const gap = compare();
+  assert.deepEqual(gap.horizonDifferences.map(row => [row.symbol, row.horizon, row.referenceDirection]), [["QQQ", "monthly", "flat"]]);
+  assert.equal(gap.verifiedThrough, days[1]);
+});
+
+test("compares both feeds on the issuer's dividend-adjusted basis within the holding period", () => {
+  const days = exchangeSessions("2026-10-29", "2026-11-04");
+  const files = days.map(day => bar(day, 99.5, 100));
+  files[0].bars.TLT.open = 100;
+  Object.assign(files.at(-1)!.bars.TLT, { open: 99.1, close: 99.60004 });
+  const reference = referenceFor(files);
+  reference.TLT[1].close = 100.02;
+  const cash = { ...noCash, TLT: [{ session: days[2], amount: 0.4 }] };
+  const limits = { openBps: 3, closeBps: 15 };
+  assert.equal(reconcileMarketParquet(days, files, noCash, reference, limits, { requireDirection: true }).passed, true);
+  const result = reconcileMarketParquet(days, files, cash, reference, limits, { requireDirection: true });
+  assert.equal(result.symbols.find(row => row.symbol === "TLT")!.boundaries[0].status, "verified");
+  assert.deepEqual(result.horizonDifferences, [{ symbol: "TLT", horizon: "weekly", from: days[0], through: days[4],
+    vendorDirection: "up", referenceDirection: "down" }]);
+});
+
 test("binds a licensed review to its bars and the applicable issuer distributions", () => {
   const files = dividendCalendar.map(session => bar(session));
   const through = dividendCalendar.at(-1)!;
@@ -134,6 +175,10 @@ test("binds a licensed review to its bars and the applicable issuer distribution
     files, issuerActions: fingerprints };
   assert.equal(matchesMarketParquetReview(evidence, "licensed", through, files, fingerprints), true);
   assert.equal(matchesMarketParquetReview(evidence, "sample", through, files, fingerprints), false);
+  const sample = { ...evidence, mode: "sample", schemaVersion: 2, horizonDifferences: [] };
+  assert.equal(matchesMarketParquetReview({ ...sample, schemaVersion: 1 }, "sample", through, files, fingerprints), false);
+  assert.equal(matchesMarketParquetReview({ ...sample, horizonDifferences: [{}] }, "sample", through, files, fingerprints), false);
+  assert.equal(matchesMarketParquetReview(sample, "sample", through, files, fingerprints), true);
   const revisedBars = [{ ...files[0], sha256: "b".repeat(64) }, ...files.slice(1)];
   assert.equal(matchesMarketParquetReview(evidence, "licensed", through, revisedBars, fingerprints), false);
   issuers[0].cash.push({ session: through, amount: 0.5 });

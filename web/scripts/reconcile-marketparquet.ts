@@ -8,7 +8,7 @@ import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-cal
 import { collectKibotPrices, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { authenticateKibotSubscriber, type KibotSubscriberProof } from "../lib/consensus/kibot-subscriber.ts";
 import { collectMarketParquetDaily, marketParquetDailyPolicy } from "../lib/consensus/marketparquet-daily.ts";
-import { MARKETPARQUET_HOURLY_REFERENCE, marketParquetHourlyControls, verifyMarketParquetHorizonSigns,
+import { MARKETPARQUET_HOURLY_REFERENCE, marketParquetHourlyControls,
   type MarketParquetHourlyReference } from "../lib/consensus/marketparquet-market-history.ts";
 import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement, reserveMarketParquetControl, verifyMarketParquetControlEntitlement,
   type LicensedControlChunk, type LicensedMarketParquetLedger, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
@@ -117,12 +117,11 @@ try {
   }
 
   const controlsAt = new Date().toISOString();
-  const result = reconcileMarketParquet(calendar, files, cash, reference, tolerance, { requireDirection: licensed });
-  if (hourlyProof && result.passed) verifyMarketParquetHorizonSigns(files, reference, cash);
+  const result = reconcileMarketParquet(calendar, files, cash, reference, tolerance, { requireDirection: true });
   const now = new Date().toISOString();
   const capturedAfterClose = !!ledger.capturedAt &&
     Date.parse(ledger.capturedAt) >= Date.parse(exchangeSession(through)!.closeAt);
-  const summary = { schemaVersion: 1, reconciledAt: now, mode: licensed ? "licensed" : "sample",
+  const summary = { schemaVersion: 2, reconciledAt: now, mode: licensed ? "licensed" : "sample",
     ledgerSha256: createHash("sha256").update(ledgerText).digest("hex"), ledgerCapturedAt: ledger.capturedAt ?? null,
     files: files.map(({ session, sha256 }) => ({ session, sha256 })),
     issuers: ledger.distributions.map(({ symbol, sha256 }) => ({ symbol, sha256 })),
@@ -154,8 +153,10 @@ try {
     reviewed = true;
   }
   console.log(JSON.stringify({ mode: summary.mode, sessions: result.sessions, reference: source, tolerance, ...dailyUpdate(),
-    ...(daily ? { multiSession: { status: reviewed ? "reviewed" : "withheld", reason: reviewed ? null : "incomplete_reconciliation" } } : {}),
+    ...(daily ? { multiSession: { status: reviewed ? "reviewed" : "withheld",
+      reason: reviewed ? null : result.horizonDifferences.length ? "different_horizon_direction" : "incomplete_reconciliation" } } : {}),
     passed: result.passed, verifiedThrough: result.verifiedThrough, capturedAfterClose,
+    horizonDifferences: result.horizonDifferences,
     earlyClosesVerified: result.earlyClosesVerified, boundarySymbolsVerified: result.boundarySymbolsVerified,
     symbols: result.symbols.map(({ symbol, compared, unmatched, differing, maxOpenBps, maxCloseBps, boundaries }) =>
       ({ symbol, compared, unmatched, differing, maxOpenBps: +maxOpenBps.toFixed(3), maxCloseBps: +maxCloseBps.toFixed(3), boundaries })),

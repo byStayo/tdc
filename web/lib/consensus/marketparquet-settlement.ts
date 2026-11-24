@@ -9,7 +9,7 @@ import { digest } from "./history.ts";
 import { collectKibotSeries, KIBOT_PRICE_CITATION, MAX_KIBOT_RANGE_MS, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
 import { KIBOT_SUBSCRIBER_REQUIRED, verifyKibotSubscriberProof, type KibotSubscriber, type KibotSubscriberProof } from "./kibot-subscriber.ts";
 import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
-import { marketParquetHourlyControls, verifyMarketParquetHorizonSigns, type MarketParquetHourlyReference,
+import { marketParquetHourlyControls, type MarketParquetHourlyReference,
   type MarketParquetIssuerCash } from "./marketparquet-market-history.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { loadTltSettlement } from "./market-history-settlement.ts";
@@ -205,12 +205,18 @@ export async function reserveMarketParquetControl(directory: string, ledger: Lic
   }
 }
 
+export class MarketParquetHorizonDisagreement extends Error {}
+
 function verifiedSettlementPrices(review: LicensedSettlement, dates: string[], files: MarketParquetDay[],
   cash: MarketParquetIssuerCash, reference: ReferenceBars) {
   const checked = reconcileMarketParquet(dates, files, cash, reference, { openBps: 3, closeBps: 15 }, { requireDirection: true });
-  if (!checked.passed || checked.verifiedThrough !== review.through || !same(checked.earlyClosesVerified, review.earlyClosesVerified))
+  if (!same(checked.earlyClosesVerified, review.earlyClosesVerified) || checked.symbols.some(fund =>
+    fund.matched.length !== dates.length || fund.boundaries.some(boundary => boundary.status !== "verified")))
     throw new Error("Licensed prices, distribution boundaries or scheduled closes did not reconcile");
-  if (review.schemaVersion === 4) verifyMarketParquetHorizonSigns(files, reference, cash);
+  const [difference] = checked.horizonDifferences;
+  if (difference)
+    throw new MarketParquetHorizonDisagreement("Licensed adjusted horizon direction differs for " + difference.symbol +
+      " from " + difference.from + " through " + difference.through);
   return marketParquetEvidence(dates, files, cash);
 }
 

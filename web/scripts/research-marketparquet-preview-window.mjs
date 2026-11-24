@@ -13,6 +13,7 @@ import { readQqqAuction } from "../lib/consensus/firstrate-nasdaq-auction.ts";
 import { marketHistoryIssuerActionProofFromCapture } from "../lib/consensus/market-history-actions.ts";
 import { readMarketHistoryPriceControl } from "../lib/consensus/market-history-price-controls.ts";
 import {
+  collectMarketHistoryFundReference,
   marketParquetFundReference,
   verifyMarketParquetHorizonSigns,
 } from "../lib/consensus/marketparquet-market-history.ts";
@@ -20,10 +21,11 @@ import { ETF_SYMBOLS, reconcileMarketParquet } from "../lib/consensus/marketparq
 import { collectResearchPrices } from "../lib/consensus/research-price-capture.ts";
 
 const scripts = dirname(fileURLToPath(import.meta.url));
-const [host, store] = process.argv.slice(2);
+const [host, store, option, ...extra] = process.argv.slice(2);
+const completeControls = option === "--complete-controls";
 assert.ok(
-  host && store && process.argv.length === 4,
-  "Pass the existing web evidence root and separate private preview originals directory",
+  host && store && !extra.length && (option === undefined || completeControls),
+  "Pass the existing web evidence root and separate private preview originals directory [--complete-controls]",
 );
 const native = resolve(host, ".consensus/private-market-history");
 const editorial = resolve(host, ".editorial/nov24-dealers-payroll");
@@ -36,6 +38,9 @@ const first = "2026-10-23",
   short = "2025-11-28";
 const days = exchangeSessions(first, through),
   signedDays = exchangeSessions(from, through);
+const earlyDays = days.filter(day => day < from);
+const earlyRoot = resolve(host, ".consensus/private-marketparquet-exdate/earlier-authenticated");
+const earlyCheckedAt = "2026-11-24T15:30:42.911Z";
 assert.equal(days.length, 21);
 assert.equal(signedDays.length, 16);
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -71,6 +76,20 @@ function comparison(provider, reference) {
     sameDirection,
     pass: Math.abs(openBps) <= tolerance.openBps && Math.abs(closeBps) <= tolerance.closeBps && sameDirection,
   };
+}
+
+if (completeControls) {
+  const pins = [];
+  const range = earlyDays[0] + "-" + earlyDays.at(-1);
+  for (const symbol of ETF_SYMBOLS) {
+    const names = ["firstrate-actions/" + symbol + "-" + range + ".json"];
+    for (const basis of ["raw", "splits"])
+      for (const edge of ["open", "close"])
+        names.push("firstrate-controls/" + [symbol, range, basis, edge].join("-") + ".json");
+    for (const name of names)
+      pins.push(name + " " + sha(await original(resolve(earlyRoot, ".consensus/private-market-history", name))));
+  }
+  assert.equal(sha(pins.sort().join("\n")), "de60530dd0376ba2b69bf58358cdc7ca205f2bb5da6211c317c967292a098c56");
 }
 
 const held = await receipt(
@@ -136,6 +155,7 @@ const rawTlt = [
 const references = {},
   issuerCash = {},
   signedReferences = {},
+  earlyProofs = {},
   kibot = {},
   originalPins = [],
   actionProofs = {};
@@ -230,7 +250,11 @@ for (const symbol of [...ETF_SYMBOLS].sort()) {
     });
   }
   kibot[symbol] = byYear;
-  references[symbol] = days.map((day) => (day < from ? kept(byYear[2026], day) : kept(checked.prices, day)));
+  const prefix = completeControls
+    ? await collectMarketHistoryFundReference(earlyRoot, symbol, earlyDays, issuerCash[symbol], true, { asOf: earlyCheckedAt })
+    : null;
+  if (prefix) earlyProofs[symbol] = prefix.proof;
+  references[symbol] = days.map((day) => (day < from ? kept(prefix?.prices ?? byYear[2026], day) : kept(checked.prices, day)));
 }
 assert.equal(
   sha(
@@ -242,7 +266,7 @@ assert.equal(
   "b14ad669bf672af686608e3e9f28b46e77dbb7172f72a6970ebbc5e87407300f",
 );
 const report = reconcileMarketParquet(days, files, issuerCash, references, tolerance, { requireDirection: true });
-const signedReport = reconcileMarketParquet(
+const signedReport = completeControls ? report : reconcileMarketParquet(
   signedDays,
   files.filter((row) => row.session >= from),
   issuerCash,
@@ -254,7 +278,7 @@ const exceptions = report.symbols.flatMap((fund) =>
   fund.differing.map((day) => ({
     symbol: fund.symbol,
     day,
-    control: day < from ? "Kibot guest archive" : "Market History signed consolidated hours",
+    control: !completeControls && day < from ? "Kibot guest archive" : "Market History signed consolidated hours",
     ...comparison(kept(files, day).bars[fund.symbol], kept(references[fund.symbol], day)),
   })),
 );
@@ -266,6 +290,7 @@ const overlaps = ETF_SYMBOLS.flatMap((symbol) =>
   })),
 );
 const horizons = {};
+const previouslyDifferentWindows = [];
 for (const span of [SESSION_HORIZONS.weekly, SESSION_HORIZONS.monthly]) {
   const windows = [];
   for (const symbol of ETF_SYMBOLS) {
@@ -283,6 +308,20 @@ for (const span of [SESSION_HORIZONS.weekly, SESSION_HORIZONS.monthly]) {
     const approved = new Set(report.symbols.find((row) => row.symbol === symbol).matched);
     for (let i = 0; i + span <= days.length; ++i) {
       const last = i + span - 1;
+      if (completeControls && i === 0 && ((symbol === "DIA" && span === 5) || (symbol === "TLT" && span === 21))) {
+        const vendorExit = files[last].bars[symbol].close, referenceExit = references[symbol][last].close;
+        // Put each entry on its own exit-date basis to remove any distributions after this window.
+        const vendorEntry = vendor[i].open / (vendor[last].close / vendorExit);
+        const referenceEntry = independent[i].open / (independent[last].close / referenceExit);
+        const vendorRawEntry = files[i].bars[symbol].open, referenceRawEntry = references[symbol][i].open;
+        previouslyDifferentWindows.push({
+          symbol, from: days[i], through: days[last],
+          vendorReturnBps: errorBps(vendorExit, vendorEntry), referenceReturnBps: errorBps(referenceExit, referenceEntry),
+          entryOpenDifferenceBps: errorBps(vendorRawEntry, referenceRawEntry), exitCloseDifferenceBps: errorBps(vendorExit, referenceExit),
+          dividendFactorDifferenceBps: errorBps(vendorEntry / vendorRawEntry, referenceEntry / referenceRawEntry),
+          vendorEntryWithReferenceExitBps: errorBps(referenceExit, vendorEntry), referenceEntryWithVendorExitBps: errorBps(vendorExit, referenceEntry),
+        });
+      }
       windows.push({
         symbol,
         from: days[i],
@@ -293,7 +332,7 @@ for (const span of [SESSION_HORIZONS.weekly, SESSION_HORIZONS.monthly]) {
           Math.sign(vendor[last].close - vendor[i].open) ===
           Math.sign(independent[last].close - independent[i].open),
         allConstituentsWithinTolerance: days.slice(i, last + 1).every((day) => approved.has(day)),
-        allControlsSigned: days[i] >= from,
+        allControlsSigned: completeControls || days[i] >= from,
       });
     }
   }
@@ -315,8 +354,7 @@ for (const span of [SESSION_HORIZONS.weekly, SESSION_HORIZONS.monthly]) {
       })),
   };
 }
-// The production check stops at its first discrepancy. Independently enumerate all
-// windows above, then verify its failure identifies an identical fund and span.
+// Independently enumerate every window, then compare the full diagnostic and its first thrown error.
 const horizonErrors = Object.values(horizons).flatMap((scope) =>
   scope.differingDirections.map(
     (row) =>
@@ -328,6 +366,8 @@ const horizonErrors = Object.values(horizons).flatMap((scope) =>
       row.through,
   ),
 );
+assert.deepEqual(report.horizonDifferences.map(row =>
+  "Market History adjusted horizon direction differs for " + row.symbol + " from " + row.from + " through " + row.through).sort(), [...horizonErrors].sort());
 let nativeHorizonFailure = null;
 try {
   verifyMarketParquetHorizonSigns(files, references, issuerCash);
@@ -458,7 +498,7 @@ console.log(
   JSON.stringify(
     {
       scope: "private-evaluation-of-samples",
-      asOfIndependentControls: asOf,
+      asOfIndependentControls: completeControls ? earlyCheckedAt : asOf,
       latestPreviewReceiptAt,
       evaluationPreviewDays: previews.map((row) => row.session),
       previewSourceSeals: previews.map((row) => row.sha256),
@@ -475,14 +515,15 @@ console.log(
         failures: overlaps.filter((r) => !r.pass),
       },
       signedControls: {
-        sessions: signedDays.length,
+        sessions: completeControls ? days.length : signedDays.length,
         passes: signedReport.symbols.reduce((n, f) => n + f.matched.length, 0),
-        from,
+        from: completeControls ? first : from,
         through,
         boundaries: signedReport.symbols.flatMap((f) =>
           f.boundaries.map((boundary) => ({ symbol: f.symbol, ...boundary })),
         ),
         actionProofs,
+        ...(completeControls ? { earlierFundProofs: earlyProofs, previouslyDifferentWindows } : {}),
       },
       matchedAllFiveDates: days.filter((day) => report.symbols.every((row) => row.matched.includes(day))),
       nativeHorizonFailure,

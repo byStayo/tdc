@@ -1,5 +1,12 @@
 # The Daily Consensus completion plan
 
+### November 24 outcome and holding-period verification
+
+- [x] Reproduce the 370 recorded outcomes at their original verification times. Two independent controls per production source confirmed all directions across 55 distinct daily windows and 40 distinct weekly windows. Every recorded forecast abstained. No settled window crossed an ex-dividend date.
+- [x] Verify the five earlier October sessions using authenticated raw and split-only hourly records for each ETF, and independently replay the free MarketParquet preview with issuer distributions. Resolve the source of the TLT sign difference at the November 20 close. [Owner replay procedure](../../MARKETPARQUET_SAMPLE_REPLAY.md)
+- [x] Check adjusted holding-period directions for every independent MarketParquet comparison and replay historical subscriber receipts. Continue daily private collection when an older cumulative price window disagrees.
+- [ ] Settle pending November 23 outcomes when eligible comparison data arrives. Verify the original Nasdaq opening execution for the TLT research window. Confirm sufficient chronological evidence for the remaining daily votes and production models.
+
 ### November 24 first-release data and price qualification
 
 - [x] Connect UK headline and services CPI to the weekday collector. Match the two original monthly releases and the official release clock. Historical replay matched 121 TLT outcomes and reproduced the held-out comparison in Python. The extra series failed its directional threshold. [ONS data](https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7nn/mm23)

@@ -1,11 +1,10 @@
-import { adjustETFPrices, type CashDistribution } from "./corporate-adjustment.ts";
+import type { CashDistribution } from "./corporate-adjustment.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
-import { SESSION_HORIZONS } from "./evaluation.ts";
 import { firstRateIssuerActionProof, type MarketHistoryActionProof } from "./market-history-actions.ts";
 import type { MarketHistoryETF } from "./market-history-boundaries.ts";
 import { collectMarketHistoryPriceControls } from "./market-history-price-controls.ts";
 import type { ResearchPriceReceipt } from "./research-price-capture.ts";
-import { ETF_SYMBOLS, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
+import { ETF_SYMBOLS, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
 
 export const MARKETPARQUET_HOURLY_REFERENCE = "https://getmarkethistory.com/docs/bars/";
 export type MarketParquetIssuerCash = Record<MarketHistoryETF, CashDistribution[]>;
@@ -107,22 +106,14 @@ export async function marketParquetHourlyControls(root: string, dates: string[],
 /** A passing day-level review can still disagree near zero across a five- or 21-session span. */
 export function verifyMarketParquetHorizonSigns(files: MarketParquetDay[], reference: ReferenceBars,
   cash: MarketParquetIssuerCash) {
+  const days = files.map(file => file.session);
   for (const symbol of ETF_SYMBOLS) {
-    const days = files.map(file => file.session);
     const controls = reference[symbol];
     if (controls.length !== days.length || controls.some((row, i) => row.session !== days[i]))
       throw new Error("Market History horizon checks require every matching reference session for " + symbol);
-    const distributions = cash[symbol].filter(action => action.session >= days[0] && action.session <= days.at(-1)!);
-    const observed = adjustETFPrices(files.map(file => ({
-      ...exchangeSession(file.session)!, ...file.bars[symbol],
-    })), distributions, []);
-    const compared = adjustETFPrices(controls.map(row => ({ ...exchangeSession(row.session)!, ...row })), distributions, []);
-    for (const span of [SESSION_HORIZONS.weekly, SESSION_HORIZONS.monthly]) {
-      for (let first = 0; first + span <= days.length; first++) {
-        const last = first + span - 1;
-        if (Math.sign(observed[last].close - observed[first].open) !== Math.sign(compared[last].close - compared[first].open))
-          throw new Error("Market History adjusted horizon direction differs for " + symbol + " from " + days[first] + " through " + days[last]);
-      }
-    }
   }
+  const [difference] = reconcileMarketParquet(days, files, cash, reference, { openBps: 3, closeBps: 15 },
+    { requireDirection: true }).horizonDifferences;
+  if (difference)
+    throw new Error("Market History adjusted horizon direction differs for " + difference.symbol + " from " + difference.from + " through " + difference.through);
 }

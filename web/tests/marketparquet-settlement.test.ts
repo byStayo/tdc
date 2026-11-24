@@ -14,7 +14,7 @@ import { dailySessionOutcomes } from "../lib/consensus/outcome-coverage-audit.ts
 import { loadEvaluationOutcomes, outcomeIndex } from "../lib/consensus/outcome-ledger.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
-import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
+import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 import { authenticatedFreeMarketHistoryResponse } from "../lib/consensus/market-history-hourly-access.ts";
 import { evaluateOutcome } from "../lib/consensus/evaluation.ts";
 import { collectMarketParquetDaily, loadMarketParquetDaily, registerMarketParquetDaily } from "../lib/consensus/marketparquet-daily.ts";
@@ -38,6 +38,15 @@ const loginBody = "200 OK\nAuthorizations\n=====================\nAll Stocks,1/1
 function subscriber(capturedAt: string) {
   return { user: "test-paid-user", password: "test-paid-secret", proof: { source: "https://api.kibot.com/?action=login",
     capturedAt, body: loginBody, sha256: hash(loginBody) } };
+}
+
+async function linkTestLibraries(root: string) {
+  const source = new URL("../lib/", import.meta.url);
+  for (const directory of ["", "consensus/"]) {
+    const moduleRoot = new URL(directory, source);
+    for (const name of (await readdir(moduleRoot)).filter(name => name.endsWith(".ts")))
+      await symlink(new URL(name, moduleRoot), join(root, "lib", directory, name));
+  }
 }
 
 function proof(sessions = dates, closing = 101) {
@@ -196,10 +205,7 @@ test("the journalled evaluator selects complete vendor windows, retains settled 
   const library = join(root, "lib/consensus"), scripts = join(root, "scripts"), publicDir = join(root, "public/consensus");
   const privateDir = join(root, ".consensus"), vendor = join(privateDir, "private-marketparquet"), fr = join(privateDir, "private-firstrate");
   for (const d of [library, scripts, publicDir, vendor, fr]) await mkdir(d, { recursive: true, mode: 0o700 });
-  const original = new URL("../lib/", import.meta.url);
-  for (const [source, target] of [[original, join(root, "lib")], [new URL("consensus/", original), library]] as const)
-    for (const name of (await readdir(source)).filter(n => n.endsWith(".ts")))
-      await symlink(new URL(name, source), join(target, name));
+  await linkTestLibraries(root);
   await copyFile(new URL("../scripts/evaluate-consensus.ts", import.meta.url), join(scripts, "evaluate-consensus.ts"));
   await copyFile(new URL("../scripts/reconcile-marketparquet.ts", import.meta.url), join(scripts, "reconcile-marketparquet.ts"));
   await writeFile(join(root, "package.json"), '{"type":"module"}');
@@ -388,6 +394,129 @@ test("native controls with agreeing daily signs can disagree over a weekly or mo
     refs.QQQ[span - 1].close = 100.001;
     assert.doesNotThrow(() => verifyMarketParquetHorizonSigns(ledger.bars, refs, cash));
   }
+});
+
+test("subscriber settlement rejects a reversed holding-period return even when every daily comparison passes", () => {
+  for (const span of [5, 21]) {
+    const sessions = exchangeSessions("2026-09-22", "2026-10-23").slice(0, span);
+    const { receipt } = proof(sessions, 100.001);
+    const rows = receipt.reference.csv.QQQ.split("\n").map(line => line.split(","));
+    rows[span - 1][1] = "99.99";
+    rows[span - 1][4] = "99.999";
+    if (span === 21) rows[span - 5][1] = "99.995";
+    const csv = { ...receipt.reference.csv, QQQ: rows.map(fields => fields.join(",")).join("\n") };
+    const chunk = { from: sessions[0], through: receipt.through, capturedAt: receipt.reconciledAt,
+      csv, hashes: { ...receipt.reference.hashes, QQQ: hash(csv.QQQ) } };
+    const reviewed = { ...receipt, schemaVersion: 3 as const, reference: { source: KIBOT_PRICE_CITATION,
+      capturedAt: receipt.reconciledAt, subscriber: subscriber(receipt.reconciledAt).proof, chunks: [chunk] } };
+    assert.throws(() => settlement.licensedSettlementPrices(reviewed, receipt.reconciledAt),
+      new RegExp("horizon direction differs for QQQ from " + sessions[0] + " through " + receipt.through));
+    assert.throws(() => settlement.licensedSettlementPrices({ ...reviewed, earlyClosesVerified: [sessions[0]] }, receipt.reconciledAt),
+      error => error instanceof Error && !(error instanceof settlement.MarketParquetHorizonDisagreement) &&
+        /scheduled closes did not reconcile/.test(error.message));
+    rows[span - 1][4] = "100.0005";
+    chunk.csv.QQQ = rows.map(fields => fields.join(",")).join("\n");
+    chunk.hashes.QQQ = hash(chunk.csv.QQQ);
+    assert.equal(settlement.licensedSettlementPrices(reviewed, receipt.reconciledAt).length, 5);
+  }
+});
+
+test("a legacy horizon disagreement withholds previous approval while the scheduled collector saves the next day", async t => {
+  const root = await mkdtemp(join(tmpdir(), "marketparquet-review-migration-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const vendor = join(root, ".consensus/private-marketparquet"), archive = join(root, "public/consensus");
+  const library = join(root, "lib/consensus"), scripts = join(root, "scripts"), bin = join(root, "bin");
+  for (const dir of [vendor, archive, library, scripts, bin]) await mkdir(dir, { recursive: true, mode: 0o700 });
+  await linkTestLibraries(root);
+  await copyFile(new URL("../scripts/evaluate-marketparquet.ts", import.meta.url), join(scripts, "evaluate-marketparquet.ts"));
+  await writeFile(join(root, "package.json"), '{"type":"module"}');
+  const dates = exchangeSessions("2026-11-04", "2026-11-11"), issuedAt = dates[0] + "T12:00:00.000Z";
+  const edition: Snapshot = { schemaVersion: 1, origin: "prospective", engineVersion: "consensus-rules-2.0.0",
+    id: issuedAt.replace(/[:.]/g, "-"), issuedAt, cutoff: issuedAt, signals: missingSignals(issuedAt),
+    catalysts: [], sourcesAttempted: 1, collectionErrors: [] };
+  await durableJSON(join(archive, edition.id + ".json"), edition);
+  await durableJSON(join(archive, "index.json"), [{ id: edition.id, issuedAt, engineVersion: edition.engineVersion, sha256: digest(edition) }]);
+  await durableJSON(join(library, "current.json"), edition);
+  const { ledger, receipt } = proof(dates.slice(0, 5), 100.001);
+  const reviewedAt = receipt.reconciledAt, through = receipt.through;
+  const csv = { ...receipt.reference.csv, QQQ: receipt.reference.csv.QQQ.replace(/100,102,99,100\.001,1000$/, "99.99,102,99,99.999,1000") };
+  const previous = { ...receipt, schemaVersion: 3, reference: { source: KIBOT_PRICE_CITATION, capturedAt: reviewedAt,
+    subscriber: subscriber(reviewedAt).proof, chunks: [{ from: dates[0], through, capturedAt: reviewedAt,
+      csv, hashes: { ...receipt.reference.hashes, QQQ: hash(csv.QQQ) } }] } };
+  const sealed = join(vendor, "settlements", digest(previous) + ".json");
+  await durableJSON(sealed, previous);
+  const pointer = { schemaVersion: 1, through, reviewedAt, sha256: digest(previous) };
+  await durableJSON(join(vendor, "settlement-review.json"), pointer);
+  const evidence = "reconciliation-2026-11-10T22-10-00-000Z.json";
+  const review = { through, reviewedAt, evidence, earlyClosesVerified: [], issuerActionsVerified: true, splitBasisVerified: true };
+  await durableJSON(join(vendor, "licensed-actions-review.json"), review);
+  const fingerprints = { passed: true, capturedAfterClose: true, verifiedThrough: through, earlyClosesVerified: [],
+    files: ledger.bars.map(({ session, sha256 }) => ({ session, sha256 })),
+    issuerActions: marketParquetIssuerFingerprints(ledger.distributions, dates[0], through) };
+  await durableJSON(join(vendor, evidence), { ...fingerprints, mode: "licensed", reconciledAt: reviewedAt, ledgerSha256: receipt.ledgerSha256 });
+  await durableJSON(join(vendor, "credentials.json"), { archiveLicense: "confirmed", apiKey: "bt_fixture" });
+  await durableJSON(join(vendor, "licensed.json"), ledger);
+  const next = proof(dates, 100.001).ledger;
+  await durableJSON(join(bin, "capture.json"), { sessions: next.bars, distributions: next.distributions, licensedCapture: next.licensedCapture });
+  await writeFile(join(bin, "uv"), '#!/bin/sh\nexec /bin/cat "$FIXTURE_CAPTURE"\n', { mode: 0o700 });
+  let tick = Date.parse("2026-11-12T15:00:00.000Z");
+  const run = (...args: string[]) => {
+    const clock = "const D=Date,now=" + tick++ + ";globalThis.Date=class extends D{constructor(...a){super(...(a.length?a:[now]))}" +
+      "static now(){return now}};globalThis.fetch=()=>{throw Error('Unexpected network request')};";
+    return execFileSync(process.execPath, ["--disable-warning=ExperimentalWarning", "--import",
+      "data:text/javascript," + encodeURIComponent(clock), join(scripts, "evaluate-marketparquet.ts"), ...args], {
+      cwd: root, encoding: "utf8", stdio: "pipe", env: { ...process.env, PATH: bin + ":" + process.env.PATH,
+        MARKETPARQUET_ARCHIVE_LICENSE: undefined, MARKETPARQUET_API_KEY: undefined, FIXTURE_CAPTURE: join(bin, "capture.json") } });
+  };
+  assert.match(run("--scheduled"), /Licensed capture saved/);
+  const newLedger = await readFile(join(vendor, "licensed.json"), "utf8");
+  assert.deepEqual(JSON.parse(newLedger).bars, next.bars);
+  const evaluated = JSON.parse(await readFile(join(vendor, "licensed-evaluation.json"), "utf8"));
+  assert.equal(evaluated.multiSessionReviewedThrough, null);
+  assert.deepEqual(evaluated.outcomes.map((o: { horizon: string }) => o.horizon), Array(5).fill("daily"));
+  assert.deepEqual(JSON.parse(await readFile(join(vendor, "settlement-review.json"), "utf8")), pointer);
+  assert.deepEqual(JSON.parse(await readFile(join(vendor, "licensed-actions-review.json"), "utf8")), review);
+  assert.deepEqual(await readdir(archive), [edition.id + ".json", "index.json"]);
+  await durableJSON(sealed, { ...previous, ledgerSha256: "0".repeat(64) });
+  assert.throws(() => run("--scheduled"), /differs from its reviewed fingerprint/);
+  assert.equal(await readFile(join(vendor, "licensed.json"), "utf8"), newLedger);
+  await durableJSON(join(vendor, "actions-review.json"), review);
+  await durableJSON(join(vendor, evidence), { ...fingerprints, mode: "sample" });
+  run();
+  const sample = JSON.parse(await readFile(join(vendor, "sample-evaluation.json"), "utf8"));
+  assert.equal(sample.multiSessionReviewedThrough, null);
+  assert.deepEqual(sample.outcomes.map((o: { horizon: string }) => o.horizon), Array(5).fill("daily"));
+});
+
+test("sample CLI preserves the previous review when adjusted horizon directions disagree", async t => {
+  const root = await mkdtemp(join(tmpdir(), "marketparquet-sample-horizon-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const sessions = exchangeSessions("2026-10-23", "2026-10-29");
+  const { ledger } = proof(sessions, 100.001);
+  const refs = Object.fromEntries(ETF_SYMBOLS.map(symbol => [symbol, ledger.bars.map(day => ({
+    session: day.session, ...day.bars[symbol],
+  }))])) as ReferenceBars;
+  Object.assign(refs.QQQ.at(-1)!, { open: 99.999, close: 99.9999 });
+  const store = join(root, ".consensus/private-marketparquet"), scripts = join(root, "scripts");
+  await mkdir(scripts);
+  await symlink(new URL("../lib", import.meta.url), join(root, "lib"));
+  await copyFile(new URL("../scripts/reconcile-marketparquet.ts", import.meta.url), join(scripts, "reconcile-marketparquet.ts"));
+  await durableJSON(join(store, "sample.json"), ledger);
+  const input = join(root, "reference.json"), pointer = join(store, "actions-review.json");
+  await durableJSON(input, { source: "https://example.org/regular-session", bars: refs });
+  await durableJSON(pointer, { through: "2026-10-22" });
+  const before = await readFile(pointer, "utf8");
+  assert.throws(() => execFileSync(process.execPath, ["--disable-warning=ExperimentalWarning",
+    join(scripts, "reconcile-marketparquet.ts"), "--reference", input, "--record-review"], { encoding: "utf8", stdio: "pipe" }), error => {
+    const failure = error as { status: number; stdout: string };
+    assert.equal(failure.status, 2);
+    const data = JSON.parse(failure.stdout);
+    assert.deepEqual([data.passed, data.reviewRecorded, data.verifiedThrough], [false, false, sessions[3]]);
+    assert.deepEqual(data.horizonDifferences, [{ symbol: "QQQ", horizon: "weekly", from: sessions[0], through: sessions[4],
+      vendorDirection: "up", referenceDirection: "down" }]);
+    return true;
+  });
+  assert.equal(await readFile(pointer, "utf8"), before);
 });
 
 test("prospective daily approvals survive a mismatched fund, a missing older vendor file and a shortened session", async t => {

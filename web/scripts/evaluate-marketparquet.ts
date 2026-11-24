@@ -18,7 +18,7 @@ import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, 
 import { marketParquetHoldouts } from "../lib/consensus/marketparquet-learning.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetEvidence, marketParquetIssuerFingerprints, matchesMarketParquetReview, reviewedMarketParquetDays, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
 import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "../lib/consensus/marketparquet-aggregate.ts";
-import { loadLicensedSettlement, type LicensedCapture } from "../lib/consensus/marketparquet-settlement.ts";
+import { loadLicensedSettlement, MarketParquetHorizonDisagreement, type LicensedCapture } from "../lib/consensus/marketparquet-settlement.ts";
 import { ENGINE_VERSION, FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import { HORIZONS } from "../lib/consensus/types.ts";
@@ -106,18 +106,14 @@ try {
     saved.set(file.session, file);
   }
   const captured = [...saved.values()].sort((a, b) => a.session.localeCompare(b.session));
-  // The initial issuer reconciliation covers the first five captured days.
-  // A dated operator review extends this for all five ETFs after confirming
-  // issuer actions and that all cash amounts share the vendor's split basis.
-  // The same review lists each early close whose prices were reconciled.
-  let multiSessionReviewedThrough = "2026-11-10";
+  // Only an independent price and issuer review can release a holding period or an early close.
+  let multiSessionReviewedThrough: string | null = null;
   let reviewedEarlyCloses: string[] = [];
-  let licensedReviewThrough: string | null = null;
   try {
     const review = JSON.parse(await readFile(resolve(directory, licensed ? "licensed-actions-review.json" : "actions-review.json"), "utf8"));
     const early = review.earlyClosesVerified ?? [];
     if (typeof review.through !== "string" || !exchangeSession(review.through) ||
-        review.through < multiSessionReviewedThrough || review.through > through ||
+        review.through < from || review.through > through ||
         review.splitBasisVerified !== true || review.issuerActionsVerified !== true ||
         !Array.isArray(early) || early.some((day: unknown) => typeof day !== "string" || !exchangeSession(day) ||
           day > review.through || Date.parse(exchangeSession(day)!.closeAt) - Date.parse(exchangeSession(day)!.openAt) >= 6.5 * 3600000))
@@ -133,10 +129,11 @@ try {
         })).length === ETF_SYMBOLS.length))) {
       multiSessionReviewedThrough = review.through;
       reviewedEarlyCloses = early;
-      if (licensed) licensedReviewThrough = review.through;
     }
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    if (error instanceof MarketParquetHorizonDisagreement) {
+      console.error(error.message + ". Earlier approval withheld. Continuing private price collection.");
+    } else if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
   const bars = reviewedMarketParquetDays(captured, reviewedEarlyCloses);
   if (!bars.length) throw new Error("MarketParquet returned no usable completed ETF sessions");
@@ -150,7 +147,7 @@ try {
   const outcomes = snapshots.flatMap(snapshot => evidence.flatMap(prices => HORIZONS.flatMap(horizon => {
     if (horizon !== "daily") {
       const window = outcomeWindowSessions(snapshot.issuedAt, horizon, calendar);
-      if ((licensed && !licensedReviewThrough) || !window.length || window.at(-1)! > multiSessionReviewedThrough || window.some(day => !fetchedDays.has(day)))
+      if (!multiSessionReviewedThrough || !window.length || window.at(-1)! > multiSessionReviewedThrough || window.some(day => !fetchedDays.has(day)))
         return [];
     }
     const row = evaluateOutcome(snapshot, prices, horizon, now);
@@ -170,7 +167,7 @@ try {
   const cohorts = [];
   // Only evaluate-consensus owns new reservations, tests and model activation.
   const trainingPerformed = false;
-  const publish = !!arguments_[0] && licensedReviewThrough === through && selected.length > 0 &&
+  const publish = !!arguments_[0] && licensed && multiSessionReviewedThrough === through && selected.length > 0 &&
     completed.every(day => refetched.has(day));
   if (publish) await assertCommittedReservations(root);
   await durableDirectory(directory, 0o700);
@@ -234,7 +231,7 @@ try {
     missingSessions, trainingPerformed, issuerDistributions: incoming.distributions.map(({ symbol, cash }) =>
       ({ symbol, verified: cash.filter(event => event.session <= through).length })), cohorts, families }, null, 2));
   if (arguments_[0] && !publish) {
-    if (licensedReviewThrough !== through) {
+    if (multiSessionReviewedThrough !== through) {
       console.log("Licensed capture saved. Reconcile the latest completed session before staging the public aggregate.");
     } else {
       console.error("Public aggregate preserved. MarketParquet did not refresh the required completed sessions.");
