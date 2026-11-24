@@ -16,6 +16,8 @@ The versioned local stance classifier groups upward, downward, mixed and unclass
 
 The private candidate is `.consensus/bluesky-private/candidate.json` (0700directory/0600file). It contains only aggregate counts, window,filter diagnostics and source hash. A scan with fewer than10distinct matching accounts cannot be staged publicly. Instrument-specific distributions are also suppressed below10accounts. Provider/schema failure never creates a fabricated neutral reading.
 
+The separate five-fund X attention study paired anonymous cashtag counts with 745 historical ETF outcomes. It found zero funds where distinct-author participation met the prespecified incremental return threshold. The language benchmark below requires independent labels on actual text. [Attention study and reproduction](X_ATTENTION_RESEARCH.md)
+
 ## Private interpretation benchmark
 
 X uses `x-explicit-stances-v3` in the weekday digest, new private research cohorts and the interpretation benchmark. A ticker heading such as `$SPY: will fall` uses the same forward verbs as `$SPY will fall`. The parser also recognizes an explicit first-person expectation about “the Nasdaq-100”. The digest and original-post research use the same QQQ search aliases. Predictive validation requires separately approved outcomes and sufficient as-issued observations.

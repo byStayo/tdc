@@ -1,0 +1,25 @@
+{
+  "method": "retrospective-x-cashtag-author-share-v1",
+  "funds": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "TLT"
+  ],
+  "sourceRevision": "f1485ca2d83e6f770ed6d28522dde60f8071bebe",
+  "sourceRepository": "twitterapi-io/x-cashtag-mentions-2024-2026",
+  "sourceOrigin": "TwitterAPI.io daily cashtag counts released under CC BY 4.0 on November 16, 2026. Post IDs, raw text, replies and late engagement counters are unnecessary for this comparison.",
+  "classification": "Exploratory historical attention, never an as-issued or independent prospective test. Possible collisions between cashtags and other assets and deleted content are unresolved. No production predictions, probability claims, corpus hydration or automatic promotion.",
+  "eligiblePriceCohort": "Only calendar-selected training targets of the previously completed prelaunch technical-momentum-volatility-v1 study. Reproduce the 22 consecutive full scheduled session screen and its 60% training boundary by calendar alone. Verify five historical trainEnds of 2024-10-29 and the instrument/basis/year price receipt hashes against the frozen aggregate before using any sign. The boundary precedes every production issue. Never use the original validation and test outcomes. Reject selected raw/split-only sign disagreements.",
+  "period": "Prior day and its four prior same weekdays must be in 2024-01-01 through 2024-10-28, before first production. Target must be a full market session on or before 2024-10-29. Previous day means UTC calendar day even on Monday. No forward filling. Exclude windows spanning the documented June 2024 addition of stock keyword quote collection. Inputs end the previous UTC day. This archive has no public vintage on any selected target date.",
+  "eligibility": "All five fund codes must have one nonnegative row with at least 10 authors and authors<=mentions on each of the five dates. Use no symbols outside the five. Each ticker share denominator is the sum across the five, which counts cross-ticker posts and authors once per matched ticker. No engagement metrics. Require positive denominators.",
+  "control": "Log share of the fund in all five mention counts on the prior UTC date minus the arithmetic mean of its log shares on the four preceding same weekdays.",
+  "candidate": "Add the analogous change in the share of distinct authors, conditional on the mention-share control. Predeclared positive partial slope for each fund. The conditional comparison asks whether broader participation adds information beyond volume.",
+  "outcome": "Same-session regular open-to-close strictly positive, otherwise zero. Raw and split-only signs must match. Each ETF is estimated separately on the same social cohort.",
+  "score": "Use the existing chronological purged 60/20/20 research planner. Require >=120 rows, >=50 training with both classes, >=20 validation and >=20 testing. Fit using only training and tune regularisation only on validation. Compare candidate Brier with separately fitted mention-only control, training prevalence and 0.5. A descriptive pass requires positive coefficient and >0.01 improvement over every baseline. All results remain exploratory even if all conditions pass. No repeated variants or reusing any outcome as a public holdout.",
+  "cash": "No overnight position in the target; the same per-session split or dividend back-adjustment multiplies open and close equally and cannot change the sign.",
+  "existingTechnicalReceiptSha256": "a84932843678688d749936b1952c41f215ca19c1cb8af751e194e54cdcfb4b65",
+  "registeredAt": "2026-11-24T13:35:15.588Z",
+  "checkout": "d89cc5ddb4757dc52ebd5cdd9690c9e183a6f9bc"
+}

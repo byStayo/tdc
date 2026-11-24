@@ -92,6 +92,7 @@
     "consensus:research-events-private": "node --experimental-strip-types scripts/research-events-private.ts",
     "consensus:research-news-private": "node --experimental-strip-types scripts/research-news-private.ts",
     "consensus:research-kibot-issuer-prices": "node --experimental-strip-types scripts/research-kibot-issuer-prices.ts",
+    "consensus:research-x-attention": "node --experimental-strip-types scripts/research-x-attention.ts",
     "consensus:validate-social-private": "node --experimental-strip-types scripts/validate-social-private.ts",
     "consensus:evaluate-marketparquet": "node --experimental-strip-types scripts/evaluate-marketparquet.ts",
     "consensus:marketparquet-daily": "node --experimental-strip-types scripts/register-marketparquet-daily.ts",
