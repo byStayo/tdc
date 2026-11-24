@@ -1,4 +1,5 @@
 "use client";
+import { visibleSessionRanges } from "@/lib/consensus/regular-session-range";
 import PublicationFooter from "@/components/PublicationFooter";
 import { isCftcPosition } from "@/lib/consensus/cftc-provenance";
 
@@ -1300,6 +1301,7 @@ export default function MorningBoard({
   }, []);
   const historical = snapshot.id !== initial.id,
     reference = historical ? snapshot.cutoff : now;
+  const sessionRanges = visibleSessionRanges(snapshot.regularSessionRanges, instrument, horizon, reference);
   const consensus = asIssuedConsensus(snapshot, instrument, horizon),
     current = snapshot.signals.filter((signal) =>
       signal.instruments.includes(instrument),
@@ -2111,8 +2113,17 @@ export default function MorningBoard({
               <ResearchSection
                 number="03"
                 title="Price chart & technicals"
-                description="Current TradingView display · separate from saved consensus"
+                description={sessionRanges.length ? "Saved regular-session range" : "Current TradingView display · separate from saved consensus"}
               >
+                {sessionRanges.length > 0 && (
+                  <div className={styles.marketContext}>
+                    <strong>Close within the regular-session range</strong>
+                    <ul>{sessionRanges.map(row => (
+                      <li key={row.fund}>{row.fund} · {["lowest fifth", "second fifth", "middle fifth", "fourth fifth", "highest fifth"][row.closeFifth - 1]} · {datedYear(row.observedAt)}</li>
+                    ))}</ul>
+                    <a href={snapshot.regularSessionRanges!.url}>{snapshot.regularSessionRanges!.attribution}</a>
+                  </div>
+                )}
                 <MorningMarket
                   instrument={instrument}
                   horizon={horizon}

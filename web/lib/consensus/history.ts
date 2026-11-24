@@ -30,6 +30,7 @@ import { validateAnalystRatings } from "./analyst-ratings.ts";
 import { validateEtfFlows } from "./etf-flows.ts";
 import { validateFirstRateBreadth, validateFirstRateTechnical } from "./firstrate-technicals.ts";
 import { validateFirstRatePremarket } from "./firstrate-premarket.ts";
+import { validateSessionRanges } from "./regular-session-range.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
@@ -270,6 +271,7 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
       throw new Error("Invalid as-issued model forecast");
   }
   if (snapshot.optionActivity) validateOptionActivity(snapshot.optionActivity, snapshot.cutoff);
+  if (snapshot.regularSessionRanges !== undefined) validateSessionRanges(snapshot.regularSessionRanges, snapshot.cutoff);
   validateConsensusRecords(snapshot, mode === "candidate");
   const holdingSignals = snapshot.signals.filter(
     (s) => s.id.startsWith("sec-holdings-") && s.status === "available",
@@ -367,6 +369,7 @@ export function observationDigest(snapshot: Snapshot): string {
     catalysts: snapshot.catalysts,
     forecasts: snapshot.forecasts ?? [],
     news: snapshot.news ?? null,
+    ...(snapshot.regularSessionRanges ? {regularSessionRanges:snapshot.regularSessionRanges.rows.map(({fund,session,closeFifth})=>({fund,session,closeFifth}))} : {}),
     ...(snapshot.optionActivity ? { optionActivity: { ...snapshot.optionActivity,
       rows: snapshot.optionActivity.rows.map(row => row.status === "observed"
         ? { symbol: row.symbol, status: row.status, putPercent: row.putPercent } : row) } } : {}),

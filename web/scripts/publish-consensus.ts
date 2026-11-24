@@ -7,6 +7,8 @@ import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
 import { loadFirstRatePremarket, loadFirstRateTechnicals, replaceFirstRatePremarket, replaceTechnicalSignals } from "../lib/consensus/firstrate.ts";
+import { loadMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
+import { visibleSessionRanges } from "../lib/consensus/regular-session-range.ts";
 import { loadTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { TLT_CLOSE_ID } from "../lib/consensus/tlt-close-signal.ts";
 import { refreshTaiwan } from "../lib/consensus/taiwan.ts";
@@ -60,7 +62,16 @@ let snapshot: Snapshot = reviewOnly || technicalsOnly
   : analystOnly ? await refreshAnalystRatings(previous!, publicText, undefined, root)
   : await collectSnapshot(fetch, previous ?? undefined, resolve(root, ".consensus/private-operf-equity"),
       resolve(root, ".consensus/private-opra-volume"), root);
+if (snapshot.regularSessionRanges) {
+  const retained = visibleSessionRanges(snapshot.regularSessionRanges, "MARKET", "daily", snapshot.cutoff);
+  if (retained.length) snapshot.regularSessionRanges = {...snapshot.regularSessionRanges, rows:retained};
+  else delete snapshot.regularSessionRanges;
+}
 if (!scoped || technicalsOnly) {
+  const ranges = await loadMarketHistoryRanges(root, snapshot.cutoff, message => console.warn("ETF range:", message))
+    .catch((error: Error) => { console.warn("ETF ranges unavailable.", error.message); return undefined; });
+  if (ranges) snapshot.regularSessionRanges = ranges;
+  else delete snapshot.regularSessionRanges;
   const readings = await loadFirstRateTechnicals(root, snapshot.cutoff).catch((error: Error) => {
     console.error(`FirstRate technical observations unavailable: ${error.message}`);
     return [];
@@ -75,9 +86,12 @@ if (!scoped || technicalsOnly) {
     signals.push(tlt);
     if (missing?.instruments.includes("TLT")) {
       const others = missing.instruments.filter(symbol => symbol !== "TLT");
-      const reason = "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices." +
+      const rangeAvailable = ranges?.rows.some(row => row.fund === "TLT");
+      const reason = (rangeAvailable
+        ? "TLT’s closing trend and close within its regular-session range are available. Its opening price still needs independent verification."
+        : "TLT’s closing trend is available. Its regular-session open and intraday range still need verified prices.") +
         (others.length ? ` Full price-based technical readings are also pending for ${others.join(", ")}.` : "");
-      const title = others.length ? "Incomplete regular-session price inputs" : "Regular-session open and range";
+      const title = others.length ? "Incomplete regular-session price inputs" : rangeAvailable ? "Regular-session open" : "Regular-session open and range";
       Object.assign(missing, { title, shortLabel: title, summary: reason, limitation: reason, reason });
     }
   }

@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareKibotPrimary } from "../lib/consensus/kibot-eod-primary.ts";
+import { prepareMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
 import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
@@ -29,6 +30,10 @@ async function collect(script: string, scriptArgs: string[] = [], timeout?: numb
 
 const release = await acquirePublicationLock(PROJECT_ROOT, "daily-data-preparation");
 let failure: { error: unknown } | undefined;
+const rangeAbort = new AbortController();
+// Native range checks run during the independent public evidence pass. Always join them before issuing a draft or releasing the lock.
+const rangeJob = prepareMarketHistoryRanges(PROJECT_ROOT, { live: mode.freePriceAccount, signal: rangeAbort.signal })
+  .catch((error: Error) => ({ status: "unavailable", reason: error.message }));
 try {
   const baseEvidence = await collectEditorialEvidence(fetch, { archiveRoot: PROJECT_ROOT });
   const { editorialSources, ...form144 } = await collect("research-sec-form144.ts", ["--editorial"], 60_000)
@@ -48,6 +53,7 @@ try {
   const following = mode.following
     ? await collect("collect-following-feeds.ts", ["--scheduled"])
     : { status: mode.freePriceAccount ? "separate_scheduled_digest" : "skipped_public_only" };
+  const regularSessionRanges = await rangeJob;
   const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
     status: "unavailable",
     error: error.killed ? "FirstRate source capture exceeded 105 seconds"
@@ -83,6 +89,7 @@ try {
     tltClosingTrend,
     tltSettlementQualification,
     kibotSubscriber,
+    regularSessionRanges,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));
@@ -90,5 +97,7 @@ try {
   failure = { error };
   throw error;
 } finally {
+  rangeAbort.abort();
+  await rangeJob;
   await finishPublicationLock(release, failure);
 }

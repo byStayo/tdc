@@ -172,6 +172,8 @@ export interface Snapshot {
   holdings?: import("./holdings").InstitutionalHoldings[];
   /** Scoped trade-volume observation, outside the scored options-risk input. */
   optionActivity?: import("./option-activity").OptionActivity;
+  /** Dated daily technical context, separate from the scored family inputs. */
+  regularSessionRanges?: import("./regular-session-range").SessionRanges;
 }
 export interface HistoryEntry {
   id: string;
