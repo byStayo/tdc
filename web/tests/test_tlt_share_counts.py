@@ -42,6 +42,16 @@ def example():
 
 
 class ShareCounts(unittest.TestCase):
+    def test_explicit_collection_waits_for_the_short_session_to_close(self):
+        class BeforeShortClose(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return counts.sec.timestamp("2026-11-27T17:59:59Z").astimezone(tz)
+
+        with patch.object(counts, "datetime", BeforeShortClose):
+            with self.assertRaisesRegex(ValueError, "completed"):
+                counts.expected("2026-11-25", "2026-11-27")
+
     def test_recent_sessions_follow_exchange_close_including_thanksgiving_half_day(self):
         for clock, limits in [
             ('2026-11-24T12:48:00Z', ('2026-11-18', '2026-11-23')),
@@ -49,7 +59,7 @@ class ShareCounts(unittest.TestCase):
             ('2026-11-27T18:00:01Z', ('2026-11-23', '2026-11-27')),
         ]:
             with self.subTest(clock=clock):
-                self.assertEqual(counts.latest_window(datetime.fromisoformat(clock)), limits)
+                self.assertEqual(counts.latest_window(counts.sec.timestamp(clock)), limits)
 
     def test_repeated_scheduled_window_verifies_the_first_receipt_without_fetch(self):
         evidence = example()

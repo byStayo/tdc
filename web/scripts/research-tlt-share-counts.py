@@ -170,7 +170,9 @@ def header(text, filename):
 
 def expected(first, last):
     start, end = sec.iso_day(first), sec.iso_day(last)
-    if not 1 <= (end - start).days <= 20 or end > datetime.now(sec.NEW_YORK).date():
+    now = datetime.now(sec.NEW_YORK)
+    if (not 1 <= (end - start).days <= 20 or end > now.date()
+            or (end == now.date() and last > latest_window(now)[1])):
         raise ValueError('Supply a completed range of 2–11 exchange sessions')
     calendar = flows.calendar_for({'TLT': {'periodStart': first, 'periodEnd': last}})['days']
     days = [day for day in calendar if first <= day <= last]

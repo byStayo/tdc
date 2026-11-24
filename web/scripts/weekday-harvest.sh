@@ -24,6 +24,9 @@ if ! "$node_bin" --experimental-strip-types scripts/collect-sentisense-options-p
 fi
 preparation_status=0
 "$node_bin" --experimental-strip-types scripts/prepare-daily-data.ts --weekday || preparation_status=$?
+if ! PATH="${node_bin%/*}:$PATH" /usr/bin/python3 -B scripts/research-tlt-share-counts.py --scheduled >&2; then
+  printf '%s\n' 'Private TLT share-count comparison remains pending.' >&2
+fi
 if ! /usr/bin/python3 -B scripts/qualify_spf_profits.py scheduled >&2; then
   printf '%s\n' 'Private corporate-profits comparison remains pending.' >&2
 fi

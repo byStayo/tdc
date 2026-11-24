@@ -261,12 +261,15 @@ class SurveyTests(unittest.TestCase):
                 'console.log("ordinary fixture prepared"); process.exit(Number(process.env.SYNTHETIC_PREPARATION));')
             (scripts / "qualify_spf_profits.py").write_text(
                 'import sys\nassert sys.argv[1:] == ["scheduled"]\nprint("private fixture pending")\nraise SystemExit(1)\n')
+            (scripts / "research-tlt-share-counts.py").write_text(
+                'import sys\nassert sys.argv[1:] == ["--scheduled"]\nprint("share-count fixture pending")\nraise SystemExit(3)\n')
             for code in (0, 7):
                 result = subprocess.run(["/bin/bash", str(scripts / script.name)], capture_output=True, text=True,
                                         env={**os.environ, "SYNTHETIC_PREPARATION": str(code)}, timeout=15)
                 self.assertEqual(result.returncode, code)
                 self.assertEqual(result.stdout.strip(), "ordinary fixture prepared")
                 self.assertIn("private fixture pending", result.stderr)
+                self.assertIn("share-count fixture pending", result.stderr)
                 self.assertIn("Private corporate-profits comparison remains pending", result.stderr)
 
 

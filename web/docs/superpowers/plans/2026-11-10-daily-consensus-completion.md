@@ -6,6 +6,7 @@
 - [x] Verify the five earlier October sessions using authenticated raw and split-only hourly records for each ETF, and independently replay the free MarketParquet preview with issuer distributions. Resolve the source of the TLT sign difference at the November 20 close. [Owner replay procedure](../../MARKETPARQUET_SAMPLE_REPLAY.md)
 - [x] Check adjusted holding-period directions for every independent MarketParquet comparison and replay historical subscriber receipts. Continue daily private collection when an older cumulative price window disagrees.
 - [x] Register and test Cambria’s put-hedge portfolio against SPY with an intermediate Treasury ETF as a control. Both independent implementations reproduced the 52 held-out dates. Adding the options proxy worsened the Brier score from 0.2568 to 0.2584. [Registered study](../../../scripts/tail-risk-spy-policy.json)
+- [x] Connect a private, idempotent TLT outstanding-share comparison to the existing weekday job. Verify the two issuer documents, both possible date assignments, and the remaining ETFIQ comparison dates. The manual and scheduled paths observe the exchange close, including shortened days. [Operating procedure](../../SEC_ETF_FLOW_RECONCILIATION.md#weekday-share-count-check)
 - [ ] Settle pending November 23 outcomes when eligible comparison data arrives. Verify the original Nasdaq opening execution for the TLT research window. Confirm sufficient chronological evidence for the remaining daily votes and production models.
 
 ### November 24 first-release data and price qualification
