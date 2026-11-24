@@ -1,10 +1,57 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { digest } from "../lib/consensus/history.ts";
-import { recordPreopenReceipt, verifyPreopenReceipt, verifyPreopenWithMorningConfirmation } from "../lib/consensus/preopen-receipt.ts";
+import { previousIssueInWitnessedIndex, recordPreopenReceipt, verifyPreopenReceipt, verifyPreopenWithMorningConfirmation } from "../lib/consensus/preopen-receipt.ts";
+import type { HistoryEntry } from "../lib/consensus/types.ts";
+
+test("prior selection tolerates later editions and rejects an omitted previous-morning issue", async t => {
+  const root = await mkdtemp(join(tmpdir(), "consensus-witnessed-index-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const directory = join(root, "public/consensus");
+  await mkdir(directory, { recursive: true });
+  const indexFile = join(directory, "index.json");
+  const history: HistoryEntry[] = [];
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-24T12:00:00.000Z") });
+
+  async function issue(issuedAt: string) {
+    const id = issuedAt.replace(/[:.]/g, "-");
+    const snapshot = { id, issuedAt, engineVersion: "test" };
+    const entry = { ...snapshot, sha256: digest(snapshot) };
+    history.push(entry);
+    const index = Buffer.from(JSON.stringify(history));
+    const archive = Buffer.from(JSON.stringify(snapshot));
+    await writeFile(indexFile, index);
+    t.mock.timers.setTime(Date.parse(issuedAt) + 1000);
+    const observedAt = new Date().toISOString();
+    const session = issuedAt.slice(0, 10);
+    await recordPreopenReceipt(root, session, id, archive, index, observedAt);
+    return { entry, archive, session };
+  }
+
+  const early = await issue("2026-11-24T12:00:00.000Z");
+  const lastPrior = await issue("2026-11-24T13:00:00.000Z");
+  const current = await issue("2026-11-25T12:00:00.000Z");
+  const before = "2026-11-24T14:30:00.000Z";
+  const selectPrior = () => previousIssueInWitnessedIndex(root, current.session, current.entry.id,
+    current.archive, new Date().toISOString(), before);
+  assert.deepEqual(await selectPrior(), lastPrior.entry);
+  await issue("2026-11-25T13:00:00.000Z");
+  assert.deepEqual(await selectPrior(), lastPrior.entry);
+
+  const receiptFile = join(root, ".consensus/private-preopen", current.session, current.entry.id + ".json");
+  const original = await readFile(receiptFile, "utf8");
+  const receipt = JSON.parse(original);
+  receipt.indexText = JSON.stringify([early.entry, current.entry]);
+  await writeFile(receiptFile, JSON.stringify(receipt));
+  await assert.rejects(selectPrior, /archive index prefix/);
+
+  await writeFile(receiptFile, original);
+  await writeFile(indexFile, JSON.stringify(history.filter(entry => entry.id !== lastPrior.entry.id)));
+  await assert.rejects(selectPrior, /archive index prefix/);
+});
 
 test("a dated public receipt survives repeat checks and cannot be reassigned to a later edition or session", async () => {
   const root = await mkdtemp(join(tmpdir(), "consensus-public-receipt-"));

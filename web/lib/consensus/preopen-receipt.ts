@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
@@ -65,6 +66,10 @@ export async function previousIssueInWitnessedIndex(root: string, session: strin
   if (!original) throw Error("No pre-open public index for selecting a previous issue");
   verify(original, session, edition, archive, asOf);
   const index = JSON.parse(original.indexText) as HistoryEntry[];
+  const published: unknown = JSON.parse(await readFile(resolve(root, "public/consensus/index.json"), "utf8"));
+  if (!Array.isArray(published) || !isDeepStrictEqual(index, published.slice(0, index.length))) {
+    throw Error("Witnessed history differs from the published archive index prefix");
+  }
   for (const [i, entry] of index.entries()) {
     if (typeof entry.issuedAt !== "string" || !Number.isFinite(Date.parse(entry.issuedAt)) ||
         new Date(entry.issuedAt).toISOString() !== entry.issuedAt || entry.id !== entry.issuedAt.replace(/[:.]/g, "-") ||
