@@ -43,8 +43,8 @@ function samePrice(bar: Pick<SessionPrice, "open" | "close"> | undefined, expect
 type Fetcher = Parameters<typeof sourceResponse>[0];
 type NasdaqMeta = RawMeta & { symbol: ETF; kind: string; requestedAt: string; body: string; status: number };
 
-async function issuerActions(root: string, directory: string, symbol: ETF, day: string,
-  expected: SessionFundProof["sources"]["issuer"] | undefined, collect: boolean) {
+export async function kibotPostCloseIssuerActions(root: string, directory: string, symbol: ETF, day: string,
+  expected: SessionFundProof["sources"]["issuer"] | undefined, collect: boolean, includeCashHistory = false) {
   const scripts = resolve(root, "scripts"), captured = resolve(directory, "issuer-post-close");
   async function decode(folder: string) {
     const file = resolve(folder, "issuer-" + symbol);
@@ -66,7 +66,8 @@ async function issuerActions(root: string, directory: string, symbol: ETF, day: 
     if (result.symbol !== symbol || result.source !== stamp.source || result.sha256 !== stamp.sha256 ||
         (expected && digest(targetExDates) !== digest(expected.targetExDates)))
       throw new Error("Official distribution history differs from the proof");
-    return { ...stamp, targetExDates };
+    return { ...stamp, targetExDates: targetExDates as CashDistribution[],
+      ...(includeCashHistory && { cashHistory: result.cash as CashDistribution[] }) };
   }
   const destination = resolve(captured, symbol);
   for (const folder of [directory, destination, captured, resolve(root, ".consensus/private-firstrate/captures", day)]) {
@@ -275,7 +276,7 @@ export function retainedSessionWitnesses(root: string, sourceRoot: string, day: 
   const read = readSessionPrices(sourceRoot, day, collect, fetcher);
   return async (symbol: ETF, declared?: SessionFundProof): Promise<SessionFundProof> => {
     const [prices, distributions] = await Promise.allSettled([
-      read(symbol, declared), issuerActions(root, resolve(sourceRoot, day), symbol, day, declared?.sources.issuer, collect),
+      read(symbol, declared), kibotPostCloseIssuerActions(root, resolve(sourceRoot, day), symbol, day, declared?.sources.issuer, collect),
     ]);
     if (prices.status === "rejected") throw prices.reason;
     if (distributions.status === "rejected") throw distributions.reason;

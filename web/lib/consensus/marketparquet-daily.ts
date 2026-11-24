@@ -4,7 +4,7 @@ import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { EXCHANGE_CALENDAR, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import type { PriceEvidence } from "./evaluation.ts";
 import { digest } from "./history.ts";
-import { collectMarketParquetFundReference, type FundProof } from "./marketparquet-market-history.ts";
+import { collectMarketHistoryFundReference, type FundProof } from "./marketparquet-market-history.ts";
 import { verifyMarketParquetControlEntitlement, type LicensedMarketParquetLedger } from "./marketparquet-settlement.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, reconcileMarketParquet, type ReferenceBars } from "./marketparquet.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
@@ -78,7 +78,7 @@ async function checkedDay(root: string, ledger: LicensedMarketParquetLedger, sym
   if (!clockPermits(policy, day, asOf)) throw new Error("The session predates registration, remains open or has a shortened close");
   const licensed = verifyMarketParquetControlEntitlement(JSON.stringify(ledger), day, asOf);
   if (licensed.dates.length !== 1) throw new Error("A daily receipt must contain exactly one session");
-  const fund = await collectMarketParquetFundReference(root, symbol, [day], licensed.cash[symbol], cachedOnly,
+  const fund = await collectMarketHistoryFundReference(root, symbol, [day], licensed.cash[symbol], cachedOnly,
     { fetcher, signal, ...(cachedOnly ? { asOf } : {}) });
   const references = Object.fromEntries(ETF_SYMBOLS.map(s => [s, s === symbol ? fund.prices : []])) as ReferenceBars;
   const checked = reconcileMarketParquet([day], licensed.ledger.bars, licensed.cash, references,

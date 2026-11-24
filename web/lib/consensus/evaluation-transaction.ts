@@ -14,9 +14,10 @@ const releasePath = (root: string) => resolve(root, EVALUATION_RELEASE_STATE);
 const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const mutable = new Set([PUBLIC_OUTCOME_INDEX, "public/consensus/outcome-selection.json", "lib/consensus/models.json", "lib/consensus/performance.json"]);
 const immutablePath = (path: string) => /^public\/consensus\/(?:models\/[A-Za-z0-9_-]+|model-actions\/[0-9a-f-]+)\.json$/.test(path);
+const privateCandidatePath = (path: string) => /^\.consensus\/private-kibot\/production-daily\/candidates\/(?:SPY|QQQ|IWM|DIA|TLT)-daily-wf2-[0-9a-f]{16}\.json$/.test(path);
 function checkPath(write: EvaluationWrite): void {
   if (!((mutable.has(write.path) || write.path === PRIVATE_OUTCOME_LEDGER) && !write.immutable) &&
-      !(immutablePath(write.path) && write.immutable === true))
+      !((immutablePath(write.path) || privateCandidatePath(write.path)) && write.immutable === true))
     throw new Error("Unexpected evaluation transaction destination");
 }
 function checkOutcomeWrites(writes: EvaluationWrite[]): void {
@@ -122,7 +123,7 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
     throw new Error("Invalid private outcome transaction reference");
   const ledgerReference = ledgerTransaction ? { outcomeLedgerTransactionId: ledgerTransaction } : {};
   const artifacts = { ...(journal.artifacts ?? release?.artifacts ?? {}) };
-  for (const write of journal.writes.filter(write => write.immutable)) {
+  for (const write of journal.writes.filter(write => write.immutable && immutablePath(write.path))) {
     if (artifacts[write.path] && artifacts[write.path] !== write.after) throw new Error("Immutable evaluation artifact hash changed");
     artifacts[write.path] = write.after;
   }
@@ -136,6 +137,7 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
   // Durable tracked marker BEFORE any output changes; remote builds reject incomplete exports.
   await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "pending", artifacts, ...ledgerReference } satisfies ReleaseState);
   for (const write of journal.writes) {
+    if (privateCandidatePath(write.path)) await durableDirectory(dirname(resolve(root, write.path)), 0o700);
     if (await currentHash(root, write.path) !== write.after) await durableJSON(resolve(root, write.path), write.value, write.immutable);
     await afterWrite?.(write.path);
   }
@@ -166,7 +168,7 @@ export async function commitEvaluationTransaction(root: string, writes: Evaluati
   }
   const previous = await readReleaseState(root);
   const artifacts = { ...previous?.artifacts };
-  for (const write of planned.filter(write => write.immutable)) artifacts[write.path] = write.after;
+  for (const write of planned.filter(write => write.immutable && immutablePath(write.path))) artifacts[write.path] = write.after;
   await assertArtifactReferences(root, artifacts, planned.find(write => write.path === "lib/consensus/performance.json")?.value);
   const id = randomUUID();
   const outcomeLedgerTransactionId = planned.some(write => write.path === PRIVATE_OUTCOME_LEDGER) ? id : previous?.outcomeLedgerTransactionId;

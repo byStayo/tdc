@@ -57,7 +57,7 @@ export function marketParquetFundReference(symbol: MarketHistoryETF, days: strin
   };
 }
 
-export async function collectMarketParquetFundReference(root: string, symbol: MarketHistoryETF, days: string[],
+export async function collectMarketHistoryFundReference(root: string, symbol: MarketHistoryETF, days: string[],
   cash: CashDistribution[], cachedOnly: boolean, options: { asOf?: string; fetcher?: typeof fetch; signal?: AbortSignal }) {
   const hours = await collectMarketHistoryPriceControls(root, symbol, days, cachedOnly, options);
   const actions = await firstRateIssuerActionProof(root, symbol, days[0], days.at(-1)!, cash, cachedOnly, options);
@@ -92,7 +92,7 @@ export async function marketParquetHourlyControls(root: string, dates: string[],
     const chunk: Chunk = { from, through, funds: [] };
     for (const symbol of ETF_SYMBOLS) {
       deadline.throwIfAborted();
-      const fund = await collectMarketParquetFundReference(root, symbol, days, cash[symbol], cachedOnly, { asOf, fetcher, signal: deadline });
+      const fund = await collectMarketHistoryFundReference(root, symbol, days, cash[symbol], cachedOnly, { asOf, fetcher, signal: deadline });
       chunk.funds.push(fund.proof);
       reference[symbol].push(...fund.prices);
     }

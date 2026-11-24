@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
+import { prepareKibotPrimary } from "../lib/consensus/kibot-eod-primary.ts";
 import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
@@ -60,6 +61,9 @@ try {
       .catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({ status: "unavailable",
         error: error.killed ? "TLT qualification exceeded 120 seconds" : error.stderr?.match(/^Error: (.+)$/m)?.[1] ||
           error.message?.slice(0, 180) || "TLT qualification did not complete" }));
+  const kibotSubscriber = mode.freePriceAccount
+    ? await prepareKibotPrimary(PROJECT_ROOT).catch(() => ({ status: "source_unavailable" }))
+    : { status: "skipped_public_only" };
   const consensus = await collect("publish-consensus.ts");
   const issuerRevenue = await collect("research-issuer-revenue.ts", ["--collect-only"], 60_000)
     .catch((error: { killed?: boolean; stderr?: string }) => ({
@@ -78,6 +82,7 @@ try {
     firstRate,
     tltClosingTrend,
     tltSettlementQualification,
+    kibotSubscriber,
   };
   await durableJSON(resolve(PROJECT_ROOT, ".editorial/latest-preparation.json"), receipt);
   console.log(JSON.stringify(receipt, null, 2));

@@ -4,12 +4,14 @@ import { effectiveStatus as legacyStatus } from "../lib/consensus/engines/v1.ts"
 import { effectiveStatus as currentStatus, ENGINE_VERSION } from "../lib/consensus/engines/v2.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
+import { renderConnectionChart } from "./render-connection-chart.ts";
 
 const args = process.argv.slice(2);
-const json = args.includes("--json");
-const ids = args.filter(arg => arg !== "--json");
-if (ids.length > 1 || args.length !== ids.length + Number(json) || (ids[0] && !/^[0-9TZ-]{20,30}$/.test(ids[0])))
-  throw new Error("Usage: npm run consensus:connections -- [EDITION_ID] [--json]");
+const formats = args.filter(arg => arg.startsWith("--"));
+const ids = args.filter(arg => !arg.startsWith("--"));
+if (ids.length > 1 || formats.length > 1 || formats.some(arg => arg !== "--json" && arg !== "--html") ||
+    (ids[0] && !/^[0-9TZ-]{20,30}$/.test(ids[0])))
+  throw new Error("Usage: npm run consensus:connections -- [EDITION_ID] [--json | --html]");
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const { current, history, snapshots } = await verifyPublicationTree(root);
@@ -60,7 +62,9 @@ const views = INSTRUMENTS.flatMap(instrument => HORIZONS.map(horizon => {
 
 const byStatus = { available: 0, stale: 0, unavailable: 0, not_formed: 0 };
 for (const signal of signals) byStatus[signal.status]++;
-if (json) {
+if (formats[0] === "--html") {
+  console.log(renderConnectionChart(entry, snapshot, signals, sources, views));
+} else if (formats[0] === "--json") {
   console.log(JSON.stringify({ edition: entry, cutoff: snapshot.cutoff, byStatus, sources, signals, views }, null, 2));
 } else {
   console.log(`${entry.id} · Observations at ${snapshot.cutoff}`);

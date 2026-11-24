@@ -9,6 +9,8 @@ import { outcomeKey, outcomeWindowSessions, SCORING_POLICY, type PriceEvidence }
 import { firstRatePriceEvidence, loadFirstRatePrices, FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS } from "./firstrate.ts";
 import { readQqqAuction } from "./firstrate-nasdaq-auction.ts";
 import { replayLicensedSettlement, loadApprovedMarketParquetPrices, type LicensedSettlement } from "./marketparquet-settlement.ts";
+import { KIBOT_SUBSCRIBER_EOD_SOURCE } from "./kibot-eod-disclosure.ts";
+import { readKibotPrimarySession } from "./kibot-eod-primary.ts";
 import { MARKETPARQUET_SOURCE } from "./marketparquet.ts";
 import { loadTltSettlement, MARKET_HISTORY_SOURCE } from "./market-history-settlement.ts";
 import { PROSPECTIVE_MINIMUM, readReservations, type EvaluationReservation } from "./learning-audit.ts";
@@ -235,6 +237,7 @@ async function verifiedOutcomeSlots(path: string, seal: string, count: number, s
 }
 
 const grants = {
+  [KIBOT_SUBSCRIBER_EOD_SOURCE]: "https://www.kibot.com/license.html",
   [FIRST_RATE_SOURCE]: "https://firstratedata.com/about/license",
   [MARKET_HISTORY_SOURCE]: "https://getmarkethistory.com/docs/terms/",
   [MARKETPARQUET_SOURCE]: "https://marketparquet.com/license",
@@ -278,8 +281,15 @@ export async function readApprovedLabels(root: string, requests: Request[], inde
   const seal = await ledgerSeal(root,transaction,digest(index));
   const captured = await verifiedOutcomeSlots(resolve(root,PRIVATE_OUTCOME_LEDGER),seal,index.length,new Set(requests.map(r=>r.slot)));
   const result = new Map<number, Pair>(), providers = new Map<string, Promise<PriceEvidence[]>>();
-  function sourcePrices(source: string) {
-    let prices = providers.get(source);
+  const allowedKibotDates = new Map<Instrument, Set<string>>();
+  for (const r of requests) {
+    const symbol = r.identity.instrument;
+    if (!allowedKibotDates.has(symbol)) allowedKibotDates.set(symbol, new Set());
+    allowedKibotDates.get(symbol)!.add(r.session);
+  }
+  function sourcePrices(source: string, request: Request) {
+    const key = source === KIBOT_SUBSCRIBER_EOD_SOURCE ? [source, request.identity.instrument, request.session].join("/") : source;
+    let prices = providers.get(key);
     if (!prices) {
       if (source === FIRST_RATE_SOURCE) prices = (async()=>{
         const path=resolve(root,".consensus/private-firstrate/approved.json");
@@ -290,9 +300,12 @@ export async function readApprovedLabels(root: string, requests: Request[], inde
         if (last?.sha256!==first.sha256) throw Error("FirstRate approval changed during prospective evaluation");
         return rows;
       })();
+      else if (source === KIBOT_SUBSCRIBER_EOD_SOURCE)
+        prices = readKibotPrimarySession(root, request.identity.instrument, request.session, asOf,
+          allowedKibotDates.get(request.identity.instrument)!).then(row => row ? [row] : []).catch(() => []);
       else if (source === MARKETPARQUET_SOURCE) prices = loadApprovedMarketParquetPrices(root,asOf);
       else prices = loadTltSettlement(root,asOf,()=>{});
-      providers.set(source,prices);
+      providers.set(key,prices);
     }
     return prices;
   }
@@ -308,7 +321,7 @@ export async function readApprovedLabels(root: string, requests: Request[], inde
     }
     // These are the production offline readers. The paid archive reader verifies owner
     // entitlement, authorized captures, issuer actions and independent comparisons.
-    const official = await sourcePrices(source);
+    const official = await sourcePrices(source, r);
     const targetBars = (prices: PriceEvidence[]) => prices.filter(p=>p.instrument===r.identity.instrument &&
       p.source===source && p.adjustment===OUTCOME_PRICE_BASIS && p.expectedSessions.includes(r.session))
       .flatMap(p=>p.sessions.filter(b=>b.session===r.session && b.openAt===r.openAt && b.closeAt===r.closeAt));

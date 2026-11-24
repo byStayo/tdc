@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import type { Consensus, FamilyReading } from "../lib/consensus/types.ts";
+import type { Consensus, FamilyReading, HistoryEntry, Snapshot } from "../lib/consensus/types.ts";
+import { renderConnectionChart } from "../scripts/render-connection-chart.ts";
 
 type ConnectionView = Omit<Consensus, "families"> & {
   families: (FamilyReading & { contributors: { signal: string; score: number }[] })[];
@@ -39,4 +40,28 @@ test("uses the archived engine on an issue that predates frozen forecast views",
   assert.equal(market.directionalCoverage, undefined);
   const input = market.families.find(family => family.id === "rates")!.contributors.find(source => source.signal === "fred-DGS2");
   assert.ok(input && Math.abs(input.score - 0.25) < 1e-12);
+});
+
+test("the offline chart keeps original values, source clocks and the archived horizon scope", () => {
+  const edition = { id: "2026-11-24T05-42-23-689Z", issuedAt: "2026-11-24T05:42:23.689Z",
+    engineVersion: "fixture", sha256: "a".repeat(64) } satisfies HistoryEntry;
+  const signal = { id: "one", title: "Supply <checked>", summary: "Bonds & funds", instruments: ["MARKET"], unit: "%",
+    source: { url: "https://example.org/series", observedAt: "2026-11-20", releasedAt: "2026-11-23" },
+    limitation: "", metrics: [{ label: "Rate", value: 4.25, unit: "%", date: "2026-11-20" }],
+    series: [{ date: "2026-11-19", value: 4.1 }] };
+  const snapshot = { cutoff: edition.issuedAt, signals: [signal] } as Snapshot;
+  const view = { instrument: "MARKET", horizon: "daily", label: "Monitoring", coverage: 1, reasons: [],
+    neutral: 1, score: 0, bearish: 0, bullish: 0, agreement: null, abstain: true,
+    families: [{ id: "rates", label: "Rates", expected: 1, available: 1, score: 0, weight: 1, status: "available",
+      contributors: [{ signal: "one", score: 0 }] }] } satisfies ConnectionView;
+  const html = renderConnectionChart(edition, snapshot, [{ id: "one", status: "available", providerLabel: "Example" }],
+    [{ label: "Example", signals: ["one"] }], [view]);
+  assert.match(html, /1 of 1 families vote/);
+  assert.match(html, /Supply &lt;checked&gt;/);
+  assert.match(html, /Bonds &amp; funds/);
+  assert.match(html, /href="#signal-one"/);
+  assert.match(html, /Observed 2026-11-20 · Released 2026-11-23/);
+  assert.match(html, /2026-11-19   4.1/);
+  assert.match(html, /4.25 %/);
+  assert.doesNotMatch(html, /directional coverage|<script\b|<checked>/i);
 });

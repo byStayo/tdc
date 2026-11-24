@@ -28,8 +28,8 @@ export async function readResearchReceipt<T>(file: string): Promise<T | null> {
 /** Fetch the full calendar between the first and last requested outcome in each year. */
 export async function collectResearchPrices(
   directory: string, instrument: ETF, targets: string[],
-  { splitAdjusted = false, cachedOnly = false, reviewedExchangeCalendar = false, productionRoot }: {
-    splitAdjusted?: boolean; cachedOnly?: boolean; reviewedExchangeCalendar?: boolean; productionRoot?: string } = {},
+  { splitAdjusted = false, cachedOnly = false, reviewedExchangeCalendar = false, productionRoot, fetcher }: {
+    splitAdjusted?: boolean; cachedOnly?: boolean; reviewedExchangeCalendar?: boolean; productionRoot?: string; fetcher?: typeof fetch } = {},
 ) {
   if (productionRoot !== undefined && !productionRoot.trim()) throw new Error("Expected the project root for a production price control");
   const session = reviewedExchangeCalendar ? exchangeSession : extendedResearchSession;
@@ -50,10 +50,10 @@ export async function collectResearchPrices(
     if (stored) receipt = stored;
     else {
       if (cachedOnly) throw new Error(`Missing private ${productionRoot ? "subscriber " : ""}${basis} comparison for ${instrument} through ${through}`);
-      if (productionRoot) subscriber ??= await authenticateKibotSubscriber(productionRoot);
+      if (productionRoot) subscriber ??= await authenticateKibotSubscriber(productionRoot, fetcher);
       let csv = "";
       const source = await collectKibotSeries(instrument, dates, {
-        unadjusted: !splitAdjusted, splitAdjusted, sessionClock: session, subscriber, onVerifiedResponse: value => { csv = value; },
+        unadjusted: !splitAdjusted, splitAdjusted, sessionClock: session, subscriber, fetcher, onVerifiedResponse: value => { csv = value; },
       });
       receipt = { instrument, from, through, ...source, priceDigest: digest(source.sessions),
         ...(subscriber && { paid: { authorization: subscriber.proof, source: kibotHistorySource(instrument, from, through, basis),
