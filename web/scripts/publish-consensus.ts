@@ -2,7 +2,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 import { durableJSON } from "../lib/publication-storage.ts";
-import { collectSnapshot, publicText } from "../lib/consensus/collector.ts";
+import { collectSnapshot, publicText, refreshInflationAndMoney } from "../lib/consensus/collector.ts";
 import { refreshPrivateCredit } from "../lib/consensus/private-credit.ts";
 import { refreshAnalystRatings } from "../lib/consensus/analyst-ratings.ts";
 import { refreshEtfFlows } from "../lib/consensus/etf-flows.ts";
@@ -45,11 +45,12 @@ try {
 const reviewOnly = process.argv.includes("--review-only"),
   privateCreditOnly = process.argv.includes("--private-credit-only"),
   analystOnly = process.argv.includes("--analysts-only"),
+  inflationAndMoneyOnly = process.argv.includes("--inflation-and-money-only"),
   taiwanOnly = process.argv.includes("--taiwan-only"),
   etfFlowsOnly = process.argv.includes("--etf-flows-only"),
   technicalsOnly = process.argv.includes("--technicals-only"),
   now = new Date().toISOString();
-const scoped = [reviewOnly, privateCreditOnly, taiwanOnly, analystOnly, etfFlowsOnly, technicalsOnly].filter(Boolean).length;
+const scoped = [reviewOnly, privateCreditOnly, taiwanOnly, analystOnly, etfFlowsOnly, technicalsOnly, inflationAndMoneyOnly].filter(Boolean).length;
 if (scoped > 1) throw new Error("Select only one scoped publication mode");
 if (scoped && !previous)
   throw new Error(
@@ -61,6 +62,7 @@ let snapshot: Snapshot = reviewOnly || technicalsOnly
   : taiwanOnly ? await refreshTaiwan(previous!, publicText)
   : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText, undefined, root)
   : analystOnly ? await refreshAnalystRatings(previous!, publicText, undefined, root)
+  : inflationAndMoneyOnly ? await refreshInflationAndMoney(previous!, fetch, root)
   : await collectSnapshot(fetch, previous ?? undefined, resolve(root, ".consensus/private-operf-equity"),
       resolve(root, ".consensus/private-opra-volume"), root);
 if (snapshot.regularSessionRanges) {

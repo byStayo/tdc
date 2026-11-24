@@ -2610,6 +2610,16 @@ export default function MorningBoard({
                                 <br />Manufacturing coefficient {row.coefficientSign} (expected positive)
                                 <br />95% interval for improvement over total production alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
                               </>}
+                              {"priorStudyTestSessions" in row && <>
+                                <br />Services coefficient {row.coefficientSign} (expected negative)
+                                <br />95% interval for improvement over headline inflation alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                                <br />{row.priorStudyTestSessions} of {row.testSamples} final sessions appeared in an earlier TLT study.
+                              </>}
+                              {"excludedPriorDates" in row && <>
+                                <br />Retail fund coefficient {row.coefficientSign} (expected positive)
+                                <br />95% interval for improvement over deposits alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                                <br />{row.excludedPriorDates} previously studied sessions were excluded before fitting.
+                              </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
                           </tr>

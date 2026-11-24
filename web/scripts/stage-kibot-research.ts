@@ -7,6 +7,8 @@ import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { readDatedStudyRows } from "../lib/consensus/dated-study-review.ts";
 import { readG17ManufacturingStudy } from "./research-g17-manufacturing.ts";
+import { readOnsServicesStudy } from "./research-ons-services.ts";
+import { readH6RetailStudy } from "./read-h6-retail-study.ts";
 import { readIemElectionStudy } from "./stage-iem-events.ts";
 import { readOfrGeographicStudy } from "./stage-ofr-geographic.ts";
 import { replayOfrVolatility } from "../lib/consensus/ofr-volatility-review.ts";
@@ -18,7 +20,7 @@ import { replayBlsPayrollNewsStudy } from "./research-bls-payroll-news.ts";
 import { readPrivateResearchSessions, verifyPreviousResearchSessions, type ResearchSessionReceipt } from "../lib/consensus/kibot-verified-session.ts";
 import { readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
 import {
-  BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, FT900_RESEARCH, KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_LEGACY_RESEARCH_STUDIES,
+  BLS_PAYROLL_RESEARCH, H6_RETAIL_RESEARCH, OFR_VOLATILITY_RESEARCH, FT900_RESEARCH, KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_LEGACY_RESEARCH_STUDIES,
   KIBOT_RESEARCH_SYMBOLS, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, validateKibotResearch,
   type DatedStudyRow, type Ft900StudyRow, type FomcEveStudyRow, type QqqIssuerGuidanceRow, type KibotResearch, type SpyCloseLocationStudyRow,
 } from "../lib/consensus/kibot-research.ts";
@@ -200,16 +202,24 @@ async function main() {
         };
       });
     });
-    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy] = await Promise.all([
+    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy, ukInflationStudy, retail] = await Promise.all([
       readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt), readFomcEveStudy(snapshots[0].issuedAt),
       readQqqIssuerGuidanceStudy(snapshots[0].issuedAt), readDatedStudyRows(root, snapshots[0].issuedAt),
       readBlsPayrollNewsStudy(snapshots[0].issuedAt), readOfrVolatilityStudy(root, snapshots[0].issuedAt),
       readOfrGeographicStudy(root, snapshots[0].issuedAt), readIemElectionStudy(root, snapshots[0].issuedAt),
-      readG17ManufacturingStudy(root, snapshots[0].issuedAt),
+      readG17ManufacturingStudy(root, snapshots[0].issuedAt), readOnsServicesStudy(snapshots[0].issuedAt),
+      readH6RetailStudy(root, snapshots[0].issuedAt),
     ]);
-    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy);
+    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy, manufacturingStudy, ukInflationStudy);
+    if (retail.method !== H6_RETAIL_RESEARCH.id || retail.sealedSHA256 !== "022d23d33b1643fdea09faa8309e1e25faea503d94c2bf8ef72176ba7c9c6370" ||
+        retail.paired !== retail.train + retail.validation + retail.test) throw Error("H.6 retail comparison differs from the reviewed sample");
+    const roundH6 = (v:number) => Number(v.toFixed(4));
+    studies.push({studyId:H6_RETAIL_RESEARCH.id, family:"retail",instrument:"IWM",timingBasis:"dated-release",
+      samples:retail.paired,testSamples:retail.test,modelBrier:roundH6(retail.modelBrier),controlBrier:roundH6(retail.controlBrier),
+      baseRateBrier:roundH6(retail.baseRateBrier),coinBrier:retail.coinBrier,coefficientSign:retail.coefficient<0?"negative":retail.coefficient>0?"positive":"zero",
+      excludedPriorDates:32,controlImprovement95:[roundH6(retail.controlInterval95[0]),roundH6(retail.controlInterval95[1])],clearedMargin:retail.passed});
     const aggregate: KibotResearch = {
-      schemaVersion: 11, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 12, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

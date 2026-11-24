@@ -41,6 +41,8 @@ import { validateTaiwan } from "./taiwan.ts";
 import { NYFED_DESK_SURVEY_ID, validateNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
 import { validateNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { validateJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
+import { validateOnsInflation } from "./ons-inflation.ts";
+import { validateFedRetailMoney } from "./fed-retail-money.ts";
 import { validateUsTrade } from "./us-trade.ts";
 import { freezeConsensus, validateConsensusRecords, versionedScoringPolicy } from "./as-issued.ts";
 import type { Snapshot, HistoryEntry } from "./types.ts";
@@ -107,6 +109,8 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     if (signal.id === NYFED_DESK_SURVEY_ID) validateNyFedDeskSurvey(signal, snapshot.cutoff);
     validateJapanPortfolioFlows(signal);
     validateUsTrade(signal);
+    validateOnsInflation(signal, snapshot.cutoff);
+    validateFedRetailMoney(signal, snapshot.cutoff);
     if (
       !FAMILIES.some((family) => family.id === signal.family) ||
       !signal.instruments.length ||

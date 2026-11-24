@@ -20,6 +20,7 @@ const HOSTS = new Set([
   "www.bankofengland.co.uk",
   "www.bankofcanada.ca",
   "www.bls.gov",
+  "www.ons.gov.uk",
   "data.sec.gov",
   "www.sec.gov",
   "ticdata.treasury.gov",

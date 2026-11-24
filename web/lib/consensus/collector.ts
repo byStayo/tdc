@@ -17,7 +17,9 @@ import { collectPrimaryDealerPositions } from "./primary-dealer-positions.ts";
 import { collectSchwabRetailFlows } from "./schwab-retail-flows.ts";
 import { collectVxCurve, VX_CURVE_ID } from "./vx-curve.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
-import { collectUsTrade } from "./us-trade.ts";
+import { archivedOnsReader, collectOnsInflation } from "./ons-inflation.ts";
+import { collectFedRetailMoney } from "./fed-retail-money.ts";
+import { collectUsTrade, TRADE_ID } from "./us-trade.ts";
 import { collectPolicyRates } from "./policy.ts";
 import { collectHoldings } from "./holdings.ts";
 import { collectAnalystRatings } from "./analyst-ratings.ts";
@@ -827,6 +829,29 @@ export async function earnings(fetcher: Fetcher): Promise<Signal[]> {
     }),
   );
 }
+async function collectInflationAndMoney(fetcher: Fetcher, archiveRoot?: string, now = () => new Date().toISOString()) {
+  return Promise.all([
+    collectOnsInflation(archivedOnsReader(url => publicText(url, fetcher),
+      archiveRoot ? join(archiveRoot, ".consensus/private-ons-services-tlt/live") : undefined), now),
+    collectFedRetailMoney(fetcher, now, archiveRoot ? join(archiveRoot, ".consensus/private-h6-retail-money/current-collector") : undefined),
+  ]);
+}
+
+/** Refresh these official monthly releases without re-requesting the rest of a reviewed edition. */
+export async function refreshInflationAndMoney(previous: Snapshot, fetcher: Fetcher = fetch,
+  archiveRoot?: string, now = () => new Date().toISOString()): Promise<Snapshot> {
+  const releases = await collectInflationAndMoney(fetcher, archiveRoot, now);
+  const ids = new Set(releases.map(s => s.id));
+  const signals = previous.signals.filter(s => !ids.has(s.id));
+  const anchor = signals.findIndex(s => s.id === TRADE_ID);
+  signals.splice(anchor < 0 ? signals.length : anchor + 1, 0, ...releases);
+  const issuedAt = now();
+  return {...previous, id:issuedAt.replace(/[:.]/g,"-"), issuedAt, cutoff:issuedAt, signals,
+    consensus:undefined, forecasts:undefined, sourcesAttempted:releases.length,
+    collectionErrors:[...previous.collectionErrors.filter(e => !releases.some(s => e.startsWith(s.id + ":"))),
+      ...releases.filter(s => s.status === "unavailable").map(s => s.id + ": " + s.summary)]};
+}
+
 export async function collectSnapshot(
   fetcher: Fetcher = fetch,
   previous?: Snapshot,
@@ -869,6 +894,7 @@ export async function collectSnapshot(
     vxCurve,
     dealerPositions,
     payrollNews,
+    inflationAndMoney,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -923,6 +949,7 @@ export async function collectSnapshot(
       archiveRoot ? join(archiveRoot, ".consensus/private-primary-dealer-positions") : undefined),
     collectBlsPayrollNews(fetcher, undefined,
       archiveRoot ? join(archiveRoot, ".consensus/private-bls-payroll-news/current-collector") : undefined),
+    collectInflationAndMoney(fetcher, archiveRoot),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -943,6 +970,7 @@ export async function collectSnapshot(
       deskSurvey,
       japanPortfolioFlows,
       usExports,
+      ...inflationAndMoney,
       ...holdings.signals,
       ...missingSignals(issuedAt),
       // Match the scoped addition's position so a full refresh cannot create
@@ -980,7 +1008,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 66 + REVENUE_ISSUERS.length + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 66 + inflationAndMoney.length + REVENUE_ISSUERS.length + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

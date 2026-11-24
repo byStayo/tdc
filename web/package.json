@@ -69,6 +69,7 @@
     "consensus:research-fomc-eve": "node --experimental-strip-types scripts/research-fomc-eve.ts",
     "consensus:research-tic-treasury": "node --experimental-strip-types scripts/research-tic-treasury.ts",
     "consensus:research-bls-payroll": "node --experimental-strip-types scripts/research-bls-payroll-news.ts --cached",
+    "consensus:research-ons-services": "node --experimental-strip-types scripts/research-ons-services.ts",
     "consensus:research-ofr-volatility": "node --experimental-strip-types scripts/replay-ofr-volatility.ts",
     "consensus:research-market-history-minutes": "node --experimental-strip-types scripts/research-market-history-minutes.ts",
     "consensus:research-us-trade": "node --experimental-strip-types scripts/research-ft900-exports.ts",
