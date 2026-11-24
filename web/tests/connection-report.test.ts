@@ -64,4 +64,11 @@ test("the offline chart keeps original values, source clocks and the archived ho
   assert.match(html, /2026-11-19   4.1/);
   assert.match(html, /4.25 %/);
   assert.doesNotMatch(html, /directional coverage|<script\b|<checked>/i);
+  snapshot.regularSessionRanges = { method: "regular-session-close-fifth-v1", url: "https://example.org/range",
+    attribution: "Range test", rows: [{ fund: "TLT", session: "2026-11-20", closeFifth: 4,
+      observedAt: "2026-11-20T21:00:00.000Z", verifiedAt: edition.issuedAt, receiptSha256: "b".repeat(64) }] };
+  const withRange = renderConnectionChart(edition, snapshot, [{ id: "one", status: "available", providerLabel: "Example" }], [], [view]);
+  assert.match(withRange, /TLT<\/strong> · Fourth fifth on 2026-11-20/);
+  assert.match(withRange, /1 of 1 families vote/);
+  assert.doesNotMatch(html, /Where each fund closed/);
 });

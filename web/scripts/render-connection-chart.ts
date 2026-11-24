@@ -43,7 +43,9 @@ function viewChart(view: View, byId: Map<string, Signal>, first: boolean) {
   return '<details class="view" id="' + view.instrument + '-' + view.horizon + '"' + (first ? ' open' : '') +
     '><summary><strong>' + label(view.instrument) + ' · ' + view.horizon + '</strong><span>' + voteCount(view) +
     '/' + view.families.length + ' voting families</span></summary><div class="body"><p><strong>' + escape(view.label) +
-    '</strong> · ' + percent(view.coverage) + ' observation coverage' + completeness + '</p>' +
+    '</strong> · ' + percent(view.coverage) + ' observation coverage' + completeness + '</p><p>Combined score ' +
+    (view.score === null ? "unavailable" : score(view.score)) + ' · ' + view.bullish + ' bullish · ' + view.bearish +
+    ' bearish · ' + view.neutral + ' neutral.</p>' +
     (reasons ? '<ul>' + reasons + '</ul>' : '') + '<table><thead><tr><th scope="col">Family</th><th scope="col">Current inputs</th>' +
     '<th scope="col">Score</th><th scope="col">Voting inputs</th></tr></thead><tbody>' + families + '</tbody></table></div></details>';
 }
@@ -63,6 +65,47 @@ function signalCard(s: Signal, reading: Reading) {
       fields + '</tbody></table>' : '') +
     (series ? '<details class="history"><summary>' + s.series.length + ' dated values · ' + escape(s.unit) + '</summary><pre>' +
       series + '</pre></details>' : '') + '</div></details>';
+}
+
+function editionContext(snapshot: Snapshot) {
+  const blocks: string[] = [];
+  const ranges = snapshot.regularSessionRanges;
+  if (ranges) {
+    const bands = ["Lowest fifth", "Second fifth", "Middle fifth", "Fourth fifth", "Highest fifth"];
+    const items = ranges.rows.map(row => '<li><strong>' + escape(row.fund) + '</strong> · ' + bands[row.closeFifth - 1] +
+      ' on ' + escape(row.session) + ' · verified ' + stamp(row.verifiedAt) + '</li>').join("");
+    blocks.push('<details open><summary><strong>Where each fund closed within its regular-session range</strong></summary>' +
+      '<div class="body"><p>Each fifth spans 20% of the distance from the day’s low to its high. These positions supply daily price context.</p>' +
+      '<ul>' + items + '</ul><p>' + sourceLink(ranges.url, ranges.attribution) + '</p></div></details>');
+  }
+  const options = snapshot.optionActivity;
+  if (options) {
+    const items = options.rows.map(row => '<li><strong>' + escape(row.symbol) + '</strong> · ' + (row.status === "observed"
+      ? row.putPercent + '% puts by traded contract volume' : row.status === "unlisted" ? "No matching listed pair" : "Unavailable") + '</li>').join("");
+    blocks.push('<details><summary><strong>Options volume by fund</strong></summary><div class="body"><p>One matched put and call at the same strike per fund. Session ' +
+      escape(options.session) + ' · Expiry ' + escape(options.expiry) + '.</p><ul>' + items + '</ul><p>' +
+      sourceLink(options.source, "Market History · OPRA volume") + '</p></div></details>');
+  }
+  if (snapshot.holdings?.length) {
+    const items = snapshot.holdings.flatMap(filer => [filer.current, filer.previous].map(filing =>
+      '<li>' + sourceLink(filing.url, filer.name + " · " + filing.period) + ' · ' + escape(filing.rowCount) + ' filing rows · filed ' +
+      escape(filing.filedAt) + '</li>')).join("");
+    blocks.push('<details><summary><strong>Institutional holdings</strong></summary><div class="body"><ul>' + items + '</ul></div></details>');
+  }
+  if (snapshot.catalysts?.length) {
+    const items = snapshot.catalysts.map(event => '<li>' + escape(event.at) + ' · ' + sourceLink(event.url, event.title) +
+      ' · ' + escape(event.source) + '</li>').join("");
+    blocks.push('<details><summary><strong>Release and event calendar</strong><span>' + snapshot.catalysts.length +
+      ' entries</span></summary><div class="body"><ul>' + items + '</ul></div></details>');
+  }
+  const news = snapshot.news;
+  if (news) {
+    const items = news.stories.map(story => '<li>' + sourceLink(story.url, story.title) + ' · ' + escape(story.domain) + '</li>').join("");
+    blocks.push('<details><summary><strong>News coverage</strong><span>' + news.storyCount + ' stories across ' + news.publishers +
+      ' publishers</span></summary><div class="body"><p>Source batch ' + stamp(news.batchAt) + ' · ' + news.rowsScanned +
+      ' records scanned.</p><ul>' + items + '</ul><p>' + sourceLink(news.sourceUrl, "GDELT source batch") + '</p></div></details>');
+  }
+  return blocks.length ? '<section id="context"><h2>Other evidence in this edition</h2>' + blocks.join("") + '</section>' : "";
 }
 
 const styles = `
@@ -95,6 +138,7 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
   const market = views.find(v => v.instrument === "MARKET" && v.horizon === "daily")!;
   const archive = "https://thedailyconsensus.com/consensus/" + encodeURIComponent(edition.id) + ".json";
   const cards = readings.map(r => signalCard(byId.get(r.id)!, r)).join("");
+  const context = editionContext(snapshot);
   const state = new Map(readings.map(r => [r.id, r.status]));
   const providers = sources.map(p => {
     const active = p.signals.filter(id => state.get(id) === "available").length;
@@ -108,9 +152,11 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
     '<h1>' + voteCount(market) + ' of ' + market.families.length + ' families vote on the daily market outlook</h1>' +
     '<p>' + current + ' of ' + readings.length + ' source records were current at the evidence cutoff.</p><p class="muted">Issued ' +
     stamp(edition.issuedAt) + ' · Evidence through ' + stamp(snapshot.cutoff) + '</p><nav aria-label="Report sections"><a href="#views">Forecasts</a>' +
-    '<a href="#providers">Providers</a><a href="#signals">Measurements</a><a href="' + archive + '">Original edition</a></nav></header><main>' +
+    '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
+    '<a href="' + archive + '">Original edition</a></nav></header><main>' +
     '<section id="views"><h2>How the inputs voted</h2><p>Each row shows the current inputs in one family and the values that contributed to its score. A zero score is a neutral vote.</p>' +
-    views.map(view => viewChart(view, byId, view === market)).join("") + '</section><section id="providers"><h2>Sources named in the edition</h2>' +
+    (market.directionalCoverage === undefined ? '' : '<p>For each instrument and horizon the rules average the eligible input scores within each family, then average the voting families using their weights. Observation coverage averages the share of current inputs in each family. The reasons below explain any withheld call.</p>') +
+    views.map(view => viewChart(view, byId, view === market)).join("") + '</section>' + context + '<section id="providers"><h2>Sources named by signal records</h2>' +
     '<p>Status reflects delivery at the issue cutoff. Open a source to trace its inputs.</p><ul class="providers">' + providers +
     '</ul></section><section id="signals"><h2>Measurements and source history</h2>' + cards + '</section></main><footer>' +
     sourceLink(archive, edition.id) + ' · ' + escape(edition.engineVersion) + '</footer></body></html>';
