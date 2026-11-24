@@ -14,6 +14,9 @@ import { digest } from "../lib/consensus/history.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 import type { Snapshot, HistoryEntry, Outcome } from "../lib/consensus/types.ts";
 import { rollbackActiveModel } from "../lib/consensus/model-rollback.ts";
+import { commitEvaluationTransaction } from "../lib/consensus/evaluation-transaction.ts";
+import { outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
+import { outcomeAvailability, PRIVATE_OUTCOME_AVAILABILITY } from "../lib/consensus/outcome-availability.ts";
 
 // Deliberately learnable and noisy synthetic fixtures; none are published as real model evidence.
 const asOf = "2030-01-01T00:00:00.000Z";
@@ -138,6 +141,7 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
   try {
     await cp(new URL("../lib", import.meta.url), join(root, "lib"), { recursive: true });
     await rm(join(root,"lib/consensus/evaluation-state.json"),{force:true}); // Independent synthetic ledgers need their own release manifest.
+    await rm(join(root, "lib/consensus/performance.json"), { force: true });
     await mkdir(join(root, "scripts"));
     await cp(new URL("../scripts/evaluate-consensus.ts", import.meta.url), join(root, "scripts/evaluate-consensus.ts"));
     await writeFile(join(root, "package.json"), '{"type":"module"}\n');
@@ -165,8 +169,14 @@ test("the actual evaluator persists test consumption, keeps incumbent status dis
         source: "https://example.com/synthetic-fixture", adjustment: "total-return-adjusted" });
     }
     await writeFile(join(directory, "index.json"), JSON.stringify(index));
-    await writeFile(join(directory, "outcomes.json"), JSON.stringify(outcomes));
     await writeFile(join(root, "lib/consensus/models.json"), '{"schemaVersion":1,"models":[],"note":"Synthetic test only"}');
+    // Model a series of separately confirmed session closes. The original observation times belong to this synthetic fixture.
+    const knownAt = outcomes.map(row => new Date(Date.parse(row.exitAt) + 3 * 3600_000).toISOString());
+    await commitEvaluationTransaction(root, [
+      { path: PRIVATE_OUTCOME_LEDGER, value: outcomes },
+      { path: PUBLIC_OUTCOME_INDEX, value: outcomeIndex(outcomes) },
+      { path: PRIVATE_OUTCOME_AVAILABILITY, value: outcomeAvailability(outcomes, knownAt) },
+    ]);
     const run = () => promisify(execFile)(process.execPath, ["--experimental-strip-types", "scripts/evaluate-consensus.ts"], { cwd: root });
     const git = (...args: string[]) => promisify(execFile)("git", args, {cwd:root});
     await git("init", "--quiet");

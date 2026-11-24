@@ -1,5 +1,12 @@
 # The Daily Consensus completion plan
 
+### Verified in the November 24 settlement review
+
+- [x] Recover the first verified time of all 370 settled outcomes from the publishing host. The evaluator now uses each outcome's recorded availability for training, validation and test windows. The monthly retail evaluator independently authenticated 210 daily and 160 weekly timestamps. The five daily candidates each had two eligible sessions. The 15 candidates qualified zero models. [Validation procedure](../../CONSENSUS_OPERATIONS.md#promotion-and-rollback)
+- [x] Connect the previous TLT premarket to daily preparation for mornings when the source has delivered before the next open. Both price bases passed all 80 historical checks. The four price fields matched all 56 independently checked equity fund-days and all five independently checked TLT fund-days. The November 23 reading returned `source_delay` on November 24. [Collection and source evidence](../../FREE_FEED_PATH.md#november-24--previous-session-tlt-premarket)
+- [x] Verify a real issuer-collected analyst estimate against original filings for private editorial review. The tool checks two releases in PDF and spreadsheet form and reproduces the comparison from stored originals. The provider's licence limits the use to editorial reporting. [Analyst evidence and scope](../../TMUS_EDITORIAL_SOURCE.md)
+- [ ] Settle the next five funds publicly, qualify the remaining 12 daily directional families, and obtain enough prospective ETF outcomes to evaluate the 15 models. The 51 as-issued archives still contain 765 targets, with five elapsed targets awaiting prices and 390 awaiting their exit.
+
 ### Verified at the November 24, 4:39 a.m. New York issue
 
 - [x] Publish the four November 23 equity premarket readings and their market breadth, four November 23 regular close ranges, and the November 20 TLT range and one- and five-session closing changes. The production site and 18 as-issued consensus views matched the signed edition. [Issued inputs](https://thedailyconsensus.com/consensus/2026-11-24T09-39-37-253Z.json)
