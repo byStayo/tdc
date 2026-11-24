@@ -281,8 +281,8 @@ export async function readApprovedLabels(root: string, requests: Request[], inde
       if (source === FIRST_RATE_SOURCE) prices = (async()=>{
         const path=resolve(root,".consensus/private-firstrate/approved.json");
         const first=await readResearchReceipt<{approval:{approvedAt:string};sha256:string}>(path);
-        if (!first || !isInstant(first.approval.approvedAt) || first.approval.approvedAt>asOf) return [];
-        const rows=await loadFirstRatePrices(root);
+        if (!first || !isInstant(first.approval.approvedAt)) return [];
+        const rows=await loadFirstRatePrices(root,asOf);
         const last=await readResearchReceipt<{sha256:string}>(path);
         if (last?.sha256!==first.sha256) throw Error("FirstRate approval changed during prospective evaluation");
         return rows;

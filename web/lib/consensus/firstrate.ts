@@ -348,7 +348,10 @@ async function readApproval(root: string, holdingControls?: Map<Symbol, ReturnTy
   async function verifyFund(fund: ApprovedSymbol) {
     const asOf = approval.approvedAt;
     const current = firstRateHoldingSource(fund.proof, asOf);
-    const cash = approval.issuers.find(row => row.symbol === fund.symbol)?.cash ?? [];
+    // The earliest premarket-only archives pin the tape without any issuer history.
+    const issuer = approval.issuers?.find(row => row.symbol === fund.symbol);
+    if (current && !issuer) throw new Error("FirstRate independent price control lacks its issuer history");
+    const cash = issuer?.cash ?? [];
     const rows = current && await readFirstRateHoldingSource(root, fund.symbol, current, asOf, cash);
     if (holdingControls) {
       const ranges = current && rows ? [{ provider: current.provider, rows }] : [];
