@@ -127,19 +127,23 @@ export async function loadTltClosingTrend(root: string, cutoff: string) {
   }
 }
 
-/** Replay the approved native window first. The older standalone import remains available on hosts without that evidence. */
-export async function prepareTltClosingTrend(root: string, _recheck = false) {
-  const now = new Date().toISOString(), dir = directory(root);
-  const prior = await loadTltClosingTrend(root, now);
+type Reading = Awaited<ReturnType<typeof loadTltClosingTrend>>;
+function retainedTrend(prior: Reading, status: string) {
   if (prior?.source.approvedAt) return { status: "verified_settlement_closing_trend", through: prior.series[0].date,
     origin: prior.source.url, retrievedAt: prior.source.retrievedAt, approvedAt: prior.source.approvedAt, metrics: prior.metrics.length };
-  const retained = (status: string) => ({ status: status === "reused" && !prior ? "withheld" : status,
-    through: prior?.series[0]?.date ?? null, retrievedAt: prior?.source.retrievedAt ?? null, metrics: prior?.metrics.length ?? 0 });
+  return { status: status === "reused" && !prior ? "withheld" : status, through: prior?.series[0]?.date ?? null,
+    retrievedAt: prior?.source.retrievedAt ?? null, metrics: prior?.metrics.length ?? 0 };
+}
+
+async function prepareIncomingTrend(root: string, now: string, prior: Reading) {
+  const dir = directory(root);
+  const retained = (status: string) => retainedTrend(prior, status);
   const delivery = await readResearchReceipt<DeliveredMarketHistoryHours>(resolve(dir, "incoming-hourly.json"));
   if (!delivery) return retained("waiting_for_free_hourly_access");
   const capture = importMarketHistoryHours(delivery, "TLT", now);
-  const issuer = await loadReviewedTltCash(root, now);
   const url = new URL(capture.source), end = url.searchParams.get("end")!;
+  if (prior?.source.approvedAt && end <= prior.series[0].date) return retained("reused");
+  const issuer = await loadReviewedTltCash(root, now);
   if (!issuer || end > issuer.through) return retained("waiting_for_issuer_history");
   if (end < issuer.through) return retained("waiting_for_free_hourly_access");
   const start = new Date(Date.parse(issuer.through) - 35 * DAY).toISOString().slice(0, 10);
@@ -149,6 +153,7 @@ export async function prepareTltClosingTrend(root: string, _recheck = false) {
     Date.parse(exchangeSession(day)!.closeAt) <= Date.parse(capture.through));
   const through = dates.at(-1);
   if (!through || dates.length < 2) throw new Error("The source has too few completed TLT closing hours");
+  if (prior?.source.approvedAt && through <= prior.series[0].date) return retained("reused");
   const old = await latest(root);
   if (Date.parse(now) - Date.parse(exchangeSession(through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY ||
       (old && (through < old.through || (through === old.through && capture.capturedAt < old.capture.capturedAt))))
@@ -166,9 +171,22 @@ export async function prepareTltClosingTrend(root: string, _recheck = false) {
   const review: Review = { method: METHOD, controlAccess: "kibot-subscriber", checkedAt: new Date().toISOString(), issuer, capture, from, through,
     raw: controlIds(raw), splits: controlIds(splits) };
   const reading = verifiedCloses(review, raw, splits);
+  if (!reading) return retained("withheld");
   const sha256 = digest(review);
   await durableJSON(resolve(dir, sha256 + ".json"), review, true);
   await durableJSON(resolve(dir, "latest.json"), { sha256 });
-  return { status: reading ? "verified_closing_trend" : "withheld", through,
-    metrics: reading?.metrics.map(({ label, value, unit }) => ({ label, value, unit })) ?? [] };
+  return { status: "verified_closing_trend", through, origin: reading.source.url, approvedAt: review.checkedAt,
+    metrics: reading.metrics.map(({ label, value, unit }) => ({ label, value, unit })) };
+}
+
+/** Prefer the verified settlement on ties while allowing a later signed delivery to advance the observation. */
+export async function prepareTltClosingTrend(root: string, _recheck = false) {
+  const now = new Date().toISOString();
+  const prior = await loadTltClosingTrend(root, now);
+  try {
+    return await prepareIncomingTrend(root, now, prior);
+  } catch (error) {
+    if (!prior?.source.approvedAt) throw error;
+    return { ...retainedTrend(prior, "reused"), manualDelivery: "rejected" };
+  }
 }

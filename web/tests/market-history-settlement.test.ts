@@ -11,7 +11,7 @@ import { evaluateOutcome } from "../lib/consensus/evaluation.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { digest } from "../lib/consensus/history.ts";
 import { nasdaqDaily } from "../lib/consensus/kibot-session-witnesses.ts";
-import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { KIBOT_PRICE_CITATION, kibotHistorySource, parseKibotDaily } from "../lib/consensus/kibot.ts";
 import { tltHourSource } from "../lib/consensus/market-history-hourly-access.ts";
 import { contiguousTltWindows } from "../lib/consensus/market-history-boundaries.ts";
 import { MARKET_HISTORY_SOURCE, recordTltSettlement, tltSettlementPriceEvidence, type TltSettlementReview } from "../lib/consensus/market-history-settlement.ts";
@@ -183,4 +183,54 @@ test("November's unproven early-close auction withholds the short day and crossi
   assert.equal(hasOutcome("2026-11-23", "weekly"), false);
   const afterExDate = contiguousTltWindows(rows, [{ session: "2026-11-30", amount: 0.5 }]);
   assert.equal(afterExDate[1][0].day, "2026-12-01");
+});
+
+test("a newer signed and independently controlled manual delivery advances an unexpired native trend; the native source wins a date tie", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-manual-successor-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const now = "2026-11-20T12:00:00.000Z", fetched = "2026-11-20T07:00:00.000Z", approved = "2026-11-20T08:00:00.000Z";
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(now) });
+  const network = t.mock.method(globalThis, "fetch", () => { throw new Error("Unexpected network"); });
+  const from = "2026-10-15", through = "2026-11-19", dates = exchangeSessions(from, through);
+  const { dir, review } = await fixture(root, dates, fetched);
+  const previous = { ...review, windowFrom: "2026-11-16", windowThrough: "2026-11-18",
+    controls: review.controls.filter(row => row.session >= "2026-11-16" && row.session <= "2026-11-18") };
+  await sealHistorical(dir, previous, approved);
+  const initial = await loadTltClosingTrend(root, now);
+  assert.equal(initial?.source.approvedAt, approved);
+
+  const standalone = join(root, ".consensus/private-market-history/tlt-closing-trend");
+  const delivery = JSON.parse(await readFile(join(dir, review.closing + ".json"), "utf8"));
+  await durableJSON(join(standalone, "incoming-hourly.json"), delivery);
+  const issuers = Object.entries(ETF_CASH_SOURCES).map(([symbol, source]) => ({ symbol, source, sha256: "b".repeat(64),
+    capturedAt: fetched, cash: symbol === "TLT" ? [{ session: "2026-11-02", amount: 0.343177 }] : [] }));
+  const approval = { schemaVersion: 1, through, issuers, approvedAt: approved };
+  await durableJSON(join(root, ".consensus/private-firstrate/approved.json"), { approval, sha256: digest(approval) });
+  // A newer candidate without its subscriber proof cannot replace the existing native market observation.
+  assert.equal((await prepareTltClosingTrend(root)).through, previous.windowThrough);
+  await assert.rejects(access(join(standalone, "latest.json")));
+
+  const originals = await Promise.all(dates.map(day => readFile(join(root, ".consensus/private-kibot/sources", day, "TLT-kibot.json"), "utf8")));
+  const csv = originals.map(text => JSON.parse(text).csv.trim()).join("\n");
+  const sessions = parseKibotDaily(csv, dates, exchangeSession);
+  const login = "200 OK\nAuthorizations\n=====================\nAll Stocks,1/1/1998,1\n";
+  for (const basis of ["raw", "splits"] as const) {
+    await durableJSON(join(standalone, `subscriber-TLT-2026-${from}-${through}-${basis}.json`), {
+      instrument: "TLT", from, through, sessions, sha256: sha(csv), priceDigest: digest(sessions),
+      paid: { basis, csv, source: kibotHistorySource("TLT", from, through, basis), capturedAt: fetched,
+        authorization: { source: "https://api.kibot.com/?action=login", capturedAt: fetched, body: login, sha256: sha(login) } }
+    });
+  }
+  const advanced = await prepareTltClosingTrend(root);
+  assert.equal(advanced.status, "verified_closing_trend");
+  assert.equal(advanced.through, through);
+  const selected = await loadTltClosingTrend(root, now);
+  assert.equal(selected?.series[0].date, through);
+  assert.equal(selected?.source.url, "https://getmarkethistory.com/docs/bars/");
+
+  const throughDate = { ...review, windowFrom: "2026-11-16", controls: review.controls.filter(row => row.session >= "2026-11-16") };
+  await sealHistorical(dir, throughDate, approved);
+  assert.equal((await prepareTltClosingTrend(root)).status, "verified_settlement_closing_trend");
+  assert.equal((await loadTltClosingTrend(root, now))?.source.url, MARKET_HISTORY_SOURCE);
+  assert.equal(network.mock.callCount(), 0);
 });
