@@ -35,3 +35,9 @@ python3 -B scripts/diagnose-sec-etfiq-discrepancies.py --collect
 python3 -B scripts/diagnose-sec-etfiq-discrepancies.py --replay
 python3 -B -m unittest discover -s tests -p test_sec_etfiq_discrepancies.py
 ```
+
+### Checking the TLT difference against both sides of the filing
+
+From `web`, run `python3 -B scripts/diagnose-tlt-flow-accounting.py` to replay the frozen 64 daily observations, each monthly sales and redemption amount, and the independent shareholder-report receipt. The SEC data dictionary places the three monthly slots in chronological order. The command checks that ordering directly against the fiscal quarter. [SEC N-PORT data dictionary](https://www.sec.gov/files/nport_readme.pdf) · [TLT filing](https://www.sec.gov/Archives/edgar/data/1100663/000207169126024225/0002071691-26-024225-index.htm)
+
+Adding offsetting purchases and redemptions within a day increases both gross totals equally when their share quantities, dates and valuation basis agree. The ETFIQ daily net exceeded the issuer’s June net by $371,261.84. Even allowing $1 of reporting error on each of 21 days, at least $371,240.84 of June’s difference requires something beyond a nonnegative charge added only to issuer sales. The original quarter difference remains −$882,698.38. Identifying its cause requires the dated share counts, full-precision valuation basis or order accounting for those same months. [ETFIQ TLT flows](https://etfiq.com/funds/tlt) · [Form N-PORT Item B.6](https://www.sec.gov/about/forms/formn-port.pdf#page=9)
