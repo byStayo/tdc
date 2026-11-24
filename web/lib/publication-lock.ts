@@ -61,9 +61,10 @@ with os.fdopen(fd, 'r+') as lock:
     save()
 `;
 
-export async function acquirePublicationLock(root: string, kind: string): Promise<() => Promise<void>> {
+export async function acquirePublicationLock(root: string, kind: string,
+  lockFile: "publish.lock" | "following-digest.lock" = "publish.lock"): Promise<() => Promise<void>> {
   await mkdir(resolve(root, ".editorial"), { recursive: true, mode: 0o700 });
-  const child = spawn("python3", ["-u", "-c", HOLDER, resolve(root, ".editorial/publish.lock"), kind, String(process.pid), randomUUID()], {
+  const child = spawn("python3", ["-u", "-c", HOLDER, resolve(root, ".editorial", lockFile), kind, String(process.pid), randomUUID()], {
     stdio: ["pipe", "pipe", "pipe"],
   });
   let errors = "", output = "", released = false, acquired = false;

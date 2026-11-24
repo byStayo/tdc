@@ -1,6 +1,6 @@
-import { createHmac, randomBytes, randomUUID } from "node:crypto";
+import { createHmac, randomBytes } from "node:crypto";
 import { constants } from "node:fs";
-import { mkdir, open, rename, unlink, writeFile } from "node:fs/promises";
+import { open } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marketInstruments, marketStances, MINIMUM_PARTICIPANTS, X_STANCE_METHOD, xStanceAnalysis,
@@ -10,6 +10,8 @@ import { sourceChunk, sourceResponse } from "../lib/consensus/source-failure.ts"
 import { INSTRUMENTS, type Instrument } from "../lib/consensus/types.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import { X_POST_FIELDS, X_POST_TEXT_METHOD, xPostText } from "../lib/consensus/x-post-text.ts";
+import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
+import { durableJSON } from "../lib/publication-storage.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const directory = resolve(root, ".editorial");
@@ -37,30 +39,35 @@ function object(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-export async function localConfig() {
+async function privateText(path: string, byteLimit: number) {
   let file;
   try {
-    file = await open(resolve(directory, "following-config.json"), constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }
   try {
     const stat = await file.stat();
-    if (!stat.isFile() || stat.uid !== process.getuid?.() || (stat.mode & 0o777) !== 0o600 || stat.size > 8192)
-      throw new Error("Following config must be an owner-only 0600 file under .editorial");
-    const buffer = Buffer.alloc(8193);
+    if (!stat.isFile() || stat.nlink !== 1 || stat.uid !== process.getuid?.() || (stat.mode & 0o777) !== 0o600 || stat.size > byteLimit)
+      throw new Error("Expected a bounded owner-only following feed file");
+    const buffer = Buffer.alloc(byteLimit + 1);
     let length = 0;
     while (length < buffer.length) {
       const { bytesRead } = await file.read(buffer, length, buffer.length - length);
       if (!bytesRead) break;
       length += bytesRead;
     }
-    if (length > 8192) throw new Error("Following config exceeds 8 KiB");
-    return object(JSON.parse(buffer.subarray(0, length).toString("utf8")));
+    if (length > byteLimit) throw new Error("Following feed file exceeds its size limit");
+    return buffer.subarray(0, length).toString("utf8");
   } finally {
     await file.close();
   }
+}
+
+export async function localConfig() {
+  const text = await privateText(resolve(directory, "following-config.json"), 8192);
+  return text === null ? {} : object(JSON.parse(text));
 }
 
 export async function fetchText(url: URL, headers: Record<string, string> = {}) {
@@ -280,51 +287,98 @@ async function platform<T extends { status: string }>(input: unknown, collect: (
   }
 }
 
-async function main() {
-  const cutoff = new Date(Date.now() - 15_000).toISOString();
-  const config = await localConfig();
-  await mkdir(directory, { recursive: true, mode: 0o700 });
-  const output = resolve(directory, "following-digest.json");
+type TimedX = Record<string, unknown> & { status: string; cutoff?: string; expiresAt?: string };
+
+function reusableX(text: string | null, cutoff: string, sameDay: boolean): TimedX | null {
+  if (text === null) return null;
+  let prior: Record<string, unknown>;
+  // A damaged digest cannot supply a reading. The separate reservation still prevents another X request.
+  try { prior = object(JSON.parse(text)); } catch { return null; }
+  if (prior.schemaVersion !== 1 || !prior.x || typeof prior.x !== "object" || Array.isArray(prior.x)) return null;
+  const x = prior.x as TimedX;
+  if (!["ok", "partial", "unavailable"].includes(x.status)) return null;
+  // Legacy reports stored the X capture clock only on the containing digest.
+  const observed = x.cutoff ?? prior.cutoff;
+  const expires = x.expiresAt ?? prior.expiresAt;
+  if (typeof observed !== "string" || typeof expires !== "string") return null;
+  const at = Date.parse(observed), end = Date.parse(expires), now = Date.parse(cutoff);
+  if (!Number.isFinite(at) || !Number.isFinite(end) || new Date(at).toISOString() !== observed ||
+      new Date(end).toISOString() !== expires || at > now || end <= now || end !== at + dayMs ||
+      (sameDay && newYorkDate(observed) !== newYorkDate(cutoff))) return null;
+  return { ...x, cutoff: observed, expiresAt: expires };
+}
+
+async function dailyX(folder: string, config: Record<string, unknown>, cutoff: string, freeOnly: boolean): Promise<TimedX> {
   const publicSearch = config.xPublic !== undefined;
-  const xInput = publicSearch ? config.xPublic : config.x;
-  if (xInput !== undefined) {
-    // Reserve one bounded run per local calendar day, even across process restarts.
-    const day = newYorkDate(cutoff);
+  const input = publicSearch ? config.xPublic : config.x;
+  if (input === undefined) return { status: "not_configured" };
+  if (!freeOnly) {
+    // Claim the paid read before contacting X, including when the process crashes.
+    const reservation = resolve(folder, "following-x-attempt-" + newYorkDate(cutoff));
+    let acquired = false;
     try {
-      await writeFile(resolve(directory, "following-x-attempt-" + day), cutoff + "\n", { flag: "wx", mode: 0o600 });
+      await durableJSON(reservation, { cutoff }, true);
+      acquired = true;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-      console.log(JSON.stringify({ x: "already_attempted", day, previousDigest: output }));
-      return;
+    }
+    if (acquired) {
+      const reading = publicSearch ? await platform(input, collectXPublic, cutoff) : await platform(input, collectX, cutoff);
+      return { ...reading, cutoff, expiresAt: new Date(Date.parse(cutoff) + dayMs).toISOString() };
     }
   }
-  const [x, instagram, newsletters] = await Promise.all([
-    publicSearch ? platform(xInput, collectXPublic, cutoff) : platform(xInput, collectX, cutoff),
-    platform(config.instagram, collectInstagram, cutoff),
-    Promise.all(starterFeeds.map(async ([name, host]) => {
-      const url = new URL("https://" + host + "/feed");
-      try {
-        const xml = await fetchText(url);
-        if (!/<rss\b/i.test(xml) || !/<channel\b/i.test(xml)) throw new Error("Expected RSS");
-        const entries = rssItems(xml, name, host, cutoff)
-          .filter(item => Date.parse(item.at) > Date.parse(cutoff) - 4 * dayMs)
-          .map(({ title, url, at }) => ({ title, url, at }));
-        return { name, feed: url.href, status: "ok", entries };
-      } catch { return { name, feed: url.href, status: "unavailable", entries: [] }; }
-    })),
-  ]);
-  const report = { schemaVersion: 1, cutoff, expiresAt: new Date(Date.parse(cutoff) + dayMs).toISOString(),
-    purpose: "Private editorial leads and social interpretation diagnostics. Check primary evidence before publication.",
-    x, instagram, newsletters };
-  const temporary = resolve(directory, ".following-" + randomUUID() + ".tmp");
+  const prior = await privateText(resolve(folder, "following-digest.json"), 512_000);
+  return reusableX(prior, cutoff, !freeOnly) ?? { status: freeOnly ? "skipped_free_only" : "already_attempted" };
+}
+
+async function collectNewsletters(cutoff: string) {
+  return Promise.all(starterFeeds.map(async ([name, host]) => {
+    const url = new URL("https://" + host + "/feed");
+    try {
+      const xml = await fetchText(url);
+      if (!/<rss\b/i.test(xml) || !/<channel\b/i.test(xml)) throw new Error("Expected RSS");
+      const entries = rssItems(xml, name, host, cutoff)
+        .filter(item => Date.parse(item.at) > Date.parse(cutoff) - 4 * dayMs)
+        .map(({ title, url, at }) => ({ title, url, at }));
+      return { name, feed: url.href, status: "ok", entries };
+    } catch { return { name, feed: url.href, status: "unavailable", entries: [] }; }
+  }));
+}
+
+export async function collectFollowingDigest(project: string, config: Record<string, unknown>, freeOnly = false,
+  cutoff = new Date(Date.now() - 15_000).toISOString()) {
+  const folder = resolve(project, ".editorial");
+  const output = resolve(folder, "following-digest.json");
+  const release = await acquirePublicationLock(project, "following-digest", "following-digest.lock");
+  let failure: { error: unknown } | undefined;
   try {
-    await writeFile(temporary, JSON.stringify(report, null, 2) + "\n", { flag: "wx", mode: 0o600 });
-    await rename(temporary, output);
+    const [x, instagram, newsletters] = await Promise.all([
+      dailyX(folder, config, cutoff, freeOnly),
+      platform(config.instagram, collectInstagram, cutoff),
+      collectNewsletters(cutoff),
+    ]);
+    const freshExpiry = new Date(Date.parse(cutoff) + dayMs).toISOString();
+    // Anyone reading the whole digest must stop using it when its oldest included read expires.
+    const expiresAt = x.expiresAt && x.expiresAt < freshExpiry ? x.expiresAt : freshExpiry;
+    const report = { schemaVersion: 1, cutoff, expiresAt,
+      purpose: "Private editorial leads and social interpretation diagnostics. Check primary evidence before publication.",
+      x, instagram, newsletters };
+    await durableJSON(output, report);
+    return { followingDigest: output, x: x.status, xCutoff: x.cutoff ?? null, instagram: instagram.status,
+      newsletters: newsletters.map(feed => ({ name: feed.name, status: feed.status, items: feed.entries.length })) };
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
-    await unlink(temporary).catch(() => undefined);
+    await finishPublicationLock(release, failure);
   }
-  console.log(JSON.stringify({ followingDigest: output, x: x.status, instagram: instagram.status,
-    newsletters: newsletters.map(feed => ({ name: feed.name, status: feed.status, items: feed.entries.length })) }));
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  if (new Set(args).size !== args.length || args.some(arg => arg !== "--scheduled" && arg !== "--free-only"))
+    throw new Error("Use --scheduled or --free-only when collecting the following digest");
+  console.log(JSON.stringify(await collectFollowingDigest(root, await localConfig(), args.includes("--free-only"))));
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
