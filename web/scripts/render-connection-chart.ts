@@ -68,6 +68,7 @@ function signalCard(s: Signal, reading: Reading) {
   return '<details id="' + fragment(s.id) + '"><summary><strong>' + escape(s.title) + '</strong><span>' +
     statusLabel[reading.status] + '</span></summary><div class="body"><p>' + source + ' · ' + s.instruments.map(label).join(", ") +
     '</p><p>' + escape(s.summary) + '</p><p class="muted">Observed ' + observed + release + '</p>' +
+    (s.source.attribution ? '<p>' + escape(s.source.attribution) + '</p>' : '') +
     peerReading + (s.limitation ? '<p>' + escape(s.limitation) + '</p>' : '') +
     (fields ? '<table><thead><tr><th scope="col">Measurement</th><th scope="col">Value</th><th scope="col">Observation</th></tr></thead><tbody>' +
       fields + '</tbody></table>' : '') +
@@ -153,7 +154,7 @@ function currentProduct(product: Product, snapshot: Snapshot, readings: Reading[
   const options = snapshot.optionActivity?.rows ?? [];
   const features = [
     ["Weekday publication", "Latest archived issue " + snapshot.issuedAt + ". The public health endpoint reports delivery."],
-    ["Market and ETF reports", new Set(views.map(v => v.instrument)).size + " instrument views, including the market and five ETFs."],
+    ["Market and ETF reports", product.editorial.current + " of " + product.editorial.checked + " published briefs were current at evaluation."],
     ["Consensus", views.length + " fund and horizon combinations. " + voteCount(market) + " families voted on the market daily view."],
     ["Evidence panels", sources.length + " named source labels, " + readings.length + " signal records and " + product.measurements + " measurements."],
     ["News and catalysts", (news ? news.storyCount + " stories from " + news.publishers + " publishers" : "No news batch") + " and " + snapshot.catalysts.length + " calendar entries."],
@@ -165,7 +166,7 @@ function currentProduct(product: Product, snapshot: Snapshot, readings: Reading[
     ["ETF price and dividend checks", "Two historical price series and issuer distributions checked for all five funds. The table below shows the separate prospective gaps."],
     ["Prospective model validation", product.activeModels + " active models across " + product.candidates + " candidates. " + product.calls + " calls and " + product.abstentions + " abstentions in the selected outcomes."],
     ["Issuer releases", active.filter(r => r.id.startsWith("sec-issuer-guidance-")).length + " current SEC issuer guidance readings."],
-    ["Editorial collection", snapshot.sourcesAttempted + " source attempts in this issue, with " + snapshot.collectionErrors.length + " reported collection errors."],
+    ["Editorial collection", product.editorial.citedSources + " distinct source URLs cited across the published market and fund briefs."],
     ["Listed options volume", options.filter(r => r.status === "observed").length + " of " + options.length + " tracked options rows supplied observed contract volume."],
   ];
   const grid = features.map(([name, result]) => '<tr><th scope="row">' + escape(name) + '</th><td data-label="Status">' +
@@ -218,5 +219,6 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
     views.map(view => viewChart(view, byId, view === market)).join("") + '</section>' + context + '<section id="providers"><h2>Sources named by signal records</h2>' +
     '<p>Status reflects delivery at the issue cutoff. Open a source to trace its inputs.</p><ul class="providers">' + providers +
     '</ul></section><section id="signals"><h2>Measurements and source history</h2>' + cards + '</section></main><footer>' +
-    sourceLink(archive, edition.id) + ' · ' + escape(edition.engineVersion) + '</footer></body></html>';
+    sourceLink(archive, edition.id) + ' · ' + escape(edition.engineVersion) + ' · ' +
+    sourceLink("https://thedailyconsensus.com/consensus/ATTRIBUTION.txt", "Source credits and licences") + '</footer></body></html>';
 }

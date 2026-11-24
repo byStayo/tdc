@@ -4,6 +4,8 @@
 
 - [x] Test regular opens, closes and issuer distributions for SPY, QQQ, IWM, DIA and TLT across a complete distribution month before launch. Independently reproduce 115 daily sessions, 95 five-session windows, 15 monthly windows and six issuer events using the original bytes of both feeds. [Operating procedure](../../CONSENSUS_OPERATIONS.md#historical-price-check-across-a-quarterly-distribution-cycle)
 - [x] Correct interpretation of encoded X index names and quoted forecasts in both the daily digest and the independent annotation workflow. Preserve earlier classifier results and duplicates by author and statement. [Social benchmark](../../BLUESKY_SAMPLE.md)
+- [x] Register a prospective TLT comparison using changes in the original New York Fed dealer balance sheets for two adjacent maturity groups. The host registered at 17:20:48 UTC. Only later eligible releases can enter the comparison. [Institutional study](../../PROSPECTIVE_FAMILY_COVERAGE.md#treasury-dealer-study)
+- [x] Check Texas Instruments' reported diluted EPS and its original management range. Thirty-nine quarters matched their original statutory filings and 29 had a quantified adjustment. All 39 target dates had already been used in the QQQ revenue study. The publisher recorded the fourth-quarter ranges before quarter-end. [Original evidence and replay](../../TXN_EPS_QUALIFICATION.md)
 - [ ] Settle the five November 23 targets with approved production evidence. The historical price comparison does not supply these five opens and closes.
 
 ### November 24 free-source settlement

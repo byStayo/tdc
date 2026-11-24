@@ -44,6 +44,8 @@ test("the current inventory accounts for elapsed and future outcomes and include
   assert.equal(product.selected, product.calls + product.abstentions);
   assert.equal(product.price.funds.length, 5);
   assert.ok(product.forwardFamilies.includes("institutions"));
+  assert.equal(product.editorial.checked, 6);
+  assert.ok(product.editorial.citedSources > 0);
   assert.ok(product.measurements > result.signals.length);
 });
 
@@ -60,7 +62,7 @@ test("the offline chart keeps original values, source clocks and the archived ho
   const edition = { id: "2026-11-24T05-42-23-689Z", issuedAt: "2026-11-24T05:42:23.689Z",
     engineVersion: "fixture", sha256: "a".repeat(64) } satisfies HistoryEntry;
   const signal = { id: "one", title: "Supply <checked>", summary: "Bonds & funds", instruments: ["MARKET"], unit: "%",
-    source: { url: "https://example.org/series", observedAt: "2026-11-20", releasedAt: "2026-11-23" },
+    source: { url: "https://example.org/series", observedAt: "2026-11-20", releasedAt: "2026-11-23", attribution: "Original <credited> source" },
     limitation: "", metrics: [{ label: "Rate", value: 4.25, unit: "%", date: "2026-11-20" }],
     series: [{ date: "2026-11-19", value: 4.1 }] };
   const snapshot = { cutoff: edition.issuedAt, signals: [signal] } as Snapshot;
@@ -72,6 +74,7 @@ test("the offline chart keeps original values, source clocks and the archived ho
     [{ label: "Example", signals: ["one"] }], [view]);
   assert.match(html, /1 of 1 families vote/);
   assert.match(html, /Supply &lt;checked&gt;/);
+  assert.match(html, /Original &lt;credited&gt; source/);
   assert.match(html, /Bonds &amp; funds/);
   assert.match(html, /href="#signal-one"/);
   assert.match(html, /Observed 2026-11-20 · Released 2026-11-23/);
