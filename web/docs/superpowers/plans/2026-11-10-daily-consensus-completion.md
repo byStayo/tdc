@@ -4,6 +4,8 @@
 - [x] Test the prior calendar-day SPY range position after its actual data delay on 139 historical observations. The 28-date held-out result missed the incremental Brier margin and had the opposite coefficient from the registered direction. [Reproducible test](../../../scripts/research-spy-close-location.ts)
 - [x] Capture the New York Fed’s future policy-rate distribution from both native originals and retain the observed first-public capture time. The current distribution is event context. Historical ETF direction and the separate traded-contract input remain open. [Original release](https://www.newyorkfed.org/medialibrary/media/markets/survey/2026/oct-2026-sme-results.pdf)
 
+- [x] Reconcile prelaunch Treasury volatility inputs against 374 timestamped source receipts. The original-only comparison has 66 dates and the registered mirror comparison has 115. Both require 120 before looking at SPY outcomes. Five additional independently dated targets would qualify the mirror comparison for a directional test. [Source qualification](../../FREE_FEED_PATH.md#november-23-historical-treasury-volatility-evidence)
+
 > **For agentic workers:** Use superpowers:executing-plans to implement this plan task by task. Check an item only after its acceptance evidence is recorded.
 
 **Goal:** Finish the live morning product with free sources where they meet the contract and owner-activated paid data where needed, with all fifteen required families represented by eligible directional evidence and a prospectively validated model for each supported instrument and horizon.
