@@ -21,6 +21,12 @@ const canonical = (value: string) => typeof value === "string" && Number.isFinit
 const hashPattern = /^[0-9a-f]{64}$/;
 const categoryFor = (fund: Fund): Category => fund === "TLT" ? "Bonds" : "Stocks";
 const historyURL = (fund: Fund) => "https://etfiq.com/data/flows/funds/" + fund.toLowerCase() + ".json";
+const issuers: Record<Fund, [issuer: string, series: string | null]> = {
+  SPY: ["State Street", null], QQQ: ["Invesco", "S000101292"], IWM: ["iShares", "S000004344"],
+  DIA: ["State Street", null], TLT: ["iShares", "S000004360"],
+};
+const dailyKeys = new Set(["d", "flow", "navDate", "src", "house", "status", "held", "spans", "spansSessions",
+  "spanDays", "why", "heartbeat", "split"]);
 const directory = (root: string, sha: string) => join(root, ".consensus/private-etfiq-flow-peers/v1", sha);
 function checkedPath(root: string, sha: string) {
   if (!hashPattern.test(sha)) throw Error("Invalid ETFIQ aggregate hash");
@@ -49,7 +55,9 @@ function project(asOf: string, sha256: string, rows: VerifiedRow[]): Basket {
 function matchHistory(doc: PublicDocument, asOf: string, row: Amount, license: string) {
   if (Buffer.byteLength(doc.text) > 700_000) throw Error("Oversized ETFIQ fund history");
   const body = JSON.parse(doc.text);
+  const [issuer, series] = issuers[row.fund];
   if (body?.schemaVersion !== 3 || body.ticker !== row.fund || body.category !== row.category ||
+    body.issuer !== issuer || body.seriesId !== series || body.coverage !== "daily" ||
     body.asOf !== asOf || body.cite?.publisher !== "ETFIQ" || body.cite.class !== "ETFIQ-computed" ||
     body.cite.license !== license || body.cite.as_of !== asOf ||
     body.cite.page !== "https://etfiq.com/funds/" + row.fund.toLowerCase() ||
@@ -57,8 +65,11 @@ function matchHistory(doc: PublicDocument, asOf: string, row: Amount, license: s
     throw Error("ETFIQ fund history has a different identity, licence or vintage");
   const matches = body.daily.filter((day: { d?: unknown } | null) => day?.d === asOf);
   const day = matches[0];
-  if (matches.length !== 1 || day.flow !== row.usd || day.navDate !== row.navDate ||
-    day.held || day.spans || day.spansSessions || (day.status !== undefined && day.status !== "ok"))
+  if (matches.length !== 1 || day.flow !== row.usd || day.navDate !== row.navDate || day.house !== issuer ||
+    body.daily.filter((item: {navDate?: unknown} | null) => item?.navDate === row.navDate).length !== 1 ||
+    !["history", "capture"].includes(day.src) || Object.keys(day).some(key => !dailyKeys.has(key)) ||
+    day.held || day.spans || day.spansSessions || (day.spanDays !== undefined && day.spanDays !== 1) ||
+    (day.why != null && day.why !== "") || (day.status !== undefined && day.status !== "ok"))
     throw Error("ETFIQ fund history disagrees with its single-session aggregate");
   return { fund: row.fund, asOf, navDate: day.navDate as string, usd: day.flow as number, sha256: doc.sha256 };
 }

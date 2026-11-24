@@ -25,14 +25,17 @@ function aggregate() {
     { ...sample.funds[3], category: "Stocks" }];
   return { ...sample, funds, total: { funds: 7, flowUsd: 150_000_000, roundTripUsd: 0, heldFunds: 1 } };
 }
-function reader(problem?: "date" | "mismatch" | "duplicate" | "licence", clock = at) {
+function reader(problem?: "date" | "mismatch" | "duplicate" | "licence" | "span" | "reason" | "issuer" | "unknown", clock = at) {
   return async (url: string) => {
     const input = aggregate(), fund = url.includes("qqq.json") ? "QQQ" : "TLT";
     const broken = fund === "QQQ" ? problem : undefined;
     const row = input.funds.find(f => f.ticker === fund)!;
-    const day = { d: input.asOf, navDate: "2026-11-05", flow: broken === "mismatch" ? 0 : row.flowUsd };
+    const issuer = fund === "QQQ" ? "Invesco" : "iShares";
+    const day = { d: input.asOf, navDate: "2026-11-05", flow: broken === "mismatch" ? 0 : row.flowUsd, src: "history", house: issuer,
+      ...(broken === "span" && {spanDays: 2}), ...(broken === "reason" && {why: "count not read"}), ...(broken === "unknown" && {excluded: true}) };
     const text = JSON.stringify(url === ETF_FLOW_URL ? input : {
       schemaVersion: 3, asOf: broken === "date" ? "2026-11-05" : input.asOf, ticker: fund, category: row.category,
+      issuer: broken === "issuer" ? "Unrelated issuer" : issuer, coverage: "daily", seriesId: fund === "QQQ" ? "S000101292" : "S000004360",
       cite: { ...input.cite, page: row.page, license: broken === "licence" ? "unknown" : ETF_FLOW_LICENSE },
       daily: broken === "duplicate" ? [day, day] : [day], netAssets: { excludedFromEvidence: 98765432 },
     });
@@ -71,7 +74,7 @@ test("two native files fix the signed peer group, null/zero handling, first cloc
 test("an inconsistent history withholds that comparison and preserves independent fund checks and original public context", async () => {
   const root = await mkdtemp(join(tmpdir(), "tdc-flow-bad-"));
   try {
-    for (const invalid of ["date", "mismatch", "duplicate", "licence"] as const) {
+    for (const invalid of ["date", "mismatch", "duplicate", "licence", "span", "reason", "issuer", "unknown"] as const) {
       const rows = await collectEtfFlows(reader(invalid), () => at, root);
       const qqq = rows.find(s => s.id === "etfiq-flow-QQQ")!;
       assert.equal(qqq.etfFlowPeers, undefined); assert.equal(qqq.series[0].value, 100_000_000);
