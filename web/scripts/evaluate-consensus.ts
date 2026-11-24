@@ -10,7 +10,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { commitEvaluationTransaction, recoverEvaluationTransaction, type EvaluationWrite } from "../lib/consensus/evaluation-transaction.ts";
 import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { assertCommittedReservations, prospectiveAttemptBudget } from "../lib/consensus/learning-audit.ts";
-import { digest, validateSnapshot } from "../lib/consensus/history.ts";
+import { digest, indexedPublications } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
 import { loadOutcomeAvailability, observationCutoff, outcomeAvailability, outcomeClockMap, PRIVATE_OUTCOME_AVAILABILITY } from "../lib/consensus/outcome-availability.ts";
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
@@ -18,7 +18,7 @@ import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { auditProspectiveRetailOutcomes } from "../lib/consensus/prospective-retail-outcomes.ts";
 import { RETAIL_REGISTRATION } from "../lib/consensus/prospective-retail.ts";
-import { publisherSecondaryStudies } from "../lib/consensus/secondary-studies.ts";
+import { nativeStudyIntake, publisherSecondaryStudies } from "../lib/consensus/secondary-studies.ts";
 import { FAMILY_FEATURE_REGISTRATION } from "../lib/consensus/prospective-family-features.ts";
 import { auditProspectiveFamilyOutcomes } from "../lib/consensus/prospective-family-outcomes.ts";
 import { MARKETPARQUET_SOURCE } from "../lib/consensus/marketparquet.ts";
@@ -34,11 +34,7 @@ import { readReservations, reserveEvaluation, promotionEvidence, LEARNING_POLICY
 import type { ActiveModel } from "../lib/consensus/model.ts";
 import { ENGINE_VERSION } from "../lib/consensus/registry.ts";
 import { HORIZONS, INSTRUMENTS } from "../lib/consensus/types.ts";
-import type {
-  HistoryEntry,
-  Outcome,
-  Snapshot,
-} from "../lib/consensus/types.ts";
+import type { Outcome } from "../lib/consensus/types.ts";
 import type { PerformanceReport } from "../lib/consensus/performance-types.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
@@ -87,20 +83,7 @@ try {
       throw Error("A Kibot primary outcome requires its original local subscriber approval");
     const primary = new Map(subscriber.map(prices => [prices.instrument + ":" + prices.sessions[0].session, prices]));
     await assertCommittedReservations(root);
-    const index: HistoryEntry[] = JSON.parse(
-      await readFile(resolve(dir, "index.json"), "utf8"),
-    );
-    const snapshots = await Promise.all(
-      index.map(async (entry) => {
-        const snapshot: Snapshot = JSON.parse(
-          await readFile(resolve(dir, `${entry.id}.json`), "utf8"),
-        );
-        validateSnapshot(snapshot, "archive");
-        if (digest(snapshot) !== entry.sha256)
-          throw new Error("Snapshot integrity failed");
-        return snapshot;
-      }),
-    );
+    const { history, snapshots } = await indexedPublications(root, true);
     const writes: EvaluationWrite[] = [];
     const pending: NonNullable<PerformanceReport["pending"]> = [];
     for (const snapshot of snapshots)
@@ -348,18 +331,9 @@ try {
       { path: "lib/consensus/models.json", value: registry },
       { path: "lib/consensus/performance.json", value: report },
     );
-    await commitEvaluationTransaction(root, writes, undefined, args.length ? undefined : async transaction => {
-      // Only newly verified native settlements enter the secondary lane. Closures skip even the direction of unregistered targets.
-      const fresh = outcomes.slice(previouslySettled).map(row => ({
-        snapshotId: row.snapshotId, instrument: row.instrument, horizon: row.horizon, source: row.source,
-        issuedAt: row.issuedAt, entryAt: row.entryAt, exitAt: row.exitAt, adjustment: row.adjustment, calendarVersion: row.calendarVersion,
-        direction: (): 0 | 1 => row.returnPct > 0 ? 1 : 0,
-      }));
-      for (const {name, study} of publisherSecondaryStudies) {
-        try { await study.stage(root, transaction, fresh, snapshots, reservations); }
-        catch (error) { console.error("Private secondary settlement failed for", name, error instanceof Error ? error.message : String(error)); }
-      }
-    });
+    const intake = !args.length && outcomes.length > previouslySettled
+      ? { nativeStudyIntake: nativeStudyIntake(previouslySettled, history, reservations) } : undefined;
+    await commitEvaluationTransaction(root, writes, intake);
     console.log(
       JSON.stringify({
         status: report.status,

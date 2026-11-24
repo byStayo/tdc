@@ -407,6 +407,14 @@ export function createSecondaryStudy(options: Options) {
           throw Error("The original secondary study feature differs");
         const eventSha = digest(e),
           dir = pathFor(root, fund);
+        const admissionFile = join(dir, "admissions", e.edition + ".json");
+        const admitted = await read<Admission>(admissionFile);
+        if (admitted) {
+          if (admitted.eventSha !== eventSha || admitted.transaction !== transaction || admitted.source !== row.source ||
+            !canonical(admitted.acceptedAt) || admitted.acceptedAt <= c.closeAt || admitted.acceptedAt > wall() ||
+            !checkedHash(admitted.labelCommitment)) throw Error("Conflicting secondary study admission");
+          continue;
+        }
         await durableJSON(join(root, advanceMarker), { transaction });
         const up = row.direction();
         if (up !== 0 && up !== 1) throw Error("Invalid direction from the normal core settlement");
@@ -421,7 +429,7 @@ export function createSecondaryStudy(options: Options) {
         // The outcome is first knowable here, after its private sign has been durably received.
         const acceptedAt = wall();
         if (acceptedAt <= c.closeAt) throw Error("Core settlement clock moved before the close");
-        const a = await first<Admission>(join(dir, "admissions", e.edition + ".json"), {
+        const a = await first<Admission>(admissionFile, {
           eventSha,
           transaction,
           acceptedAt,

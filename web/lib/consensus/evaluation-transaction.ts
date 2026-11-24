@@ -4,11 +4,13 @@ import { resolve, dirname } from "node:path";
 import { durableDirectory, durableJSON, syncDirectory } from "../publication-storage.ts";
 import { COMPLETED_EVALUATIONS, EVALUATION_RELEASE_STATE, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX, verifyPairedOutcomes } from "./outcome-ledger.ts";
 import { PRIVATE_OUTCOME_AVAILABILITY, validateOutcomeAvailability, type OutcomeAvailability } from "./outcome-availability.ts";
+import type { NativeStudyIntake } from "./secondary-studies.ts";
 import type { Outcome } from "./types.ts";
 
 export interface EvaluationWrite { path: string; value: unknown; immutable?: boolean }
 interface PlannedWrite extends EvaluationWrite { before: string | null; after: string }
-interface Journal { schemaVersion: 1; id: string; createdAt: string; writes: PlannedWrite[]; artifacts?: Record<string, string>; outcomeLedgerTransactionId?: string }
+interface Journal { schemaVersion: 1; id: string; createdAt: string; writes: PlannedWrite[]; artifacts?: Record<string, string>; outcomeLedgerTransactionId?: string; nativeStudyIntake?: NativeStudyIntake }
+type AfterWrite = (path: string) => void | Promise<void>;
 type ReleaseState = { schemaVersion: 1; transactionId: string; artifacts: Record<string, string>; outcomeLedgerTransactionId?: string } &
   ({ status: "pending" } | { status: "complete"; hashes: Record<string, string | null> });
 const journalPath = (root: string) => resolve(root, ".consensus/evaluation-transaction.json");
@@ -112,15 +114,32 @@ export async function assertNoPendingEvaluation(root: string): Promise<void> {
   await assertEvaluationReleaseState(root, false);
 }
 
+async function deliverNativeStudies(root: string, journal: Journal, plan: NativeStudyIntake): Promise<void> {
+  const ledger = journal.writes.find(write => write.path === PRIVATE_OUTCOME_LEDGER);
+  const index = journal.writes.find(write => write.path === PUBLIC_OUTCOME_INDEX);
+  const start = plan.firstNewOutcome;
+  if (!ledger || !index || !Array.isArray(ledger.value) || !Number.isSafeInteger(start) || start < 0 || start >= ledger.value.length)
+    throw Error("Invalid native settlement boundary");
+  // Bind the suffix to both previous files so an earlier outcome can never become a fresh study label.
+  for (const write of [index, ledger]) {
+    if (!Array.isArray(write.value) || (write.before === null ? start !== 0 : hash(write.value.slice(0, start)) !== write.before))
+      throw Error("Native settlement prefix differs from the previous release");
+  }
+  const { stageNativeStudyIntake } = await import("./secondary-studies.ts");
+  await stageNativeStudyIntake(root, journal.id, plan, ledger.value.slice(start));
+}
+
 /** Caller must hold the shared publication lock. Finish the recorded writes; never rerun a model/test window. */
-export async function recoverEvaluationTransaction(root: string, afterWrite?: (path: string) => void | Promise<void>): Promise<boolean> {
+export async function recoverEvaluationTransaction(root: string, afterWrite?: AfterWrite): Promise<boolean> {
   const journal = await readJournal(root);
   if (!journal) { await assertEvaluationReleaseState(root, false); return false; }
   // Check every destination before replaying any step; unknown intervening edits fail closed.
+  let originalDestinations = true;
   for (const write of journal.writes) {
     const current = await currentHash(root, write.path);
     if (current !== write.before && current !== write.after) throw new Error("Evaluation recovery conflicts with an intervening file change");
     if (write.immutable && write.before !== null && write.before !== write.after) throw new Error("Immutable evaluation artifact cannot be replaced");
+    if (current !== write.before) originalDestinations = false;
   }
   const release = await readReleaseState(root);
   if (release?.status === "pending" && release.transactionId !== journal.id) throw new Error("Evaluation release belongs to another transaction");
@@ -141,6 +160,12 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
   await assertArtifactReferences(root, artifacts, journal.writes.find(write => write.path === "lib/consensus/performance.json")?.value);
   if (ledgerWrite)
     await durableDirectory(dirname(resolve(root, PRIVATE_OUTCOME_LEDGER)), 0o700);
+  // A crash before or during intake can retry while the entire core release is still its original preimage.
+  // The pending release marker below is durable before the first core write. Past that boundary no sign may be offered.
+  if (journal.nativeStudyIntake && originalDestinations && release?.transactionId !== journal.id) {
+    try { await deliverNativeStudies(root, journal, journal.nativeStudyIntake); }
+    catch (error) { console.error("Optional secondary settlement intake failed.", error instanceof Error ? error.message : String(error)); }
+  }
   // Durable tracked marker BEFORE any output changes; remote builds reject incomplete exports.
   await durableJSON(releasePath(root), { schemaVersion: 1, transactionId: journal.id, status: "pending", artifacts, ...ledgerReference } satisfies ReleaseState);
   for (const write of journal.writes) {
@@ -162,7 +187,7 @@ export async function recoverEvaluationTransaction(root: string, afterWrite?: (p
 }
 
 /** Recoverable group commit for local evaluation outputs, guarded by prebuild before deployment. */
-export async function commitEvaluationTransaction(root: string, writes: EvaluationWrite[], afterWrite?: (path: string) => void | Promise<void>,
+export async function commitEvaluationTransaction(root: string, writes: EvaluationWrite[], options?: AfterWrite | { nativeStudyIntake: NativeStudyIntake },
   afterJournal?: (transaction: string) => Promise<void>): Promise<void> {
   await assertNoPendingEvaluation(root);
   if (!writes.length || new Set(writes.map(write => write.path)).size !== writes.length) throw new Error("Empty or duplicate evaluation write set");
@@ -196,9 +221,10 @@ export async function commitEvaluationTransaction(root: string, writes: Evaluati
   await assertArtifactReferences(root, artifacts, planned.find(write => write.path === "lib/consensus/performance.json")?.value);
   const id = randomUUID();
   const outcomeLedgerTransactionId = planned.some(write => write.path === PRIVATE_OUTCOME_LEDGER) ? id : previous?.outcomeLedgerTransactionId;
-  await durableJSON(journalPath(root), { schemaVersion: 1, id, createdAt: new Date().toISOString(), writes: planned, artifacts, outcomeLedgerTransactionId } satisfies Journal, true);
+  const nativeStudyIntake = typeof options === "object" ? options.nativeStudyIntake : undefined;
+  await durableJSON(journalPath(root), { schemaVersion: 1, id, createdAt: new Date().toISOString(), writes: planned, artifacts, outcomeLedgerTransactionId, nativeStudyIntake } satisfies Journal, true);
   // Optional private secondaries can consume a newly settled target once. A failure cannot interrupt the durable core release.
   if (afterJournal) try { await afterJournal(id); }
   catch (error) { console.error("Optional secondary settlement intake failed.", error instanceof Error ? error.message : String(error)); }
-  await recoverEvaluationTransaction(root, afterWrite);
+  await recoverEvaluationTransaction(root, typeof options === "function" ? options : undefined);
 }

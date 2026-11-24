@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -8,6 +9,8 @@ import { ETF_CASH_SOURCES } from "../lib/consensus/corporate-adjustment.ts";
 import { exchangeCalendarVersion, exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS, firstRateTechnicalSignals } from "../lib/consensus/firstrate.ts";
 import { digest } from "../lib/consensus/history.ts";
+import { commitEvaluationTransaction, recoverEvaluationTransaction } from "../lib/consensus/evaluation-transaction.ts";
+import { EVALUATION_RELEASE_STATE, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { MARKET_HISTORY_SOURCE } from "../lib/consensus/market-history-settlement.ts";
 import { collectMarketHistoryVolatility } from "../lib/consensus/market-history-volatility.ts";
 import { recordPreopenReceipt } from "../lib/consensus/preopen-receipt.ts";
@@ -15,8 +18,9 @@ import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { FAMILY_FEATURE_REGISTRATION, PROSPECTIVE_FAMILY_POLICY_SHA256, PROSPECTIVE_FAMILY_RULES,
   readSealedFamilySession, readSealedRetailSession, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
+import { nativeStudyIntake } from "../lib/consensus/secondary-studies.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
-import type { Signal, Snapshot } from "../lib/consensus/types.ts";
+import type { Outcome, Signal, Snapshot } from "../lib/consensus/types.ts";
 
 const day = "2027-01-11", prior = "2027-01-08", issuedAt = day + "T13:01:00.000Z", edition = issuedAt.replace(/[:.]/g, "-");
 const hash = "1".repeat(64), tech = PROSPECTIVE_FAMILY_RULES[0], option = PROSPECTIVE_FAMILY_RULES[4], news = PROSPECTIVE_FAMILY_RULES[5];
@@ -147,9 +151,79 @@ test("all six existing rule and ETF comparisons replay their native inputs and p
   await n.stage(root, tx, [{ ...row, instrument: "SPY" }, { ...row, source: "manual" }], archive, []);
   assert.equal(labels, 0);
   await n.stage(root, tx, [row], archive, []);
+  await n.stage(root, tx, [row], archive, []);
   assert.equal(labels, 1);
   assert.equal((await read(root, dirname(n.registrationPath), "TLT", "admissions", edition + ".json")).value.source, MARKET_HISTORY_SOURCE);
 });
+
+for (const stop of ["new-journal", "private-label", "private-admission", "release-started", "manual", "old-prefix", "changed-history", "changed-reservations"]) {
+  test("native study admission after a publisher interruption: " + stop, async t => {
+    const root = await fixture(t);
+    await publish(root, t, [await payroll(root)]);
+    const study = secondaryFamilyStudies.find(item => item.name === "news")!.study;
+    at(t, day + "T13:04:00.000Z");
+    await study.register(root);
+    at(t, day + "T13:05:00.000Z");
+    assert.equal((await study.enroll(root, day, edition)).enrolled, 1);
+    at(t, day + "T21:15:00.000Z");
+    const session = exchangeSession(day)!;
+    const fresh: Outcome = { snapshotId: edition, instrument: "TLT", horizon: "daily", engineVersion: "consensus-rules-2.0.0",
+      issuedAt, entryAt: session.openAt, exitAt: session.closeAt, source: MARKET_HISTORY_SOURCE, adjustment: OUTCOME_PRICE_BASIS,
+      calendarVersion: exchangeCalendarVersion(day, day), entry: 100, exit: 101, returnPct: 1,
+      predictedScore: null, predictedProbability: null, abstained: true, directionCorrect: null };
+    const prior: Outcome = { ...fresh, instrument: "QQQ" };
+    const destinations = (rows: Outcome[]) => [
+      { path: PRIVATE_OUTCOME_LEDGER, value: rows }, { path: PUBLIC_OUTCOME_INDEX, value: outcomeIndex(rows) },
+    ];
+    await commitEvaluationTransaction(root, destinations([prior]));
+    const history = await read(root, "public/consensus/index.json");
+    const plan = nativeStudyIntake(stop === "old-prefix" ? 0 : 1, history, []);
+    if (stop === "changed-reservations") plan.reservationHeadsSha256 = "a".repeat(64);
+    await durableJSON(join(root, "fixture.json"), { writes: destinations([prior, fresh]), plan, stop,
+      clock: new Date().toISOString() });
+    // Kill an actual writer immediately after the journal or sign is linked, leaving its recovery path intact.
+    const writer = new URL("../lib/consensus/evaluation-transaction.ts", import.meta.url).href;
+    const crash = spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e", `
+      import fs from "node:fs/promises";
+      import { syncBuiltinESMExports } from "node:module";
+      import { mock } from "node:test";
+      const { stop, clock, writes, plan } = JSON.parse(await fs.readFile("fixture.json", "utf8"));
+      mock.timers.enable({ apis: ["Date"], now: Date.parse(clock) });
+      const link = fs.link;
+      fs.link = async (from,to) => {
+        await link(from,to);
+        const privatePath = stop === "private-label" ? "/private-labels/" : stop === "private-admission" ? "/admissions/" : null;
+        if (privatePath ? to.includes(privatePath) : to.endsWith("/.consensus/evaluation-transaction.json")) process.exit(75);
+      };
+      syncBuiltinESMExports();
+      const { commitEvaluationTransaction } = await import(process.argv[1]);
+      await commitEvaluationTransaction(process.cwd(), writes, stop === "manual" ? undefined : { nativeStudyIntake: plan });
+    `, writer], { cwd: root, encoding: "utf8" });
+    assert.equal(crash.status, 75, crash.stderr);
+    const journal = await read(root, ".consensus/evaluation-transaction.json");
+    const file = join(root, dirname(study.registrationPath), "TLT", "admissions", edition + ".json");
+    const original = stop === "private-admission" ? await readFile(file, "utf8") : null;
+    if (stop === "release-started") {
+      await durableJSON(join(root, EVALUATION_RELEASE_STATE),
+        { schemaVersion: 1, transactionId: journal.id, status: "pending", artifacts: {}, outcomeLedgerTransactionId: journal.id });
+    }
+    if (stop === "changed-history") await durableJSON(join(root, "public/consensus/index.json"), [...history, history[0]]);
+    assert.equal(await recoverEvaluationTransaction(root), true);
+    assert.equal(await recoverEvaluationTransaction(root), false);
+    assert.deepEqual(await read(root, PUBLIC_OUTCOME_INDEX), outcomeIndex([prior, fresh]));
+    const admitted = stop === "new-journal" || stop === "private-label" || stop === "private-admission";
+    if (admitted) {
+      const receipt = await readFile(file, "utf8");
+      assert.equal(JSON.parse(receipt).value.transaction, journal.id);
+      if (original) assert.equal(receipt, original);
+      const [cohort] = (await study.status(root)).cohorts;
+      assert.ok("confirmed" in cohort);
+      assert.equal(cohort.confirmed, 1);
+    } else {
+      await assert.rejects(readFile(file), { code: "ENOENT" });
+    }
+  });
+}
 
 test("re-hashing a mistaken economic event cannot change its official source or contaminate a different fund", async t => {
   const root = await fixture(t);

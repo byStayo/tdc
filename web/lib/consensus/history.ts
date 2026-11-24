@@ -408,9 +408,10 @@ async function optionalJSON<T>(path: string): Promise<T | null> {
   }
 }
 
-async function indexedPublications(root: string): Promise<{ history: HistoryEntry[]; snapshots: Snapshot[] }> {
+export async function indexedPublications(root: string, requireIndex = false): Promise<{ history: HistoryEntry[]; snapshots: Snapshot[] }> {
   const archive = resolve(root, "public/consensus");
-  const history = await optionalJSON<HistoryEntry[]>(resolve(archive, "index.json")) ?? [];
+  const indexPath = resolve(archive, "index.json");
+  const history: HistoryEntry[] = requireIndex ? JSON.parse(await readFile(indexPath, "utf8")) : await optionalJSON<HistoryEntry[]>(indexPath) ?? [];
   if (!Array.isArray(history) || new Set(history.map(entry => entry.id)).size !== history.length)
     throw new Error("Invalid or duplicate history index");
   const snapshots: Snapshot[] = [];
