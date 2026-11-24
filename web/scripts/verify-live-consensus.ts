@@ -5,6 +5,7 @@ import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt, scheduledPreopenSession } from "../lib/consensus/preopen-receipt.ts";
 import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
+import { auctionDispersionStudy } from "../lib/consensus/auction-dispersion-study.ts";
 import { analystStudy } from "../lib/consensus/analyst-study.ts";
 import { twseSectorStudy } from "../lib/consensus/twse-sector-study.ts";
 import { dealerStudy } from "../lib/consensus/dealer-study.ts";
@@ -84,7 +85,7 @@ async function verify(snapshot: Snapshot, session?: string) {
       console.error("Private fund-flow enrollment failed.", error instanceof Error ? error.message : String(error));
       fundFlows = { status: "failed" };
     }
-    for (const [name, study] of [["analysts", analystStudy], ["institutions", dealerStudy], ["international", twseSectorStudy]] as const) {
+    for (const [name, study] of [["analysts", analystStudy], ["institutions", dealerStudy], ["international", twseSectorStudy], ["events", auctionDispersionStudy]] as const) {
       try { secondaryFamilies[name] = await study.enroll(root, session, snapshot.id); }
       catch (error) {
         console.error("Private enrollment failed for", name, error instanceof Error ? error.message : String(error));

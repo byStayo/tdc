@@ -710,5 +710,5 @@ export function createSecondaryStudy(options: Options) {
     }
     return { ...base, status: "registered", registeredAt: r.registeredAt, cohorts };
   }
-  return { register, enroll, stage, status, registrationPath, advanceMarker };
+  return { register, registration, enroll, stage, status, registrationPath, advanceMarker };
 }

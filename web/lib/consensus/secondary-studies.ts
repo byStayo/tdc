@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { digest } from "./history.ts";
 import { readReservations, reservationAnchors, type EvaluationReservation } from "./learning-audit.ts";
+import { auctionDispersionStudy } from "./auction-dispersion-study.ts";
 import { analystStudy } from "./analyst-study.ts";
 import { twseSectorStudy } from "./twse-sector-study.ts";
 import { dealerStudy } from "./dealer-study.ts";
@@ -19,6 +20,7 @@ export const publisherSecondaryStudies = [
   { name: "analysts", study: analystStudy },
   { name: "institutions", study: dealerStudy },
   { name: "international", study: twseSectorStudy },
+  { name: "events", study: auctionDispersionStudy },
   ...secondaryFamilyStudies,
 ] as const;
 

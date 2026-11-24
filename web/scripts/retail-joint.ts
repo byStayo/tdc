@@ -1,18 +1,23 @@
 import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { publisherSecondaryStudies } from "../lib/consensus/secondary-studies.ts";
+import { collectAuctionStudyOnly } from "../lib/consensus/auction-dispersion-study.ts";
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 
 const flags = process.argv.slice(2);
-const group = ["--premarket", "--fund-flows", "--analysts", "--institutions", "--international", "--families"].includes(flags[0]) ? flags[0] : "--retail";
+const group = ["--premarket", "--fund-flows", "--analysts", "--institutions", "--international", "--events", "--families"].includes(flags[0]) ? flags[0] : "--retail";
 if (group !== "--retail") flags.shift();
 const [action = "--status", ...extra] = flags;
-if (extra.length || !["--register", "--status", "--advance"].includes(action))
-  throw Error("Choose one of --status, --register and --advance");
+if (extra.length || (!["--register", "--status", "--advance"].includes(action) && !(group === "--events" && action === "--capture")))
+  throw Error("Choose --status, --register, --advance, or --capture for the Treasury events study");
 const root = fileURLToPath(new URL("../", import.meta.url));
 const selected = group === "--families" ? secondaryFamilyStudies :
   publisherSecondaryStudies.filter(({name}) => name === group.slice(2));
 async function run() {
+  if (action === "--capture") {
+    console.log(JSON.stringify(await collectAuctionStudyOnly(root), null, 2));
+    return;
+  }
   const reports = [];
   for (const {name, study} of selected) {
     if (action === "--register") await study.register(root);

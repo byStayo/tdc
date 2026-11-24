@@ -4,7 +4,8 @@ import { collectNews } from "./news.ts";
 import { collectBlsPayrollNews } from "./bls-payroll-news.ts";
 import { newYorkTimestamp } from "./time.ts";
 export { newYorkTimestamp } from "./time.ts";
-import { collectMarketCalendars, type PublicDocument } from "./calendars.ts";
+import type { PublicDocument } from "./calendars.ts";
+import { collectMarketCalendarsWithAuction } from "./auction-dispersion-study.ts";
 import { collectCapital } from "./capital.ts";
 import { collectPrivateFunds } from "./private-funds.ts";
 import { collectPrivateCredit } from "./private-credit.ts";
@@ -903,7 +904,7 @@ export async function collectSnapshot(
     centralBanks(fetcher),
     calendar(fetcher),
     earnings(fetcher),
-    collectMarketCalendars((url) => publicText(url, fetcher)),
+    collectMarketCalendarsWithAuction((url) => publicText(url, fetcher), fetcher, archiveRoot),
     collectNews(fetcher),
     collectCapital((url) => publicText(url, fetcher)),
     collectPrivateFunds((url) => publicText(url, fetcher), fetcher),

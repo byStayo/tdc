@@ -25,6 +25,7 @@
     "consensus:premarket-study": "node --experimental-strip-types scripts/retail-joint.ts --premarket",
     "consensus:analyst-study": "node --experimental-strip-types scripts/retail-joint.ts --analysts",
     "consensus:taiwan-sector-study": "node --experimental-strip-types scripts/retail-joint.ts --international",
+    "consensus:auction-dispersion-study": "node --experimental-strip-types scripts/retail-joint.ts --events",
     "consensus:dealer-study": "node --experimental-strip-types scripts/retail-joint.ts --institutions",
     "consensus:fund-flow-study": "node --experimental-strip-types scripts/retail-joint.ts --fund-flows",
     "consensus:retail-joint": "node --experimental-strip-types scripts/retail-joint.ts",
