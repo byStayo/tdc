@@ -1,37 +1,37 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
-  "through": "2026-11-20",
+  "through": "2026-11-23",
   "daily": [
     {
       "instrument": "SPY",
-      "sessions": 11,
-      "eligibleSessions": 2,
+      "sessions": 12,
+      "eligibleSessions": 3,
       "calls": 0
     },
     {
       "instrument": "QQQ",
-      "sessions": 11,
-      "eligibleSessions": 2,
+      "sessions": 12,
+      "eligibleSessions": 3,
       "calls": 0
     },
     {
       "instrument": "IWM",
-      "sessions": 11,
-      "eligibleSessions": 2,
+      "sessions": 12,
+      "eligibleSessions": 3,
       "calls": 0
     },
     {
       "instrument": "DIA",
-      "sessions": 11,
-      "eligibleSessions": 2,
+      "sessions": 12,
+      "eligibleSessions": 3,
       "calls": 0
     },
     {
       "instrument": "TLT",
-      "sessions": 11,
-      "eligibleSessions": 2,
+      "sessions": 12,
+      "eligibleSessions": 3,
       "calls": 0
     }
   ],
@@ -356,6 +356,29 @@
         -0.002,
         0.0019
       ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-ofr-international-stress-dia-v1-witnessed-maturity",
+      "family": "international",
+      "instrument": "DIA",
+      "timingBasis": "archived-before-cutoff",
+      "samples": 147,
+      "testSamples": 30,
+      "nativeSamples": 110,
+      "mirrorSamples": 37,
+      "deferredNativeSamples": 38,
+      "comparisonCount": 96,
+      "adjustedControlP": 1,
+      "modelBrier": 0.2743,
+      "controlBrier": 0.2705,
+      "baseRateBrier": 0.2686,
+      "coinBrier": 0.25,
+      "controlImprovement95": [
+        -0.0119,
+        0.0048
+      ],
+      "coefficientSign": "positive",
       "clearedMargin": false
     }
   ]

@@ -1,5 +1,7 @@
 # Visual consensus publication and evaluation
 
+The historical research report includes a replayable international comparison on 147 prelaunch DIA sessions. The standard research publisher verifies Treasury’s regional releases and both DIA price bases before staging the rounded result. Its pre-registered payroll comparison replays the original, hash-verified price parser independently of future subscriber-client updates. [International study and offline commands](OFR_GEOGRAPHIC_RESEARCH.md)
+
 ## Recovering a newly settled study input
 
 The normal evaluator records the previous outcome count, the verified archive index hash and the reservation heads when it first approves new native prices. If the publisher stops during this handoff, `npm run consensus:recover` or the next `npm run consensus:evaluate` can finish delivering those new signs to studies enrolled before the open. Each study verifies its original feature, source permission and witness first. An existing admission retains its original receipt and clock. Once the public release has started, recovery completes its saved writes without reopening the study window. Manual price imports and earlier transactions have no study handoff. [Transaction recovery](../lib/consensus/evaluation-transaction.ts) · [Study intake](../lib/consensus/secondary-studies.ts)

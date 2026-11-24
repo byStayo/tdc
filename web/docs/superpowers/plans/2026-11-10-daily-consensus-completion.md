@@ -2,6 +2,8 @@
 
 ### Verified on November 24 after the first pre-open registrations
 
+- [x] Test international financial stress on 147 dated DIA sessions, including 38 newly qualified dates. Both independent implementations reproduced the 30-session held-out error of 0.2743 against 0.2705 for U.S. stress alone. The comparison added zero daily votes. [Study and scoring record](../../OFR_GEOGRAPHIC_RESEARCH.md)
+
 - [x] Recover newly approved source-native signs across a publisher interruption before the public release starts. The integration tests terminate the writer after the journal, the private sign and the private admission. Manual prices, an altered archive or reservation record, and older settlements did not enter a study. [Recovery procedure](../../CONSENSUS_OPERATIONS.md#recovering-a-newly-settled-study-input)
 - [x] Independently match two actual Argentine depository cash payments for the U.S. TLT share to the issuer’s February and November distributions. The November 23 U.S. regular open still needs its own permitted control. [Source review](../../FREE_FEED_PATH.md#independent-tlt-cash-payments-and-the-november-23-auction-check)
 

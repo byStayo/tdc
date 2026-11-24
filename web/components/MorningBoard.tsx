@@ -29,7 +29,7 @@ import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
 import type { DailySettlementStatus } from "@/lib/consensus/outcome-coverage-audit";
-import { BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
+import { BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, OFR_GEOGRAPHIC_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
   TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
@@ -1324,6 +1324,7 @@ export default function MorningBoard({
     .slice(0, 5);
   const fomcEve = kibotResearch?.studies.find((row): row is FomcEveStudyRow => "testEves" in row);
   const ofrStudy = kibotResearch?.studies.find(row => "nativeOnlySamples" in row);
+  const geographicStudy = kibotResearch?.studies.find(row => "deferredNativeSamples" in row);
   const timing = editionTiming(snapshot, history);
   const cohort = performanceView(
     performance,
@@ -2573,7 +2574,7 @@ export default function MorningBoard({
                             <td role="cell" data-label="Model Brier">{row.modelBrier.toFixed(4)}</td>
                             <td role="cell" data-label="Comparison Brier">
                               Base rate {row.baseRateBrier.toFixed(4)}
-                              {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}</>}
+                              {"fxOnlyBrier" in row && <><br />FX only {row.fxOnlyBrier.toFixed(4)}</>}
                               {"returnOnlyBrier" in row && <><br />{row.studyId === FOMC_EVE_RESEARCH.id ? "Prior session return only" : "Same-day return only"} {row.returnOnlyBrier.toFixed(4)}</>}
                               {"ageOnlyBrier" in row && <><br />Filing age only {row.ageOnlyBrier.toFixed(4)}</>}
                               {"controlBrier" in row && <><br />{KIBOT_DATED_RESEARCH
@@ -2582,7 +2583,7 @@ export default function MorningBoard({
                             </td>
                             <td role="cell" data-label="Result">
                               {row.clearedMargin ? "Passed" : "Below threshold"}
-                              {row.family === "international" && <><br />Export coefficient {row.exportCoefficientSign}</>}
+                              {"exportCoefficientSign" in row && <><br />Export coefficient {row.exportCoefficientSign}</>}
                               {"eveCoefficientSign" in row && <><br />Calendar coefficient {row.eveCoefficientSign}</>}
                               {"earningsCoefficientSign" in row && <><br />Surprise coefficient {row.earningsCoefficientSign}
                                 <br />95% interval for improvement over filing age alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}</>}
@@ -2593,6 +2594,10 @@ export default function MorningBoard({
                               {"nativeOnlySamples" in row && <>
                                 <br />Coefficient for falling volatility {row.coefficientSign} (expected {OFR_VOLATILITY_RESEARCH.expectedSign})
                                 <br />95% interval for improvement over the rest of the index {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                              </>}
+                              {"deferredNativeSamples" in row && <>
+                                <br />95% interval for improvement over U.S. stress alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                                <br />Adjusted p-value {row.adjustedControlP.toFixed(4)} across {row.comparisonCount} comparisons
                               </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
@@ -2675,6 +2680,16 @@ export default function MorningBoard({
                       <a href={OFR_VOLATILITY_RESEARCH.source}>OFR Financial Stress Index</a>
                       {" · "}<a href={OFR_VOLATILITY_RESEARCH.archive}>Library of Congress archive</a>
                       {" · "}<a href={OFR_VOLATILITY_RESEARCH.mirror}>Four-decimal archive</a>
+                    </p>
+                  )}
+                  {geographicStudy && (instrument === "MARKET" || instrument === "DIA") && (
+                    <p className={styles.muted}>
+                      The regional stress test asked whether a fall in financial stress outside the U.S. helped predict a positive DIA session.
+                      It used {geographicStudy.nativeSamples} original Treasury observations and {geographicStudy.mirrorSamples} timestamped copies.
+                      The study held {geographicStudy.deferredNativeSamples} early original releases until two federal business days had elapsed
+                      since the observation.{" "}
+                      <a href={OFR_GEOGRAPHIC_RESEARCH.source}>Treasury regional stress measures</a>
+                      {" · "}<a href={OFR_GEOGRAPHIC_RESEARCH.archive}>Archived Treasury releases</a>
                     </p>
                   )}
                   <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">

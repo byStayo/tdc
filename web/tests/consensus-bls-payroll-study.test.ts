@@ -1,6 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { parseKibotDaily } from "../lib/consensus/kibot-bls-study-v1.ts";
 import { payrollImprovementInterval, replayBlsPayrollNewsStudy } from "../scripts/research-bls-payroll-news.ts";
+
+test("the payroll study retains the exact daily price parser registered before scoring", async () => {
+  const bytes = await readFile(new URL("../lib/consensus/kibot-bls-study-v1.ts", import.meta.url));
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), "7092fbefd09d6a8aaf4b2e2699fc01738c8352b36d638436b59cda7a9e99def1");
+  const [bar] = parseKibotDaily("11/02/2026,10,12,9,11,200", ["2026-11-02"]);
+  assert.deepEqual([bar.session, bar.open, bar.close], ["2026-11-02", 10, 11]);
+});
 
 test("keeps BLS research out of prospective forecast periods and rejects live re-fetching", async () => {
   await assert.rejects(replayBlsPayrollNewsStudy(false), /cached originals/);

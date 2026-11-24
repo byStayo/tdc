@@ -6,7 +6,7 @@ import { isDeepStrictEqual } from "node:util";
 import { gunzipSync } from "node:zlib";
 import { parsePayrollRelease } from "../lib/consensus/bls-payroll-news.ts";
 import { extendedResearchSession } from "../lib/consensus/extended-research-calendar.ts";
-import { isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot.ts";
+import { isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot-bls-study-v1.ts";
 import { chronologicalSplit, predict, trainCandidate, type TrainingRow } from "../lib/consensus/learning.ts";
 import { newYorkTimestamp } from "../lib/consensus/time.ts";
 
@@ -214,9 +214,11 @@ export async function replayBlsPayrollNewsStudy(cached = true, expectedBefore = 
   )
     throw Error("BLS policy registration differs");
   for (const [name, expected] of Object.entries(registration.policy.dependencies)) {
-    const path = resolve(owner, name);
+    // Replay the original parser pinned before the outcomes. The delivery client has since gained subscriber authentication.
+    const path = name === "../../lib/consensus/kibot.ts"
+      ? fileURLToPath(new URL("../lib/consensus/kibot-bls-study-v1.ts", import.meta.url)) : resolve(owner, name);
     const bytes = name.startsWith("../../lib/") ? await readFile(path) : await privateBytes(name);
-    if (sha(bytes) !== expected) throw Error("BLS registered dependency differs");
+    if (sha(bytes) !== expected) throw Error("BLS registered dependency differs: " + name);
   }
   const sealed = await privateJson<SnapshotResult>("sealed-study.json", sealedSHA256);
   const source = await privateJson<{ targets: SourceTarget[] }>("source-targets.json", sourceSHA256);
