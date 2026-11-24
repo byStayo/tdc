@@ -10,6 +10,7 @@ import { premarketStudy } from "./premarket-study.ts";
 import { etfFlowStudy } from "./etf-flow-study.ts";
 import { jointRetailStudy } from "./retail-joint.ts";
 import { secondaryFamilyStudies } from "./secondary-family-studies.ts";
+import { earningsStudy } from "./earnings-study.ts";
 import type { NewCoreSettlement } from "./secondary-study.ts";
 import type { HistoryEntry, Outcome } from "./types.ts";
 
@@ -22,6 +23,7 @@ export const publisherSecondaryStudies = [
   { name: "international", study: twseSectorStudy },
   { name: "events", study: auctionDispersionStudy },
   ...secondaryFamilyStudies,
+  { name: "earnings", study: earningsStudy },
 ] as const;
 
 export type NativeStudyIntake = {

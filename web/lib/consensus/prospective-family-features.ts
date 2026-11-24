@@ -16,6 +16,7 @@ import { readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
 import { RETAIL_ID, RETAIL_POLICY, RETAIL_REGISTRATION, RETAIL_ROOT, retailInput } from "./prospective-retail.ts";
 import { NYFED_STOCK_OUTLOOK_ID } from "./nyfed-stock-outlook.ts";
+import { EARNINGS_EARLIEST, EARNINGS_ID, EARNINGS_POLICY, EARNINGS_POLICY_SHA256, EARNINGS_REGISTRATION, EARNINGS_ROOT, earningsInput, type EarningsReason } from "./prospective-earnings.ts";
 import type { Signal, Snapshot } from "./types.ts";
 
 const directory = ".consensus/private-prospective-family-features/v1";
@@ -59,7 +60,7 @@ export const PROSPECTIVE_FAMILY_DEFINITIONS = policy.definitions;
 export const PROSPECTIVE_FAMILY_POLICY_SHA256 = "0d1ba17adb95bc2f45f36d1fd5e9bfcf022db78d3e9900594b39a3d077fe3a79";
 if (digest(policy) !== PROSPECTIVE_FAMILY_POLICY_SHA256) throw new Error("Prospective feature definitions changed without a new version");
 const earliestRegistration = "2026-11-24T06:01:52.000Z";
-export type FeatureLane = "core" | "retail";
+export type FeatureLane = "core" | "retail" | "earnings";
 export const RETAIL_POLICY_SHA256 = "54329a527bbb38998b4c8e31c901c96c83afb3a257aa8e182071204a4a3213b0";
 if (digest(RETAIL_POLICY) !== RETAIL_POLICY_SHA256) throw new Error("SCE feature definitions changed without a new version");
 const lanes = {
@@ -71,6 +72,10 @@ const lanes = {
     directory: RETAIL_ROOT, file: RETAIL_REGISTRATION, hash: RETAIL_POLICY_SHA256,
     policy: RETAIL_POLICY, earliest: "2026-11-24T08:22:32.897Z",
   },
+  earnings: {
+    directory: EARNINGS_ROOT, file: EARNINGS_REGISTRATION, hash: EARNINGS_POLICY_SHA256,
+    policy: EARNINGS_POLICY, earliest: EARNINGS_EARLIEST,
+  },
 };
 type Lane = typeof lanes[FeatureLane];
 type Rule = Lane["policy"]["rules"][number];
@@ -78,7 +83,7 @@ type Scope = Pick<Rule, "id" | "instrument">;
 const inScope = (row: Scope, scope?: Scope) => !scope || (row.id === scope.id && row.instrument === scope.instrument);
 type Proof = { file: string; sha256: string };
 type Data = { candidate: number; control: number; eventId: string; observedThrough: string; availableAt: string; sourceHashes: string[]; proofs: Proof[] };
-type Reason = "as-issued-input-unavailable" | "not-immediately-prior-session" | "outside-payroll-release-target" | "outside-survey-release-target" | "release-predates-registration" | "insufficient-prior-closes" |
+type Reason = EarningsReason | "as-issued-input-unavailable" | "not-immediately-prior-session" | "outside-payroll-release-target" | "outside-survey-release-target" | "release-predates-registration" | "insufficient-prior-closes" |
   "source-stale-at-entry" | "native-proof-missing" | "native-proof-mismatch" | "superseding-edition-unregistered" | "source-event-already-used";
 type Reading = { data: Data } | { reason: Reason };
 type Observation = { id: Rule["id"]; instrument: Rule["instrument"] } & Reading;
@@ -249,6 +254,7 @@ async function payrollInput(root: string, s: Signal, session: string, cutoff: st
   };
 }
 async function reading(root: string, snapshot: Snapshot, rule: Rule, session: string, registeredAt: string, pins?: Proof[]): Promise<Reading> {
+  if (rule.id === EARNINGS_ID) return earningsInput(root, snapshot.signals, session, snapshot.cutoff, registeredAt, pins);
   const ids = rule.id === technical ? ["firstrate-technical-" + rule.instrument] :
     rule.id === options ? ["market-history-iv-spx-term", "market-history-iv-vix"] : rule.id === RETAIL_ID ? [NYFED_STOCK_OUTLOOK_ID] : [BLS_PAYROLL_NEWS_ID];
   const signals = ids.map(id => snapshot.signals.find(s => s.id === id));
@@ -285,7 +291,8 @@ async function firstWrite<T>(file: string, value: T) {
 }
 function verifyRegistration(r: Registration, now: string, lane: Lane) {
   if (!r || r.version !== 1 || r.policySha256 !== lane.hash || !equal(r.policy, lane.policy) ||
-    !instant(r.registeredAt) || r.registeredAt < lane.earliest || r.registeredAt > now || !sameDayPreopen(newYorkDate(r.registeredAt), r.registeredAt))
+    !instant(r.registeredAt) || r.registeredAt < lane.earliest || r.registeredAt > now ||
+    (lane.file !== EARNINGS_REGISTRATION && !sameDayPreopen(newYorkDate(r.registeredAt), r.registeredAt)))
     bad("Prospective feature registration differs from its original policy or pre-open clock");
   return r;
 }

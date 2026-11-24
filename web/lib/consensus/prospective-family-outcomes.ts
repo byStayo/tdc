@@ -18,6 +18,7 @@ import { completedOutcomeWriteSeals, ownerSettlementLines, readOutcomeClockSlots
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { PROSPECTIVE_FAMILY_DEFINITIONS, PROSPECTIVE_FAMILY_RULES, readProspectiveFamilyFeatures } from "./prospective-family-features.ts";
+import { EARNINGS_POLICY, EARNINGS_RULES } from "./prospective-earnings.ts";
 import { FAMILIES } from "./registry.ts";
 import { HORIZONS, type Instrument, type Outcome, type Snapshot } from "./types.ts";
 
@@ -107,14 +108,16 @@ const increment = (values: Record<string,number>, key: string) => { values[key] 
 /** The caller supplies the already replayed feature archive. Prices are requested only after all authorization clocks and production windows pass. */
 export async function prospectiveFamilyPairCounts(features: Features, editions: readonly Edition[], settled: Identity[],
   selection: Selection, reservations: readonly EvaluationReservation[], asOf: string,
-  evidence: PairSource | LabelReader) {
+  evidence: PairSource | LabelReader, which: "core" | "earnings" = "core") {
   // A legacy callback alone carries no settlement clock and cannot authorize a price read.
   const labelSource: PairSource = typeof evidence === "function" ? { readLabels:evidence, clockSlots:null } : evidence;
   const { byEdition, bySession, slots } = prospectiveSelection(editions,settled,selection,asOf);
-  const rules = PROSPECTIVE_FAMILY_RULES.map(rule => ({
+  const declared = which === "earnings" ? EARNINGS_RULES : PROSPECTIVE_FAMILY_RULES;
+  const definitions: Record<string, { candidate: string; control: string }> = which === "earnings" ? EARNINGS_POLICY.definitions : PROSPECTIVE_FAMILY_DEFINITIONS;
+  const rules = declared.map(rule => ({
     id: rule.id, instrument: rule.instrument, family: rule.family, expectedSign: rule.expectedSign,
-    candidate: PROSPECTIVE_FAMILY_DEFINITIONS[rule.id].candidate,
-    control: PROSPECTIVE_FAMILY_DEFINITIONS[rule.id].control,
+    candidate: definitions[rule.id].candidate,
+    control: definitions[rule.id].control,
     ...counts(),
   }));
   const tracking = new Map(rules.map(rule => [pairedKey(rule.id, rule.instrument),rule]));
@@ -332,13 +335,13 @@ export async function readApprovedLabels(root: string, requests: Request[], inde
 }
 
 /** Read-only post-evaluation hook. The current clock cannot be overridden to inspect future or backdated observations. */
-export async function auditProspectiveFamilyOutcomes(root: string) {
+export async function auditProspectiveFamilyOutcomes(root: string, which: "core" | "earnings" = "core") {
   await assertEvaluationReleaseState(root);
   const statePath = resolve(root,EVALUATION_RELEASE_STATE);
   const state = JSON.parse(await readFile(statePath,"utf8")) as {
     transactionId:string; outcomeLedgerTransactionId:string; hashes:Record<string,string> };
   const [features,publication,reservations,indexText,selectionText] = await Promise.all([
-    readProspectiveFamilyFeatures(root),verifyPublicationTree(root),readReservations(root),
+    readProspectiveFamilyFeatures(root, undefined, which),verifyPublicationTree(root),readReservations(root),
     readFile(resolve(root,PUBLIC_OUTCOME_INDEX),"utf8"),readFile(resolve(root,selectionPath),"utf8"),
   ]);
   const observed = new Date().toISOString(), index: unknown = JSON.parse(indexText), selection = JSON.parse(selectionText) as Selection;
@@ -346,7 +349,7 @@ export async function auditProspectiveFamilyOutcomes(root: string) {
   if (state.hashes[PUBLIC_OUTCOME_INDEX] !== digest(index) || state.hashes[selectionPath] !== digest(selection))
     throw Error("Settlement metadata differs from the completed release");
   const report = await prospectiveFamilyPairCounts(features,publication.snapshots,index,selection,reservations,observed,
-    {root,transaction:state.outcomeLedgerTransactionId});
+    {root,transaction:state.outcomeLedgerTransactionId}, which);
   if (digest(JSON.parse(await readFile(statePath,"utf8"))) !== digest(state) ||
       digest(await readReservations(root)) !== digest(reservations) ||
       digest(JSON.parse(await readFile(resolve(root,"public/consensus/index.json"),"utf8"))) !== digest(publication.history))

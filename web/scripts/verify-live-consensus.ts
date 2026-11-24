@@ -4,6 +4,7 @@ import { isDeepStrictEqual } from "node:util";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt, scheduledPreopenSession } from "../lib/consensus/preopen-receipt.ts";
 import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
+import { earningsStudy } from "../lib/consensus/earnings-study.ts";
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
 import { auctionDispersionStudy } from "../lib/consensus/auction-dispersion-study.ts";
 import { analystStudy } from "../lib/consensus/analyst-study.ts";
@@ -59,7 +60,7 @@ async function verify(snapshot: Snapshot, session?: string) {
   if (mismatches.length) throw new Error("Live consensus differs from the saved edition for " + mismatches.join(", "));
   const preopen = session ? await recordPreopenReceipt(root, session, snapshot.id,
     verified.get(snapshot.id + ".json")!, verified.get("index.json")!, new Date().toISOString()) : undefined;
-  let familyFeatures, retailFeatures, jointRetail, priorPremarket, fundFlows;
+  let familyFeatures, retailFeatures, earningsFeatures, jointRetail, priorPremarket, fundFlows;
   const secondaryFamilies: Record<string, {status: string; enrolled: number}> = {};
   if (session && preopen) {
     try {
@@ -73,6 +74,14 @@ async function verify(snapshot: Snapshot, session?: string) {
     } catch (error) {
       console.error("Private monthly retail capture failed.", error instanceof Error ? error.message : String(error));
       retailFeatures = { status: "failed" };
+    }
+    try {
+      earningsFeatures = await recordProspectiveFamilyFeatures(root, session, snapshot.id, "earnings");
+      secondaryFamilies.earnings = await earningsStudy.enroll(root, session, snapshot.id);
+    } catch (error) {
+      console.error("Private earnings capture failed.", error instanceof Error ? error.message : String(error));
+      earningsFeatures = { status: "failed" };
+      secondaryFamilies.earnings = { status: "failed", enrolled: 0 };
     }
     try {
       priorPremarket = await premarketStudy.enroll(root, session, snapshot.id);
@@ -115,7 +124,7 @@ async function verify(snapshot: Snapshot, session?: string) {
     }
   }
   console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-    matchedPublicFiles: session ? 4 : 5, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket, fundFlows, secondaryFamilies }));
+    matchedPublicFiles: session ? 4 : 5, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, earningsFeatures, jointRetail, priorPremarket, fundFlows, secondaryFamilies }));
 }
 
 const readCurrent = async (): Promise<Snapshot> => JSON.parse((await file("lib/consensus/current.json")).toString());
