@@ -6,6 +6,7 @@ import { join } from "node:path";
 import test, { type TestContext } from "node:test";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { digest } from "../lib/consensus/history.ts";
+import { evaluateCandidate, planCandidate } from "../lib/consensus/learning.ts";
 import { NYFED_SCE_INDEX } from "../lib/consensus/nyfed-stock-outlook.ts";
 import { recordPreopenReceipt } from "../lib/consensus/preopen-receipt.ts";
 import {
@@ -260,11 +261,10 @@ test("wrong issuer dates, late enrollment, short sessions and late controls cann
     reason: "native-proof-mismatch",
   });
 });
-test("private settlement stays sealed on immature dates, and the holdout plan is durable before any outcomes are opened", async (t) => {
-  const root = await fixture(t);
+function monthlyInputs(count: number) {
   const rows: Input[] = [];
   const first = Date.UTC(2030, 0, 1, 14, 30);
-  for (let i = 0; i < 500; i++) {
+  for (let i = 0; i < count; i++) {
     const instant = (offset: number) => new Date(first + i * 31 * 86_400_000 + offset).toISOString(),
       session = instant(0).slice(0, 10);
     const point = {
@@ -281,6 +281,7 @@ test("private settlement stays sealed on immature dates, and the holdout plan is
     } as Input["point"];
     rows.push({
       point,
+      labelKnownAt: instant(42 * 60 * 60_000),
       request: {
         slot: i,
         session,
@@ -296,6 +297,11 @@ test("private settlement stays sealed on immature dates, and the holdout plan is
       },
     });
   }
+  return rows;
+}
+test("private settlement stays sealed on immature dates, and the holdout plan is durable before any outcomes are opened", async (t) => {
+  const root = await fixture(t);
+  const rows = monthlyInputs(500);
   const asOf = "2080-01-01T00:00:00.000Z",
     dir = join(root, "maturity");
   const noRead = async () => {
@@ -341,6 +347,75 @@ test("private settlement stays sealed on immature dates, and the holdout plan is
     "reserved_window",
   );
   assert.equal(overlapping("QQQ", signup, "2026-12-08T14:30:00.000Z", "2026-12-08T21:00:00.000Z"), null);
+  const later = retailProductionProtection([], [], [
+    {instrument:"SPY", testWindows:[{issuedAt:"2026-12-09T12:00:00.000Z",labelKnownAt:"2026-12-10T02:00:00.000Z"}],consumedThrough:signup}
+  ] as Parameters<typeof retailProductionProtection>[2]);
+  const interval = ["2026-12-08T13:00:00.000Z","2026-12-08T14:30:00.000Z","2026-12-08T21:00:00.000Z"] as const;
+  assert.equal(later("SPY",...interval),null);
+  assert.equal(later("SPY",...interval,"2026-12-09T12:00:00.000Z"),"reserved_window");
+});
+
+test("a delayed production price crosses both fold boundaries and purges overlapping test decisions before label access", async (t) => {
+  const root = await fixture(t), dir = join(root, "delayed-maturity");
+  const rows = monthlyInputs(501), asOf = "2080-01-01T00:00:00.000Z";
+  const neverRead = async () => { throw Error("Opened private directions before a sufficient independent holdout"); };
+  rows[299].labelKnownAt = rows[300].point.recordedAt;
+  rows[399].labelKnownAt = rows[400].point.recordedAt;
+  rows[420].labelKnownAt = rows[421].point.recordedAt;
+  assert.equal((await evaluateMatureRetail(dir, "SPY", signup, rows.slice(0, 500), asOf, neverRead)).status,
+    "awaiting_nonoverlapping_test");
+  await assert.rejects(readFile(join(dir, "plan.json")), { code: "ENOENT" });
+  assert.equal((await evaluateMatureRetail(dir, "SPY", signup, rows, rows[500].labelKnownAt, neverRead)).status,
+    "awaiting_nonoverlapping_test");
+  const selected = rows.filter((_, i) => i !== 421);
+  const up = (slot: number): 0 | 1 => slot % 3 === 0 ? 1 : 0;
+  const actual = await evaluateMatureRetail(dir, "SPY", signup, rows, asOf, async (requests) => {
+    assert.deepEqual(requests.map(r => r.slot), selected.map(p => p.request.slot));
+    const plan = JSON.parse(await readFile(join(dir, "plan.json"), "utf8"));
+    const seal = JSON.parse(await readFile(join(dir, "plan-seal.json"), "utf8"));
+    assert.equal(seal.planSha256, digest(plan));
+    assert.deepEqual(plan.testIds, selected.slice(400).map(p => p.point.eventId));
+    assert.deepEqual(plan.features.map((p: {labelKnownAt:string})=>p.labelKnownAt), selected.map(p=>p.labelKnownAt));
+    return new Map(requests.map(r => [r.slot, {status: "paired" as const, up: up(r.slot)}]));
+  });
+  assert.equal(actual.status, "evaluated_private");
+  const checked = planCandidate(selected.map(({point, request, labelKnownAt}) => ({
+    id: point.eventId, engineVersion: RETAIL_ID, issuedAt: point.recordedAt, labelKnownAt,
+    features: [point.control, point.candidate], up: up(request.slot)
+  })), asOf, {minimumSamples:500, minimumTestSamples:100, nonOverlappingTest:true});
+  assert(checked.status === "ready");
+  assert.deepEqual([checked.split.train.length, checked.split.validation.length, checked.split.test.length], [299,99,100]);
+  const saved = JSON.parse(await readFile(join(dir, "aggregate.json"), "utf8"));
+  assert.equal(saved.pairedDatasetSha256, checked.datasetHash);
+  assert.equal(saved.coefficient, evaluateCandidate(checked).model.weights[1]);
+  const bad = {...rows[0], labelKnownAt: rows[0].request.openAt};
+  await assert.rejects(evaluateMatureRetail(dir, "SPY", signup, [bad], asOf, neverRead), /maturity pool/);
+});
+
+test("an already reserved close-based monthly plan stays fixed when the matching label actually arrived later", async (t) => {
+  const root = await fixture(t), dir = join(root, "legacy-maturity");
+  const rows = monthlyInputs(500), asOf = "2080-01-01T00:00:00.000Z";
+  const features = rows.map(({point,request}) => ({id: point.eventId, sha256: digest(point), edition: point.edition,
+    issuedAt: point.recordedAt, labelKnownAt: request.closeAt}));
+  const plan = { version:1, policySha256:RETAIL_POLICY_SHA256, instrument:"SPY", registeredAt:signup, frozenAt:asOf,
+    features, testStarts:features[400].issuedAt, testIds: features.slice(400).map(r=>r.id)};
+  const seal = {version:1, policySha256:RETAIL_POLICY_SHA256, planSha256:digest(plan)};
+  await mkdir(dir, {mode:0o700});
+  await durableJSON(join(dir,"plan.json"),plan,true);
+  await durableJSON(join(dir,"plan-seal.json"),seal,true);
+  const neverRead = async () => { throw Error("Reopened labels for a changed legacy clock"); };
+  assert.equal((await evaluateMatureRetail(dir,"SPY",signup,rows,asOf,neverRead)).status,"reserved_label_clock_changed");
+  assert.equal((await evaluateMatureRetail(dir,"SPY",signup,[],asOf,neverRead)).status,
+    "reserved_source_or_production_window_unavailable");
+  assert.deepEqual(JSON.parse(await readFile(join(dir,"plan.json"),"utf8")),plan);
+  assert.deepEqual(await readdir(dir), ["plan-seal.json","plan.json"]);
+  const past = {policy:RETAIL_POLICY_SHA256, planSha256:seal.planSha256, passes:true, promoted:false};
+  await durableJSON(join(dir,"aggregate.json"),past,true);
+  await durableJSON(join(dir,"result-seal.json"),{version:1, planSha256:seal.planSha256,
+    passes:true, resultSha256:digest(past)},true);
+  const retained = await evaluateMatureRetail(dir,"SPY",signup,[],asOf,neverRead);
+  assert.equal(retained.status, "sealed_legacy_result");
+  assert(!("passes" in retained));
 });
 
 test("unsettled production windows and intraday next-target editions protect future validation dates across horizons", () => {

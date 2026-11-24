@@ -191,7 +191,7 @@ async function ownerFile(path: string) {
 }
 
 /** The completed transaction can contain other outcomes. Read only its path, identity and digest fields. */
-async function ledgerSeal(root: string, transaction: string, indexHash: string) {
+export async function completedOutcomeWriteSeals(root: string, transaction: string, indexHash: string) {
   if (!/^[a-f0-9-]{36}$/.test(transaction)) throw Error("No completed production outcome transaction");
   const stream = await ownerFile(resolve(root, COMPLETED_EVALUATIONS, transaction + ".json"));
   let id: string | undefined, path: string | undefined;
@@ -210,7 +210,7 @@ async function ledgerSeal(root: string, transaction: string, indexHash: string) 
   const seal = seals.get(PRIVATE_OUTCOME_LEDGER);
   if (id !== transaction || !checksum(seal) || seals.get(PUBLIC_OUTCOME_INDEX) !== indexHash)
     throw Error("Private price ledger and public identities lack a matching completed transaction");
-  return seal;
+  return { ledgerSha256: seal, after: seals };
 }
 
 /** durableJSON writes an ordered array with one field per line. Hash every record as
@@ -278,7 +278,7 @@ async function archivedPriceMatch(root: string, source: string, r: Request, asOf
 }
 
 export async function readApprovedLabels(root: string, requests: Request[], index: Identity[], transaction: string, asOf: string) {
-  const seal = await ledgerSeal(root,transaction,digest(index));
+  const { ledgerSha256: seal } = await completedOutcomeWriteSeals(root,transaction,digest(index));
   const captured = await verifiedOutcomeSlots(resolve(root,PRIVATE_OUTCOME_LEDGER),seal,index.length,new Set(requests.map(r=>r.slot)));
   const result = new Map<number, Pair>(), providers = new Map<string, Promise<PriceEvidence[]>>();
   const allowedKibotDates = new Map<Instrument, Set<string>>();

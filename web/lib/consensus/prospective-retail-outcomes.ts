@@ -26,6 +26,7 @@ import { readProspectiveFamilyFeatures, RETAIL_POLICY_SHA256 } from "./prospecti
 import { prospectiveSelection, readApprovedLabels } from "./prospective-family-outcomes.ts";
 import { RETAIL_ID, RETAIL_ROOT, RETAIL_RULES } from "./prospective-retail.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
+import { readRetailOutcomeClocks } from "./retail-outcome-clocks.ts";
 import { newYorkDate } from "./time.ts";
 import { HORIZONS, type Outcome, type Snapshot } from "./types.ts";
 
@@ -33,9 +34,11 @@ type Identity = Pick<Outcome, "snapshotId" | "instrument" | "horizon" | "engineV
 type Point = Awaited<ReturnType<typeof readProspectiveFamilyFeatures>>["rows"][number];
 type Fund = (typeof RETAIL_RULES)[number]["instrument"];
 type Slot = Parameters<typeof readApprovedLabels>[1][number];
-type Input = { point: Point; request: Slot };
+type Input = { point: Point; request: Slot; labelKnownAt: string };
+const verifiedClocks = "completed-outcome-availability-v1";
 type Plan = {
   version: 1;
+  clockBasis?: typeof verifiedClocks;
   policySha256: string;
   instrument: Fund;
   registeredAt: string;
@@ -103,10 +106,10 @@ export function retailProductionProtection(
       }
     }
   }
-  return function protectedWindow(instrument: Fund, issuedAt: string, openAt: string, closeAt: string) {
+  return function protectedWindow(instrument: Fund, issuedAt: string, openAt: string, closeAt: string, knownAt = closeAt) {
     for (const r of reservations)
       if (r.instrument === instrument) {
-        if (r.testWindows.some((w) => w.issuedAt <= closeAt && w.labelKnownAt >= issuedAt))
+        if (r.testWindows.some(w => w.issuedAt <= knownAt && w.labelKnownAt >= issuedAt))
           return "reserved_window";
         if (issuedAt <= r.consumedThrough) return "consumed_window";
       }
@@ -149,13 +152,13 @@ async function once<T>(directory: string, filename: string, value: T) {
     })()
   );
 }
-function fp({ point, request }: Input) {
+function fp({ point, labelKnownAt }: Input) {
   return {
     id: point.eventId,
     sha256: digest(point),
     edition: point.edition,
     issuedAt: point.recordedAt,
-    labelKnownAt: request.closeAt,
+    labelKnownAt,
   };
 }
 export async function evaluateMatureRetail(
@@ -166,25 +169,27 @@ export async function evaluateMatureRetail(
   asOf: string,
   labels: (requests: Slot[]) => ReturnType<typeof readApprovedLabels>,
 ) {
-  const ordered = eligible
+  const observed = eligible
     .filter((v) => v.point.instrument === fund)
     .sort((a, b) => a.request.openAt.localeCompare(b.request.openAt));
   if (
-    new Set(ordered.map((v) => v.point.eventId)).size !== ordered.length ||
-    new Set(ordered.map((v) => v.request.session)).size !== ordered.length ||
+    new Set(observed.map((v) => v.point.eventId)).size !== observed.length ||
+    new Set(observed.map((v) => v.request.session)).size !== observed.length ||
     !isInstant(registeredAt) ||
     !isInstant(asOf) ||
-    ordered.some(
-      (v) =>
+    observed.some(
+      (v, i) =>
         v.point.id !== RETAIL_ID ||
         v.point.policySha256 !== RETAIL_POLICY_SHA256 ||
         !/^nyfed-sce:stock:20\d{2}-(?:0[1-9]|1[0-2])$/.test(v.point.eventId) ||
-        v.point.recordedAt < registeredAt ||
-        !full(v.request.openAt, v.request.closeAt) ||
-        v.request.closeAt >= asOf,
+        !isInstant(v.point.recordedAt) || v.point.recordedAt < registeredAt ||
+        (i > 0 && observed[i - 1].point.recordedAt >= v.point.recordedAt) ||
+        v.point.recordedAt >= v.request.openAt || !full(v.request.openAt, v.request.closeAt) ||
+        !isInstant(v.labelKnownAt) || v.labelKnownAt < v.request.closeAt,
     )
   )
     throw Error("Invalid prospective SCE maturity pool");
+  const ordered = observed.filter((v) => v.labelKnownAt < asOf);
   const prior = await readResearchReceipt<Plan>(join(directory, "plan.json"));
   const summary = {
     instrument: fund,
@@ -194,13 +199,25 @@ export async function evaluateMatureRetail(
   };
   if (!prior && ordered.length < PROSPECTIVE_MINIMUM)
     return { ...summary, status: "collecting_months" as const };
-  const candidates = ordered.slice(0, PROSPECTIVE_MINIMUM);
-  const witnesses = candidates.map(fp),
-    testAt = Math.floor(PROSPECTIVE_MINIMUM * 0.8);
+  const testAt = Math.floor(PROSPECTIVE_MINIMUM * 0.8);
+  const candidates = ordered.slice(0, testAt);
+  // Freeze the first 100 nonoverlapping test events by decision/availability clocks alone.
+  // A delayed label inside training or validation is handled by the normal purged fold.
+  let knownThrough = "";
+  for (const candidate of ordered.slice(testAt)) {
+    if (candidate.point.recordedAt <= knownThrough) continue;
+    candidates.push(candidate);
+    knownThrough = candidate.labelKnownAt;
+    if (candidates.length === PROSPECTIVE_MINIMUM) break;
+  }
+  if (!prior && candidates.length < PROSPECTIVE_MINIMUM)
+    return { ...summary, status: "awaiting_nonoverlapping_test" as const };
+  const witnesses = candidates.map(fp);
   const plan =
     prior ??
     (await once<Plan>(directory, "plan.json", {
       version: 1,
+      clockBasis: verifiedClocks,
       policySha256: RETAIL_POLICY_SHA256,
       instrument: fund,
       registeredAt,
@@ -211,6 +228,7 @@ export async function evaluateMatureRetail(
     }));
   if (
     plan.version !== 1 ||
+    (plan.clockBasis !== undefined && plan.clockBasis !== verifiedClocks) ||
     plan.policySha256 !== RETAIL_POLICY_SHA256 ||
     plan.instrument !== fund ||
     plan.registeredAt !== registeredAt ||
@@ -227,16 +245,15 @@ export async function evaluateMatureRetail(
         !isInstant(r.labelKnownAt) ||
         r.labelKnownAt >= plan.frozenAt ||
         r.issuedAt >= r.labelKnownAt ||
-        (i > 0 && plan.features[i - 1].labelKnownAt >= r.issuedAt),
+        (i > 0 && plan.features[i - 1].issuedAt >= r.issuedAt) ||
+        ((plan.clockBasis ? i > testAt : i > 0) && plan.features[i - 1].labelKnownAt >= r.issuedAt),
     )
   )
     throw Error("Changed private SCE test reservation");
   const expectedPlanSeal = { version: 1, policySha256: RETAIL_POLICY_SHA256, planSha256: digest(plan) };
   const existingSeal = await readResearchReceipt<typeof expectedPlanSeal>(join(directory, "plan-seal.json"));
-  if (!existingSeal && digest(witnesses) !== digest(plan.features))
-    throw Error("Cannot reseal unresolved private SCE test identities");
-  const planSeal = existingSeal ?? (await once(directory, "plan-seal.json", expectedPlanSeal));
-  if (digest(planSeal) !== digest(expectedPlanSeal)) throw Error("Changed sealed private SCE test plan");
+  if (existingSeal && digest(existingSeal) !== digest(expectedPlanSeal))
+    throw Error("Changed sealed private SCE test plan");
   const resultSeal = await readResearchReceipt<ResultSeal>(join(directory, "result-seal.json"));
   if (resultSeal) {
     const previous = await readResearchReceipt<{
@@ -246,6 +263,7 @@ export async function evaluateMatureRetail(
       promoted: boolean;
     }>(join(directory, "aggregate.json"));
     if (
+      !existingSeal ||
       resultSeal.version !== 1 ||
       typeof resultSeal.passes !== "boolean" ||
       resultSeal.planSha256 !== digest(plan) ||
@@ -257,6 +275,8 @@ export async function evaluateMatureRetail(
       digest(previous) !== resultSeal.resultSha256
     )
       throw Error("Changed sealed private SCE result");
+    if (!plan.clockBasis)
+      return { ...summary, status: "sealed_legacy_result" as const, aggregateSha256: resultSeal.resultSha256 };
     return {
       ...summary,
       status: "evaluated_private" as const,
@@ -269,13 +289,24 @@ export async function evaluateMatureRetail(
   for (const row of plan.features) {
     const p = book.get(row.id);
     if (!p) return { ...summary, status: "reserved_source_or_production_window_unavailable" as const };
-    if (digest(row) !== digest(fp(p))) throw Error("SCE test plan differs from its as-issued sources");
+    const current = fp(p);
+    if (digest(row) !== digest(current)) {
+      if (!plan.clockBasis && digest({ ...row, labelKnownAt: current.labelKnownAt }) === digest(current))
+        return { ...summary, status: "reserved_label_clock_changed" as const };
+      throw Error("SCE test plan differs from its as-issued sources or availability");
+    }
     pinned.push(p);
+  }
+  if (!existingSeal) {
+    if (digest(witnesses) !== digest(plan.features))
+      throw Error("Cannot reseal unresolved private SCE test identities");
+    if (digest(await once(directory, "plan-seal.json", expectedPlanSeal)) !== digest(expectedPlanSeal))
+      throw Error("Changed sealed private SCE test plan");
   }
   const got = await labels(pinned.map((v) => v.request));
   if (got.size !== pinned.length || pinned.some((p) => got.get(p.request.slot)?.status !== "paired"))
     return { ...summary, status: "awaiting_approved_settlement" as const };
-  const train: TrainingRow[] = pinned.map(({ point, request }) => {
+  const train: TrainingRow[] = pinned.map(({ point, request, labelKnownAt }) => {
     const item = got.get(request.slot)!;
     if (item.status !== "paired" || ![0, 1].includes(item.up))
       throw Error("Private retail target failed verification");
@@ -283,7 +314,7 @@ export async function evaluateMatureRetail(
       id: point.eventId,
       engineVersion: RETAIL_ID,
       issuedAt: point.recordedAt,
-      labelKnownAt: request.closeAt,
+      labelKnownAt,
       features: [point.control, point.candidate],
       up: item.up,
     };
@@ -405,6 +436,7 @@ export async function auditProspectiveRetailOutcomes(root: string) {
       throw Error("Retail settlement identities differ from their completed transaction");
     const asOf = new Date().toISOString(),
       { bySession, byEdition, slots } = prospectiveSelection(publication.snapshots, index, selection, asOf);
+    let clockReceipt: ReturnType<typeof readRetailOutcomeClocks> | undefined;
     const latest = await readProspectiveFamilyFeatures(root, undefined, "retail");
     if (latest.policySha256 !== RETAIL_POLICY_SHA256 || latest.registeredAt !== features.registeredAt)
       throw Error("Retail registration changed");
@@ -427,21 +459,30 @@ export async function auditProspectiveRetailOutcomes(root: string) {
       )
         throw Error("Unmatched SCE feature/witness");
       const fund = p.instrument as Fund;
+      const preliminary = clock.closeAt >= asOf ? "awaiting_close"
+        : bySession.get(p.session)?.id !== p.edition ? "superseded_edition"
+        : !full(clock.openAt, clock.closeAt) ? "short_session" : null;
+      if (preliminary) {
+        missing[preliminary] = (missing[preliminary] ?? 0) + 1;
+        continue;
+      }
       const slot = slots.get(outcomeKey({ snapshotId: p.edition, instrument: fund, horizon: "daily" }));
-      const rejection =
-        clock.closeAt >= asOf
-          ? "awaiting_close"
-          : bySession.get(p.session)?.id !== p.edition
-            ? "superseded_edition"
-            : !full(clock.openAt, clock.closeAt)
-              ? "short_session"
-              : (protect(fund, p.issuedAt, clock.openAt, clock.closeAt) ??
-                (slot === undefined ? "awaiting_settlement" : null));
+      let labelKnownAt: string | undefined;
+      if (slot !== undefined) {
+        clockReceipt ??= readRetailOutcomeClocks(root, index, state.outcomeLedgerTransactionId);
+        labelKnownAt = (await clockReceipt)?.[slot];
+        if (labelKnownAt && labelKnownAt < clock.closeAt) throw Error("SCE production label predates the trading close");
+      }
+      // A late price can cross an existing core test even after the underlying session has closed.
+      const rejection = protect(fund, p.issuedAt, clock.openAt, clock.closeAt, labelKnownAt) ??
+        (slot === undefined ? "awaiting_settlement"
+          : !labelKnownAt || labelKnownAt >= asOf ? "awaiting_verified_label_clock" : null);
       if (rejection) {
         missing[rejection] = (missing[rejection] ?? 0) + 1;
         continue;
       }
       eligible.push({
+        labelKnownAt: labelKnownAt!,
         point: p,
         request: { slot: slot!, identity: index[slot!], issuedAt: e.issuedAt, ...clock },
       });
