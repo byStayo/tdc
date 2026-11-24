@@ -1,5 +1,9 @@
 # Free feed access and alternatives
 
+## November 24 independent daily price lead
+
+QuantQuote lists three years of split-adjusted daily prices, dividends and splits on its free Starter tier. Requests to its documented daily endpoint for the November 23 SPY, QQQ, IWM, DIA and TLT bars all returned HTTP 401 without a key. Its terms permit internal analysis and display, require separate consent for redistributing raw data and end use rights on termination. The published terms do not establish continued retention of this product’s immutable public evaluation archive. The price documentation describes split-adjusted daily aggregates without identifying the listing opening and closing executions. No five-fund comparison could be made. The captured statuses and request hashes remain in the publisher’s private evidence. [Price fields](https://quantquote.com/data/historical-stock/) · [API and Starter plan](https://quantquote.com/) · [Terms, sections 2, 3 and 11](https://quantquote.com/terms-of-service/)
+
 ## November 24 early-close prices and free IEX order events
 
 The five funds had the same intraday direction in both price sources on all three scheduled early closes in 2025. Thirteen of the 15 fund-days also passed the ordinary 3-basis-point open and 15-basis-point close checks. The consolidated closing hour was 25.71 basis points below the DIA as-traded close on November 28 and 15.06 above IWM on December 24. Raw and split-only prices agreed within each provider on all 15 comparisons. All five official issuer histories covered the dates and reported zero ex-dividend events on those sessions. The separate September comparison covers actual cash distributions. [2025 exchange schedule](https://ir.theice.com/press/news-details/2024/NYSE-Group-Announces-2025-2026-and-2027-Holiday-and-Early-Closings-Calendar/default.aspx) · [Comparison policy](../scripts/short-session-etf-price-policy.json)
