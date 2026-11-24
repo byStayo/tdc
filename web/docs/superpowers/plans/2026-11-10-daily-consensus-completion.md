@@ -1,5 +1,7 @@
 # The Daily Consensus completion plan
 
+- [x] Register the future NY Fed retail comparison on the publishing host before the next release. The earlier monthly policy lost access to its targets once the main model reserved rolling test windows. The replacement seals each fund's feature before the bell and accepts its outcome only on the first eligible production settlement. All four equity groups are registered and have zero completed months. The first possible target is December 8. At one reading per month, the 500th possible observation is July 2068. [Registered policy and controls](../../../lib/consensus/retail-joint-model.ts)
+
 - [x] Recover Monday's premarket observations independently of delayed regular-session settlement. The November 23 native one-minute data reproduced 66 five-minute bars for each of SPY, QQQ and IWM, and all 57 reported bars for DIA. Each private approval pins its original file, observation and approval times. [Replay command](../../CONSENSUS_OPERATIONS.md#commands)
 - [x] Qualify a free five-ETF range context source for ordinary sessions. Across 80 sessions the exchange-hour construction matched both regular extremes and the close's position within the range. All 54 available complete FirstRate minute sessions also matched. [Source and daily collector](../../../lib/consensus/market-history-ranges.ts)
 
