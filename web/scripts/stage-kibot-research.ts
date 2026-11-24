@@ -6,6 +6,7 @@ import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { readDatedStudyRows } from "../lib/consensus/dated-study-review.ts";
+import { readIemElectionStudy } from "./stage-iem-events.ts";
 import { readOfrGeographicStudy } from "./stage-ofr-geographic.ts";
 import { replayOfrVolatility } from "../lib/consensus/ofr-volatility-review.ts";
 import { replayFt900Study } from "./research-ft900-exports.ts";
@@ -198,15 +199,15 @@ async function main() {
         };
       });
     });
-    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy, geographicStudy] = await Promise.all([
+    const [exportsStudy, closingStudy, meetingStudy, earningsStudy, datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy] = await Promise.all([
       readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt), readFomcEveStudy(snapshots[0].issuedAt),
       readQqqIssuerGuidanceStudy(snapshots[0].issuedAt), readDatedStudyRows(root, snapshots[0].issuedAt),
       readBlsPayrollNewsStudy(snapshots[0].issuedAt), readOfrVolatilityStudy(root, snapshots[0].issuedAt),
-      readOfrGeographicStudy(root, snapshots[0].issuedAt),
+      readOfrGeographicStudy(root, snapshots[0].issuedAt), readIemElectionStudy(root, snapshots[0].issuedAt),
     ]);
-    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies, payrollStudy, ofrStudy, geographicStudy);
+    studies.push(exportsStudy, closingStudy, meetingStudy, earningsStudy, ...datedStudies, payrollStudy, ofrStudy, geographicStudy, electionStudy);
     const aggregate: KibotResearch = {
-      schemaVersion: 9, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 10, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

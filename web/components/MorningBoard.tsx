@@ -29,7 +29,7 @@ import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
 import type { DailySettlementStatus } from "@/lib/consensus/outcome-coverage-audit";
-import { BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, OFR_GEOGRAPHIC_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
+import { IEM_ELECTION_RESEARCH, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, OFR_GEOGRAPHIC_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
   TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
@@ -1325,6 +1325,7 @@ export default function MorningBoard({
   const fomcEve = kibotResearch?.studies.find((row): row is FomcEveStudyRow => "testEves" in row);
   const ofrStudy = kibotResearch?.studies.find(row => "nativeOnlySamples" in row);
   const geographicStudy = kibotResearch?.studies.find(row => "deferredNativeSamples" in row);
+  const electionStudy = kibotResearch?.studies.find(row => "test2020Samples" in row);
   const timing = editionTiming(snapshot, history);
   const cohort = performanceView(
     performance,
@@ -2599,6 +2600,11 @@ export default function MorningBoard({
                                 <br />95% interval for improvement over U.S. stress alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
                                 <br />Adjusted p-value {row.adjustedControlP.toFixed(4)} across {row.comparisonCount} comparisons
                               </>}
+                              {"test2020Samples" in row && <>
+                                <br />Coefficient for greater certainty {row.coefficientSign} (expected positive)
+                                <br />95% interval for improvement over vote share {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                                <br />Two-campaign test p-value {row.campaignControlP.toFixed(2)}
+                              </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
                           </tr>
@@ -2680,6 +2686,17 @@ export default function MorningBoard({
                       <a href={OFR_VOLATILITY_RESEARCH.source}>OFR Financial Stress Index</a>
                       {" · "}<a href={OFR_VOLATILITY_RESEARCH.archive}>Library of Congress archive</a>
                       {" · "}<a href={OFR_VOLATILITY_RESEARCH.mirror}>Four-decimal archive</a>
+                    </p>
+                  )}
+                  {electionStudy && (instrument === "MARKET" || instrument === "SPY") && (
+                    <p className={styles.muted}>
+                      The Iowa Electronic Markets contracts priced the U.S. presidential popular vote. The study tested whether
+                      greater certainty about its winner helped predict SPY’s next full session beyond the expected vote-share margin.
+                      Both parties’ contracts traded in both markets on every included date. The two held-out campaigns contributed
+                      {" "}{electionStudy.test2020Samples} SPY sessions for 2020 and {electionStudy.test2024Samples} for 2024.
+                      The interval describes variation within those campaigns.{" "}
+                      <a href={IEM_ELECTION_RESEARCH.olderData}>Iowa historical election data</a>
+                      {" · "}<a href={IEM_ELECTION_RESEARCH.recentData}>Iowa 2024 election data</a>
                     </p>
                   )}
                   {geographicStudy && (instrument === "MARKET" || instrument === "DIA") && (
