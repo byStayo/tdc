@@ -6,11 +6,12 @@ import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { replayFt900Study } from "./research-ft900-exports.ts";
+import { replaySpyCloseLocation } from "./research-spy-close-location.ts";
 import { readPrivateResearchSessions, verifyPreviousResearchSessions, type ResearchSessionReceipt } from "../lib/consensus/kibot-verified-session.ts";
 import { readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
 import {
   FT900_RESEARCH, KIBOT_RESEARCH_FILE, KIBOT_RESEARCH_LICENSE, KIBOT_LEGACY_RESEARCH_STUDIES,
-  KIBOT_RESEARCH_SYMBOLS, validateKibotResearch, type Ft900StudyRow, type KibotResearch,
+  KIBOT_RESEARCH_SYMBOLS, SPY_CLOSE_LOCATION_RESEARCH, validateKibotResearch, type Ft900StudyRow, type KibotResearch, type SpyCloseLocationStudyRow,
 } from "../lib/consensus/kibot-research.ts";
 
 /** Only expose rounded diagnostics from the checked, cached research replay. */
@@ -29,6 +30,29 @@ export async function readFt900Study(before: string): Promise<Ft900StudyRow> {
     fxOnlyBrier: rounded(control.candidateBrier), coinBrier: combined.coinBrier,
     exportCoefficientSign: coefficient > 0 ? "positive" : coefficient < 0 ? "negative" : "zero",
     clearedMargin: summary.clearsResearchMargin,
+  };
+}
+
+/** Pin the reviewed private report, including the exact source, feature, label and model hashes. */
+const reviewedSpyCloseReplay = "30d18886783e573258ec87c9160c7fbdcc0992e0288f5e1aa11d40489e113c21";
+export async function readSpyCloseLocationStudy(before: string): Promise<SpyCloseLocationStudyRow> {
+  const { result } = await replaySpyCloseLocation(true, false, before);
+  if (!result || digest(result) !== reviewedSpyCloseReplay || result.method !== SPY_CLOSE_LOCATION_RESEARCH.id ||
+      result.before !== before || result.sources.priceSource !== KIBOT_PRICE_CITATION ||
+      result.combined.status !== "evaluated" || result.control.status !== "evaluated" || result.combined.split.testEnds >= before)
+    throw new Error("SPY close-location staging needs its exact sealed private sources and prelaunch holdout");
+  const { combined, control, summary } = result;
+  const coefficient = combined.model.weights[1];
+  const margin = Math.min(control.candidateBrier, combined.baseRateBrier, combined.coinBrier) - combined.candidateBrier;
+  if (!Number.isFinite(coefficient) || coefficient !== summary.locationCoefficient ||
+      combined.samples !== control.samples || digest(combined.split) !== digest(control.split) || combined.coinBrier !== 0.25 ||
+      (coefficient > 0 && margin > 0.01) !== summary.clearsResearchMargin)
+    throw new Error("SPY close-location held-out comparisons or research decision changed");
+  return {
+    studyId: SPY_CLOSE_LOCATION_RESEARCH.id, family: SPY_CLOSE_LOCATION_RESEARCH.family, instrument: "SPY",
+    samples: combined.samples, testSamples: combined.split.test,
+    modelBrier: Number(combined.candidateBrier.toFixed(4)), returnOnlyBrier: Number(control.candidateBrier.toFixed(4)),
+    baseRateBrier: Number(combined.baseRateBrier.toFixed(4)), coinBrier: combined.coinBrier, clearedMargin: summary.clearsResearchMargin,
   };
 }
 
@@ -77,9 +101,12 @@ async function main() {
         };
       });
     });
-    studies.push(await readFt900Study(snapshots[0].issuedAt));
+    const [exportsStudy, closingStudy] = await Promise.all([
+      readFt900Study(snapshots[0].issuedAt), readSpyCloseLocationStudy(snapshots[0].issuedAt),
+    ]);
+    studies.push(exportsStudy, closingStudy);
     const aggregate: KibotResearch = {
-      schemaVersion: 3, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
+      schemaVersion: 4, source: KIBOT_RESEARCH_LICENSE, firstEdition: history[0].id, through, daily, studies,
     };
     validateKibotResearch(aggregate, history[0]);
     const next = JSON.stringify(aggregate, null, 2) + "\n";

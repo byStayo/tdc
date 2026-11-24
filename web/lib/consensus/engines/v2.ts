@@ -1,3 +1,4 @@
+import { nyFedDeskSurveyTargetExpired } from "../nyfed-desk-expiry.ts";
 // Frozen rules2.0.0 aggregation, scoring policy and priors from a0d4830.
 // Historical replay must never import the evolving engine, policy or registry.
 import type { FamilyDefinition, Consensus, Horizon, Instrument, Signal, SignalStatus, Snapshot } from "../types.ts";
@@ -274,6 +275,7 @@ export const clamp = (n: number, low = -1, high = 1) =>
   Math.min(high, Math.max(low, n));
 export function effectiveStatus(signal: Signal, now: string): SignalStatus {
   if (signal.status !== "available") return signal.status;
+  if (nyFedDeskSurveyTargetExpired(signal, now)) return "stale";
   if (
     !signal.source.observedAt ||
     !Number.isFinite(Date.parse(signal.source.observedAt)) ||

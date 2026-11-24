@@ -1,5 +1,9 @@
 # The Daily Consensus completion plan
 
+- [x] Wire options-risk measurements for all five funds into daily collection. The 30-day index ranks and S&P 500 maturity comparison passed all 427 source comparisons for the November 20 input window. The collector keeps date-labelled index values and receipts private. [Source and rights checks](../../FREE_FEED_PATH.md#november-23-evening--options-risk-and-the-new-york-fed-survey)
+- [x] Test the prior calendar-day SPY range position after its actual data delay on 139 historical observations. The 28-date held-out result missed the incremental Brier margin and had the opposite coefficient from the registered direction. [Reproducible test](../../../scripts/research-spy-close-location.ts)
+- [x] Capture the New York Fed’s future policy-rate distribution from both native originals and retain the observed first-public capture time. The current distribution is event context. Historical ETF direction and the separate traded-contract input remain open. [Original release](https://www.newyorkfed.org/medialibrary/media/markets/survey/2026/oct-2026-sme-results.pdf)
+
 > **For agentic workers:** Use superpowers:executing-plans to implement this plan task by task. Check an item only after its acceptance evidence is recorded.
 
 **Goal:** Finish the live morning product with free sources where they meet the contract and owner-activated paid data where needed, with all fifteen required families represented by eligible directional evidence and a prospectively validated model for each supported instrument and horizon.

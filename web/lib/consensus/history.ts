@@ -27,8 +27,10 @@ import { validateFirstRatePremarket } from "./firstrate-premarket.ts";
 import { validateTltCloseSignal } from "./tlt-close-signal.ts";
 import { validateOrderActivity } from "./order-activity.ts";
 import { validateFuturesOptions } from "./futures-options.ts";
+import { validateMarketHistoryVolatility } from "./market-history-volatility.ts";
 import { validateOptionActivity } from "./option-activity.ts";
 import { validateTaiwan } from "./taiwan.ts";
+import { NYFED_DESK_SURVEY_ID, validateNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
 import { validateNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { validateJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
 import { validateUsTrade } from "./us-trade.ts";
@@ -83,9 +85,11 @@ export function validateSnapshot(snapshot: Snapshot, mode: "candidate" | "archiv
     validateTltCloseSignal(signal);
     validateOrderActivity(signal);
     validateFuturesOptions(signal);
+    validateMarketHistoryVolatility(signal);
     validateCftcProvenance(signal);
     validateTaiwan(signal, legacyTaiwanAttribution);
     validateNyFedStockOutlook(signal);
+    if (signal.id === NYFED_DESK_SURVEY_ID) validateNyFedDeskSurvey(signal, snapshot.cutoff);
     validateJapanPortfolioFlows(signal);
     validateUsTrade(signal);
     if (

@@ -27,7 +27,7 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
-import { FT900_RESEARCH, KIBOT_RESEARCH_STUDIES, type KibotResearch } from "@/lib/consensus/kibot-research";
+import { FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, researchStudyFor, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
   Catalyst,
@@ -60,7 +60,7 @@ const pct = (value: number | null) =>
   value === null ? "—" : `${Math.round(value * 100)}%`;
 const number = (value: number, decimals = 2) =>
   value.toLocaleString("en-US", { maximumFractionDigits: decimals });
-const visibleAttribution = new Set(["nyfed-sce-stock-outlook", "japan-mof-equity-flows"]);
+const visibleAttribution = new Set(["nyfed-sce-stock-outlook", "nyfed-desk-year-end-policy-expectations", "japan-mof-equity-flows"]);
 const date = (value: string) =>
   new Date(
     value.length === 10 ? `${value}T12:00:00Z` : value,
@@ -158,6 +158,40 @@ function Sparkline({
     </svg>
   );
 }
+function ImpliedVolatility({ signals, instrument, reference, inspect }: {
+  signals: Signal[]; instrument: Instrument; reference: string; inspect: () => void;
+}) {
+  const inputs = signals.filter(s => s.id.startsWith("market-history-iv-") &&
+    (instrument === "MARKET" || s.instruments.includes(instrument)));
+  const curve = inputs.find(s => s.id === "market-history-iv-spx-term");
+  const rows = inputs.filter(s => s !== curve);
+  if (!rows.length) return null;
+  const bands = ["Lowest fifth", "Second fifth", "Middle fifth", "Fourth fifth", "Highest fifth"];
+  return (
+    <section className={styles.panel} aria-label="Implied volatility by benchmark">
+      <div className={styles.panelHead}>
+        <h3>Implied volatility</h3>
+        <button onClick={inspect} aria-label="Inspect implied volatility sources"><ArrowUpRight size={18} /></button>
+      </div>
+      <p className={styles.panelSubtitle}>30-day option-implied volatility compared with each benchmark’s preceding 60 trading sessions</p>
+      <dl className={styles.futuresOptionsRows}>
+        {rows.map(s => {
+          const symbol = s.instruments.find(scope => scope !== "MARKET");
+          const status = effectiveStatus(s, reference);
+          const point = s.series[0];
+          return <div key={s.id}>
+            <dt>{symbol}{symbol !== "TLT" && <span> · {s.title.replace(" implied volatility", "")}</span>}</dt>
+            <dd>{point && (status === "available" || status === "stale")
+              ? <><strong>{bands[point.value - 1]}</strong><span>{datedYear(point.date)}{status === "stale" ? " · Stale" : ""}</span></>
+              : <span>Awaiting verified data</span>}</dd>
+          </div>;
+        })}
+      </dl>
+      {curve && effectiveStatus(curve, reference) === "available" && <p className={styles.finePrint}>{curve.summary}</p>}
+    </section>
+  );
+}
+
 function ListedOptions({ sample, instrument, reference }: { sample: NonNullable<Snapshot["optionActivity"]>; instrument: Instrument; reference: string }) {
   const rows = sample.rows.filter(row => instrument === "MARKET" || row.symbol === instrument);
   return (
@@ -1408,7 +1442,7 @@ export default function MorningBoard({
         </div>
         <p className={layout.coverageNote}>
           {consensus.directionalCoverage !== undefined
-            ? `${pct(consensus.coverage)} observation coverage, including contextual evidence.`
+            ? `${number(consensus.coverage * 100, 1)}% observation coverage, including contextual evidence.`
             : `${votingFamilies} of ${FAMILIES.length} families provided directional input.`}
         </p>
         {agedSincePublication > 0 && (
@@ -1947,6 +1981,7 @@ export default function MorningBoard({
                   </section>
                 </div>
                 <FuturesOptions signals={current} reference={reference} onInspect={() => setFamily("institutions")} />
+                <ImpliedVolatility signals={snapshot.signals} instrument={instrument} reference={reference} inspect={() => setFamily("options")} />
                 {snapshot.optionActivity && <ListedOptions sample={snapshot.optionActivity} instrument={instrument} reference={reference} />}
                 {instrument !== "TLT" && snapshot.holdings && (
                   <InstitutionalHoldings
@@ -2442,16 +2477,18 @@ export default function MorningBoard({
                       </thead>
                       <tbody role="rowgroup">
                         {kibotResearch.studies.filter(row => instrument === "MARKET" || row.instrument === instrument).map(row => (
-                          <tr key={`${row.family}:${row.instrument}`} role="row">
+                          <tr key={`${researchStudyFor(row).id}:${row.family}:${row.instrument}`} role="row">
                             <th scope="row" role="rowheader">
-                              {KIBOT_RESEARCH_STUDIES.find(study => study.family === row.family)?.label}
+                              {researchStudyFor(row).label}
                             </th>
                             <td role="cell" data-label="ETF">{row.instrument}</td>
                             <td role="cell" data-label="Held out / total">{row.testSamples} / {row.samples}</td>
                             <td role="cell" data-label="Model Brier">{row.modelBrier.toFixed(4)}</td>
                             <td role="cell" data-label="Comparison Brier">
                               Base rate {row.baseRateBrier.toFixed(4)}
-                              {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}<br />50/50 {row.coinBrier.toFixed(4)}</>}
+                              {row.family === "international" && <><br />FX only {row.fxOnlyBrier.toFixed(4)}</>}
+                              {"studyId" in row && <><br />Same-day return only {row.returnOnlyBrier.toFixed(4)}</>}
+                              {"coinBrier" in row && <><br />50/50 {row.coinBrier.toFixed(4)}</>}
                             </td>
                             <td role="cell" data-label="Result">
                               {row.clearedMargin ? "Passed" : "Below threshold"}
@@ -2462,13 +2499,25 @@ export default function MorningBoard({
                       </tbody>
                     </table>
                   </div>
-                  {kibotResearch.schemaVersion === 3 && (instrument === "MARKET" || instrument === "DIA") && (
+                  {kibotResearch.schemaVersion >= 3 && (instrument === "MARKET" || instrument === "DIA") && (
                     <p className={styles.muted}>
                       The DIA study tested whether the monthly change in U.S. exports added predictive value beyond the euro–dollar rate.
                       It used the first 7:48 a.m. New York cutoff after publication and excluded shortened sessions. Passing also required a positive export
                       coefficient and an improvement of more than 0.01 over FX alone. These historical dates overlap earlier studies.{" "}
                       <a href={FT900_RESEARCH.census} target="_blank" rel="noopener noreferrer">U.S. Census Bureau and BEA trade releases</a>
                       {" · "}<a href={FT900_RESEARCH.ecb} target="_blank" rel="noopener noreferrer">ECB exchange rates</a>
+                    </p>
+                  )}
+                  {kibotResearch.schemaVersion >= 4 && (instrument === "MARKET" || instrument === "SPY") && (
+                    <p className={styles.muted}>
+                      The SPY study tested whether the close’s position within a full New York calendar day’s trading range added
+                      information beyond that day’s open-to-close return. The outcome was a later regular session’s direction.
+                      Historical 2025 bars were retrieved in 2026. The replay applied the provider’s delivery delay and reused dates
+                      from earlier studies. Passing required a positive close-location coefficient and a Brier improvement greater than
+                      0.01 against each comparison.{" "}
+                      <a href={SPY_CLOSE_LOCATION_RESEARCH.bars} target="_blank" rel="noopener noreferrer">Market History bar definitions</a>
+                      {" · "}<a href={SPY_CLOSE_LOCATION_RESEARCH.delivery} target="_blank" rel="noopener noreferrer">Delivery schedule</a>
+                      {" · "}<a href={SPY_CLOSE_LOCATION_RESEARCH.terms} target="_blank" rel="noopener noreferrer">Source terms</a>
                     </p>
                   )}
                   <a className={layout.inspectLink} href={kibotResearch.source} target="_blank" rel="noopener noreferrer">

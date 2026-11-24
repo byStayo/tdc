@@ -8,6 +8,7 @@ import { collectPrivateCredit } from "./private-credit.ts";
 import { collectOperfCapital } from "./operf-capital-source.ts";
 import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.ts";
 import { collectBocSurvey } from "./boc-survey.ts";
+import { collectNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
 import { collectNyFedStockOutlook } from "./nyfed-stock-outlook.ts";
 import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
 import { collectUsTrade } from "./us-trade.ts";
@@ -17,6 +18,8 @@ import { collectAnalystRatings } from "./analyst-ratings.ts";
 import { collectEtfFlows } from "./etf-flows.ts";
 import { collectEtfiqRetailOrders, collectSecMidas } from "./order-activity.ts";
 import { collectFuturesOptions } from "./futures-options.ts";
+import { join } from "node:path";
+import { collectMarketHistoryVolatility } from "./market-history-volatility.ts";
 import { collectOptionActivity } from "./option-activity.ts";
 import { cftcTableClock, cftcReportCitation } from "./cftc-provenance.ts";
 import { collectTaiwan } from "./taiwan.ts";
@@ -927,6 +930,7 @@ export async function collectSnapshot(
     policyRates,
     bocSurvey,
     householdOutlook,
+    deskSurvey,
     japanPortfolioFlows,
     usExports,
     holdings,
@@ -937,6 +941,7 @@ export async function collectSnapshot(
     retailOrders,
     exchangeOrders,
     optionActivity,
+    volatility,
   ] = await Promise.all([
     macro(fetcher),
     currencies(fetcher),
@@ -954,6 +959,8 @@ export async function collectSnapshot(
     collectPolicyRates((url) => publicText(url, fetcher)),
     collectBocSurvey((url) => publicText(url, fetcher)),
     collectNyFedStockOutlook((url) => publicText(url, fetcher)),
+    collectNyFedDeskSurvey((url) => publicBytes(url, fetcher, 2_000_000, "*/*"),
+      archiveRoot ? join(archiveRoot, ".consensus/private-nyfed-desk-survey/live") : undefined),
     collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),
     collectUsTrade((url) => publicText(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
@@ -967,6 +974,7 @@ export async function collectSnapshot(
       console.error("Market History options receipt check failed:", error.message);
       return undefined;
     }) : undefined,
+    collectMarketHistoryVolatility(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-volatility-indices") : undefined),
   ]);
   const issuedAt = new Date().toISOString(),
     signals = [
@@ -984,6 +992,7 @@ export async function collectSnapshot(
       ...policyRates,
       bocSurvey,
       householdOutlook,
+      deskSurvey,
       japanPortfolioFlows,
       usExports,
       ...holdings.signals,
@@ -991,6 +1000,7 @@ export async function collectSnapshot(
       // Match the scoped addition's position so a full refresh cannot create
       // an edition solely by moving otherwise identical source evidence.
       ...futuresOptions,
+      ...volatility,
       ...etfFlows,
       analystRatings,
       ...taiwan,
@@ -1017,7 +1027,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 56 + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 64 + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

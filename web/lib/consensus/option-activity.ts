@@ -5,10 +5,9 @@ import { exchangeSession } from "./exchange-calendar.ts";
 import { OCC_VOLUME_SYMBOLS, previousOccSession } from "./occ-volume.ts";
 import { latestOptionSession } from "./option-activity-clock.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
-import { sourceChunk, sourceResponse } from "./source-failure.ts";
+import { marketHistoryPreview as delivery } from "./market-history-preview.ts";
 import { newYorkDate, newYorkTimestamp } from "./time.ts";
 
-const API = "https://getmarkethistory.com/api/v1/";
 export const OPTION_ACTIVITY_SOURCE = "https://getmarkethistory.com/docs/bars/";
 const METHOD = "opra-matched-monthly-volume-v1";
 const DAY = 86_400_000;
@@ -42,31 +41,6 @@ export function optionSampleExpiry(session: string) {
     if (expiry >= first + 21 * DAY) return dateOnly(expiry);
   }
   throw new Error("No reviewed standard monthly expiration");
-}
-
-async function delivery(path: string, fetcher: Read) {
-  const bars = path.startsWith("bars/");
-  const response = await sourceResponse(fetcher, API + path, { credentials: "omit", redirect: "error",
-    signal: AbortSignal.timeout(15000), headers: { Accept: bars ? "application/x-ndjson" : "application/json" } });
-  const reader = response.body!.getReader();
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    const mime = bars ? "application/x-ndjson" : "application/json";
-    if (!response.headers.get("content-type")?.toLowerCase().includes(mime) ||
-        (response.headers.has("x-bars-charged") && response.headers.get("x-bars-charged") !== "0"))
-      throw new Error("Unexpected keyless response");
-    for (;;) {
-      const chunk = await sourceChunk(reader);
-      if (chunk.done) break;
-      size += chunk.value.byteLength;
-      if (size > 500000) throw new Error("Response exceeds the options sample limit");
-      chunks.push(chunk.value);
-    }
-  } catch (error) { await reader.cancel().catch(() => undefined); throw error; }
-  finally { reader.releaseLock(); }
-  const text = new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks));
-  return { text, sha256: hash(text), headers: response.headers };
 }
 
 async function dailyBar(asset: "stocks" | "options", symbol: string, session: string, fetcher: Read) {

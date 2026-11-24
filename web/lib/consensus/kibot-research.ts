@@ -22,7 +22,12 @@ export const FT900_RESEARCH = {
   census: "https://www.census.gov/foreign-trade/Press-Release/ft900_index.html",
   ecb: "https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A",
 } as const;
-export const KIBOT_RESEARCH_STUDIES = [...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH] as const;
+export const SPY_CLOSE_LOCATION_RESEARCH = {
+  id: "prelaunch-spy-close-location-2025-v1", family: "technicals", label: "Closing position in the daily range",
+  bars: "https://getmarkethistory.com/docs/bars/", delivery: "https://getmarkethistory.com/docs/reliability/",
+  terms: "https://getmarkethistory.com/docs/terms/",
+} as const;
+export const KIBOT_RESEARCH_STUDIES = [...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH] as const;
 
 type Symbol = typeof KIBOT_RESEARCH_SYMBOLS[number];
 type StudyMetrics = {
@@ -32,17 +37,21 @@ export type Ft900StudyRow = StudyMetrics & {
   family: "international"; instrument: "DIA"; fxOnlyBrier: number; coinBrier: number;
   exportCoefficientSign: "positive" | "negative" | "zero";
 };
+export type SpyCloseLocationStudyRow = StudyMetrics & {
+  studyId: typeof SPY_CLOSE_LOCATION_RESEARCH.id; family: "technicals"; instrument: "SPY";
+  returnOnlyBrier: number; coinBrier: number;
+};
 type LegacyStudyRow = StudyMetrics & {
   family: typeof KIBOT_LEGACY_RESEARCH_STUDIES[number]["family"]; instrument: Symbol;
 };
 
 export interface KibotResearch {
-  schemaVersion: 1 | 2 | 3;
+  schemaVersion: 1 | 2 | 3 | 4;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
   daily: { instrument: Symbol; sessions: number; calls: number; eligibleSessions?: number }[];
-  studies: (LegacyStudyRow | Ft900StudyRow)[];
+  studies: (LegacyStudyRow | Ft900StudyRow | SpyCloseLocationStudyRow)[];
 }
 
 function exact(value: unknown, keys: string[]): value is Record<string, unknown> {
@@ -72,11 +81,27 @@ function isFt900Row(row: unknown): row is Ft900StudyRow {
   return row.exportCoefficientSign !== "positive" || edge <= 100;
 }
 
+export function researchStudyFor(row: KibotResearch["studies"][number]) {
+  if ("studyId" in row) return SPY_CLOSE_LOCATION_RESEARCH;
+  if (row.family === FT900_RESEARCH.family) return FT900_RESEARCH;
+  return KIBOT_LEGACY_RESEARCH_STUDIES.find(study => study.family === row.family)!;
+}
+
+function isSpyCloseLocationRow(row: unknown): row is SpyCloseLocationStudyRow {
+  if (!exact(row, [...studyKeys, "studyId", "returnOnlyBrier", "coinBrier"]) || !validMetrics(row) ||
+      row.studyId !== SPY_CLOSE_LOCATION_RESEARCH.id || row.family !== SPY_CLOSE_LOCATION_RESEARCH.family ||
+      row.instrument !== "SPY" || !brier(row.returnOnlyBrier) || row.coinBrier !== 0.25 || !brier(row.baseRateBrier) ||
+      !brier(row.modelBrier)) return false;
+  // Staging additionally checks the unrounded errors and positive-coefficient requirement.
+  const edge = Math.round(10000 * (Math.min(row.returnOnlyBrier, row.baseRateBrier, row.coinBrier) - row.modelBrier));
+  return !row.clearedMargin || edge >= 100;
+}
+
 /** Only aggregate counts and rounded research errors are public. */
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      ![1, 2, 3].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
+      ![1, 2, 3, 4].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -85,8 +110,11 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
     return fail();
 
   const legacyCount = KIBOT_LEGACY_RESEARCH_STUDIES.reduce((sum, study) => sum + study.size, 0);
-  const hasFt900 = value.schemaVersion === 3;
-  if (value.studies.length !== legacyCount + Number(hasFt900) || (hasFt900 && !isFt900Row(value.studies[legacyCount]))) return fail();
+  const hasFt900 = value.schemaVersion === 3 || value.schemaVersion === 4;
+  const hasCloseLocation = value.schemaVersion === 4;
+  if (value.studies.length !== legacyCount + Number(hasFt900) + Number(hasCloseLocation) ||
+      (hasFt900 && !isFt900Row(value.studies[legacyCount])) ||
+      (hasCloseLocation && !isSpyCloseLocationRow(value.studies[legacyCount + 1]))) return fail();
   const dailyKeys = ["instrument", "sessions", "calls"];
   if (value.schemaVersion !== 1) dailyKeys.push("eligibleSessions");
   for (const [index, row] of value.daily.entries()) {

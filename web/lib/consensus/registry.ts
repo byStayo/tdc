@@ -276,9 +276,9 @@ const REQUIRED_FEEDS: {
   {
     id: "options-chain",
     family: "options",
-    title: "Options, IV & gamma",
+    title: "Options chain, skew & dealer gamma",
     reason:
-      "A verified options chain is unavailable. Implied volatility, skew and gamma remain unmeasured.",
+      "A verified strike-by-strike options chain is needed to measure volatility skew and dealer gamma.",
     url: "https://thedailyconsensus.com/methodology",
   },
   {
