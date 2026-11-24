@@ -5,6 +5,7 @@ import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt, scheduledPreopenSession } from "../lib/consensus/preopen-receipt.ts";
 import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
+import { analystStudy } from "../lib/consensus/analyst-study.ts";
 import { etfFlowStudy } from "../lib/consensus/etf-flow-study.ts";
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 import { enrollJointRetail } from "../lib/consensus/retail-joint.ts";
@@ -74,6 +75,11 @@ async function verify(snapshot: Snapshot, session?: string) {
     catch (error) {
       console.error("Private fund-flow enrollment failed.", error instanceof Error ? error.message : String(error));
       fundFlows = { status: "failed" };
+    }
+    try { secondaryFamilies.analysts = await analystStudy.enroll(root, session, snapshot.id); }
+    catch (error) {
+      console.error("Private analyst study enrollment failed.", error instanceof Error ? error.message : String(error));
+      secondaryFamilies.analysts = { status: "failed", enrolled: 0 };
     }
     if ("available" in familyFeatures) {
       const missing = new Set(familyFeatures.missing.map(m => m.id + "/" + m.instrument));

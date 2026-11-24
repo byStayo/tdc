@@ -59,6 +59,21 @@ export async function verifyPreopenReceipt(root: string, session: string, editio
   return verify(receipt, session, edition, archive, asOf);
 }
 
+/** Select the previous issue from the index actually seen in public, before any later edits or releases. */
+export async function previousIssueInWitnessedIndex(root: string, session: string, edition: string, archive: Buffer, asOf: string, before: string) {
+  const original = await readResearchReceipt<Receipt>(file(root, session, edition));
+  if (!original) throw Error("No pre-open public index for selecting a previous issue");
+  verify(original, session, edition, archive, asOf);
+  const index = JSON.parse(original.indexText) as HistoryEntry[];
+  for (const [i, entry] of index.entries()) {
+    if (typeof entry.issuedAt !== "string" || !Number.isFinite(Date.parse(entry.issuedAt)) ||
+        new Date(entry.issuedAt).toISOString() !== entry.issuedAt || entry.id !== entry.issuedAt.replace(/[:.]/g, "-") ||
+        !/^[a-f0-9]{64}$/.test(entry.sha256) || (i > 0 && index[i - 1].issuedAt >= entry.issuedAt))
+      throw Error("Invalid historical entry in the witnessed public index");
+  }
+  return index.findLast(entry => entry.issuedAt < before);
+}
+
 function morningFile(path: string, edition: string) {
   return resolve(dirname(path), "same-day", edition + ".json");
 }

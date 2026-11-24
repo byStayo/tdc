@@ -1,4 +1,8 @@
 import { createHash } from "node:crypto";
+import { dirname, join } from "node:path";
+import { isDeepStrictEqual } from "node:util";
+import { durableDirectory, durableJSON } from "../publication-storage.ts";
+import { readResearchReceipt } from "./research-price-capture.ts";
 import type { PublicDocument } from "./calendars.ts";
 import type { Signal, Snapshot } from "./types.ts";
 import { SourceChallengeError, sourceFailureKind } from "./source-failure.ts";
@@ -115,6 +119,41 @@ export function parseAnalystRatings(text: string, cutoff: string) {
   return { updatedAt, months };
 }
 
+function vintageFile(root: string, sha: string) {
+  if (!/^[a-f0-9]{64}$/.test(sha)) fail();
+  return join(root, ".consensus/private-quantisnow-vintages/v1", sha + ".json");
+}
+
+async function captureAnalystVintage(root: string, doc: PublicDocument) {
+  const file = vintageFile(root, doc.sha256);
+  await durableDirectory(dirname(file), 0o700);
+  try {
+    await durableJSON(file, doc, true);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+  }
+  const saved = await readResearchReceipt<PublicDocument>(file);
+  if (!saved || saved.text !== doc.text || saved.sha256 !== doc.sha256) throw Error("Original Quantisnow response differs");
+  verifyDocument(saved, new Date().toISOString());
+}
+
+/** Recover the exact original daily computation confirmed by the published market observation. */
+export async function replayAnalystVintage(root: string, signal: Signal, cutoff: string) {
+  if (signal.id !== ANALYST_ID || signal.status !== "available" || !signal.source.sha256)
+    throw Error("No available Quantisnow observation");
+  validateAnalystRatings(signal);
+  const doc = await readResearchReceipt<PublicDocument>(vintageFile(root, signal.source.sha256));
+  if (!doc) return null;
+  if (doc.sha256 !== signal.source.sha256 || signal.source.retrievedAt > cutoff ||
+      doc.retrievedAt > signal.source.retrievedAt) throw Error("Quantisnow original was unavailable at the published cutoff");
+  verifyDocument(doc, cutoff);
+  const { updatedAt, months } = parseAnalystRatings(doc.text, doc.retrievedAt);
+  const { partial, metrics, series } = analystMeasures(months, updatedAt);
+  if (updatedAt !== signal.source.observedAt || !isDeepStrictEqual(metrics, signal.metrics) ||
+      !isDeepStrictEqual(series, signal.series)) throw Error("Published Quantisnow figures differ from the native response");
+  return partial ? { updatedAt, firstCapturedAt: doc.retrievedAt, sha256: doc.sha256, counts: partial.values } : null;
+}
+
 export async function collectAnalystRatings(read: (url: string) => Promise<PublicDocument>,
   now = () => new Date().toISOString(), previous?: Snapshot, archiveRoot?: string): Promise<Signal> {
   const base: Signal = {
@@ -131,6 +170,10 @@ export async function collectAnalystRatings(read: (url: string) => Promise<Publi
     verifyDocument(doc, now());
     const { updatedAt, months } = parseAnalystRatings(doc.text, doc.retrievedAt);
     const { latest, partial, metrics, series } = analystMeasures(months, updatedAt);
+    if (archiveRoot) {
+      try { await captureAnalystVintage(archiveRoot, doc); }
+      catch (error) { console.error("Private Quantisnow vintage capture failed.", error instanceof Error ? error.message : String(error)); }
+    }
     return { ...base, status: "available", metrics, series,
       summary: `${latest.month} full month: ${latest.values.upgrades} upgrades and ${latest.values.downgrades} downgrades. ${partial ? `${partial.month} month to date: ${partial.values.upgrades} upgrades and ${partial.values.downgrades} downgrades, through provider update ${updatedAt}.` : "No current partial month supplied."} Selected US stocks; no directional vote.`,
       source: { ...base.source, retrievedAt: doc.retrievedAt, observedAt: updatedAt, releasedAt: updatedAt, sha256: doc.sha256 },
