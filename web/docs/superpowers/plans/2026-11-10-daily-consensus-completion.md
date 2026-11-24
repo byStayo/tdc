@@ -1,5 +1,7 @@
 # The Daily Consensus completion plan
 
+- [x] Test signed FOMC dissents against the majority rate move and prior TLT return. The source-only review qualified 157 of 183 scheduled statements before opening the price history. The registered comparison missed its thresholds. [Originals and eligibility](../../FREE_FEED_PATH.md#november-24-fomc-votes-and-the-following-tlt-session)
+
 - [x] Run the private prospective evaluator after the November 23 data arrived and independently compare the five outcomes against the vendor evaluation sample. Five more rows resolved. Every forecast had abstained.
 - [x] Verify independently delivered free regular-session raw and split-only grids for the four equity funds. All 16 endpoints matched the complete FirstRate minutes on November 19–20. Reconcile all five issuer cash histories through November 23 against an authenticated second delivery.
 - [ ] Settle November 23 publicly once a permitted production combination covers each fund, both edges, the correct share basis and the original issuer evidence. Five overdue targets remain. The new QQQ exception and TLT listing routes need authorized inputs. A pending market feed does not occupy a reserved model holdout. [Price and permissions review](../../FREE_FEED_PATH.md#november-24-independent-price-controls-and-monday-outcomes)
