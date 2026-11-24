@@ -5,7 +5,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareKibotPrimary } from "../lib/consensus/kibot-eod-primary.ts";
 import { prepareMarketHistoryRanges } from "../lib/consensus/market-history-ranges.ts";
-import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
+import { prepareFirstRate, prepareFirstRatePremarket } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
 import { editorialPreparationMode } from "../lib/editorial-preparation-mode.ts";
@@ -59,6 +59,7 @@ try {
     error: error.killed ? "FirstRate source capture exceeded 105 seconds"
       : error.stderr?.trim().slice(0, 200) || error.message || "FirstRate preparation did not complete",
   }));
+  const priorPremarket = await prepareFirstRatePremarket(PROJECT_ROOT);
   const tltClosingTrend = await prepareTltClosingTrend(PROJECT_ROOT).catch((error: Error) =>
     ({ status: "unavailable", error: error.message.slice(0, 220) }));
   const tltSettlementQualification = !mode.freePriceAccount ? { status: "skipped_public_only" } :
@@ -86,6 +87,7 @@ try {
     issuerRevenue,
     form144,
     firstRate,
+    priorPremarket,
     tltClosingTrend,
     tltSettlementQualification,
     kibotSubscriber,

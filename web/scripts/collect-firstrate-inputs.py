@@ -3,6 +3,7 @@
 import argparse
 import csv
 import datetime as dt
+from decimal import Decimal
 from email.utils import parsedate_to_datetime
 from hashlib import sha256
 from io import BytesIO, StringIO
@@ -199,8 +200,48 @@ def read_premarket(symbol, raw, day):
     return {"session": day, "changePct": round(100 * (last[1] / first[0] - 1), 1), "activeMinutes": len(bars)}
 
 
+def check_premarket_grids(symbol, raw, day):
+    """Rebuild the provider's five-minute OHLCV buckets from that session's premarket trades."""
+    with ZipFile(BytesIO(raw)) as archive:
+        def rows(interval):
+            member = archive.getinfo(f"{symbol}_{interval}min_sample.csv")
+            if member.file_size > 3_000_000:
+                raise ValueError("Oversized premarket comparison file")
+            table = csv.DictReader(StringIO(archive.read(member).decode("utf-8-sig")))
+            if tuple(table.fieldnames or ()) != HEADERS:
+                raise ValueError("Unexpected premarket OHLCV columns")
+            previous = None
+            for row in table:
+                stamp = row["timestamp"]
+                if not day + " 04:00:00" <= stamp < day + " 09:30:00":
+                    continue
+                instant = dt.datetime.fromisoformat(stamp)
+                if (instant.isoformat(sep=" ") != stamp or instant.tzinfo or instant.second or instant.microsecond or
+                        instant.minute % interval or (previous and stamp <= previous) or len(row) != len(HEADERS) or
+                        not all(re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", row[name] or "") for name in HEADERS[1:-1]) or
+                        not re.fullmatch(r"[0-9]+", row["volume"] or "")):
+                    raise ValueError("Invalid premarket comparison row")
+                read_ohlcv(symbol, row)
+                previous = stamp
+                yield instant, [Decimal(row[name]) for name in HEADERS[1:-1]] + [int(row["volume"])]
+
+        buckets = {}
+        for instant, (opening, high, low, close, volume) in rows(1):
+            at = instant.replace(minute=instant.minute // 5 * 5)
+            if at not in buckets:
+                buckets[at] = [opening, high, low, close, volume]
+            else:
+                bar = buckets[at]
+                bar[1], bar[2], bar[3], bar[4] = max(bar[1], high), min(bar[2], low), close, bar[4] + volume
+        original = dict(rows(5))
+        if not 2 <= len(original) <= 66 or original != buckets:
+            raise ValueError("Premarket minute aggregates differ from the five-minute delivery")
+        return len(original)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--compare-premarket-grids", action="store_true")
     parser.add_argument("through", type=dt.date.fromisoformat)
     parser.add_argument("--cached-only", action="store_true")
     parser.add_argument("--cached-premarket", choices=EQUITY_SAMPLES,
@@ -212,6 +253,8 @@ def main():
     parser.add_argument("--cached-issuer-history-from", type=dt.date.fromisoformat,
                         help="Read only issuer histories from an existing capture")
     args = parser.parse_args()
+    if args.compare_premarket_grids and not args.cached_premarket:
+        parser.error("Premarket comparisons require a specific locally captured ETF")
     folder = ROOT / ".consensus" / "private-firstrate" / "captures" / args.through.isoformat()
     issuer_history = args.cached_issuer_history_from
     cached_only = args.cached_only or issuer_history is not None or args.cached_premarket is not None
@@ -232,10 +275,13 @@ def main():
                 raise ValueError("Premarket replay requires the reviewed session close")
             symbol = args.cached_premarket
             raw, meta, _ = capture(folder, f"sample-{symbol}", STORAGE + f"frd_sample_etf_{symbol}.zip",
-                                   SAMPLE_SIZE, True, expected_close=args.expected_close)
+                                   SAMPLE_SIZE, True, session=args.through.isoformat() if args.compare_premarket_grids else None,
+                                   expected_close=args.expected_close)
             result = {**read_premarket(symbol, raw, args.through.isoformat()), "symbol": symbol, "url": meta["url"],
                       "sha256": meta["sha256"], "retrievedAt": meta["capturedAt"],
                       "vintageAt": utc(parsedate_to_datetime(meta["lastModified"]))}
+            if args.compare_premarket_grids:
+                result["verifiedBuckets"] = check_premarket_grids(symbol, raw, args.through.isoformat())
             print(json.dumps(result, allow_nan=False))
             return
         samples = []

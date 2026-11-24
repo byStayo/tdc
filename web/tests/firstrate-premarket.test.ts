@@ -23,7 +23,8 @@ const docs = "Two weeks of split-adjusted sample data. Timestamps run from the s
 const rows = ["03:59:00,320,330,310,325,550", "04:00:00,113.2589,122,110,112,7",
   "06:30:00,130,140,124,132,41", "09:29:00,115,119,113,117.1472,5", "09:30:00,400,411,385,402,1"];
 
-async function fixture(t: TestContext, modifications: Partial<Record<typeof symbols[number], string[]>> = {}) {
+async function fixture(t: TestContext, modifications: Partial<Record<typeof symbols[number], string[]>> = {},
+  fiveMinuteRows?: Partial<Record<typeof symbols[number], string[]>>) {
   const directory = await mkdtemp(join(tmpdir(), "premarket-test-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const scripts = join(directory, "scripts"), privateDir = join(directory, ".consensus/private-firstrate");
@@ -35,7 +36,10 @@ async function fixture(t: TestContext, modifications: Partial<Record<typeof symb
   const symbolsApproved = [];
   for (const symbol of symbols) {
     const data = ["timestamp,open,high,low,close,volume", ...(modifications[symbol] ?? rows).map(row => day + " " + row)].join("\n");
-    const bytes = zipSync({ "_readme_documentation.txt": strToU8(docs), [symbol + "_1min_sample.csv"]: strToU8(data) });
+    const five = fiveMinuteRows?.[symbol];
+    const bytes = zipSync({ "_readme_documentation.txt": strToU8(docs), [symbol + "_1min_sample.csv"]: strToU8(data),
+      ...(five && { [symbol + "_5min_sample.csv"]: strToU8(["timestamp,open,high,low,close,volume", ...five.map(row => day + " " + row)].join("\n")),
+        [symbol + "_1day_sample.csv"]: strToU8("timestamp,open,high,low,close,volume\n" + day + ",100,110,90,103,90000") }) });
     const sha256 = createHash("sha256").update(bytes).digest("hex");
     const url = "https://frd001.s3.us-east-2.amazonaws.com/frd_sample_etf_" + symbol + ".zip";
     await writeFile(join(captures, "sample-" + symbol + ".bin"), bytes, { mode: 0o600 });
@@ -55,6 +59,39 @@ function checkSnapshot(signals: Signal[], cutoff: string) {
   validateSnapshot({ schemaVersion: 1, origin: "prospective", id: cutoff.replace(/[:.]/g, "-"), cutoff,
     issuedAt: cutoff, engineVersion: "consensus-rules-2.0.0", catalysts: [], signals, sourcesAttempted: 1, collectionErrors: [] });
 }
+
+const nativeBuckets = [rows[1], rows[2], rows[3].replace("09:29", "09:25")];
+test("cross-interval approvals qualify each prior premarket without regular settlement and pin the first review", async t => {
+  const spyMinutes = [rows[0], rows[1], "04:01:00,112,126,101,115.1234,19", ...rows.slice(2)];
+  const { directory, path, captures } = await fixture(t, { SPY: spyMinutes }, {
+    SPY: ["04:00:00,113.2589,126,101,115.1234,26", ...nativeBuckets.slice(1)],
+    QQQ: nativeBuckets, IWM: [nativeBuckets[0], nativeBuckets[1].replace(",41", ",40"), nativeBuckets[2]],
+  });
+  await rm(path);
+  const prepared = await firstRate.prepareFirstRatePremarket(directory, () => approvedAt);
+  assert.equal(prepared.session, day);
+  assert.deepEqual(prepared.funds.map(f => f.status), ["available", "available", "unavailable", "unavailable"]);
+  assert.deepEqual(prepared.funds.slice(0, 2).map(f => f.verifiedBuckets), [3, 3]);
+  assert.deepEqual(await firstRate.loadFirstRatePremarket(directory, capturedAt), []);
+  const signals = await firstRate.loadFirstRatePremarket(directory, approvedAt);
+  assert.deepEqual(signals.map(s => s.instruments[0]), ["SPY", "QQQ"]);
+  assert.ok(signals.every(s => s.source.approvedAt === approvedAt && s.scores.daily === null));
+  const later = await firstRate.prepareFirstRatePremarket(directory, () => "2026-11-19T11:00:00.000Z");
+  assert.equal(later.funds[0].approvedAt, approvedAt);
+  await assert.rejects(readFile(path), { code: "ENOENT" });
+  await writeFile(join(captures, "sample-QQQ.bin"), "replaced archive");
+  assert.deepEqual((await firstRate.loadFirstRatePremarket(directory, approvedAt)).map(s => s.instruments[0]), ["SPY"]);
+});
+
+test("a first premarket check after the next opening cannot create an earlier approval", async t => {
+  const { directory, path } = await fixture(t, {}, { SPY: nativeBuckets });
+  await rm(path);
+  const prepared = await firstRate.prepareFirstRatePremarket(directory, () => "2026-11-19T14:30:00.000Z");
+  assert.equal(prepared.funds[0].status, "expired");
+  const seal = join(directory, ".consensus/private-firstrate/premarket-reviewed", day, "SPY.json");
+  await assert.rejects(readFile(seal), { code: "ENOENT" });
+  assert.deepEqual(await firstRate.loadFirstRatePremarket(directory, approvedAt), []);
+});
 
 test("approved sparse premarket samples join each ETF's premarket family only for the next session", async t => {
   const { directory, path } = await fixture(t);

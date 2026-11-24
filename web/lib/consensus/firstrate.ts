@@ -331,12 +331,74 @@ export async function loadFirstRateTechnicals(root: string, cutoff: string) {
   return approval ? firstRateTechnicalSignals(approval, cutoff) : [];
 }
 
-/** Replay only captured ZIPs pinned by the per-symbol approval, without changing any price receipt. */
+const premarketPolicy = "firstrate-premarket-minute-to-five-v1";
+type CapturedPremarket = PremarketSample & { url: string; verifiedBuckets?: number };
+type PremarketReview = { policy: typeof premarketPolicy; symbol: Symbol; session: string; approvedAt: string; sampleDigest: string };
+type StoredPremarketReview = { review: PremarketReview; sha256: string };
+const premarketDirectory = (root: string, day: string) => resolve(root, directoryName, "premarket-reviewed", day);
+
+async function capturedPremarket(root: string, symbol: Symbol, day: string, compareGrids: boolean) {
+  const clock = exchangeSession(day);
+  if (!clock) throw new Error("Expected an exchange session for the premarket archive");
+  const { stdout } = await promisify(execFile)("python3", ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"),
+    day, "--cached-premarket", symbol, "--expected-close", clock.closeAt.replace(/Z$/, "+00:00"),
+    ...(compareGrids ? ["--compare-premarket-grids"] : [])], { timeout: 15_000, maxBuffer: 4096 });
+  const sample: CapturedPremarket = JSON.parse(stdout);
+  if (sample.symbol !== symbol || sample.session !== day || sample.url !== sourceURL(symbol) ||
+      (compareGrids && !(Number.isInteger(sample.verifiedBuckets) && sample.verifiedBuckets! >= 2 && sample.verifiedBuckets! <= 66)))
+    throw new Error("Premarket sample differs from the requested source or window");
+  return sample;
+}
+
+function replayPremarket(stored: StoredPremarketReview, sample: CapturedPremarket, cutoff: string) {
+  const { review } = stored;
+  if (stored.sha256 !== digest(review) || review.policy !== premarketPolicy || review.symbol !== sample.symbol ||
+      review.session !== sample.session || review.sampleDigest !== digest(sample))
+    throw new Error("Premarket archive differs from its minute and five-minute review");
+  return firstRatePremarketSignal(sample, review.approvedAt, cutoff);
+}
+
+/** Qualify only a prior premarket window. The daily open, close, dividends and settlement have separate approvals. */
+export async function prepareFirstRatePremarket(root: string, now = () => new Date().toISOString()) {
+  const session = latestFirstRateSession(now());
+  const directory = premarketDirectory(root, session);
+  const funds = await Promise.all(FIRST_RATE_SYMBOLS.map(async symbol => {
+    try {
+      const path = resolve(directory, symbol + ".json");
+      const sample = await capturedPremarket(root, symbol, session, true);
+      const existing = await readResearchReceipt<StoredPremarketReview>(path);
+      if (existing) {
+        const signal = replayPremarket(existing, sample, now());
+        return { symbol, status: signal.status, verifiedBuckets: sample.verifiedBuckets, approvedAt: existing.review.approvedAt };
+      }
+      const approvedAt = now();
+      const review: PremarketReview = { policy: premarketPolicy, symbol, session, approvedAt, sampleDigest: digest(sample) };
+      const stored = { review, sha256: digest(review) };
+      const signal = replayPremarket(stored, sample, approvedAt);
+      if (signal.status !== "available") return { symbol, status: "expired" };
+      await durableDirectory(directory, 0o700);
+      await durableJSON(path, stored, true);
+      return { symbol, status: signal.status, verifiedBuckets: sample.verifiedBuckets, approvedAt };
+    } catch (error) {
+      const stderr = (error as { stderr?: string }).stderr;
+      const reason = stderr?.trim().split("\n").at(-1) || (error instanceof Error ? error.message : "Premarket check failed");
+      return { symbol, status: "unavailable", reason: reason.slice(0, 200) };
+    }
+  }));
+  return { session, funds };
+}
+
+/** Replay the independently reviewed tape or an archive pinned by an earlier per-symbol approval. */
 export async function loadFirstRatePremarket(root: string, cutoff: string) {
-  const approval = await readApproval(root);
-  if (!approval || approval.source !== FIRST_RATE_SOURCE || approval.approvedAt > cutoff) return [];
+  const latest = latestFirstRateSession(cutoff);
+  let legacy: ReturnType<typeof readApproval> | undefined;
   const observations = await Promise.all(FIRST_RATE_SYMBOLS.map(async symbol => {
     try {
+      const sealed = await readResearchReceipt<StoredPremarketReview>(resolve(premarketDirectory(root, latest), symbol + ".json"));
+      if (sealed && sealed.review.approvedAt <= cutoff)
+        return [replayPremarket(sealed, await capturedPremarket(root, symbol, latest, true), cutoff)];
+      const approval = await (legacy ??= readApproval(root));
+      if (!approval || approval.source !== FIRST_RATE_SOURCE || approval.approvedAt > cutoff) return [];
       const matches = approval.symbols.filter(row => row.symbol === symbol);
       if (matches.length !== 1) return [];
       const [entry] = matches, { source } = entry.proof;
@@ -346,10 +408,7 @@ export async function loadFirstRatePremarket(root: string, cutoff: string) {
       if (!clock || day < approval.from || day > approval.through || source.symbol !== symbol || source.url !== sourceURL(symbol) ||
           source.basis !== "split-adjusted" || !SHA256.test(source.sha256) ||
           ![entry.proof.comparison, entry.proof.splitComparison].every(refs => refs.length && refs.every(hash => SHA256.test(hash)))) return [];
-      const { stdout } = await promisify(execFile)("python3", ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"),
-        day, "--cached-premarket", symbol, "--expected-close", clock.closeAt.replace(/Z$/, "+00:00")],
-      { timeout: 15_000, maxBuffer: 4096 });
-      const sample: PremarketSample & { url: string } = JSON.parse(stdout);
+      const sample = await capturedPremarket(root, symbol, day, false);
       if (sample.symbol !== symbol || sample.session !== day || sample.url !== source.url || sample.sha256 !== source.sha256 ||
           sample.retrievedAt !== source.capturedAt || sample.vintageAt !== source.modifiedAt) return [];
       return [firstRatePremarketSignal(sample, approval.approvedAt, cutoff)];

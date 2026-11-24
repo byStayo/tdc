@@ -1,5 +1,8 @@
 # The Daily Consensus completion plan
 
+- [x] Recover Monday's premarket observations independently of delayed regular-session settlement. The November 23 native one-minute data reproduced 66 five-minute bars for each of SPY, QQQ and IWM, and all 57 reported bars for DIA. Each private approval pins its original file, observation and approval times. [Replay command](../../CONSENSUS_OPERATIONS.md#commands)
+- [x] Qualify a free five-ETF range context source for ordinary sessions. Across 80 sessions the exchange-hour construction matched both regular extremes and the close's position within the range. All 54 available complete FirstRate minute sessions also matched. [Source and daily collector](../../../lib/consensus/market-history-ranges.ts)
+
 - [x] Test signed FOMC dissents against the majority rate move and prior TLT return. The source-only review qualified 157 of 183 scheduled statements before opening the price history. The registered comparison missed its thresholds. [Originals and eligibility](../../FREE_FEED_PATH.md#november-24-fomc-votes-and-the-following-tlt-session)
 
 - [x] Run the private prospective evaluator after the November 23 data arrived and independently compare the five outcomes against the vendor evaluation sample. Five more rows resolved. Every forecast had abstained.
