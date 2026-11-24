@@ -1,5 +1,16 @@
 # The Daily Consensus completion plan
 
+### November 24 at 1:44 p.m. New York
+
+- [x] Replay the requested November 19 pre-open edition and the November 20 edition separately. SPY, QQQ, IWM, DIA and TLT each have a verified eligible daily outcome on both dates. The owner-only report shows realized direction and the original decision. The public inventory shows the price status and original call for each fund.
+- [x] Reconcile all 15 fund-days on the three 2025 early closes. Both sources agreed on direction on all 15. The consolidated feed passed all nine Arca participant comparisons, including the two closes where the guest feed exceeded tolerance. One of four available Nasdaq boundary prices matched the executed listing auction exactly. [Results and source files](../../FREE_FEED_PATH.md#november-24-early-close-prices-and-free-iex-order-events)
+- [x] Register and run the Treasury auction study for TLT and the original earnings guidance comparison for QQQ on the publishing host. Show the four new auction statistics with the release date, source version and actual retrieval clock. [Auction method](../../TREASURY_AUCTION_DISPERSION.md) · [Earnings method](../../research/EARNINGS_PROSPECTIVE.md)
+- [x] Verify one real native IEX order-event sample for every ETF. All five contain 1,000 events; the latest source day is November 11. Replay two independent social corpora and the saved X database's coverage. The database counts 10,000 distinct sampled posts, stores 104 aggregate cohorts and has zero independently labeled posts.
+- [ ] Obtain approved November 23 prices for all five. Four equity funds already have native intraday tapes. The shared independent hourly feed still stops November 20. TLT also needs separate permitted regular-session controls and its issuer cash review.
+- [ ] Complete directional validation. Eleven of the twelve families without a daily market vote have a registered fund-specific study. Four premarket fund decisions and one SPY options decision await first settlement. The remaining social family needs consenting real contributors and blind labels. The split remains 300 training, 100 validation and 100 untouched test observations per cohort.
+- [ ] Pass the strict audit. At this publication 370 of 840 archived targets had settled, five elapsed targets awaited prices and 465 had future exits. The 15 production model candidates had two eligible daily inputs per ETF and zero weekly or monthly. Three families voted daily and five voted weekly and monthly.
+
+
 ### November 24 at 1:05 p.m. New York
 
 - [x] Deploy the new QQQ Taiwan reading and corrected Treasury calendar through the existing weekday publisher. Verify the original 30-source packet, all six briefs, the exact public archive and all 18 market and fund views. [Edition](https://thedailyconsensus.com/consensus/2026-11-24T17-57-47-648Z.json)
