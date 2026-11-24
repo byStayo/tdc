@@ -25,12 +25,18 @@ test("FirstRate can review a completed core session immediately and never uses t
   assert.equal(latestFirstRateSession("2027-11-29T22:00:00.000Z"), "2027-11-29");
 });
 
-test("a post-close refresh gives a lagging fund a bounded opportunity to catch up", () => {
+test("weekday preparation gives a lagging fund one preceding session before or after the close", () => {
   const afterClose = "2026-11-19T21:01:00.000Z";
   assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-18", "2026-11-17"]), ["2026-11-18", "2026-11-19"]);
   assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-19", "2026-11-17"]), ["2026-11-18", "2026-11-19"]);
   assert.deepEqual(firstRateCaptureDates(afterClose, ["2026-11-18", "2026-11-19"]), ["2026-11-19"]);
   assert.deepEqual(firstRateCaptureDates("2026-11-19T13:00:00.000Z", ["2026-11-17"]), ["2026-11-18"]);
+  const wednesdayPreopen = "2026-11-25T12:48:00.000Z";
+  assert.deepEqual(firstRateCaptureDates(wednesdayPreopen, ["2026-11-20"]), ["2026-11-23", "2026-11-24"]);
+  assert.deepEqual(firstRateCaptureDates(wednesdayPreopen, ["2026-11-24", "2026-11-20"]), ["2026-11-23", "2026-11-24"]);
+  assert.deepEqual(firstRateCaptureDates(wednesdayPreopen, ["2026-11-23"]), ["2026-11-24"]);
+  assert.deepEqual(firstRateCaptureDates(wednesdayPreopen, ["", "", "", ""]), ["2026-11-24"]);
+  assert.deepEqual(firstRateCaptureDates("2026-11-30T12:48:00.000Z", ["2026-11-24"]), ["2026-11-25", "2026-11-27"]);
   assert.deepEqual(firstRateCaptureDates("2027-11-29T22:00:00.000Z", ["2027-11-24"]), ["2027-11-29"]);
   assert.deepEqual(firstRateCaptureDates("2027-11-30T22:00:00.000Z", ["2027-11-24"]), ["2027-11-29", "2027-11-30"]);
 });
@@ -46,13 +52,48 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 def stale(folder, name, *args):
     assert name.startswith("sample-"), "issuer captured before any finalized file"
-    raise ValueError("sample still ends on previous date")
+    raise module.SourceUnavailable("sample still ends on previous date")
 with tempfile.TemporaryDirectory() as tmp, patch.object(module, "ROOT", pathlib.Path(tmp)), patch.object(module, "capture", stale):
     sys.argv = ["collect", "2026-11-19", "--independent-samples"]
     with contextlib.redirect_stdout(io.StringIO()) as output:
         assert module.main() == 0
     result = json.loads(output.getvalue())
     assert result["issuers"] == [] and len(result["sampleFailures"]) == 4
+    assert all(row["kind"] == "unavailable" for row in result["sampleFailures"])
+`;
+  execFileSync("python3", ["-B", "-c", code]);
+});
+
+test("a changed native ZIP or issuer is an integrity failure, distinct from an original that never arrived", () => {
+  const code = `
+import hashlib, importlib.util, json, os, pathlib, sys, tempfile
+from unittest.mock import patch
+scripts = pathlib.Path("scripts").resolve()
+sys.path.insert(0, str(scripts))
+spec = importlib.util.spec_from_file_location("first_rate_inputs", scripts / "collect-firstrate-inputs.py")
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+with tempfile.TemporaryDirectory() as tmp, patch.object(module, "urlopen", side_effect=AssertionError("network")):
+    folder = pathlib.Path(tmp)
+    url = "https://example.test/source"
+    for name in ("sample-QQQ", "issuer-TLT"):
+        try:
+            module.capture(folder, name, url, 4000, True)
+        except module.SourceUnavailable:
+            pass
+        else:
+            raise AssertionError("missing original was accepted")
+        for suffix, body in [(".bin", b"changed"), (".json", json.dumps({
+                "url": url, "sha256": hashlib.sha256(b"original").hexdigest()}).encode())]:
+            path = folder / (name + suffix)
+            path.write_bytes(body)
+            path.chmod(0o600)
+        try:
+            module.capture(folder, name, url, 4000, True)
+        except ValueError as error:
+            assert not isinstance(error, module.SourceUnavailable) and "raw bytes differ" in str(error)
+        else:
+            raise AssertionError("corrupt original was accepted")
 `;
   execFileSync("python3", ["-B", "-c", code]);
 });

@@ -101,7 +101,7 @@ test("normal preparation withholds a new QQQ auction repair and replays an exist
       rows: [prior, daily], regularMinutes: [core] };
     const issuers = [...FIRST_RATE_SYMBOLS, "TLT"].map(symbol => ({ symbol, source: "https://example.test/issuer",
       sha256: digest(symbol), capturedAt: stamp, cash: [] }));
-    const failures = FIRST_RATE_SYMBOLS.map(symbol => ({ symbol, reason: "file delayed" }));
+    const failures = FIRST_RATE_SYMBOLS.map(symbol => ({ symbol, kind: "unavailable", reason: "file delayed" }));
     await writeFile(join(scripts, day + ".json"), JSON.stringify({ samples: [sample], issuers,
       sampleFailures: failures.filter(row => row.symbol !== "QQQ") }));
     await writeFile(join(scripts, next + ".json"), JSON.stringify({ samples: [], issuers: [], sampleFailures: failures }));

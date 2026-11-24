@@ -15,7 +15,7 @@ import re
 from stat import S_IMODE
 import sys
 from tempfile import NamedTemporaryFile
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from zipfile import BadZipFile, ZipFile
 
@@ -27,6 +27,9 @@ STORAGE = "https://frd001.s3.us-east-2.amazonaws.com/"
 SAMPLE_SIZE, ISSUER_SIZE = 1_000_000, 4_000_000
 HEADERS = ("timestamp", "open", "high", "low", "close", "volume")
 ROOT = Path(__file__).resolve().parents[1]
+
+class SourceUnavailable(ValueError):
+    """The requested source vintage is absent or its transport is temporarily unavailable."""
 
 
 def owner_read(path, maximum):
@@ -55,6 +58,8 @@ def capture(folder, name, url, maximum, cached_only, session=None, expected_clos
     source, receipt = folder / f"{name}.bin", folder / f"{name}.json"
     existing = cached_only or receipt.exists()
     if existing:
+        if not os.path.lexists(receipt) and not os.path.lexists(source):
+            raise SourceUnavailable(f"Missing private original for {name}")
         meta = json.loads(owner_read(receipt, 4000))
         raw = owner_read(source, maximum)
     else:
@@ -66,7 +71,11 @@ def capture(folder, name, url, maximum, cached_only, session=None, expected_clos
                 raw = response.read(maximum + 1)
                 modified = response.headers.get("Last-Modified")
         except HTTPError as error:
+            if error.code in (404, 408, 429) or 500 <= error.code < 600:
+                raise SourceUnavailable(f"{name} returned HTTP {error.code}") from None
             raise ValueError(f"{name} returned HTTP {error.code}") from None
+        except (URLError, ConnectionError, TimeoutError) as error:
+            raise SourceUnavailable(f"{name} connection unavailable") from error
         if not 0 < len(raw) <= maximum:
             raise ValueError(f"{name} source size exceeds its bound")
         meta = {"url": url, "sha256": sha256(raw).hexdigest(), "lastModified": modified,
@@ -78,6 +87,8 @@ def capture(folder, name, url, maximum, cached_only, session=None, expected_clos
         raise ValueError(f"{name} receipt timestamp lacks a timezone")
     rows = read_daily(name.removeprefix("sample-"), raw) if session else None
     if rows and rows[-1]["session"] != session:
+        if not existing:
+            raise SourceUnavailable(f"{name} ends {rows[-1]['session']} and expected {session}")
         raise ValueError(f"{name} ends {rows[-1]['session']} and expected {session}")
     if expected_close and not expected_close <= parsedate_to_datetime(meta["lastModified"]) <= observed:
         raise ValueError(f"{name} was not finalized after the reviewed core close")
@@ -288,11 +299,15 @@ def main():
                         help="Replay one approved sample locally and return derived premarket statistics")
     parser.add_argument("--independent-samples", action="store_true",
                         help="Report unverified sample files separately from verified captures")
+    parser.add_argument("--retained-sample", action="append", default=[], choices=EQUITY_SAMPLES,
+                        help="Always replay this fund's existing original when another fund still needs the rolling ZIP")
     parser.add_argument("--expected-close", type=dt.datetime.fromisoformat)
     parser.add_argument("--short-session", type=dt.date.fromisoformat, action="append", default=[])
     parser.add_argument("--cached-issuer-history-from", type=dt.date.fromisoformat,
                         help="Read only issuer histories from an existing capture")
     args = parser.parse_args()
+    if args.retained_sample and not args.independent_samples:
+        parser.error("--retained-sample requires independent price collection")
     if args.compare_premarket_grids and not args.cached_premarket:
         parser.error("Premarket comparisons require a specific locally captured ETF")
     folder = ROOT / ".consensus" / "private-firstrate" / "captures" / args.through.isoformat()
@@ -349,7 +364,7 @@ def main():
         for symbol in (() if issuer_history else EQUITY_SAMPLES):
             url = STORAGE + f"frd_sample_etf_{symbol}.zip"
             try:
-                raw, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only,
+                raw, meta, rows = capture(folder, f"sample-{symbol}", url, SAMPLE_SIZE, cached_only or symbol in args.retained_sample,
                                         args.through.isoformat(), args.expected_close)
                 sample = {**meta, "symbol": symbol, "basis": "split-adjusted",
                           "modifiedAt": utc(parsedate_to_datetime(meta["lastModified"])), "rows": rows}
@@ -362,11 +377,16 @@ def main():
             except (OSError, ValueError, KeyError, TypeError, BadZipFile) as error:
                 if not args.independent_samples:
                     raise
-                failures.append({"symbol": symbol, "reason": str(error)[:240]})
+                if isinstance(error, OSError):
+                    raise
+                failures.append({"symbol": symbol, "kind": "unavailable" if isinstance(error, SourceUnavailable) else "integrity",
+                                 "reason": str(error)[:240]})
         issuers = []
         if samples or issuer_history:
             for symbol in SYMBOLS:
-                raw, meta, _ = capture(folder, f"issuer-{symbol}", ISSUERS[symbol], ISSUER_SIZE, cached_only)
+                name = f"issuer-{symbol}"
+                retained = bool(args.retained_sample) and any(os.path.lexists(folder / (name + ext)) for ext in (".bin", ".json"))
+                raw, meta, _ = capture(folder, name, ISSUERS[symbol], ISSUER_SIZE, cached_only or retained)
                 issuers.append({**issuer_cash(symbol, raw, start), "capturedAt": meta["capturedAt"]})
         result = {"samples": samples, "issuers": issuers}
         if args.independent_samples:

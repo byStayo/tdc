@@ -8,6 +8,7 @@ import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
 import { collectKibotSeries, kibotHistorySource, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
 import { authenticateKibotSubscriber, verifyKibotSubscriberProof, type KibotSubscriberProof } from "./kibot-subscriber.ts";
+import { SourceMissingError } from "./source-failure.ts";
 import type { Instrument } from "./types.ts";
 
 type ETF = Exclude<Instrument, "MARKET">;
@@ -49,7 +50,7 @@ export async function collectResearchPrices(
     let receipt: ResearchPriceReceipt;
     if (stored) receipt = stored;
     else {
-      if (cachedOnly) throw new Error(`Missing private ${productionRoot ? "subscriber " : ""}${basis} comparison for ${instrument} through ${through}`);
+      if (cachedOnly) throw new SourceMissingError(`Missing private ${productionRoot ? "subscriber " : ""}${basis} comparison for ${instrument} through ${through}`);
       if (productionRoot) subscriber ??= await authenticateKibotSubscriber(productionRoot, fetcher);
       let csv = "";
       const source = await collectKibotSeries(instrument, dates, {

@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { firstRateIssuerActionProof, type MarketHistoryActionProof } from "./market-history-actions.ts";
 import { ComparisonUnavailable, collectMarketHistoryPriceControls, type HourlyControlProof } from "./market-history-price-controls.ts";
@@ -34,7 +35,7 @@ type PriceSource = { symbol: Symbol; url: string; sha256: string; basis: "split-
 type Sample = PriceSource & { regularMinutes: CoreBar[] };
 type Issuer = { symbol: typeof ETF_SYMBOLS[number]; source: string; sha256: string;
   capturedAt: string; cash: CashDistribution[] };
-type SampleFailure = { symbol: Symbol; reason: string };
+type SampleFailure = { symbol: Symbol; reason: string; kind?: "unavailable" | "integrity" | "disagreement" };
 type ListingProof = { session: string; source: string; sha256: string };
 type MinuteRepair = {
   session: string; captureSession: string; source: Omit<PriceSource, "rows">;
@@ -76,11 +77,58 @@ export function latestFirstRateSession(now: string): string {
 
 export function firstRateCaptureDates(now: string, approvedThrough: string[]) {
   const latest = latestFirstRateSession(now);
-  if (latest !== newYorkDate(now) || latest <= FIRST_EDITION_DAY) return [latest];
-  // A newly closed session is reviewable even when its preceding session is unknown.
+  if (latest <= FIRST_EDITION_DAY) return [latest];
+  // A new host starts with the latest completed ZIP on the morning run.
+  if (latest !== newYorkDate(now) && !approvedThrough.some(Boolean)) return [latest];
+  // The independent feed can deliver the previous close while the newest close is still unavailable.
   const lookback = new Date(Date.parse(latest) - 7 * 86_400_000).toISOString().slice(0, 10);
   const prior = trailingExchangeSessions(lookback, latest).at(-2);
   return prior && approvedThrough.some(through => through < prior) ? [prior, latest] : [latest];
+}
+
+type CatchUp = { session: string; funds: Symbol[]; retained: Symbol[] };
+
+async function captureEntries(path: string) {
+  try { return await readdir(path, { withFileTypes: true }); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+/** Choose at most one older original per fund before opening any comparison prices. */
+async function pendingFirstRateCaptures(root: string, latest: string, approvedThrough: string[], prior?: string) {
+  const earliest = new Map<Symbol, string>();
+  const next = new Map<Symbol, string>();
+  const folder = resolve(root, directoryName, "captures");
+  const oldestApproval = approvedThrough.map(day => day || FIRST_EDITION_DAY).sort()[0] ?? latest;
+  if (oldestApproval >= latest) return { reviews: [], next };
+  const calendar = new Set(availableExchangeSessions(oldestApproval, latest));
+  const dates = (await captureEntries(folder)).filter(entry => entry.name < latest && calendar.has(entry.name)).map(entry => {
+    if (!entry.isDirectory()) throw new Error("A dated FirstRate capture must be a real directory");
+    return entry.name;
+  }).sort();
+  for (const day of dates) {
+    const waiting = FIRST_RATE_SYMBOLS.filter((fund, i) => !next.has(fund) && approvedThrough[i] < day);
+    if (!waiting.length) continue;
+    const files = new Set((await captureEntries(resolve(folder, day))).map(file => file.name));
+    // Either half makes this an existing original. Missing or damaged counterparts must fail native replay.
+    for (const fund of waiting) {
+      if (!files.has("sample-" + fund + ".bin") && !files.has("sample-" + fund + ".json")) continue;
+      (earliest.has(fund) ? next : earliest).set(fund, day);
+    }
+  }
+  const grouped = new Map<string, CatchUp>();
+  for (const [i, fund] of FIRST_RATE_SYMBOLS.entries()) {
+    const saved = earliest.get(fund);
+    const day = saved ?? prior;
+    if (!day || approvedThrough[i] >= day) continue;
+    const group = grouped.get(day) ?? { session: day, funds: [], retained: [] };
+    group.funds.push(fund);
+    if (saved) group.retained.push(fund);
+    grouped.set(day, group);
+  }
+  return { reviews: [...grouped.values()].sort((a, b) => a.session.localeCompare(b.session)), next };
 }
 
 function fullSession(day: string) {
@@ -455,7 +503,8 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
       const splits = await collectResearchPrices(directory, symbol, dates, { ...comparison, splitAdjusted: true });
       comparisons = { raw, splits, proof: undefined };
     } catch (paidError) {
-      throw new Error(error.message + ". " + (paidError instanceof Error ? paidError.message : "Subscriber comparison unavailable"));
+      if (!unavailableComparison(paidError)) throw paidError;
+      throw new ComparisonUnavailable(error.message + ". " + paidError.message);
     }
   }
   const { raw, splits } = comparisons;
@@ -480,7 +529,7 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
     // A website receipt can reproduce a sealed repair, but does not license a new one.
     const previous = repairs.get(session)?.auction;
     if (!previous) {
-      failures.push({ symbol, reason: session + " " + NASDAQ_WEBSITE_PRICE_PERMISSION });
+      failures.push({ symbol, kind: "unavailable", reason: session + " " + NASDAQ_WEBSITE_PRICE_PERMISSION });
       continue;
     }
     try {
@@ -522,8 +571,9 @@ async function reviewSample(directory: string, sample: Sample, through: string, 
       splitSha256: splitReference.sha256, ...(auction ? { auction, daily: rows.find(bar => bar.session === session)! } :
         { listing: references.find(reference => reference.session === session)! }) });
   }
+  const previousDisagreements = (old?.withheld ?? []).filter(issue => issue.session < dates[0]);
   return { symbol, reviewedThrough: through, rows: [...merged.values()].sort((a, b) => a.session.localeCompare(b.session)),
-    withheld: normalized.withheld,
+    withheld: [...previousDisagreements, ...normalized.withheld],
     proof: { source, comparison: raw.map(row => row.sha256), splitComparison: splits.map(row => row.sha256),
       listingReferences: references, ...(comparisons.proof ? { marketHistory: comparisons.proof, actions } :
         { subscriber: { from: dates[0], through, sha256: digest({ raw, splits }) } }),
@@ -534,12 +584,39 @@ function approvedCounts(approval: Approval) {
   return firstRatePriceEvidence(approval).map(({ instrument, sessions }) => ({ instrument, sessions: sessions.length }));
 }
 
-class NoVerifiedSample extends Error {}
+function unavailableComparison(error: unknown): error is Error {
+  return error instanceof ComparisonUnavailable || error instanceof SourceMissingError || error instanceof SourceTransportError;
+}
+
+class UnsettledFirstRateSample extends Error {
+  readonly failures: SampleFailure[];
+  readonly captured: Symbol[];
+  constructor(message: string, failures: SampleFailure[], captured: Symbol[]) {
+    super(message);
+    this.failures = failures;
+    this.captured = captured;
+  }
+}
+class NoVerifiedSample extends UnsettledFirstRateSample {}
+class RejectedFirstRateSample extends UnsettledFirstRateSample {}
+
+function unresolvedSample(through: string, failures: SampleFailure[], captured: Symbol[]) {
+  const details = failures.map(row => row.reason).join(". ");
+  if (failures.some(row => row.kind !== "unavailable"))
+    return new RejectedFirstRateSample("FirstRate source integrity or price comparison failed for " + through + ". " + details, failures, captured);
+  return new NoVerifiedSample("FirstRate could not verify a sample for " + through + ". " + details, failures, captured);
+}
 
 const reviewableIssue = (symbol: Symbol, reason: ApprovedSymbol["withheld"][number]["reason"]) =>
   symbol === "QQQ" ? reason === "price" : CTA_REFERENCE_SYMBOLS.some(covered => covered === symbol) && reason !== "price";
 
-async function reviewFirstRateSession(root: string, through: string, cachedOnly: boolean, reviewWithheld: boolean) {
+function hasReplayableDispute(approval: ApprovedSymbol) {
+  const from = approval.proof.marketHistory?.from ?? approval.proof.subscriber?.from ?? FIRST_EDITION_DAY;
+  return approval.withheld.some(issue => issue.session >= from && reviewableIssue(approval.symbol, issue.reason));
+}
+
+async function reviewFirstRateSession(root: string, through: string, cachedOnly: boolean, reviewWithheld: boolean,
+  catchUp?: CatchUp, held: ReadonlyMap<Symbol, string> = new Map()) {
   const directory = resolve(root, directoryName);
   const previous = await readApproval(root);
   if (reviewWithheld && !previous) throw new Error("FirstRate replay needs a verified capture");
@@ -547,9 +624,10 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   const approved = new Map(previous?.symbols.map(row =>
     [row.symbol, { ...row, reviewedThrough: row.reviewedThrough ?? previous.through }]));
   const pending = FIRST_RATE_SYMBOLS.filter(symbol => {
+    if (catchUp && !catchUp.funds.includes(symbol)) return false;
     const old = approved.get(symbol);
     return reviewWithheld
-      ? old?.reviewedThrough === through && old.withheld.some(row => reviewableIssue(symbol, row.reason))
+      ? old?.reviewedThrough === through && hasReplayableDispute(old)
       : (old?.reviewedThrough ?? "") < through;
   });
   if (previous && !pending.length)
@@ -562,7 +640,8 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
     ["-B", resolve(root, "scripts/collect-firstrate-inputs.py"), through, "--independent-samples",
       "--expected-close", exchangeSession(through)!.closeAt.replace(/Z$/, "+00:00"),
       ...shortArgs,
-      ...(pinned ? ["--cached-only"] : [])],
+      ...(pinned || (catchUp && catchUp.retained.length === catchUp.funds.length)
+        ? ["--cached-only"] : (catchUp?.retained ?? []).flatMap(fund => ["--retained-sample", fund]))],
     { timeout: 105_000, maxBuffer: 256_000 });
   const { samples, sampleFailures, issuers } = JSON.parse(stdout) as {
     samples: Sample[]; sampleFailures: SampleFailure[]; issuers: Issuer[] };
@@ -572,10 +651,17 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   const observed = new Date().toISOString();
   const failures = sampleFailures.filter(row => pending.includes(row.symbol));
   const availableSamples = samples.filter(row => pending.includes(row.symbol));
+  const captured = availableSamples.map(row => row.symbol);
+  const heldFunds = pending.filter(fund => held.has(fund));
+  if (heldFunds.length === pending.length && heldFunds.length) {
+    // The Python capture still pins the newest originals for a later run.
+    if (failures.some(row => row.kind !== "unavailable")) throw unresolvedSample(through, failures, captured);
+    return { status: "awaiting_earlier_verification", through, failures, captured };
+  }
   if (!availableSamples.length) {
     if (reviewWithheld)
       return { status: "no_verified_disputes", through, approved: approvedCounts(previous!), failures };
-    throw new NoVerifiedSample(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
+    throw unresolvedSample(through, failures, captured);
   }
   verifyIssuers(issuers, through, observed);
   const from = previous?.from ?? FIRST_EDITION_DAY;
@@ -594,10 +680,16 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   const listingFailure = pinned ? undefined : await captureShortListing(directory, availableSamples);
   const reviewed: Symbol[] = [];
   for (const sample of availableSamples) {
+    if (held.has(sample.symbol)) continue;
     try {
       const old = approved.get(sample.symbol);
       const issuer = issuers.find(row => row.symbol === sample.symbol)!;
       const match = await reviewSample(directory, sample, through, from, pinned, observed, old, issuer.cash, failures);
+      if (catchUp && !match.rows.some(row => row.session === through)) {
+        const issue = match.withheld.find(row => row.session === through);
+        if (!issue) throw new Error("The older session has neither a verified price nor a dated comparison decision");
+        failures.push({symbol: sample.symbol, kind: "disagreement", reason: "Session withheld after comparison: " + issue.reason});
+      }
       if (reviewWithheld && !old!.withheld.some(row => reviewableIssue(sample.symbol, row.reason) &&
           match.rows.some(bar => bar.session === row.session))) continue;
       if (listingFailure?.session === through && CTA_REFERENCE_SYMBOLS.some(symbol => symbol === sample.symbol) &&
@@ -609,13 +701,15 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
       approved.set(sample.symbol, match);
       reviewed.push(sample.symbol);
     } catch (error) {
-      failures.push({ symbol: sample.symbol, reason: error instanceof Error ? error.message.slice(0, 240) : "Price comparison failed" });
+      if ((error as NodeJS.ErrnoException)?.code) throw error;
+      failures.push({ symbol: sample.symbol, kind: unavailableComparison(error) ? "unavailable" : "integrity",
+        reason: error instanceof Error ? error.message.slice(0, 240) : "Price comparison failed" });
     }
   }
   if (reviewWithheld && !reviewed.length)
     return { status: "no_verified_disputes", through, approved: approvedCounts(previous!), failures };
   if (!reviewed.length)
-    throw new NoVerifiedSample(`FirstRate could not verify a sample for ${through}. ${failures.map(row => row.reason).join(". ")}`);
+    throw unresolvedSample(through, failures, captured);
 
   const symbols = FIRST_RATE_SYMBOLS.flatMap(symbol => approved.has(symbol) ? [approved.get(symbol)!] : []);
   const preserveNewer = previous && previous.through > through;
@@ -626,19 +720,20 @@ async function reviewFirstRateSession(root: string, through: string, cachedOnly:
   // Archive each accepted capture before advancing the current receipt.
   const stored = { approval, sha256: digest(approval) };
   const fingerprint = digest({ ...approval, approvedAt: null });
-  const captured = resolve(directory, "approvals", `${approval.through}-${fingerprint}.json`);
-  const replay = await readResearchReceipt<StoredApproval>(captured);
+  const archivePath = resolve(directory, "approvals", `${approval.through}-${fingerprint}.json`);
+  const replay = await readResearchReceipt<StoredApproval>(archivePath);
   if (replay && (replay.sha256 !== digest(replay.approval) ||
       digest({ ...replay.approval, approvedAt: approval.approvedAt }) !== stored.sha256))
     throw new Error("A previous capture for that FirstRate session differs");
-  if (!replay) await durableJSON(captured, stored, true);
+  if (!replay) await durableJSON(archivePath, stored, true);
   await durableJSON(resolve(directory, "approved.json"), replay ?? stored);
-  return { status: "qualified", from, through: approval.through, reviewed, approved: counts, failures,
+  const completed = reviewed.filter(symbol => approved.get(symbol)!.reviewedThrough === through);
+  return { status: "qualified", from, through: approval.through, reviewed, completed, approved: counts, failures, captured,
     ...(listingFailure ? { listingFailure } : {}),
     withheld: symbols.flatMap(({ symbol, withheld }) => withheld.map(row => ({ symbol, ...row }))) };
 }
 
-/** Caller holds the publication lock. Retain an accepted catch-up even when tonight's new sample is late. */
+/** Caller holds the publication lock. Retain a verified catch-up when the newest sample or its control is late. */
 export async function prepareFirstRate(root: string, cachedOnly = false, now = new Date().toISOString(), reviewWithheld = false) {
   const previous = await readApproval(root);
   if (reviewWithheld) {
@@ -653,24 +748,55 @@ export async function prepareFirstRate(root: string, cachedOnly = false, now = n
   const latest = dates.at(-1)!;
   let caughtUp;
   const qqq = previous?.symbols.find(row => row.symbol === "QQQ");
-  if (!cachedOnly && qqq && qqq.withheld.some(row => reviewableIssue("QQQ", row.reason))) {
+  if (!cachedOnly && qqq && hasReplayableDispute(qqq)) {
     // A newer ZIP can arrive late. Keep the original ZIP, issuers and comparison prices pinned
     // while collecting only the missing exchange evidence for the outstanding dispute.
     const day = qqq.reviewedThrough ?? previous!.through;
     const repair = await reviewFirstRateSession(root, day, false, true);
     if (repair.status === "qualified") caughtUp = { session: day, result: repair };
   }
-  if (dates.length > 1) {
+  const delayedFailures: (SampleFailure & {session: string})[] = [];
+  const catchUpReviews: { session: string; funds: Symbol[] }[] = [];
+  const catchUps = latest > FIRST_EDITION_DAY
+    ? await pendingFirstRateCaptures(root, latest, approvedThrough, dates.length > 1 ? dates[0] : undefined)
+    : { reviews: [], next: new Map<Symbol, string>() };
+  // A newer tape may be captured, but it cannot leap over a second outstanding original.
+  const held = new Map(catchUps.next);
+  for (const catchUp of catchUps.reviews) {
+    let captured: Symbol[] = [], reviewed: Symbol[] = [], failures: SampleFailure[] = [];
     try {
-      const earlier = await reviewFirstRateSession(root, dates[0], cachedOnly, false);
-      if (earlier.status === "qualified") caughtUp = { session: dates[0], result: earlier };
-    } catch (error) { if (!(error instanceof NoVerifiedSample)) throw error; }
+      const earlier = await reviewFirstRateSession(root, catchUp.session, cachedOnly, false, catchUp);
+      captured = earlier.captured ?? [];
+      failures = earlier.failures ?? [];
+      if ("completed" in earlier && earlier.completed) {
+        reviewed = earlier.completed;
+        caughtUp = { session: catchUp.session, result: earlier };
+        catchUpReviews.push({session: catchUp.session, funds: reviewed});
+      }
+    } catch (error) {
+      // Only per-fund records are recoverable here. Global issuer, prior approval, storage and lock failures escape.
+      if (!(error instanceof UnsettledFirstRateSample)) throw error;
+      captured = error.captured;
+      failures = error.failures;
+    }
+    delayedFailures.push(...failures.map(failure => ({...failure, session: catchUp.session})));
+    const protectedFunds = [...catchUp.retained, ...captured, ...failures.filter(f => f.kind !== "unavailable").map(f => f.symbol)];
+    for (const fund of protectedFunds) if (!reviewed.includes(fund)) held.set(fund, catchUp.session);
   }
+  const delayed = { ...(delayedFailures.length ? {delayedFailures} : {}), ...(catchUpReviews.length ? {catchUpReviews} : {}),
+    ...(held.size ? {heldForEarlierCapture: Object.fromEntries(held)} : {}) };
   try {
-    const result = await reviewFirstRateSession(root, latest, cachedOnly, false);
-    return caughtUp ? { ...result, caughtUp } : result;
+    const result = await reviewFirstRateSession(root, latest, cachedOnly, false, undefined, held);
+    return caughtUp ? { ...result, caughtUp, ...delayed } : { ...result, ...delayed };
   } catch (error) {
-    if (!caughtUp || !(error instanceof NoVerifiedSample)) throw error;
-    return { ...caughtUp.result, caughtUpSession: caughtUp.session, awaitingSession: latest, latestFailure: error.message };
+    if (!(error instanceof NoVerifiedSample)) throw error;
+    if (!caughtUp) {
+      const rejected = delayedFailures.filter(failure => failure.kind !== "unavailable");
+      if (rejected.length) throw new RejectedFirstRateSample("Earlier FirstRate source or price comparison failed: " +
+        rejected.map(row => row.symbol + " " + row.session + " " + row.reason).join(". "), rejected, [...held.keys()]);
+      throw error;
+    }
+    return { ...caughtUp.result, ...delayed, caughtUpSession: caughtUp.session, awaitingSession: latest,
+      latestFailure: error.message };
   }
 }
