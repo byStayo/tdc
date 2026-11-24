@@ -1,0 +1,21 @@
+{
+  "method": "prelaunch-spy-cambria-tail-risk-v1",
+  "hypothesis": "When an exchange-traded portfolio of out-of-the-money equity index puts and government bonds rises, SPY is less likely to appreciate in the subsequent registered session, conditional on contemporaneous S&P 500 and intermediate Treasury price changes. This measures a fund price, not the direction or buyer of underlying option transactions, or an implied crash probability.",
+  "universe": "One fund, Cambria TAIL. One equity-market control, SPY, and one bond control, IEF. One SPY regular-session outcome. All use transacted regular-session opens and closes. Cambria's 2017 original prospectus predates all targets. Its actively managed holdings can include cash and other equity index puts. IEF controls for Treasury price exposure but does not isolate the portfolio's exact option P&L.",
+  "targets": "All NYSE full trading sessions in 2018 and 2019. Input for each is exactly the third preceding exchange session, which must itself be full. Require at least 48 elapsed hours from its regular close through 07:48 New York on the target day. No fresh-data or optimal-lag substitution. Exclude any prior eligible research target in the preidentified SPY rosters from both the target and the input. Target and features must not enter the public forecasts beginning November 3, 2026.",
+  "information": "Historical SIP trade-based regular-session date and a conservative delivery proxy. These files are retrieved in 2026; no 2018/19 point-in-time vendor delivery or uncorrected source vintage is asserted. The modern hourly source normally delivers after 48 hours. For actual public issue, its real private receipt time would have to precede the cutoff.",
+  "measurement": "The control features are log(SPY regular close/open), log(IEF regular close/open). Candidate adds log(TAIL regular close/open), expected NEGATIVE fitted coefficient. The SPY target is 1 if the as-traded regular close exceeds the open, else 0. Verify separately requested as-traded and split-only records from the same vendor for all three instruments. Their within-day ratios must agree within 0.0001, and signs must be identical. Same-session ex-dividends precede entry. Exclude failures explicitly; never replace them.",
+  "statistic": "One logistic candidate and one nested control. Existing trainCandidate with 60/20/20 chronological splits, train-only normalization, four fixed regularizations selected on validation. At least 120 dates and 20 test. Compare to the nested control, the training up rate and 0.5. Candidate must improve by strictly more than 0.01 Brier versus each, have expected negative sign and positive one-sided 95% multiplicity-adjusted lower bounds across 35 studies and three comparisons. Report also two-sided 95% intervals for all three. 100000 moving blocks of three retained test dates, seed 20261124. Missing records must not move any retained row into a different reserved fold. No refit or alternative instrument, horizon, transform, subsample or feature after unsealing.",
+  "dataRights": "Kibot guest is a private evaluation source for US stocks and ETFs. Its licence explicitly permits published aggregate backtest summaries. Dated labels, raw files and model coefficients remain private. Market History section 5 separately permits use and non-reconstructible derived outputs; the historical test is not proof of earlier Market History delivery. No production promotion. Funds' prospectuses define exposure and are not the source of market data.",
+  "sources": [
+    "https://www.sec.gov/Archives/edgar/data/1529390/000139834417011072/fp0027688_497k.htm",
+    "https://www.sec.gov/Archives/edgar/data/1529390/000143774918016272/cambria20180824i_497k.htm",
+    "https://www.cambriafunds.com/tail",
+    "https://www.ishares.com/us/products/239456/ishares-710-year-treasury-bond-etf",
+    "https://www.kibot.com/api/history-request.html",
+    "https://www.kibot.com/api/api-overview.html",
+    "https://www.kibot.com/license.html",
+    "https://getmarkethistory.com/docs/guides/historical-stock-market-data/",
+    "https://getmarkethistory.com/docs/terms/"
+  ]
+}
