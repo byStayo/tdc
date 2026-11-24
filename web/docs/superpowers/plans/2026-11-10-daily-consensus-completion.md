@@ -1,5 +1,15 @@
 # The Daily Consensus completion plan
 
+### November 24 at 1:05 p.m. New York
+
+- [x] Deploy the new QQQ Taiwan reading and corrected Treasury calendar through the existing weekday publisher. Verify the original 30-source packet, all six briefs, the exact public archive and all 18 market and fund views. [Edition](https://thedailyconsensus.com/consensus/2026-11-24T17-57-47-648Z.json)
+- [x] Publish the connection chart with 15 features, 60 source labels, 293 measurements and the daily, weekly and monthly votes for each family. [Status chart](https://thedailyconsensus.com/research/connections.html)
+- [x] Replay all five September 21 listing auctions from CTA and UTP samples. All ten opens and closes were within tolerance and one equaled the auction price exactly. Preserve the regular-session price contract.
+- [x] Register the dealer-inventory TLT study and the Taiwan semiconductor QQQ study on the publishing host. Reproduce the quarterly dividend aggregate and check the outcome index and untouched reservations. Nine of twelve daily families without votes now have fund-specific prospective comparisons.
+- [x] Reconcile all 825 archive targets and run the production model evaluator and strict acceptance audit. Each ETF has two eligible daily outcomes, and the weekly and monthly models still have zero eligible rows.
+- [ ] Obtain the five November 23 price confirmations. The four equity tapes are in hand. Market History has yet to deliver those closes. TLT also needs an independent confirmation of its regular-session boundaries and dividend basis for Monday.
+- [ ] Qualify independent directional evidence for the twelve remaining daily families. Social still requires usable access and independent labels. Earnings needs untouched comparison dates, and Treasury’s 49 offering amounts repeated the known financing plan. Complete the chronological model evaluations when at least 500 eligible outcomes are available for each instrument and horizon, including at least 100 reserved for untouched tests. [Family inventory](../../PROSPECTIVE_FAMILY_COVERAGE.md)
+
 ### November 24 quarterly dividend verification
 
 - [x] Test regular opens, closes and issuer distributions for SPY, QQQ, IWM, DIA and TLT across a complete distribution month before launch. Independently reproduce 115 daily sessions, 95 five-session windows, 15 monthly windows and six issuer events using the original bytes of both feeds. [Operating procedure](../../CONSENSUS_OPERATIONS.md#historical-price-check-across-a-quarterly-distribution-cycle)
