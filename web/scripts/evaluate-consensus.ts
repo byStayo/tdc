@@ -18,6 +18,7 @@ import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { auditProspectiveRetailOutcomes } from "../lib/consensus/prospective-retail-outcomes.ts";
 import { RETAIL_REGISTRATION } from "../lib/consensus/prospective-retail.ts";
+import { premarketStudy } from "../lib/consensus/premarket-study.ts";
 import { JOINT_RETAIL_ADVANCE_MARKER, jointRetailStatus, stageJointRetail } from "../lib/consensus/retail-joint.ts";
 import { FAMILY_FEATURE_REGISTRATION } from "../lib/consensus/prospective-family-features.ts";
 import { auditProspectiveFamilyOutcomes } from "../lib/consensus/prospective-family-outcomes.ts";
@@ -355,7 +356,10 @@ try {
         issuedAt: row.issuedAt, entryAt: row.entryAt, exitAt: row.exitAt, adjustment: row.adjustment, calendarVersion: row.calendarVersion,
         direction: (): 0 | 1 => row.returnPct > 0 ? 1 : 0,
       }));
-      await stageJointRetail(root, transaction, fresh, snapshots, reservations);
+      for (const [name, stage] of [["retail", stageJointRetail], ["premarket", premarketStudy.stage]] as const) {
+        try { await stage(root, transaction, fresh, snapshots, reservations); }
+        catch (error) { console.error("Private secondary settlement failed for", name, error instanceof Error ? error.message : String(error)); }
+      }
     });
     console.log(
       JSON.stringify({
@@ -369,10 +373,18 @@ try {
     );
   }
   // Complete previously journaled private admissions under the same lock, including after core crash recovery.
-  try {
-    if (await lstat(resolve(root, JOINT_RETAIL_ADVANCE_MARKER)).catch((e: NodeJS.ErrnoException) => { if (e.code === "ENOENT") return null; throw e; }))
-      console.error("Private joint retail status", JSON.stringify(await jointRetailStatus(root, true)));
-  } catch(error) { console.error("Private joint retail advance failed.", error instanceof Error ? error.message : String(error)); }
+  for (const [name, marker, status] of [
+    ["retail", JOINT_RETAIL_ADVANCE_MARKER, jointRetailStatus],
+    ["premarket", premarketStudy.advanceMarker, premarketStudy.status],
+  ] as const) {
+    try {
+      const pending = await lstat(resolve(root, marker)).catch((e: NodeJS.ErrnoException) => {
+        if (e.code === "ENOENT") return null;
+        throw e;
+      });
+      if (pending) console.error("Private secondary study", name, JSON.stringify(await status(root, true)));
+    } catch (error) { console.error("Private secondary advance failed for", name, error instanceof Error ? error.message : String(error)); }
+  }
 } catch (error) {
   failure = {error};
   throw error;

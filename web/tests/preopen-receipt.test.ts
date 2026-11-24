@@ -73,3 +73,15 @@ test("a real morning public recheck can supplement an evening witness without ch
   await writeFile(morningPath,JSON.stringify(forged));
   await assert.rejects(verifyPreopenWithMorningConfirmation(root,session,edition,archive,bell),/first witness/);
 });
+
+
+test("weekday capture only checks the saved edition's live target before entry", async () => {
+  const { scheduledPreopenSession } = await import("../lib/consensus/preopen-receipt.ts");
+  const target = "2026-11-24", morning = target + "T12:48:00.000Z";
+  assert.equal(scheduledPreopenSession("2026-11-23T23:00:00.000Z", morning), target);
+  assert.equal(scheduledPreopenSession("2026-11-24T09:39:00.000Z", morning), target);
+  assert.equal(scheduledPreopenSession("2026-11-23T09:39:00.000Z", morning), null);
+  assert.equal(scheduledPreopenSession("2026-11-24T09:39:00.000Z", target + "T14:30:00.000Z"), null);
+  assert.equal(scheduledPreopenSession("2026-11-25T23:00:00.000Z", "2026-11-26T12:48:00.000Z"), null);
+  assert.equal(scheduledPreopenSession("2026-11-25T23:00:00.000Z", "2026-11-27T12:48:00.000Z"), "2026-11-27");
+});

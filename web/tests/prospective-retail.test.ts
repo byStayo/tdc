@@ -26,7 +26,7 @@ import {
   retailInput,
 } from "../lib/consensus/prospective-retail.ts";
 import type { Signal, Snapshot } from "../lib/consensus/types.ts";
-import { enrollJointRetail, jointRetailStatus, registerJointRetail, stageJointRetail, type NewCoreSettlement } from "../lib/consensus/retail-joint.ts";
+import { JOINT_RETAIL_ROOT, enrollJointRetail, jointRetailStatus, registerJointRetail, stageJointRetail, type NewCoreSettlement } from "../lib/consensus/retail-joint.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { COMPLETED_EVALUATIONS } from "../lib/consensus/outcome-ledger.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
@@ -188,7 +188,11 @@ test("joint enrollment uses the live witness and only the first authorized nativ
   const make=(s:Snapshot,fund:NewCoreSettlement["instrument"],source:string):NewCoreSettlement=>({
     snapshotId:s.id,instrument:fund,horizon:"daily",source,issuedAt:s.issuedAt,entryAt:clock.openAt,exitAt:clock.closeAt,
     calendarVersion:"us-equities-core-2026-reviewed-2026-11-03-v1",adjustment:"total-return-adjusted",
-    direction:()=>{reads.push(fund+"/"+s.id);return 1;}});
+    direction:()=>{
+      reads.push(fund+"/"+s.id);
+      t.mock.timers.tick(250); // Simulate the sign becoming readable after source verification.
+      return 1;
+    }});
   const firstRead=[make(archives[1],"SPY",FIRST_RATE_SOURCE),make(archives[2],"SPY",FIRST_RATE_SOURCE),
     make(archives[2],"QQQ",FIRST_RATE_SOURCE),make(archives[2],"IWM","https://example.com/unverified"),make(archives[2],"DIA",FIRST_RATE_SOURCE)];
   const tx="aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
@@ -201,6 +205,9 @@ test("joint enrollment uses the live witness and only the first authorized nativ
   await durableJSON(join(root,".consensus/evaluation-transaction.json"),{schemaVersion:1,id:tx,synthetic:true});
   await stageJointRetail(root,tx,firstRead,archives,reservations);
   assert.deepEqual(reads,["SPY/"+late,"DIA/"+late]);
+  const observed = JSON.parse(await readFile(join(root, JOINT_RETAIL_ROOT, "SPY/admissions", late + ".json"), "utf8"));
+  assert.equal(observed.value.acceptedAt, "2026-12-08T21:10:00.250Z");
+
   await durableJSON(join(root,"public/consensus/outcomes.json"),firstRead.map(row=>({snapshotId:row.snapshotId,instrument:row.instrument,horizon:"daily",engineVersion:"consensus-rules-2.0.0"})));
   await stageJointRetail(root,tx,firstRead,archives,reservations);
   assert.deepEqual(reads,["SPY/"+late,"DIA/"+late]);

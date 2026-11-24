@@ -1,5 +1,14 @@
 # Visual consensus publication and evaluation
 
+## Capturing the prior premarket before entry
+
+The weekday harvester checks whether the saved edition targets that morning’s open. When it does, the job verifies the public archive and all instrument views before collecting newer data. The publisher also runs the verifier after releasing a later morning edition. On holidays, after the open or when the edition targets another session, the scheduled verification skips the network calls. Both recording paths use the existing publication lock. [Weekday script](../scripts/weekday-harvest.sh) · [Public verification](../scripts/verify-live-consensus.ts)
+
+Register once on the publishing host with `npm run consensus:premarket-study -- --register`. The actual registration time and immutable policy live under the ignored `.consensus/private-prior-premarket-study/v1/`. A same-day public witness and a new private decision before the opening bell are required for each enrollment. The reader replays the previous ordinary session’s premarket return and regular close quintile from their native originals as of the issue cutoff. Two ordinary sessions are required, the source session and the target. The saved percentage and centered quintile become inputs to a separate study for that ETF. [As-issued reader](../lib/consensus/previous-premarket-features.ts) · [Registered policy](../lib/consensus/premarket-study-policy.ts)
+
+`npm run consensus:verify-live -- --record-preopen YYYY-MM-DD` records the available observations. A later edition before the same open supersedes the earlier forecast. The normal `npm run consensus:evaluate` supplies the first approved native settlement and maintains the private count for each ETF. The study consumes the final pre-open edition and compares each future test forecast against the close-quintile control, the training prevalence and an even chance. Each of the 100 held-out test decisions must follow the previous selected outcome’s actual receipt. Run `npm run consensus:premarket-study -- --status` for counts or `--advance` to resume from existing native admissions. Private scores never enable a public vote automatically. [Settlement and phase checks](../lib/consensus/secondary-study.ts)
+
+
 This extends the prior editorial publication. The full user goal remains open. A responsive interface and unconnected feed cards are not completion of the requested product.
 
 ## NY Fed retail survey enrollment

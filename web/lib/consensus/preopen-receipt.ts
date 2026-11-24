@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { outcomeWindowSessions } from "./evaluation.ts";
-import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import { exchangeSession, exchangeSessions, hasReviewedCalendar } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { newYorkDate } from "./time.ts";
@@ -15,6 +15,16 @@ type Receipt = {
   archiveSha256: string; indexText: string;
 };
 type MorningReceipt = Receipt & { firstReceiptSha256: string; confirmedAt: string };
+
+/** The weekday job checks the website only if its saved edition targets today's still-future open. */
+export function scheduledPreopenSession(issuedAt: string, now: string) {
+  if (issuedAt > now) throw Error("Local edition is dated after the publishing clock");
+  const session = newYorkDate(now), issueDay = newYorkDate(issuedAt);
+  if (!hasReviewedCalendar(session) || !hasReviewedCalendar(issueDay)) return null;
+  const clock = exchangeSession(session);
+  if (!clock || now >= clock.openAt) return null;
+  return outcomeWindowSessions(issuedAt, "daily", exchangeSessions(issueDay, session))[0] === session ? session : null;
+}
 
 function file(root: string, session: string, edition: string) {
   if (!/^\d{4}-\d\d-\d\d$/.test(session) || !/^\d{4}-\d\d-\d\dT\d\d-\d\d-\d\d-\d{3}Z$/.test(edition))

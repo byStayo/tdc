@@ -4,9 +4,9 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { registerHooks } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 
-test("500 future monthly enrollments mature despite independently reserved core windows; test labels remain sealed until all forecasts exist", async (t) => {
+async function checkFuturePhases(t: TestContext, daily: boolean) {
   const root = await mkdtemp(join(tmpdir(), "retail-joint-future-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   // Isolated synthetic clock: the real operational calendar still stops in November 2027.
@@ -37,8 +37,13 @@ test("500 future monthly enrollments mature despite independently reserved core 
   const { FIRST_RATE_SOURCE } = await import("../lib/consensus/firstrate.ts");
   const { COMPLETED_EVALUATIONS } = await import("../lib/consensus/outcome-ledger.ts");
   t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-24T14:01:00Z") });
-  const r = await registerJointRetail(root);
-  const folder = join(root, JOINT_RETAIL_ROOT, "SPY");
+  const study = daily ? (await import("../lib/consensus/premarket-study.ts")).premarketStudy :
+    { register: registerJointRetail, status: jointRetailStatus, registrationPath: JOINT_RETAIL_ROOT + "/registration.json" };
+  const r = await study.register(root);
+  const fund = daily ? "TLT" : "SPY";
+  const source = daily ? (await import("../lib/consensus/market-history-settlement.ts")).MARKET_HISTORY_SOURCE : FIRST_RATE_SOURCE;
+  const folder = join(root, dirname(study.registrationPath), fund);
+  const businessDay = (i: number) => new Date(Date.UTC(2027, 0, 4 + Math.floor(i / 5) * 7 + i % 5));
   const hash = (x: unknown) => createHash("sha256").update(JSON.stringify(x)).digest("hex");
   const raw = async (p: string, x: unknown) => {
     await mkdir(dirname(p), { recursive: true, mode: 0o700 });
@@ -59,42 +64,42 @@ test("500 future monthly enrollments mature despite independently reserved core 
     model?: Parameters<typeof retailForecast>[0],
   ) {
     for (let i = start; i < end; i++) {
-      const d = new Date(Date.UTC(2026, 11 + i, 7));
-      d.setUTCDate(7 + ((2 - d.getUTCDay() + 7) % 7)); // A regular Tuesday after the hypothetical Monday release.
+      const d = daily ? businessDay(i) : new Date(Date.UTC(2026, 11 + i, 7));
+      if (!daily) d.setUTCDate(7 + ((2 - d.getUTCDay() + 7) % 7)); // A regular Tuesday after the hypothetical Monday release.
       const day = d.toISOString().slice(0, 10);
       const issuedAt = day + "T12:30:00.000Z",
         capturedAt = day + "T12:31:00.000Z",
         registeredAt = day + "T12:32:00.000Z",
-        after = day + "T21:05:00.000Z";
-      const eventId = "nyfed-sce:stock:" + new Date(Date.UTC(2026, 10 + i, 1)).toISOString().slice(0, 7);
+        after = (daily && i === 400 ? businessDay(401).toISOString().slice(0, 10) : day) + "T21:05:00.000Z";
+      const eventId = daily ? "prior-premarket:" + fund + ":" + day : "nyfed-sce:stock:" + new Date(Date.UTC(2026, 10 + i, 1)).toISOString().slice(0, 7);
       const edition = issuedAt.replace(/[:.]/g, "-"),
         sourceReleasedAt = new Date(+d - 86_400_000 + 16 * 3600000).toISOString();
       const earlier = lastClose || "2026-11-23T21:00:00.000Z";
       // Since every window of these three real-style core test schedules was settled earlier or reserved later,
       // their rolling global high-water marks do not delete this separately preregistered observation.
       const records = ["daily", "weekly", "monthly"].map((horizon) => ({
-        instrument: "SPY",
+        instrument: fund,
         horizon,
         reservedAt: earlier,
         consumedThrough: earlier,
         testWindows: [{ issuedAt: new Date(Date.parse(earlier) - 10 * 86400000).toISOString(), labelKnownAt: earlier }],
       }));
       records.push({
-        instrument: "SPY",
+        instrument: fund,
         horizon: "daily",
         reservedAt: after,
         consumedThrough: after,
         testWindows: [{ issuedAt, labelKnownAt: after }],
       });
-      assert.equal(priorRetailCoreConflict(records, "SPY", issuedAt, after, registeredAt), false);
-      assert.equal(priorRetailCoreConflict(records, "SPY", issuedAt, after, after), true);
+      assert.equal(priorRetailCoreConflict(records, fund, issuedAt, after, registeredAt), false);
+      assert.equal(priorRetailCoreConflict(records, fund, issuedAt, after, after), true);
       simulatedReservations += records.length;
       lastClose = after;
-      const control = 38 + (i % 9),
-        candidate = 40 + (i % 13);
+      const control = daily ? (i % 5) - 2 : 38 + (i % 9),
+        candidate = daily ? ((i % 13) - 6) / 10 : 40 + (i % 13);
       const event = {
         registration: hash(r),
-        fund: "SPY",
+        fund,
         id: eventId,
         edition,
         session: day,
@@ -117,7 +122,7 @@ test("500 future monthly enrollments mature despite independently reserved core 
         eventSha,
         transaction,
         acceptedAt: after,
-        source: FIRST_RATE_SOURCE,
+        source,
         labelCommitment: hash(label),
       };
       const af = edition + ".json";
@@ -133,39 +138,48 @@ test("500 future monthly enrollments mature despite independently reserved core 
       ]);
       if (phase === "test") testLabels.push({ path: join(folder, "private-labels", af), value: label });
       else await save(join(folder, "private-labels", af), label);
-      ids.push({ snapshotId: edition, instrument: "SPY", horizon: "daily", engineVersion: "consensus-rules-2.0.0" });
+      ids.push({ snapshotId: edition, instrument: fund, horizon: "daily", engineVersion: "consensus-rules-2.0.0" });
       archive.push({ id: edition, issuedAt });
     }
     await raw(join(root, "public/consensus/outcomes.json"), ids);
     await raw(join(root, "public/consensus/index.json"), archive);
     t.mock.timers.setTime(Date.parse(lastClose) + 60000);
   }
-  const status = async () => (await jointRetailStatus(root, true)).cohorts!.find((c) => c.instrument === "SPY")!;
+  const status = async () => (await study.status(root, true)).cohorts!.find(c => c.instrument === fund)!;
   await cohort(0, 300, "train", hash(r));
   assert.equal((await status()).stage, "collecting_validation");
   const training = await loaded(join(folder, "training.json"));
   await cohort(300, 400, "validation", hash(training));
   assert.equal((await status()).stage, "collecting_test");
   const model = await loaded(join(folder, "model.json"));
-  await cohort(400, 499, "test", hash(model), model.model);
+  const last = daily ? 501 : 500; // The second daily test decision overlapped the first delayed receipt.
+  await cohort(400, last - 1, "test", hash(model), model.model);
   const unfinished = await status();
   assert.equal(unfinished.stage, "collecting_test");
   assert.equal("test" in unfinished && unfinished.test, 99);
   await assert.rejects(readFile(join(folder, "test.json")), { code: "ENOENT" });
-  await cohort(499, 500, "test", hash(model), model.model);
+  await cohort(last - 1, last, "test", hash(model), model.model);
   assert.equal((await status()).stage, "private_evidence_needs_review");
   const testPlan = await loaded(join(folder, "test.json"));
   assert.equal(testPlan.members.length, 100);
   assert.equal(testPlan.parent, hash(model));
   assert(simulatedReservations >= 2000);
-  for (const item of testLabels) await save(item.path, item.value);
+  if (daily) {
+    const overlapping = businessDay(401).toISOString().slice(0, 10);
+    assert(testPlan.members.every((m: { session: string }) => m.session !== overlapping));
+  }
+  // The overlapping receipt deliberately lacks a label file. A completed test proves it was never opened.
+  for (const [i, item] of testLabels.entries()) if (!daily || i !== 1) await save(item.path, item.value);
   const completed = await status();
   assert.equal(completed.stage, "evaluated_privately");
-  assert.equal("confirmed" in completed && completed.confirmed, 500);
+  assert.equal("confirmed" in completed && completed.confirmed, last);
   const result = await loaded(join(folder, "result.json"));
   assert.equal(result.aggregate.testCount, 100);
   assert.equal(result.aggregate.promoted, false);
   assert.equal(result.aggregate.comparators.length, 3);
   await rm(testLabels[0].path);
   assert.equal((await status()).stage, "evaluated_privately");
-});
+}
+
+test("500 future monthly enrollments preserve core windows and test labels stay sealed until all forecasts exist", t => checkFuturePhases(t, false));
+test("the daily premarket policy matures after 500 disjointly partitioned targets and excludes a delayed overlapping test label", t => checkFuturePhases(t, true));

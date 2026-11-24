@@ -1,6 +1,7 @@
-import { brierScore, fitLogisticModel, type TrainingRow } from "./learning.ts";
-import { pairedLossEvidence } from "./learning-audit.ts";
-import { predict, type LogisticModel } from "./model.ts";
+import type { TrainingRow } from "./learning.ts";
+import { fitSecondary, scoreSecondary, type Fitted, type Forecast } from "./secondary-study-model.ts";
+export { secondaryForecast as retailForecast } from "./secondary-study-model.ts";
+export type { Fitted, Forecast, Phase } from "./secondary-study-model.ts";
 import { RETAIL_ID, RETAIL_RULES } from "./prospective-retail.ts";
 import { RETAIL_POLICY_SHA256 } from "./prospective-family-features.ts";
 import { digest } from "./history.ts";
@@ -31,72 +32,10 @@ export const JOINT_RETAIL_SHA = "d23860a3de41238ef72c7555256b7e49c1076c97a9f6187
 if (digest(JOINT_RETAIL_POLICY) !== JOINT_RETAIL_SHA)
   throw Error("Changed joint retail policy requires a separately registered version");
 export type RetailFund = (typeof RETAIL_RULES)[number]["instrument"];
-export type Phase = "train" | "validation" | "test";
-export type Forecast = { signal: number; control: number; base: number; coin: number };
-export type Fitted = { candidate: LogisticModel; control: LogisticModel; base: number };
 
-export function fitRetailSecondary(train: TrainingRow[], validation: TrainingRow[]): Fitted {
-  if (
-    train.length !== JOINT_RETAIL_POLICY.train ||
-    validation.length !== JOINT_RETAIL_POLICY.validation ||
-    new Set(train.map((r) => r.up)).size !== 2 ||
-    train.at(-1)!.labelKnownAt >= validation[0].issuedAt
-  )
-    throw Error("The locked retail training and validation cohorts are ineligible");
-  function fit(controlOnly: boolean) {
-    const feature = (r: TrainingRow) => (controlOnly ? [r.features[0]] : r.features);
-    const training = train.map((r) => ({ ...r, features: feature(r) }));
-    return [0.01, 0.1, 1, 10]
-      .map((lambda) => fitLogisticModel(training, lambda))
-      .map((model) => ({ model, brier: brierScore(validation, (r) => predict(model, feature(r))) }))
-      .sort((a, b) => a.brier - b.brier)[0].model;
-  }
-  return { candidate: fit(false), control: fit(true), base: train.reduce((s, r) => s + r.up, 0) / train.length };
+export function fitRetailSecondary(train: TrainingRow[], validation: TrainingRow[]) {
+  return fitSecondary(train, validation, JOINT_RETAIL_POLICY);
 }
-
-export function retailForecast(model: Fitted, control: number, candidate: number): Forecast {
-  return {
-    signal: predict(model.candidate, [control, candidate]),
-    control: predict(model.control, [control]),
-    base: model.base,
-    coin: 0.5,
-  };
-}
-
-export function scoreRetailSecondary(
-  fund: RetailFund,
-  fit: Fitted,
-  test: { id: string; prediction: Forecast; up: number }[],
-) {
-  if (
-    test.length !== JOINT_RETAIL_POLICY.test ||
-    new Set(test.map((r) => r.id)).size !== test.length ||
-    test.some(
-      (r) => ![0, 1].includes(r.up) || Object.values(r.prediction).some((p) => !Number.isFinite(p) || p < 0 || p > 1),
-    )
-  )
-    throw Error("Invalid sealed joint retail test");
-  const mean = (name: keyof Forecast) => test.reduce((s, r) => s + (r.up - r.prediction[name]) ** 2, 0) / test.length;
-  const comparators = (["control", "base", "coin"] as const).map((name) => ({
-    name,
-    brier: mean(name),
-    ...pairedLossEvidence(
-      test.map((r) => (r.up - r.prediction[name]) ** 2 - (r.up - r.prediction.signal) ** 2),
-      JOINT_RETAIL_SHA + ":" + fund + ":" + name,
-      JOINT_RETAIL_POLICY.alpha,
-    ),
-  }));
-  return {
-    sampleCount: 500,
-    testCount: test.length,
-    testBrier: mean("signal"),
-    coefficient: fit.candidate.weights[1],
-    comparators,
-    passes:
-      fit.candidate.weights[1] > 0 &&
-      comparators.every(
-        (c) => c.meanImprovement > 0.01 && c.interval95[0] > 0 && c.pValue <= JOINT_RETAIL_POLICY.alpha,
-      ),
-    promoted: false,
-  };
+export function scoreRetailSecondary(fund: RetailFund, fit: Fitted, test: { id: string; prediction: Forecast; up: number }[]) {
+  return scoreSecondary(fund, JOINT_RETAIL_POLICY, JOINT_RETAIL_SHA, fit, test);
 }
