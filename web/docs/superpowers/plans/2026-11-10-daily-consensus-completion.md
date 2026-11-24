@@ -1,5 +1,11 @@
 # The Daily Consensus completion plan
 
+### November 24 weekday settlement and validation
+
+- [x] Make the ordinary 07:48 harvest recover an older equity delivery, even when the newest independent data or TLT are missing. Each of Monday’s four native equity ZIPs and all five issuer files matched its recorded digest on the publishing host. The normal workflow passed separate tests for Wednesday, a holiday backlog, a damaged single-fund source, a permanent price disagreement and transaction recovery. [Operations](../../CONSENSUS_OPERATIONS.md) · [Recovery fixtures](../../../tests/firstrate-late-delivery.test.ts)
+- [ ] Compare the newly delivered independent prices with those originals and settle each qualifying November 23 outcome. The provider announced its next refresh for November 25 at 02:00 New York. TLT’s independent listing and share-basis checks remain open. None of the nine prospective registrations made on November 24 can take a November 23 example.
+- [ ] Observe the November 19 forecast’s first eligible five-session exit for all five funds at the November 25 close and its first eligible 21-session exit at the December 18 close. Each target also needs approved prices and corporate actions. [Issued forecast](https://thedailyconsensus.com/consensus/2026-11-19T13-00-31-020Z.json)
+
 ### Verified on November 24 after the first pre-open registrations
 
 - [x] Check five issuer-reported quarterly share-sale and redemption filings and compare them with ETFIQ daily histories over the actual trading sessions. Four of five histories span the fiscal quarter, covering 251 of 313 expected sessions. [Quarterly control](../../SEC_ETF_FLOW_CONTROL.md) · [Both date bases](../../SEC_ETF_FLOW_RECONCILIATION.md)
