@@ -180,6 +180,18 @@ function currentProduct(product: Product, snapshot: Snapshot, readings: Reading[
     return '<tr><th scope="row">' + row.symbol + '</th>' + values.map(([key, value]) =>
       '<td data-label="' + key + '">' + escape(value) + '</td>').join("") + '</tr>';
   }).join("");
+  const outcomeRows = product.dailySessions.map(({ session, edition, funds }) => {
+    const cells = funds.map(({ symbol, settled, call, eligibleInputs }) => {
+      const status = settled ? 'Settled' : 'Price pending';
+      const decision = call === 'withheld' ? 'Call withheld' : call === 'up' ? 'Called up' : 'Called down';
+      return '<td data-label="' + symbol + '">' + status + ' · ' + decision +
+        (eligibleInputs ? '' : ' · Inputs ineligible') + '</td>';
+    }).join("");
+    return '<tr><th scope="row">' + sourceLink('https://thedailyconsensus.com/consensus/' + encodeURIComponent(edition) + '.json', session) + '</th>' + cells + '</tr>';
+  }).join("");
+  const outcomeTable = outcomeRows ? '<h3 id="daily-outcomes">Recent daily outcomes</h3><p>Each date links to the last edition issued before the opening bell. A settled fund has a verified regular-session outcome. The call shown was recorded before trading began.</p>' +
+    '<table><thead><tr><th scope="col">New York session</th>' + product.price.funds.map(fund =>
+      '<th scope="col">' + fund.symbol + '</th>').join('') + '</tr></thead><tbody>' + outcomeRows + '</tbody></table>' : '';
   const horizons = views.filter(v => v.instrument === "MARKET");
   const familyRows = market.families.map(family => {
     const cells = horizons.map(v => {
@@ -197,7 +209,7 @@ function currentProduct(product: Product, snapshot: Snapshot, readings: Reading[
     '<table><thead><tr><th scope="col">ETF</th><th scope="col">Daily</th><th scope="col">5-session</th><th scope="col">21-session</th><th scope="col">Dividends</th><th scope="col">Elapsed forecasts awaiting prices</th></tr></thead><tbody>' +
     prices + '</tbody></table><p>' + product.completeDailyCohorts + ' input-eligible daily sessions have settled for all five ETFs. Across the archive, ' +
     product.due + ' elapsed targets await prices and ' + product.future + ' have future exits. ' + product.calendarMissing + ' await calendar coverage and ' +
-    product.unaccounted + ' are unaccounted for.</p></section><section id="family-status"><h2>Which families voted</h2>' +
+    product.unaccounted + ' are unaccounted for.</p>' + outcomeTable + '</section><section id="family-status"><h2>Which families voted</h2>' +
     '<p>Votes are for the broad market at publication. A connected prospective study can pair a witnessed input with a later return for one or more ETFs.</p>' +
     '<table><thead><tr><th scope="col">Family</th><th scope="col">Current inputs</th>' +
     horizons.map(v => '<th scope="col">' + escape(v.horizon) + '</th>').join("") +
@@ -229,7 +241,7 @@ export function renderConnectionChart(edition: HistoryEntry, snapshot: Snapshot,
     sources.length + ' named source labels supplied a current reading.</p><p>' + countStatus("stale") + ' readings were stale, ' +
     countStatus("unavailable") + ' unavailable and ' + countStatus("not_formed") + ' awaiting confirmation.</p><p class="muted">Issued ' +
     stamp(edition.issuedAt) + ' · Evidence through ' + stamp(snapshot.cutoff) + '</p><nav aria-label="Report sections"><a href="#views">Forecasts</a>' +
-    (product ? '<a href="#product">Product status</a><a href="#family-status">Family votes</a>' : '') + '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
+    (product ? '<a href="#product">Product status</a>' + (product.dailySessions.length ? '<a href="#daily-outcomes">Daily outcomes</a>' : '') + '<a href="#family-status">Family votes</a>' : '') + '<a href="#providers">Providers</a><a href="#signals">Measurements</a>' + (context ? '<a href="#context">Other evidence</a>' : '') +
     '<a href="' + archive + '">Original edition</a></nav></header><main>' +
     (product ? currentProduct(product, snapshot, readings, views, sources) : '') +
     '<section id="views"><h2>How the inputs voted</h2><p>Each row shows the current inputs in one family and the values that contributed to its score. A zero score is a neutral vote.</p>' +

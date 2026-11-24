@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
@@ -8,6 +6,7 @@ import { extendedResearchSessions } from "../lib/consensus/extended-research-cal
 import { exchangeSessions, hasReviewedCalendar } from "../lib/consensus/exchange-calendar.ts";
 import { loadReviewedTltCash } from "../lib/consensus/firstrate.ts";
 import { digest } from "../lib/consensus/history.ts";
+import { historicalNasdaqAuction } from "../lib/consensus/historical-nasdaq-auction.ts";
 import { readNasdaqHistoricalControl } from "../lib/consensus/kibot-session-witnesses.ts";
 import { collectKibotSeries, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { boundaryClock, compareMarketHistoryBoundary, contiguousTltWindows, freeMarketHistoryBalance, marketHistoryBoundaries } from "../lib/consensus/market-history-boundaries.ts";
@@ -21,7 +20,6 @@ import { SourceMissingError } from "../lib/consensus/source-failure.ts";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const archive = resolve(root, ".consensus/private-market-history"), dir = resolve(archive, "tlt-settlement");
 const witnesses = resolve(root, ".consensus/private-kibot/sources");
-const sha = (input: Buffer | string) => createHash("sha256").update(input).digest("hex");
 const [from, through, ...options] = process.argv.slice(2);
 const replayIndex = options.indexOf("--replay");
 const replay = replayIndex === -1 ? null : options.slice(replayIndex + 1, replayIndex + 3);
@@ -128,17 +126,6 @@ async function nasdaq(day: string) {
   return { session: day, ...source.prices, sha256: source.stamp.sha256, location };
 }
 
-// Independently reviewed TotalView-ITCH opening and closing crosses on the November 2025 shortened session.
-async function historicalAuction(day: string) {
-  if (day !== "2025-11-28") return undefined;
-  const file = resolve(root, ".consensus/private-nasdaq-crosses/2025-11-28-e965ea6f9779.json");
-  const record = await readResearchReceipt<{ comparison: { symbol: string; open: { price: number }; close: { price: number } }[] }>(file);
-  if (!record) return undefined;
-  if (sha(await readFile(file)) !== "2cc16cfd6ff2b5f8051384488352a7c6df2350e6f47acb23dca79ae8d0f0d485")
-    throw new Error("Reviewed 2025 shortened-session auction evidence changed");
-  const cross = record.comparison.find(r => r.symbol === "TLT")!;
-  return { session: day, open: cross.open.price, close: cross.close.price };
-}
 const rangePointerPath = resolve(dir, `${from}-${through}-nasdaq.json`);
 const rangePointer = await readResearchReceipt<{ generation: string; sha256: string }>(rangePointerPath);
 if (rangePointer && (!/^\d{4}-\d\d-\d\d(?:T\d\d-\d\d-\d\d\.\d{3}Z)?$/.test(rangePointer.generation) ||
@@ -148,7 +135,7 @@ const boundaries = opening && closing ? marketHistoryBoundaries(opening, closing
 async function reviewDay(day: string, i: number) {
   const [a, b, c] = await Promise.allSettled([native(day, false), native(day, true), nasdaq(day)]);
   const raw = a.status === "fulfilled" ? a.value : null, split = b.status === "fulfilled" ? b.value : null;
-  const listed = c.status === "fulfilled" ? c.value : null, auction = await historicalAuction(day);
+  const listed = c.status === "fulfilled" ? c.value : null, auction = await historicalNasdaqAuction(root, "TLT", day);
   const covered = !!cash && cash.cash[0].session <= day && cash.capturedAt > clocks[i].closeAt;
   const boundary = boundaries[i];
   const comparison = listed ?? auction;

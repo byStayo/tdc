@@ -34,7 +34,7 @@ export interface DailySettlementStatus {
 }
 
 /** The board uses only published identities for the winning pre-open edition. */
-export function recentDailySettlements(history: HistoryEntry[], identities: Pick<Outcome, "snapshotId" | "instrument" | "horizon" | "engineVersion">[],
+export function recentDailySettlements(history: Pick<HistoryEntry, "id" | "issuedAt" | "engineVersion">[], identities: Pick<Outcome, "snapshotId" | "instrument" | "horizon" | "engineVersion">[],
   evaluatedAt: string): DailySettlementStatus[] {
   verifyLedgerClock({ asOf: evaluatedAt, ledgerObservedAt: evaluatedAt });
   const calendar = availableExchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);

@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { publicDate } from "../public-normalization.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { link, lstat, open, readFile, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -44,7 +45,9 @@ type Fetcher = Parameters<typeof sourceResponse>[0];
 type NasdaqMeta = RawMeta & { symbol: ETF; kind: string; requestedAt: string; body: string; status: number };
 
 export async function kibotPostCloseIssuerActions(root: string, directory: string, symbol: ETF, day: string,
-  expected: SessionFundProof["sources"]["issuer"] | undefined, collect: boolean, includeCashHistory = false) {
+  expected: SessionFundProof["sources"]["issuer"] | undefined, collect: boolean, includeCashHistory: boolean | { from: string } = false) {
+  const start = typeof includeCashHistory === "object" ? includeCashHistory.from : "2026-01-01";
+  if (publicDate(start) !== start || start > day) throw new Error("Invalid issuer history start");
   const scripts = resolve(root, "scripts"), captured = resolve(directory, "issuer-post-close");
   async function decode(folder: string) {
     const file = resolve(folder, "issuer-" + symbol);
@@ -59,8 +62,8 @@ export async function kibotPostCloseIssuerActions(root: string, directory: strin
     const raw = await ownerBytes(file + ".bin", 4_000_000);
     checkStamp(expected ?? stamp, meta.url, meta.capturedAt, raw);
     const code = "import json,sys\nfrom pathlib import Path\nfrom issuer_corporate_actions import issuer_cash\n" +
-      "print(json.dumps(issuer_cash(sys.argv[1],Path(sys.argv[2]).read_bytes()),allow_nan=False))";
-    const { stdout } = await promisify(execFile)("python3", ["-B", "-c", code, symbol, file + ".bin"], { cwd: scripts, timeout: 10000 });
+      "print(json.dumps(issuer_cash(sys.argv[1],Path(sys.argv[2]).read_bytes(),sys.argv[3]),allow_nan=False))";
+    const { stdout } = await promisify(execFile)("python3", ["-B", "-c", code, symbol, file + ".bin", start], { cwd: scripts, timeout: 10000 });
     const result = JSON.parse(stdout);
     const targetExDates = result.cash.filter((r: CashDistribution) => r.session === day);
     if (result.symbol !== symbol || result.source !== stamp.source || result.sha256 !== stamp.sha256 ||

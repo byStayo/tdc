@@ -43,6 +43,14 @@ test("the current inventory accounts for elapsed and future outcomes and include
   assert.equal(product.targets, product.settledRecords + product.due + product.future + product.calendarMissing + product.unaccounted);
   assert.equal(product.selected, product.calls + product.abstentions);
   assert.equal(product.price.funds.length, 5);
+  assert.ok(product.dailySessions.length > 0 && product.dailySessions.length <= 3);
+  for (const session of product.dailySessions) {
+    assert.deepEqual(session.funds.map(f => f.symbol), ["SPY", "QQQ", "IWM", "DIA", "TLT"]);
+    for (const fund of session.funds) {
+      assert.deepEqual(Object.keys(fund).sort(), ["call", "eligibleInputs", "settled", "symbol"]);
+      assert.ok(["up", "down", "withheld"].includes(fund.call));
+    }
+  }
   assert.ok(product.forwardFamilies.includes("institutions"));
   assert.equal(product.editorial.checked, 6);
   assert.ok(product.editorial.citedSources > 0);
