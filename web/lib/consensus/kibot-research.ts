@@ -102,11 +102,19 @@ export const H6_RETAIL_RESEARCH = {
   samples: 136, expectedSign: "positive", timingBasis: "dated-release",
   source: "https://www.federalreserve.gov/releases/h6/",
 } as const;
+export const TAIL_RISK_RESEARCH = {
+  id: "prelaunch-spy-cambria-tail-risk-v1", family: "options", instrument: "SPY",
+  label: "Cambria Tail Risk ETF price and subsequent SPY direction", controlLabel: "SPY and Treasury ETF (IEF) returns",
+  samples: 258, expectedSign: "negative", timingBasis: "historical-reconstruction",
+  prospectus: "https://www.sec.gov/Archives/edgar/data/1529390/000139834417011072/fp0027688_497k.htm",
+  prices: "https://www.kibot.com/api/history-request.html",
+} as const;
 const versionEightStudies = [...versionSevenStudies, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH] as const;
 const versionNineStudies = [...versionEightStudies, OFR_GEOGRAPHIC_RESEARCH] as const;
 const versionTenStudies = [...versionNineStudies, IEM_ELECTION_RESEARCH] as const;
 const versionElevenStudies = [...versionTenStudies, G17_MANUFACTURING_RESEARCH] as const;
-export const KIBOT_DATED_RESEARCH = [...versionElevenStudies, ONS_SERVICES_RESEARCH, H6_RETAIL_RESEARCH] as const;
+const versionTwelveStudies = [...versionElevenStudies, ONS_SERVICES_RESEARCH, H6_RETAIL_RESEARCH] as const;
+export const KIBOT_DATED_RESEARCH = [...versionTwelveStudies, TAIL_RISK_RESEARCH] as const;
 export const KIBOT_RESEARCH_STUDIES = [
   ...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, ...KIBOT_DATED_RESEARCH,
 ] as const;
@@ -152,14 +160,16 @@ export type DatedStudyRow = StudyMetrics & { controlBrier: number; coinBrier: nu
   (StudyIdentity<typeof ONS_SERVICES_RESEARCH> & { timingBasis: "dated-release"; priorStudySessions: number;
     priorStudyTestSessions: number; controlImprovement95: [number, number] }) |
   (StudyIdentity<typeof H6_RETAIL_RESEARCH> & { timingBasis: "dated-release"; excludedPriorDates: number;
-    controlImprovement95: [number, number] })
+    controlImprovement95: [number, number] }) |
+  (StudyIdentity<typeof TAIL_RISK_RESEARCH> & { timingBasis: "historical-reconstruction"; excludedTargetOverlap: number;
+    excludedInputOverlap: number; controlImprovement95: [number, number] })
 );
 type LegacyStudyRow = StudyMetrics & {
   family: typeof KIBOT_LEGACY_RESEARCH_STUDIES[number]["family"]; instrument: Symbol;
 };
 
 export interface KibotResearch {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
@@ -241,7 +251,7 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
   const keys = [...studyKeys, "studyId", "controlBrier", "coinBrier", "coefficientSign", "timingBasis"];
   const hasInterval = study === SWVXX_FLOW_RESEARCH || study === BLS_PAYROLL_RESEARCH ||
     study === OFR_VOLATILITY_RESEARCH || study === OFR_GEOGRAPHIC_RESEARCH || study === IEM_ELECTION_RESEARCH ||
-    study === G17_MANUFACTURING_RESEARCH || study === ONS_SERVICES_RESEARCH || study === H6_RETAIL_RESEARCH;
+    study === G17_MANUFACTURING_RESEARCH || study === ONS_SERVICES_RESEARCH || study === H6_RETAIL_RESEARCH || study === TAIL_RISK_RESEARCH;
   if (hasInterval) keys.push("controlImprovement95");
   if (study === VX_CURVE_RESEARCH) keys.push("strictBeforeCutoff");
   if (study === OFR_VOLATILITY_RESEARCH) keys.push("sourceBasis", "nativeOnlySamples", "nativeSamples", "mirrorSamples");
@@ -250,6 +260,7 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
     keys.push("monthlyReleases", "multiplePreliminaryMonths", "unconfirmedClocks", "priorTechnicalSamples", "priorTechnicalTestSamples");
   if (study === ONS_SERVICES_RESEARCH) keys.push("priorStudySessions", "priorStudyTestSessions");
   if (study === H6_RETAIL_RESEARCH) keys.push("excludedPriorDates");
+  if (study === TAIL_RISK_RESEARCH) keys.push("excludedTargetOverlap", "excludedInputOverlap");
   if (study === IEM_ELECTION_RESEARCH)
     keys.push("trainSamples", "validationSamples", "test2020Samples", "test2024Samples", "campaignControlP", "comparisonCount", "adjustedControlP");
   if (!exact(row, keys) || !validMetrics(row) || row.studyId !== study.id || row.family !== study.family ||
@@ -266,6 +277,10 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
       row.unconfirmedClocks !== 3 || row.priorTechnicalSamples !== 43 || row.priorTechnicalTestSamples !== 19)) return false;
   if (study === ONS_SERVICES_RESEARCH && (row.priorStudySessions !== 70 || row.priorStudyTestSessions !== 21)) return false;
   if (study === H6_RETAIL_RESEARCH && row.excludedPriorDates !== 32) return false;
+  if (study === TAIL_RISK_RESEARCH && (row.excludedTargetOverlap !== 137 || row.excludedInputOverlap !== 96 ||
+      row.modelBrier !== 0.2584 || row.controlBrier !== 0.2568 || row.baseRateBrier !== 0.2592 ||
+      row.coefficientSign !== "negative" || row.clearedMargin || !Array.isArray(row.controlImprovement95) ||
+      row.controlImprovement95[0] !== -0.0092 || row.controlImprovement95[1] !== 0.0043)) return false;
   if (study === VX_CURVE_RESEARCH && row.strictBeforeCutoff !== 4) return false;
   if (study === OFR_VOLATILITY_RESEARCH && (row.sourceBasis !== "originals-and-four-decimal-mirror" ||
       row.nativeOnlySamples !== 76 || row.nativeSamples !== 70 || row.mirrorSamples !== 55)) return false;
@@ -292,7 +307,7 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      ![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
+      ![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -307,7 +322,7 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
   const hasIssuerGuidance = Number(value.schemaVersion) >= 6;
   const version = Number(value.schemaVersion);
   const versions: Partial<Record<number, readonly (typeof KIBOT_DATED_RESEARCH[number])[]>> = {
-    7:versionSevenStudies, 8:versionEightStudies, 9:versionNineStudies, 10:versionTenStudies, 11:versionElevenStudies, 12:KIBOT_DATED_RESEARCH,
+    7:versionSevenStudies, 8:versionEightStudies, 9:versionNineStudies, 10:versionTenStudies, 11:versionElevenStudies, 12:versionTwelveStudies, 13:KIBOT_DATED_RESEARCH,
   };
   const newStudies = versions[version] ?? [];
   const existing = legacyCount + Number(hasFt900) + Number(hasCloseLocation) + Number(hasFomcEve) + Number(hasIssuerGuidance);

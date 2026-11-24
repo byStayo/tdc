@@ -30,7 +30,7 @@ import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
 import type { DailySettlementStatus } from "@/lib/consensus/outcome-coverage-audit";
 import { G17_MANUFACTURING_RESEARCH, IEM_ELECTION_RESEARCH, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, OFR_GEOGRAPHIC_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
-  TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
+  TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, TAIL_RISK_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
   Catalyst,
@@ -2619,6 +2619,13 @@ export default function MorningBoard({
                                 <br />Retail fund coefficient {row.coefficientSign} (expected positive)
                                 <br />95% interval for improvement over deposits alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
                                 <br />{row.excludedPriorDates} previously studied sessions were excluded before fitting.
+                              </>}
+                              {"excludedTargetOverlap" in row && <>
+                                <br />TAIL holds equity index puts, Treasuries and cash. This comparison used reconstructed 2018–19 fund prices from three sessions before each forecast.
+                                <br />95% interval for improvement over SPY and IEF {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                                <br />Earlier SPY research overlapped {row.excludedTargetOverlap} target dates and {row.excludedInputOverlap} additional input dates. Both groups were excluded.
+                                <br /><a href={TAIL_RISK_RESEARCH.prospectus} target="_blank" rel="noopener noreferrer">Cambria prospectus</a>
+                                {" · "}<a href={TAIL_RISK_RESEARCH.prices} target="_blank" rel="noopener noreferrer">Kibot price history</a>
                               </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
