@@ -9,7 +9,7 @@ export { priorCoreConflict as priorRetailCoreConflict, type NewCoreSettlement } 
 
 export const JOINT_RETAIL_ROOT = ".consensus/private-nyfed-retail-joint/v2";
 const sources = new Set([FIRST_RATE_SOURCE, MARKETPARQUET_SOURCE, KIBOT_SUBSCRIBER_EOD_SOURCE]);
-const study = createSecondaryStudy({
+export const jointRetailStudy = createSecondaryStudy({
   directory: JOINT_RETAIL_ROOT, policy: JOINT_RETAIL_POLICY, policySha: JOINT_RETAIL_SHA,
   earliest: "2026-11-24T08:56:55.000Z", requireNewRelease: true, disjointTests: false,
   granted: (_, source) => sources.has(source),
@@ -19,4 +19,4 @@ const study = createSecondaryStudy({
 });
 
 export const { register: registerJointRetail, enroll: enrollJointRetail, stage: stageJointRetail, status: jointRetailStatus,
-  registrationPath: JOINT_RETAIL_REGISTRATION, advanceMarker: JOINT_RETAIL_ADVANCE_MARKER } = study;
+  registrationPath: JOINT_RETAIL_REGISTRATION, advanceMarker: JOINT_RETAIL_ADVANCE_MARKER } = jointRetailStudy;

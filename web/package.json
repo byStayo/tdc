@@ -20,6 +20,7 @@
     "consensus:analysts": "node --experimental-strip-types scripts/publish-consensus.ts --analysts-only",
     "consensus:taiwan": "node --experimental-strip-types scripts/publish-consensus.ts --taiwan-only",
     "consensus:evaluate": "node --experimental-strip-types scripts/evaluate-consensus.ts",
+    "consensus:secondary-families": "node --experimental-strip-types scripts/retail-joint.ts --families",
     "consensus:premarket-study": "node --experimental-strip-types scripts/retail-joint.ts --premarket",
     "consensus:retail-joint": "node --experimental-strip-types scripts/retail-joint.ts",
     "consensus:prepare-firstrate": "node --experimental-strip-types scripts/prepare-firstrate.ts",

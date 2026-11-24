@@ -1,5 +1,11 @@
 # Visual consensus publication and evaluation
 
+## Testing the original technical, options and payroll features
+
+Register the six existing source definitions for prospective model comparison with `npm run consensus:secondary-families -- --register`. The four equity funds compare five-session price momentum with one-session momentum. SPY compares the short-to-long implied-volatility band with the recent rank of 30-day volatility. TLT compares the two preceding payroll revisions with current headline job growth using the prespecified negative direction. Each comparison requires the original native evidence and the original same-morning public archive receipt. The standard morning verifier enrolls witnessed inputs, and the ordinary core evaluator can admit their first authorized settlements.
+
+`npm run consensus:secondary-families -- --status` reports enrollment and verified outcome counts per fund. All six comparisons share the same correction across six hypotheses and three baseline comparisons. The earlier private pairing check preserves its original training-only limits. These new prospective tests have an independent 300/100/100 sequence, seal predictions before the open, and keep the results private. Any candidate for a public vote still requires the applicable production review and untouched confirmation evidence. [Source definitions](../lib/consensus/prospective-family-features.ts) · [Prospective studies](../lib/consensus/secondary-family-studies.ts)
+
 ## Capturing the prior premarket before entry
 
 The weekday harvester checks whether the saved edition targets that morning’s open. When it does, the job verifies the public archive and all instrument views before collecting newer data. The publisher also runs the verifier after releasing a later morning edition. On holidays, after the open or when the edition targets another session, the scheduled verification skips the network calls. Both recording paths use the existing publication lock. [Weekday script](../scripts/weekday-harvest.sh) · [Public verification](../scripts/verify-live-consensus.ts)

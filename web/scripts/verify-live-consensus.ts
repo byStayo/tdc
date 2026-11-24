@@ -3,8 +3,9 @@ import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt, scheduledPreopenSession } from "../lib/consensus/preopen-receipt.ts";
-import { recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
+import { PROSPECTIVE_FAMILY_RULES, recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { premarketStudy } from "../lib/consensus/premarket-study.ts";
+import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 import { enrollJointRetail } from "../lib/consensus/retail-joint.ts";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { HORIZONS, INSTRUMENTS, type Snapshot } from "../lib/consensus/types.ts";
@@ -48,6 +49,7 @@ async function verify(snapshot: Snapshot, session?: string) {
   const preopen = session ? await recordPreopenReceipt(root, session, snapshot.id,
     verified.get(snapshot.id + ".json")!, verified.get("index.json")!, new Date().toISOString()) : undefined;
   let familyFeatures, retailFeatures, jointRetail, priorPremarket;
+  const secondaryFamilies: Record<string, {status: string; enrolled: number}> = {};
   if (session && preopen) {
     try {
       familyFeatures = await recordProspectiveFamilyFeatures(root, session, snapshot.id);
@@ -67,6 +69,21 @@ async function verify(snapshot: Snapshot, session?: string) {
       console.error("Private premarket enrollment failed.", error instanceof Error ? error.message : String(error));
       priorPremarket = { status: "failed" };
     }
+    if ("available" in familyFeatures) {
+      const missing = new Set(familyFeatures.missing.map(m => m.id + "/" + m.instrument));
+      for (const {name, study} of secondaryFamilyStudies) {
+        const eligible = PROSPECTIVE_FAMILY_RULES.some(rule => rule.family === name && !missing.has(rule.id + "/" + rule.instrument));
+        if (!eligible) {
+          secondaryFamilies[name] = {status: "no_witnessed_source_input", enrolled: 0};
+          continue;
+        }
+        try { secondaryFamilies[name] = await study.enroll(root, session, snapshot.id); }
+        catch (error) {
+          console.error("Private enrollment failed for", name, error instanceof Error ? error.message : String(error));
+          secondaryFamilies[name] = {status: "failed", enrolled: 0};
+        }
+      }
+    }
     if ("available" in retailFeatures && retailFeatures.available) try {
       jointRetail = await enrollJointRetail(root, session, snapshot.id);
     } catch(error) {
@@ -75,7 +92,7 @@ async function verify(snapshot: Snapshot, session?: string) {
     }
   }
   console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-    matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket }));
+    matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures, retailFeatures, jointRetail, priorPremarket, secondaryFamilies }));
 }
 
 const readCurrent = async (): Promise<Snapshot> => JSON.parse((await file("lib/consensus/current.json")).toString());
