@@ -40,8 +40,9 @@ def verify_features(selection):
                     int(row["tweets"]), int(row["unique_authors"]))
     # Native bar session clocks independently reproduce the original training population.
     bars = price_file("SPY", 2023, "raw")["sessions"][-21:] + price_file("SPY", 2024, "raw")["sessions"]
-    full = [datetime.fromisoformat(b["closeAt"]) - datetime.fromisoformat(b["openAt"]) == timedelta(minutes=390)
-            for b in bars]
+    def clock(stamp):
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    full = [clock(b["closeAt"]) - clock(b["openAt"]) == timedelta(minutes=390) for b in bars]
     rows = {}
     for index, bar in enumerate(bars):
         target = date.fromisoformat(bar["session"])
@@ -59,29 +60,33 @@ def verify_features(selection):
     if list(rows) != [p["target"] for p in selection["points"]]:
         raise ValueError("Independent source or calendar selection differs")
     for point in selection["points"]:
-        for actual, expected in zip(rows[point["target"]], point["values"], strict=True):
+        if len(point["values"]) != len(FUNDS) or any(len(v) != 2 for v in point["values"]):
+            raise ValueError("Incomplete five-fund feature vector")
+        for actual, expected in zip(rows[point["target"]], point["values"]):
             check_close(actual[0], expected[0])
             check_close(actual[1], expected[1])
     return rows
 
 
 def probability(row, intercept, weights):
-    z = intercept + sum(v*w for v, w in zip(row, weights, strict=True))
+    z = intercept + sum(v*w for v, w in zip(row, weights))
     return 1 / (1 + math.exp(-min(30, max(-30, z))))
 
 
 def fit_scores(x, y):
+    if not x or len(x) != len(y) or not x[0] or any(len(row) != len(x[0]) for row in x):
+        raise ValueError("Features and outcomes must form a complete rectangular matrix")
     a, b = len(y)*3//5, len(y)*4//5
-    mean = [sum(col)/a for col in zip(*x[:a], strict=True)]
+    mean = [sum(col)/a for col in zip(*x[:a])]
     sd = [(sum((row[i]-m)**2 for row in x[:a])/a)**0.5 or 1. for i, m in enumerate(mean)]
     norm = [[(v-mean[i])/sd[i] for i, v in enumerate(row)] for row in x]
     candidates = []
     for penalty in (0.01, 0.1, 1., 10.):
         c, w = 0., [0.]*len(mean)
         for _ in range(600):
-            delta = [probability(row, c, w)-label for row, label in zip(norm[:a], y[:a], strict=True)]
+            delta = [probability(row, c, w)-label for row, label in zip(norm[:a], y[:a])]
             c -= 0.08*sum(delta)/a
-            w = [v-0.08*(sum(row[i]*d for row, d in zip(norm[:a], delta, strict=True))+penalty*v)/a
+            w = [v-0.08*(sum(row[i]*d for row, d in zip(norm[:a], delta))+penalty*v)/a
                  for i, v in enumerate(w)]
         def score(lo, hi):
             return sum((probability(norm[i], c, w)-y[i])**2 for i in range(lo, hi))/(hi-lo)
@@ -98,7 +103,9 @@ if __name__ == "__main__":
     for i, ticker in enumerate(FUNDS):
         recorded = next(row for row in result["comparisons"] if row["symbol"] == ticker)
         signs = []
-        for basis, sha in zip(("raw", "splits"), recorded["sourceHashes"], strict=True):
+        if len(recorded["sourceHashes"]) != 2:
+            raise ValueError("Both independent price bases are required")
+        for basis, sha in zip(("raw", "splits"), recorded["sourceHashes"]):
             receipt = price_file(ticker, 2024, basis)
             if receipt["sha256"] != sha:
                 raise ValueError("Source comparison changed")
