@@ -27,7 +27,7 @@ python3 -B scripts/collect-ofr-geographic-archives.py "$regional_study"
 python3 -B scripts/qualify-ofr-geographic.py --source-root "$treasury_vintages" --output "$regional_study/source-selection.json"
 python3 -B scripts/qualify-ofr-geographic.py --source-root "$treasury_vintages" --native-precision-archives "$regional_study" --output "$regional_study/supplement-final-selection.json"
 python3 -B scripts/qualify-ofr-geographic.py --source-root "$treasury_vintages" --native-precision-archives "$regional_study" --after-maturity --output "$regional_study/maturity-source.json"
-node --experimental-strip-types scripts/research-ofr-geographic.ts "$regional_study" "$price_root" --replay
+python3 -B scripts/replay-ofr-geographic-v1.py "$regional_study" "$price_root"
 python3 -B scripts/verify-ofr-geographic-outcome.py "$regional_study" "$price_root"
 python3 -B tests/test-ofr-geographic.py
 node --experimental-strip-types --test tests/consensus-ofr-geographic.test.ts tests/kibot-research.test.ts

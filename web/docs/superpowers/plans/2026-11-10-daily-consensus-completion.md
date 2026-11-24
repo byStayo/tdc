@@ -1,5 +1,13 @@
 # The Daily Consensus completion plan
 
+### November 24 first-release data and price qualification
+
+- [x] Connect UK headline and services CPI to the weekday collector. Match the two original monthly releases and the official release clock. Historical replay matched 121 TLT outcomes and reproduced the held-out comparison in Python. The extra series failed its directional threshold. [ONS data](https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7nn/mm23)
+- [x] Connect current Fed H.6 retail money funds, small time deposits and the separately reported retirement-account deduction. The old-definition IWM study excluded 32 previously used dates before fitting. Its 28-date final test missed its threshold. [H.6 release](https://www.federalreserve.gov/releases/h6/)
+- [x] Test the MarketParquet preview through an actual TLT ex-date, an early exchange close, and five- and 21-session outcomes. The free extracts and comparisons stay in the owner’s private evidence store. The window reconciliation still has directional disagreements. [Private replay procedure](../../MARKETPARQUET_SAMPLE_REPLAY.md)
+- [x] Connect authorized daily X and Instagram acquisition to private blind annotation with expiry and account verification. The existing reads can produce a packet when the account has a documented annotation grant. [Collection and benchmark](../../BLUESKY_SAMPLE.md)
+- [ ] Acquire qualifying, independently labelled real social samples, settle the five due November 23 outcomes, and demonstrate enough new chronological outcomes to promote a model. The November 19 daily ledger already contains all five realized outcomes and the original five abstentions. [Outcome ledger](https://thedailyconsensus.com/consensus/outcomes.json)
+
 ### November 24 weekday settlement and validation
 
 - [x] Make the ordinary 07:48 harvest recover an older equity delivery, even when the newest independent data or TLT are missing. Each of Monday’s four native equity ZIPs and all five issuer files matched its recorded digest on the publishing host. The normal workflow passed separate tests for Wednesday, a holiday backlog, a damaged single-fund source, a permanent price disagreement and transaction recovery. [Operations](../../CONSENSUS_OPERATIONS.md) · [Recovery fixtures](../../../tests/firstrate-late-delivery.test.ts)

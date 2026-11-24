@@ -2,9 +2,9 @@ import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { lstat, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { promisify, isDeepStrictEqual } from "node:util";
+import { promisify } from "node:util";
 import { OFR_GEOGRAPHIC_RESEARCH, type DatedStudyRow } from "../lib/consensus/kibot-research.ts";
-import { evaluateRegionalResearch, readRegionalCohort } from "./research-ofr-geographic.ts";
+import { type evaluateRegionalResearch, readRegionalCohort } from "./research-ofr-geographic.ts";
 
 const run = promisify(execFile);
 const reviewedResult = "8ec9a92a40c6805f87351a0dc60ff76355b8a6d517e6df1e340e2ef07876c82e";
@@ -29,8 +29,13 @@ export async function readOfrGeographicStudy(root: string, before: string, owner
   const proof = JSON.parse(stdout);
   if (proof.selectionSHA256 !== reviewedSource || proof.distinctTargets !== 147 || proof.addedAfterMaturity !== 38 ||
       proof.matchedEconomicDates !== 40 || proof.conflictingDates.length || !proof.sourceFloorMet) throw Error("Regional source evidence did not reproduce");
-  const result = await evaluateRegionalResearch(directory, parent);
-  if (!isDeepStrictEqual(result, JSON.parse(body.toString("utf8"))) || result.before !== before ||
+  // --replay compares the entire recomputed result, including private source
+  // hashes, with the byte-pinned result above. Its registered reader predates
+  // the operational publisher's distinction between absent and invalid prices.
+  await run("python3", ["-B", resolve(scripts, "replay-ofr-geographic-v1.py"), directory, parent, "--node", process.execPath],
+    { timeout:90_000, maxBuffer:64_000 });
+  const result = JSON.parse(body.toString("utf8")) as Awaited<ReturnType<typeof evaluateRegionalResearch>>;
+  if (result.before !== before ||
       result.method !== OFR_GEOGRAPHIC_RESEARCH.id || result.split.testEnds >= before || result.coinBrier !== 0.25 ||
       result.passesEconomicGate !== (result.coefficient > 0 &&
         result.combinedBrier < Math.min(result.controlBrier, result.trainingBaseBrier, result.coinBrier) - 0.01))

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -8,6 +9,12 @@ import { readOfrGeographicStudy } from "../scripts/stage-ofr-geographic.ts";
 import { regionalUncertainty } from "../scripts/research-ofr-geographic.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
+
+test("the geographic replay still has its byte-exact registered price reader after operational price handling changes",async()=>{
+  const registered = JSON.parse(await readFile(new URL("../scripts/ofr-geographic-scoring-lock.json",import.meta.url),"utf8"));
+  const frozen = await readFile(new URL("../lib/consensus/research-price-capture-ofr-v1.ts",import.meta.url));
+  assert.equal(createHash("sha256").update(frozen).digest("hex"),registered.sourceCodeSHA256["lib/consensus/research-price-capture.ts"]);
+});
 
 const reviewed: DatedStudyRow = {
   studyId: OFR_GEOGRAPHIC_RESEARCH.id, family: "international", instrument: "DIA", timingBasis: "archived-before-cutoff",
