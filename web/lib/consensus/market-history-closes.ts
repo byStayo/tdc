@@ -89,7 +89,11 @@ function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL, grid: Mark
   const page = capture.pages?.[0], headers = page?.headers;
   const from = query.get("start"), end = query.get("end");
   const gridMatches = grid === "exchange" ? [null, "exchange"].includes(query.get("tz")) : query.get("tz") === grid;
-  const sessionHeader = grid === "exchange" ? "exchange America/New_York 00:00" : "Asia/Kolkata 00:00";
+  const session = headers?.["x-session"];
+  // Market History treats venue and exchange clocks identically for US stocks.
+  const sessionMatches = grid === "exchange"
+    ? session === "exchange America/New_York 00:00" || session === "venue America/New_York 00:00"
+    : session === "Asia/Kolkata 00:00";
   if (!from || !end || ![from, end].every(day => /^\d{4}-\d\d-\d\d$/.test(day) && instant(day + "T00:00:00Z")) ||
       from > end || Date.parse(end) - Date.parse(from) > 370 * 86_400_000 || url.hash ||
       keys.length !== new Set(keys).size || keys.some(key => !["start", "end", "adjust", "feed", "limit", "format", "tz"].includes(key)) ||
@@ -99,7 +103,7 @@ function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL, grid: Mark
       capture.pages?.length !== 1 || !page || !headers || page.status !== 200 || page.source !== capture.source ||
       page.sha256 !== capture.sha256 || page.count !== capture.count || headers["x-feed"] !== "consolidated" ||
       headers["content-type"]?.split(";")[0].trim().toLowerCase() !== "application/x-ndjson" ||
-      headers["x-session"] !== sessionHeader || headers["x-row-count"] !== String(capture.count) ||
+      !sessionMatches || headers["x-row-count"] !== String(capture.count) ||
       headers["x-data-through"] !== capture.through || headers["x-bars-charged"] !== String(Math.ceil(capture.count / 100) * 100) ||
       headers["x-next-cursor"] || headers["x-limit-clamped"] || /rel\s*=\s*"?next/i.test(headers.link ?? "") ||
       !headers.date || headers.date !== new Date(capture.capturedAt).toUTCString() ||
@@ -142,6 +146,9 @@ export function parseMarketHistoryHours(capture: MarketHistoryCapture, symbol: s
   const from = url.searchParams.get("start"), through = url.searchParams.get("end");
   const start = from ? Date.parse(from) : -Infinity;
   const end = through ? Date.parse(through) + (/^\d{4}-\d\d-\d\d$/.test(through) ? 86_400_000 - 1 : 0) : Infinity;
+  // Raw rows are filtered by the UTC request dates before hourly resampling.
+  // The first signed Kolkata bucket can therefore start half an hour before midnight.
+  const earliestBucket = delivered && grid === "Asia/Kolkata" ? start - HOUR / 2 : start;
   let previous = -Infinity, identity: number | undefined;
   const rows = capture.text.trim().split(/\r?\n/).map(line => {
     const row = JSON.parse(line) as MarketHistoryHour;
@@ -157,7 +164,7 @@ export function parseMarketHistoryHours(capture: MarketHistoryCapture, symbol: s
     if (at <= previous) throw new Error("Market History hours must be ordered and unique");
     if (identity !== undefined && row.symbol_id !== identity)
       throw new Error("Market History instrument identity changed within one capture");
-    if (at < start || at > end || at > Date.parse(capture.through))
+    if (at < earliestBucket || at > end || at > Date.parse(capture.through))
       throw new Error("Market History bar is outside its captured range");
     previous = at;
     identity = row.symbol_id;

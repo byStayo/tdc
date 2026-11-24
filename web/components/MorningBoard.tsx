@@ -27,6 +27,7 @@ import { editionTiming } from "@/lib/consensus/edition-timing";
 import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
+import type { DailySettlementStatus } from "@/lib/consensus/outcome-coverage-audit";
 import { BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
   TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
@@ -1264,6 +1265,7 @@ export default function MorningBoard({
   initial,
   history,
   performance,
+  dailySettlements = [],
   experiments,
   kibotResearch,
   communityEnabled = false,
@@ -1271,6 +1273,7 @@ export default function MorningBoard({
   initial: Snapshot;
   history: HistoryEntry[];
   performance: PerformanceReport;
+  dailySettlements?: DailySettlementStatus[];
   experiments: Experiments;
   kibotResearch: KibotResearch | null;
   communityEnabled?: boolean;
@@ -2470,6 +2473,32 @@ export default function MorningBoard({
                   </ol>
                 </section>
               </div>
+              {!historical && horizon === "daily" && dailySettlements.length > 0 && (
+                <section className={`${styles.panel} ${styles.experiments}`}>
+                  <div className={styles.panelHead}><h3>Recent daily settlements</h3></div>
+                  <div className={styles.tableScroll}>
+                    <table role="table">
+                      <caption>Verified prices for the last forecast before each open. Updated {datedYear(performance.generatedAt)} at {time(performance.generatedAt)} ET.</caption>
+                      <thead role="rowgroup"><tr role="row">
+                        <th scope="col" role="columnheader">Session and forecast</th>
+                        {instrument === "MARKET" ? <>
+                          <th scope="col" role="columnheader">Settled ETFs</th>
+                          <th scope="col" role="columnheader">Awaiting prices</th>
+                        </> : <th scope="col" role="columnheader">{instrument}</th>}
+                      </tr></thead>
+                      <tbody role="rowgroup">{dailySettlements.map(row => (
+                        <tr key={row.session} role="row">
+                          <th scope="row" role="rowheader"><a href={`/consensus/${row.edition}.json`}>{datedYear(row.session)}</a></th>
+                          {instrument === "MARKET" ? <>
+                            <td role="cell" data-label="Settled ETFs">{row.settled.join(", ") || "—"}</td>
+                            <td role="cell" data-label="Awaiting prices">{INSTRUMENTS.filter(symbol => symbol !== "MARKET" && !row.settled.includes(symbol)).join(", ") || "—"}</td>
+                          </> : <td role="cell" data-label={instrument}>{row.settled.includes(instrument) ? "Settled" : "Awaiting prices"}</td>}
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                </section>
+              )}
               {kibotResearch && (
                 <section className={`${styles.panel} ${styles.experiments}`}>
                   <div className={styles.panelHead}>

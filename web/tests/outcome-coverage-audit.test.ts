@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auditOutcomeCoverage as coverageAt, dailySessionOutcomes as sessionAt } from "../lib/consensus/outcome-coverage-audit.ts";
+import { auditOutcomeCoverage as coverageAt, dailySessionOutcomes as sessionAt, recentDailySettlements } from "../lib/consensus/outcome-coverage-audit.ts";
 import { SESSION_HORIZONS } from "../lib/consensus/evaluation.ts";
 import { planCandidate } from "../lib/consensus/learning.ts";
 import { MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM } from "../lib/consensus/learning-audit.ts";
@@ -21,6 +21,21 @@ function edition(issuedAt: string): Snapshot {
 const evening = edition("2026-11-19T03:34:00.000Z");
 const targets = (snapshot: Snapshot) => HORIZONS.flatMap(horizon =>
   funds.map(instrument => ({ snapshotId: snapshot.id, instrument, horizon })));
+
+test("public settlement status excludes superseded forecasts, other horizons and sessions still open", () => {
+  const morning = edition("2026-11-19T13:00:00.000Z");
+  const atBell = edition("2026-11-19T14:30:00.000Z");
+  const history = [atBell, evening, morning].map(({ id, issuedAt, engineVersion }) => ({ id, issuedAt, engineVersion, sha256: "test" }));
+  const daily = { snapshotId: morning.id, engineVersion: engine, horizon: "daily" as const, instrument: "TLT" as const };
+  const identities = [daily, { ...daily, snapshotId: evening.id, instrument: "SPY" as const },
+    { ...daily, horizon: "weekly" as const, instrument: "QQQ" as const },
+    { ...daily, engineVersion: "other", instrument: "IWM" as const }];
+  assert.deepEqual(recentDailySettlements(history, identities, atBell.issuedAt), []);
+  assert.deepEqual(recentDailySettlements(history, identities, afterClose), [
+    { session: "2026-11-19", edition: morning.id, settled: ["TLT"] },
+  ]);
+  assert.equal(recentDailySettlements(history, [], afterClose)[0].settled.length, 0);
+});
 
 test("the session report shows only that session's last pre-open edition and distinguishes settlement from a call", () => {
   const morning = edition("2026-11-19T13:00:00.000Z");

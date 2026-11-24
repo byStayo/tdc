@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import { PUBLIC_ORIGIN, recordPreopenReceipt } from "../lib/consensus/preopen-receipt.ts";
+import { recordProspectiveFamilyFeatures } from "../lib/consensus/prospective-family-features.ts";
 import { HORIZONS, INSTRUMENTS, type Snapshot } from "../lib/consensus/types.ts";
 
 const [option, session, ...extra] = process.argv.slice(2);
@@ -39,7 +40,17 @@ for (const symbol of INSTRUMENTS) {
   reports.forEach((matched, i) => { if (!matched) mismatches.push(`${symbol}/${HORIZONS[i]}`); });
 }
 if (mismatches.length) throw new Error("Live consensus differs from the saved edition for " + mismatches.join(", "));
-const preopen = session ? await recordPreopenReceipt(fileURLToPath(new URL("../", import.meta.url)), session, snapshot.id,
+const root = fileURLToPath(new URL("../", import.meta.url));
+const preopen = session ? await recordPreopenReceipt(root, session, snapshot.id,
   verified.get(snapshot.id + ".json")!, verified.get("index.json")!, new Date().toISOString()) : undefined;
+let familyFeatures;
+if (session && preopen) {
+  try {
+    familyFeatures = await recordProspectiveFamilyFeatures(root, session, snapshot.id);
+  } catch (error) {
+    console.error("Private family feature capture failed.", error instanceof Error ? error.message : String(error));
+    familyFeatures = { status: "failed" };
+  }
+}
 console.log(JSON.stringify({ edition: snapshot.id, health: health.status, reports: INSTRUMENTS.length,
-  matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen }));
+  matchedPublicFiles: 4, matchedConsensusViews: INSTRUMENTS.length * HORIZONS.length, preopen, familyFeatures }));

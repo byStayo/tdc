@@ -42,9 +42,11 @@ export async function readTltIssuer(root: string, location: IssuerLocation, asOf
     resolve(root, ".consensus/private-firstrate/captures", location.session);
   const meta = await readResearchReceipt<Meta>(resolve(folder, "issuer-TLT.json"));
   if (!meta) return null;
+  // Older issuer captures made by Python spell the identical UTC offset as +00:00.
+  const capturedAt = typeof meta.capturedAt === "string" ? meta.capturedAt.replace(/\+00:00$/, "Z") : "";
   const path = resolve(folder, "issuer-TLT.bin"), stat = await lstat(path);
   if (!stat.isFile() || stat.mode & 0o077 || !stat.size || stat.size > 4_000_000 ||
-      !officialCashLocation("TLT", meta.url, meta.responseUrl ?? meta.url) || !isTime(meta.capturedAt) || meta.capturedAt > asOf)
+      !officialCashLocation("TLT", meta.url, meta.responseUrl ?? meta.url) || !isTime(capturedAt) || capturedAt > asOf)
     throw new Error("Invalid private TLT issuer capture");
   const input = await readFile(path);
   if (fingerprint(input) !== meta.sha256) throw new Error("TLT issuer original differs from its capture");
@@ -54,7 +56,7 @@ export async function readTltIssuer(root: string, location: IssuerLocation, asOf
   const decoded = JSON.parse(output) as { symbol: string; source: string; sha256: string; cash: CashDistribution[] };
   if (decoded.source !== ETF_CASH_SOURCES.TLT || decoded.symbol !== "TLT" || decoded.sha256 !== meta.sha256 || !decoded.cash.length)
     throw new Error("TLT issuer history could not be reproduced");
-  return { ...meta, cash: decoded.cash, location };
+  return { ...meta, capturedAt, cash: decoded.cash, location };
 }
 
 export function tltNativeBar(record: NativeOriginal, day: string, split: boolean, asOf: string) {

@@ -48,3 +48,13 @@ https://www.bankofcanada.ca/publications/market-participants-survey/
 Reuse terms: https://www.bankofcanada.ca/terms/
 Year-end row selection and formatting by The Daily Consensus.
 No Bank of Canada endorsement is implied.
+
+Market History and iShares TLT outcomes
+
+Market History supplies the consolidated U.S. equity bars used to determine
+TLT's regular-session opening and closing prices. iShares supplies TLT's
+distribution history. The Daily Consensus verifies session boundaries and the
+split basis, applies cash distributions and computes the published results.
+https://getmarkethistory.com/docs/guides/historical-stock-market-data/
+https://getmarkethistory.com/docs/terms/
+https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf

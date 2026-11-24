@@ -1,14 +1,14 @@
 {
   "engineVersion": "consensus-rules-2.0.0",
-  "generatedAt": "2026-11-24T05:43:17.206Z",
+  "generatedAt": "2026-11-24T06:16:55.172Z",
   "status": "tracking",
-  "resolved": 68,
+  "resolved": 85,
   "calls": 0,
-  "abstentions": 68,
+  "abstentions": 85,
   "accuracy": null,
   "brier": null,
   "scoringPolicy": "last-edition-before-entry-open-v1",
-  "superseded": 220,
+  "superseded": 275,
   "pending": [
     {
       "snapshotId": "2026-11-03T06-28-30-460Z",
@@ -37,20 +37,8 @@
     {
       "snapshotId": "2026-11-03T06-28-30-460Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T06-28-30-460Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T06-28-30-460Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T06-49-15-231Z",
@@ -79,20 +67,8 @@
     {
       "snapshotId": "2026-11-03T06-49-15-231Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T06-49-15-231Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T06-49-15-231Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T07-11-18-623Z",
@@ -121,20 +97,8 @@
     {
       "snapshotId": "2026-11-03T07-11-18-623Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T07-11-18-623Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T07-11-18-623Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T07-38-08-394Z",
@@ -163,20 +127,8 @@
     {
       "snapshotId": "2026-11-03T07-38-08-394Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T07-38-08-394Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T07-38-08-394Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T07-53-00-486Z",
@@ -205,20 +157,8 @@
     {
       "snapshotId": "2026-11-03T07-53-00-486Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T07-53-00-486Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T07-53-00-486Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T08-12-07-599Z",
@@ -247,20 +187,8 @@
     {
       "snapshotId": "2026-11-03T08-12-07-599Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T08-12-07-599Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T08-12-07-599Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T08-30-55-634Z",
@@ -289,20 +217,8 @@
     {
       "snapshotId": "2026-11-03T08-30-55-634Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T08-30-55-634Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T08-30-55-634Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T08-48-02-469Z",
@@ -331,20 +247,8 @@
     {
       "snapshotId": "2026-11-03T08-48-02-469Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T08-48-02-469Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T08-48-02-469Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T14-51-40-702Z",
@@ -373,20 +277,8 @@
     {
       "snapshotId": "2026-11-03T14-51-40-702Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T14-51-40-702Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T14-51-40-702Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T17-17-21-680Z",
@@ -415,20 +307,8 @@
     {
       "snapshotId": "2026-11-03T17-17-21-680Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T17-17-21-680Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T17-17-21-680Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T17-34-12-122Z",
@@ -457,20 +337,8 @@
     {
       "snapshotId": "2026-11-03T17-34-12-122Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T17-34-12-122Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T17-34-12-122Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T18-35-28-910Z",
@@ -499,20 +367,8 @@
     {
       "snapshotId": "2026-11-03T18-35-28-910Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T18-35-28-910Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T18-35-28-910Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T19-48-49-156Z",
@@ -541,20 +397,8 @@
     {
       "snapshotId": "2026-11-03T19-48-49-156Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T19-48-49-156Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T19-48-49-156Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-03T21-56-20-647Z",
@@ -583,20 +427,8 @@
     {
       "snapshotId": "2026-11-03T21-56-20-647Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T21-56-20-647Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-03T21-56-20-647Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-04T13-16-31-369Z",
@@ -625,20 +457,8 @@
     {
       "snapshotId": "2026-11-04T13-16-31-369Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T13-16-31-369Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T13-16-31-369Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-04T21-29-43-446Z",
@@ -667,20 +487,8 @@
     {
       "snapshotId": "2026-11-04T21-29-43-446Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T21-29-43-446Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T21-29-43-446Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-04T22-24-25-360Z",
@@ -709,20 +517,8 @@
     {
       "snapshotId": "2026-11-04T22-24-25-360Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T22-24-25-360Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T22-24-25-360Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-04T22-38-16-339Z",
@@ -751,20 +547,8 @@
     {
       "snapshotId": "2026-11-04T22-38-16-339Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T22-38-16-339Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-04T22-38-16-339Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-05T13-14-01-431Z",
@@ -793,20 +577,8 @@
     {
       "snapshotId": "2026-11-05T13-14-01-431Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-05T13-14-01-431Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-05T13-14-01-431Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-05T14-28-10-883Z",
@@ -835,20 +607,8 @@
     {
       "snapshotId": "2026-11-05T14-28-10-883Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-05T14-28-10-883Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-05T14-28-10-883Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-05T18-23-42-514Z",
@@ -877,20 +637,8 @@
     {
       "snapshotId": "2026-11-05T18-23-42-514Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-05T18-23-42-514Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-05T18-23-42-514Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-06T13-14-19-532Z",
@@ -919,20 +667,8 @@
     {
       "snapshotId": "2026-11-06T13-14-19-532Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-06T13-14-19-532Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-06T13-14-19-532Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-06T17-01-48-890Z",
@@ -961,20 +697,8 @@
     {
       "snapshotId": "2026-11-06T17-01-48-890Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-06T17-01-48-890Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-06T17-01-48-890Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T04-45-01-809Z",
@@ -1003,20 +727,8 @@
     {
       "snapshotId": "2026-11-10T04-45-01-809Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T04-45-01-809Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T04-45-01-809Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T05-30-16-080Z",
@@ -1045,20 +757,8 @@
     {
       "snapshotId": "2026-11-10T05-30-16-080Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T05-30-16-080Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T05-30-16-080Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T12-47-43-975Z",
@@ -1087,20 +787,8 @@
     {
       "snapshotId": "2026-11-10T12-47-43-975Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T12-47-43-975Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T12-47-43-975Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T13-03-17-525Z",
@@ -1129,20 +817,8 @@
     {
       "snapshotId": "2026-11-10T13-03-17-525Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T13-03-17-525Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T13-03-17-525Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T18-01-30-142Z",
@@ -1171,20 +847,8 @@
     {
       "snapshotId": "2026-11-10T18-01-30-142Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T18-01-30-142Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T18-01-30-142Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T19-54-14-778Z",
@@ -1213,20 +877,8 @@
     {
       "snapshotId": "2026-11-10T19-54-14-778Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T19-54-14-778Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T19-54-14-778Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-10T20-47-02-439Z",
@@ -1255,20 +907,8 @@
     {
       "snapshotId": "2026-11-10T20-47-02-439Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T20-47-02-439Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-10T20-47-02-439Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-11T13-07-46-894Z",
@@ -1297,20 +937,8 @@
     {
       "snapshotId": "2026-11-11T13-07-46-894Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-11T13-07-46-894Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-11T13-07-46-894Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-12T13-01-38-859Z",
@@ -1339,20 +967,8 @@
     {
       "snapshotId": "2026-11-12T13-01-38-859Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-12T13-01-38-859Z",
-      "instrument": "TLT",
-      "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-12T13-01-38-859Z",
-      "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
@@ -1405,20 +1021,14 @@
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
@@ -1471,20 +1081,14 @@
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
@@ -1537,20 +1141,14 @@
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T17-33-38-200Z",
@@ -1603,20 +1201,14 @@
     {
       "snapshotId": "2026-11-18T17-33-38-200Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-18T17-33-38-200Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T17-33-38-200Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T20-01-40-765Z",
@@ -1669,20 +1261,14 @@
     {
       "snapshotId": "2026-11-18T20-01-40-765Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-18T20-01-40-765Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-18T20-01-40-765Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-19T02-36-46-517Z",
@@ -1735,20 +1321,14 @@
     {
       "snapshotId": "2026-11-19T02-36-46-517Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-19T02-36-46-517Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-19T02-36-46-517Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-19T03-34-35-238Z",
@@ -1801,20 +1381,14 @@
     {
       "snapshotId": "2026-11-19T03-34-35-238Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-19T03-34-35-238Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-19T03-34-35-238Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-19T13-00-31-020Z",
@@ -1867,20 +1441,14 @@
     {
       "snapshotId": "2026-11-19T13-00-31-020Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-19T13-00-31-020Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-19T13-00-31-020Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-20T09-18-55-698Z",
@@ -1933,30 +1501,24 @@
     {
       "snapshotId": "2026-11-20T09-18-55-698Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-20T09-18-55-698Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-20T09-18-55-698Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-20T13-07-32-081Z",
-      "instrument": "SPY",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "SPY",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-20T13-07-32-081Z",
+      "instrument": "SPY",
       "horizon": "monthly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1999,20 +1561,14 @@
     {
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "TLT",
-      "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
-    },
-    {
-      "snapshotId": "2026-11-20T13-07-32-081Z",
-      "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-20T13-07-32-081Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-23T13-08-51-071Z",
@@ -2090,19 +1646,19 @@
       "snapshotId": "2026-11-23T13-08-51-071Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-23T13-08-51-071Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-23T13-08-51-071Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T01-44-08-380Z",
@@ -2180,19 +1736,19 @@
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T01-49-42-081Z",
@@ -2270,19 +1826,19 @@
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T02-45-33-553Z",
@@ -2360,19 +1916,19 @@
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T03-23-41-372Z",
@@ -2450,19 +2006,19 @@
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T04-23-56-126Z",
@@ -2540,19 +2096,19 @@
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T05-07-39-416Z",
@@ -2630,19 +2186,19 @@
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T05-42-23-689Z",
@@ -2720,19 +2276,19 @@
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "TLT",
       "horizon": "daily",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "TLT",
       "horizon": "weekly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "TLT",
       "horizon": "monthly",
-      "reason": "No verified price evidence supplied for this instrument."
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     }
   ],
   "cohorts": [
@@ -3136,7 +2692,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 0,
+      "resolved": 10,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3158,7 +2714,7 @@
       "instrument": "TLT",
       "horizon": "daily",
       "engineVersion": "consensus-rules-1.1.0",
-      "resolved": 0,
+      "resolved": 1,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3169,7 +2725,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 0,
+      "resolved": 7,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3191,7 +2747,7 @@
       "instrument": "TLT",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-1.1.0",
-      "resolved": 0,
+      "resolved": 1,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3381,13 +2937,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "TLT",
       "horizon": "daily",
-      "samples": 0,
+      "samples": 2,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/TLT-daily-wf2-7d1732a019e92394.json"
+      "artifact": "models/TLT-daily-wf2-03513985841dc438.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",
@@ -3414,5 +2970,5 @@
       "artifact": "models/TLT-monthly-wf2-7d1732a019e92394.json"
     }
   ],
-  "note": "The private evaluation ledger retains the original outcome values. The public outcome index records resolved edition identities. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version and training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio. Price source for covered equity outcomes is FirstRate Data. See the consensus attribution file."
+  "note": "The private evaluation ledger retains the original outcome values. The public outcome index records resolved edition identities. Scoring and training select the last edition before each entry open, separately per instrument and horizon. Superseded editions are retained. Performance is separated by engine version and training and activation require one version. Alpha budgets and consumed windows never restart on a methodology change. Promotion requires 100 non-overlapping, previously uninspected test labels, a durable reservation even for failures, baseline improvement and a paired block-bootstrap gate adjusted across cohorts and repeated attempts. Overlapping horizons are not a portfolio. Price source for covered equity outcomes is FirstRate Data. See the consensus attribution file. Verified Market History consolidated bars and iShares distributions supply covered TLT outcome windows."
 }

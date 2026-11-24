@@ -31,6 +31,21 @@ function delivery(grid: MarketHistoryGrid, stamps: string[], value: number): Del
 const opens = delivery("Asia/Kolkata", ["2025-10-31T13:30:00Z", "2025-11-03T14:30:00Z", "2025-11-28T14:30:00Z"], 90);
 const closes = delivery("exchange", ["2025-10-31T19:00:00Z", "2025-11-03T20:00:00Z", "2025-11-28T17:00:00Z"], 91);
 
+test("the signed half-hour grid retains its partial midnight bucket without selecting it as an exchange open", () => {
+  const build = (first: string) => delivery("Asia/Kolkata", [first, "2025-10-31T13:30:00Z"], 90);
+  const result = marketHistoryBoundaries(build("2025-10-30T23:30:00Z"), closes, clocks, cutoff);
+  assert.equal(result[0].openingBucket, "2025-10-31T13:30:00.000Z");
+  assert.throws(() => marketHistoryBoundaries(build("2025-10-30T22:30:00Z"), closes, clocks, cutoff), /outside/);
+});
+
+test("US stocks can name the exchange clock as the New York venue at midnight", () => {
+  const response = structuredClone(closes);
+  response.headers["x-session"] = "venue America/New_York 00:00";
+  assert.deepEqual(marketHistoryBoundaries(opens, response, clocks, cutoff), marketHistoryBoundaries(opens, closes, clocks, cutoff));
+  response.headers["x-session"] = "venue America/New_York 17:00";
+  assert.throws(() => marketHistoryBoundaries(opens, response, clocks, cutoff), /delivery/);
+});
+
 test("UTC boundaries follow both daylight-saving regimes and the shortened regular session", () => {
   const result = marketHistoryBoundaries(opens, closes, clocks, cutoff);
   assert.deepEqual(result.map(r => [r.session, r.open, r.close, r.earlyClose]), [

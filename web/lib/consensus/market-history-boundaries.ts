@@ -6,6 +6,10 @@ import { coreSessionCloses, importMarketHistoryHours, parseMarketHistoryHours,
 export type { MarketHistoryGrid } from "./market-history-closes.ts";
 
 const HOUR = 3_600_000;
+// The provider's original hourly reference files identify these securities on both aggregation grids.
+export const MARKET_HISTORY_ETF_IDS = { SPY: 10860, QQQ: 9519, IWM: 6213, DIA: 3116, TLT: 11418 } as const;
+export type MarketHistoryETF = keyof typeof MARKET_HISTORY_ETF_IDS;
+
 type Bar = { session: string; open: number; close: number };
 export const boundaryClock = (day: string) => hasReviewedCalendar(day) ? exchangeSession(day) : extendedResearchSession(day);
 export type Boundary = CoreClock & { open: number | null; close: number | null; openingBucket: string | null;
@@ -21,9 +25,10 @@ export function freeMarketHistoryBalance(headers: Headers) {
 
 /** Each price is from a complete, documented one-hour bucket, with an edge on the exchange clock. */
 export function marketHistoryBoundaries(opening: DeliveredMarketHistoryHours, closing: DeliveredMarketHistoryHours,
-  clocks: CoreClock[], cutoff: string): Boundary[] {
-  const openCapture = importMarketHistoryHours(opening, "TLT", cutoff, "Asia/Kolkata");
-  const closeCapture = importMarketHistoryHours(closing, "TLT", cutoff, "exchange");
+  clocks: CoreClock[], cutoff: string, symbol: MarketHistoryETF = "TLT"): Boundary[] {
+  if (!Object.hasOwn(MARKET_HISTORY_ETF_IDS, symbol)) throw new Error("Unsupported Market History ETF");
+  const openCapture = importMarketHistoryHours(opening, symbol, cutoff, "Asia/Kolkata");
+  const closeCapture = importMarketHistoryHours(closing, symbol, cutoff, "exchange");
   const openQuery = new URL(opening.source).searchParams, closeQuery = new URL(closing.source).searchParams;
   const from = openQuery.get("start")!, through = openQuery.get("end")!;
   if (from !== closeQuery.get("start") || through !== closeQuery.get("end") || clocks.some((clock, i) => {
@@ -31,10 +36,10 @@ export function marketHistoryBoundaries(opening: DeliveredMarketHistoryHours, cl
     return clock.session < from || clock.session > through || (i > 0 && clocks[i - 1].session >= clock.session) ||
       !official || official.openAt !== clock.openAt || official.closeAt !== clock.closeAt;
   })) throw new Error("Market History boundaries require the same range and reviewed exchange sessions");
-  const openHours = parseMarketHistoryHours(openCapture, "TLT", "Asia/Kolkata");
-  const closeHours = parseMarketHistoryHours(closeCapture, "TLT", "exchange");
-  if ([openHours, closeHours].some(hours => hours[0].symbol_id !== 11418))
-    throw new Error("The Market History TLT instrument ID changed");
+  const openHours = parseMarketHistoryHours(openCapture, symbol, "Asia/Kolkata");
+  const closeHours = parseMarketHistoryHours(closeCapture, symbol, "exchange");
+  if ([openHours, closeHours].some(hours => hours[0].symbol_id !== MARKET_HISTORY_ETF_IDS[symbol]))
+    throw new Error(`The Market History ${symbol} instrument ID changed`);
   const byOpen = new Map(openHours.map(hour => [Date.parse(hour.timestamp), hour]));
   const { closes } = coreSessionCloses(closeHours, clocks, closeCapture.through);
   const byClose = new Map(closes.map(close => [close.session, close]));

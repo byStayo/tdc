@@ -10,7 +10,7 @@ import { loadReviewedTltCash } from "../lib/consensus/firstrate.ts";
 import { digest } from "../lib/consensus/history.ts";
 import { readNasdaqHistoricalControl } from "../lib/consensus/kibot-session-witnesses.ts";
 import { collectKibotSeries, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
-import { boundaryClock, compareMarketHistoryBoundary, contiguousTltWindows, marketHistoryBoundaries } from "../lib/consensus/market-history-boundaries.ts";
+import { boundaryClock, compareMarketHistoryBoundary, contiguousTltWindows, freeMarketHistoryBalance, marketHistoryBoundaries } from "../lib/consensus/market-history-boundaries.ts";
 import { importMarketHistoryHours, type DeliveredMarketHistoryHours, type MarketHistoryGrid } from "../lib/consensus/market-history-closes.ts";
 import { fetchFreeTltHours, tltHourSource } from "../lib/consensus/market-history-hourly-access.ts";
 import { readTltIssuer, recordTltSettlement, tltNativeBar, type IssuerLocation, type NativeOriginal,
@@ -22,11 +22,16 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const archive = resolve(root, ".consensus/private-market-history"), dir = resolve(archive, "tlt-settlement");
 const witnesses = resolve(root, ".consensus/private-kibot/sources");
 const sha = (input: Buffer | string) => createHash("sha256").update(input).digest("hex");
-const args = process.argv.slice(2), [from, through, ...flags] = args;
+const [from, through, ...options] = process.argv.slice(2);
+const replayIndex = options.indexOf("--replay");
+const replay = replayIndex === -1 ? null : options.slice(replayIndex + 1, replayIndex + 3);
+const flags = replay ? [...options.slice(0, replayIndex), ...options.slice(replayIndex + 3)] : options;
 const collect = flags.includes("--collect"), controls = collect || flags.includes("--controls");
 if (!from || !through || new Set(flags).size !== flags.length || flags.some(f => !["--collect", "--controls", "--refresh", "--settle-verified"].includes(f)) ||
-    ((flags.includes("--refresh") || flags.includes("--settle-verified")) && !collect) || Date.parse(through) - Date.parse(from) > 35 * 86_400_000)
-  throw new Error("Use FROM THROUGH [--controls | --collect [--refresh]] for at most 36 calendar dates");
+    (replay && (replay.length !== 2 || replay[0] === replay[1] || replay.some(id => !/^[a-f0-9]{64}$/.test(id)) || controls)) ||
+    (flags.includes("--refresh") && !collect) || (flags.includes("--settle-verified") && !collect && !replay) ||
+    Date.parse(through) - Date.parse(from) > 35 * 86_400_000)
+  throw new Error("Use FROM THROUGH [--controls | --collect [--refresh] | --replay OPENING_SHA256 CLOSING_SHA256] [--settle-verified] for at most 36 calendar dates");
 const dates = hasReviewedCalendar(from) ? exchangeSessions(from, through) : extendedResearchSessions(from, through);
 const clocks = dates.map(day => boundaryClock(day)!);
 if (!dates.length || Date.parse(clocks.at(-1)!.closeAt) >= Date.now()) throw new Error("Completed exchange sessions required");
@@ -52,8 +57,17 @@ const account = key ? { key } : null;
 async function hourly(grid: MarketHistoryGrid) {
   const bucket = grid === "exchange" ? "closing" : "opening";
   const pointer = resolve(dir, `${from}-${through}-${bucket}.json`);
-  const saved = await readResearchReceipt<{ id: string }>(pointer);
   const source = tltHourSource(from, through, grid);
+  if (replay) {
+    const id = replay[grid === "exchange" ? 1 : 0];
+    const original = await readResearchReceipt<DeliveredMarketHistoryHours>(resolve(dir, id + ".json"));
+    if (!original || digest(original) !== id || original.source !== source)
+      throw new Error("Supplied TLT hourly receipt differs from its requested grid, range or digest");
+    freeMarketHistoryBalance(new Headers(original.headers));
+    importMarketHistoryHours(original, "TLT", now(), grid);
+    return original;
+  }
+  const saved = await readResearchReceipt<{ id: string }>(pointer);
   if (saved) {
     if (!/^[a-f0-9]{64}$/.test(saved.id)) throw new Error("Invalid TLT response pointer");
     const old = await readResearchReceipt<DeliveredMarketHistoryHours>(resolve(dir, saved.id + ".json"));

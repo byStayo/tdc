@@ -43,7 +43,7 @@ async function fixture(root: string, sessions = days, retrieved = "2026-11-03T02
   const issuerText = JSON.stringify(Object.fromEntries([["exDate", [20260901, 20261102]], ["totalDistribution", [0.4, 0.343177]]]
     .map(([name, value]) => [name, { name, fullName: "performance.distributions.table." + name, value }])));
   const issuerFolder = join(witnesses, through, "issuer-post-close/TLT");
-  await durableJSON(join(issuerFolder, "issuer-TLT.json"), { url: ETF_CASH_SOURCES.TLT, capturedAt: retrieved, sha256: sha(issuerText) });
+  await durableJSON(join(issuerFolder, "issuer-TLT.json"), { url: ETF_CASH_SOURCES.TLT, capturedAt: retrieved.replace(/Z$/, "+00:00"), sha256: sha(issuerText) });
   await writeFile(join(issuerFolder, "issuer-TLT.bin"), issuerText, { mode: 0o600 });
   async function hourly(grid: "exchange" | "Asia/Kolkata") {
     const text = sessions.map((day, i) => {

@@ -1,7 +1,7 @@
 import { asIssuedOutcomeCall, outcomeKey, outcomeWindowSessions } from "./evaluation.ts";
 import { EXCHANGE_CALENDAR, REVIEWED_EXCHANGE_THROUGH, exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { permitsModelInputs } from "./model.ts";
-import { HORIZONS, INSTRUMENTS, type Outcome, type Snapshot } from "./types.ts";
+import { HORIZONS, INSTRUMENTS, type HistoryEntry, type Instrument, type Outcome, type Snapshot } from "./types.ts";
 
 const funds = INSTRUMENTS.filter(symbol => symbol !== "MARKET");
 type Target = Pick<Outcome, "snapshotId" | "instrument" | "horizon">;
@@ -16,8 +16,8 @@ function verifyLedgerClock({ asOf, ledgerObservedAt }: LedgerClock) {
   if (ledgerObservedAt > asOf) throw new Error("The supplied ledger was observed after the requested as-of time");
 }
 
-function latestDailyEditions(snapshots: Snapshot[], sessions: string[]) {
-  const editions = new Map<string, Snapshot>();
+function latestDailyEditions<T extends Pick<HistoryEntry, "issuedAt">>(snapshots: T[], sessions: string[]) {
+  const editions = new Map<string, T>();
   for (const snapshot of snapshots) {
     const [session] = outcomeWindowSessions(snapshot.issuedAt, "daily", sessions);
     if (!session) continue;
@@ -25,6 +25,30 @@ function latestDailyEditions(snapshots: Snapshot[], sessions: string[]) {
     if (!previous || previous.issuedAt < snapshot.issuedAt) editions.set(session, snapshot);
   }
   return editions;
+}
+
+export interface DailySettlementStatus {
+  session: string;
+  edition: string;
+  settled: Exclude<Instrument, "MARKET">[];
+}
+
+/** The board uses only published identities for the winning pre-open edition. */
+export function recentDailySettlements(history: HistoryEntry[], identities: Pick<Outcome, "snapshotId" | "instrument" | "horizon" | "engineVersion">[],
+  evaluatedAt: string): DailySettlementStatus[] {
+  verifyLedgerClock({ asOf: evaluatedAt, ledgerObservedAt: evaluatedAt });
+  const calendar = exchangeSessions(EXCHANGE_CALENDAR.from, REVIEWED_EXCHANGE_THROUGH);
+  const daily = new Set(identities.filter(row => row.horizon === "daily")
+    .map(row => `${row.snapshotId}:${row.engineVersion}:${row.instrument}`));
+  const selected = latestDailyEditions(history.filter(edition => edition.issuedAt <= evaluatedAt), calendar);
+  return [...selected]
+    .filter(([day]) => exchangeSession(day)!.closeAt <= evaluatedAt)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .slice(0, 3)
+    .map(([session, edition]) => ({
+      session, edition: edition.id,
+      settled: funds.filter(symbol => daily.has(`${edition.id}:${edition.engineVersion}:${symbol}`)),
+    }));
 }
 
 /** Owner-facing daily settlement. Read the verified ledger and omit individual prices from the report. */

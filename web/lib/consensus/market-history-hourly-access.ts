@@ -1,23 +1,35 @@
 import { createHash } from "node:crypto";
 import { sourceChunk, sourceResponse } from "./source-failure.ts";
-import { freeMarketHistoryBalance } from "./market-history-boundaries.ts";
+import { freeMarketHistoryBalance, MARKET_HISTORY_ETF_IDS, type MarketHistoryETF } from "./market-history-boundaries.ts";
 import type { DeliveredMarketHistoryHours, MarketHistoryGrid } from "./market-history-closes.ts";
 
-export function tltHourSource(from: string, through: string, grid: MarketHistoryGrid) {
+export function etfHourSource(symbol: MarketHistoryETF, from: string, through: string, grid: MarketHistoryGrid) {
+  if (!Object.hasOwn(MARKET_HISTORY_ETF_IDS, symbol)) throw new Error("Unsupported Market History ETF");
   const validDay = (day: string) => /^\d{4}-\d\d-\d\d$/.test(day) && Number.isFinite(Date.parse(day)) &&
     new Date(day).toISOString().slice(0, 10) === day;
   if (!validDay(from) || !validDay(through) || from > through || Date.parse(through) - Date.parse(from) > 35 * 86_400_000 ||
-      !["exchange", "Asia/Kolkata"].includes(grid)) throw new Error("Invalid bounded TLT hourly request");
-  const url = new URL("https://getmarkethistory.com/query/v1/bars/stocks/us/TLT/1h");
+      !["exchange", "Asia/Kolkata"].includes(grid)) throw new Error(`Invalid bounded ${symbol} hourly request`);
+  const url = new URL(`https://getmarkethistory.com/query/v1/bars/stocks/us/${symbol}/1h`);
   url.search = new URLSearchParams({ start: from, end: through, feed: "consolidated", adjust: "raw", tz: grid,
     limit: "5000", format: "jsonl" }).toString();
   return url.href;
 }
 
+export function tltHourSource(from: string, through: string, grid: MarketHistoryGrid) {
+  return etfHourSource("TLT", from, through, grid);
+}
+
+export type FreeHourlyAccount = { key: string; remaining?: number };
+
+export function fetchFreeTltHours(from: string, through: string, grid: MarketHistoryGrid,
+  account: FreeHourlyAccount, fetcher: typeof fetch = fetch) {
+  return fetchFreeEtfHours("TLT", from, through, grid, account, fetcher);
+}
+
 /** Only authenticated read requests to the provider's official authority. It receives the key in the header. */
-export async function fetchFreeTltHours(from: string, through: string, grid: MarketHistoryGrid,
-  account: { key: string; remaining?: number }, fetcher: typeof fetch = fetch): Promise<DeliveredMarketHistoryHours> {
-  const source = tltHourSource(from, through, grid);
+export async function fetchFreeEtfHours(symbol: MarketHistoryETF, from: string, through: string, grid: MarketHistoryGrid,
+  account: FreeHourlyAccount, fetcher: typeof fetch = fetch): Promise<DeliveredMarketHistoryHours> {
+  const source = etfHourSource(symbol, from, through, grid);
   if (typeof account.key !== "string" || !account.key.trim() || /[\r\n]/.test(account.key)) throw new Error("Invalid owner-provided Market History key");
   const authenticated = (url: string) => sourceResponse(fetcher, url, { redirect: "error", credentials: "omit", signal: AbortSignal.timeout(25_000),
     headers: { Authorization: "Bearer " + account.key, Accept: "application/x-ndjson" } });

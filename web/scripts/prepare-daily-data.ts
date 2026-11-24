@@ -6,6 +6,7 @@ import { durableJSON } from "../lib/publication-storage.ts";
 import { prepareFirstRate } from "../lib/consensus/firstrate.ts";
 import { prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
+import { editorialPreparationMode } from "../lib/editorial-preparation-mode.ts";
 import { attachForm144Sources } from "../lib/sec-form144-editorial.ts";
 import {
   collectEditorialEvidence,
@@ -14,10 +15,7 @@ import {
 } from "./collect-editorial-evidence.ts";
 
 const run = promisify(execFile);
-const args = process.argv.slice(2);
-if (args.length > 1 || (args.length === 1 && args[0] !== "--public-only"))
-  throw new Error("Usage: npm run editorial:prepare -- [--public-only]");
-const publicOnly = args[0] === "--public-only";
+const mode = editorialPreparationMode(process.argv.slice(2));
 
 async function collect(script: string, scriptArgs: string[] = [], timeout?: number) {
   const { stdout } = await run(
@@ -46,9 +44,9 @@ try {
     available: evidence.sources.filter(source => source.status === "ok").length,
     unavailable: evidence.sources.filter(source => source.status !== "ok").map(source => source.id),
   };
-  const following = publicOnly
-    ? { status: "skipped_public_only" }
-    : await collect("collect-following-feeds.ts", ["--scheduled"]);
+  const following = mode.following
+    ? await collect("collect-following-feeds.ts", ["--scheduled"])
+    : { status: mode.freePriceAccount ? "separate_scheduled_digest" : "skipped_public_only" };
   const firstRate = await prepareFirstRate(PROJECT_ROOT).catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({
     status: "unavailable",
     error: error.killed ? "FirstRate source capture exceeded 105 seconds"
@@ -56,7 +54,7 @@ try {
   }));
   const tltClosingTrend = await prepareTltClosingTrend(PROJECT_ROOT).catch((error: Error) =>
     ({ status: "unavailable", error: error.message.slice(0, 220) }));
-  const tltSettlementQualification = publicOnly ? { status: "skipped_public_only" } :
+  const tltSettlementQualification = !mode.freePriceAccount ? { status: "skipped_public_only" } :
     await prepareTltBoundaryQualification(PROJECT_ROOT, (from, through) =>
       collect("research-market-history-boundaries.ts", [from, through, "--collect", "--settle-verified"], 120_000))
       .catch((error: { killed?: boolean; stderr?: string; message?: string }) => ({ status: "unavailable",
