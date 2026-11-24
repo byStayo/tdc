@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 import { gunzipSync } from "node:zlib";
 import { parsePayrollRelease } from "../lib/consensus/bls-payroll-news.ts";
+import { EXCHANGE_CALENDAR as registeredCalendar, exchangeSession as registeredExchangeSession } from "../lib/consensus/exchange-calendar-bls-study-v1.ts";
 import { extendedResearchSession } from "../lib/consensus/extended-research-calendar.ts";
 import { isFullKibotSession, parseKibotDaily } from "../lib/consensus/kibot-bls-study-v1.ts";
 import { chronologicalSplit, predict, trainCandidate, type TrainingRow } from "../lib/consensus/learning.ts";
@@ -19,6 +20,14 @@ const sealedSHA256 = "bf27c369a61f213963d33cb719d3f87fb1ca618ecaff7c21e099306240
 const sourceSHA256 = "c515848fb40c480dfa978a43bff6da4b065edd41310a9cc9bd46888ce77dd9e6";
 const sha = (v: Uint8Array) => createHash("sha256").update(v).digest("hex");
 const DAY = 86400000;
+const firstStudyDay = "2013-01-01";
+const firstPublicDay = firstIssue.slice(0, 10);
+// All 5,054 daily outputs from the original source-only targets.mjs and its registered calendar.
+const historicalClockSHA256 = "9ea21954371369530ac8d687f148f90d9c6927a790eb7f23300b814bc675d2ac";
+const registeredModuleCopies = new Map([
+  ["../../lib/consensus/kibot.ts", new URL("../lib/consensus/kibot-bls-study-v1.ts", import.meta.url)],
+  ["../../lib/consensus/exchange-calendar.ts", new URL("../lib/consensus/exchange-calendar-bls-study-v1.ts", import.meta.url)],
+]);
 type Clock = { session: string; openAt: string; closeAt: string };
 type SourceTarget = {
   period: string;
@@ -82,9 +91,10 @@ async function privateBytes(name: string, expected?: string) {
 async function privateJson<T>(name: string, expected?: string): Promise<T> {
   return JSON.parse((await privateBytes(name, expected)).toString("utf8")) as T;
 }
-function clockFor(day: string, old: Record<string, { early: boolean }>): Clock | null {
+export function payrollStudySession(day: string, old: Record<string, { early: boolean }>): Clock | null {
+  if (day < firstStudyDay || day >= firstPublicDay) throw Error("BLS date outside the registered prelaunch period");
+  if (day >= registeredCalendar.from) return registeredExchangeSession(day);
   if (day >= "2016-01-01") return extendedResearchSession(day);
-  if (day < "2013-01-01") throw Error("BLS study date outside its reviewed exchange calendar");
   const session = old[day];
   if (!session) return null;
   const stamp = day.replaceAll("-", "") + "T";
@@ -92,6 +102,22 @@ function clockFor(day: string, old: Record<string, { early: boolean }>): Clock |
     session: day,
     openAt: newYorkTimestamp(stamp + "093000")!,
     closeAt: newYorkTimestamp(stamp + (session.early ? "130000" : "160000"))!,
+  };
+}
+/** Verify the original calendar graph's historical outputs before loading any outcomes. */
+export function registeredPayrollClock(old: Record<string, { early: boolean }>) {
+  const clocks = new Map<string, Clock | null>(), hash = createHash("sha256");
+  for (let time = Date.parse(firstStudyDay); time < Date.parse(firstPublicDay); time += DAY) {
+    const day = new Date(time).toISOString().slice(0, 10);
+    const result = payrollStudySession(day, old);
+    hash.update(JSON.stringify([day, result]) + "\n");
+    clocks.set(day, result);
+  }
+  if (hash.digest("hex") !== historicalClockSHA256) throw Error("BLS registered historical session clocks differ");
+  return (day: string) => {
+    const value = clocks.get(day);
+    if (value === undefined) throw Error("BLS date outside the registered prelaunch period");
+    return value;
   };
 }
 function dates(from: string, through: string, clock: (day: string) => Clock | null) {
@@ -214,18 +240,17 @@ export async function replayBlsPayrollNewsStudy(cached = true, expectedBefore = 
   )
     throw Error("BLS policy registration differs");
   for (const [name, expected] of Object.entries(registration.policy.dependencies)) {
-    // Replay the original parser pinned before the outcomes. The delivery client has since gained subscriber authentication.
-    const path = name === "../../lib/consensus/kibot.ts"
-      ? fileURLToPath(new URL("../lib/consensus/kibot-bls-study-v1.ts", import.meta.url)) : resolve(owner, name);
-    const bytes = name.startsWith("../../lib/") ? await readFile(path) : await privateBytes(name);
+    const bytes = name.startsWith("../../lib/")
+      ? await readFile(registeredModuleCopies.get(name) ?? resolve(owner, name))
+      : await privateBytes(name);
     if (sha(bytes) !== expected) throw Error("BLS registered dependency differs: " + name);
   }
-  const sealed = await privateJson<SnapshotResult>("sealed-study.json", sealedSHA256);
   const source = await privateJson<{ targets: SourceTarget[] }>("source-targets.json", sourceSHA256);
   const old = await privateJson<{ days: Record<string, { early: boolean }> }>(
     "../private-issuer-guidance-archive-qualification/older-calendar-private.json",
   );
-  const clock = (day: string) => clockFor(day, old.days);
+  const clock = registeredPayrollClock(old.days);
+  const sealed = await privateJson<SnapshotResult>("sealed-study.json", sealedSHA256);
   if (
     sealed.before !== firstIssue ||
     sealed.registration !== policySHA256 ||
