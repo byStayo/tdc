@@ -100,13 +100,16 @@ test("scheduled vendor staging leaves 550 new labels for the journalled evaluato
       chunks.push({ from: part[0].session, through: part.at(-1)!.session, capturedAt: reviewedAt,
         hashes: Object.fromEntries(ETF_SYMBOLS.map(s => [s, hash(csv)])), csv: Object.fromEntries(ETF_SYMBOLS.map(s => [s, csv])) });
     }
-    const receipt = { schemaVersion: 2, mode: "licensed", through, reconciledAt: reviewedAt,
+    const login = "200 OK\nAuthorizations\n=====================\nAll Stocks,1/1/1998,1\n";
+    const subscriber = { source: "https://api.kibot.com/?action=login", capturedAt, body: login, sha256: hash(login) };
+    const receipt = { schemaVersion: 3, mode: "licensed", through, reconciledAt: reviewedAt,
       ledgerText, ledgerSha256: hash(ledgerText), earlyClosesVerified: early,
-      reference: { source: KIBOT_PRICE_CITATION, capturedAt: reviewedAt, chunks } };
+      reference: { source: KIBOT_PRICE_CITATION, capturedAt: reviewedAt, chunks, subscriber } };
     await writeFile(join(vendor, "settlements", digest(receipt) + ".json"), JSON.stringify(receipt), { mode: 0o600 });
     await writeFile(join(vendor, "settlement-review.json"), JSON.stringify({ schemaVersion: 1, through, reviewedAt, sha256: digest(receipt) }), { mode: 0o600 });
     const evidence = "reconciliation-2027-11-24T22-10-00-000Z.json";
     await writeFile(join(vendor, evidence), JSON.stringify({ mode: "licensed", passed: true, capturedAfterClose: true,
+      reconciledAt: reviewedAt, ledgerSha256: receipt.ledgerSha256,
       verifiedThrough: through, files: bars.map(({ session, sha256 }) => ({ session, sha256 })),
       issuerActions: marketParquetIssuerFingerprints(distributions, dates[0], through), earlyClosesVerified: early }), { mode: 0o600 });
     await writeFile(join(vendor, "licensed-actions-review.json"), JSON.stringify({ through, issuerActionsVerified: true,

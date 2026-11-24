@@ -16,7 +16,7 @@ import { assertCommittedReservations, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, 
 import { marketParquetHoldouts } from "../lib/consensus/marketparquet-learning.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetEvidence, marketParquetIssuerFingerprints, matchesMarketParquetReview, reviewedMarketParquetDays, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
 import { MARKETPARQUET_AGGREGATE_FILE, validateMarketParquetAggregate } from "../lib/consensus/marketparquet-aggregate.ts";
-import type { LicensedCapture } from "../lib/consensus/marketparquet-settlement.ts";
+import { loadLicensedSettlement, type LicensedCapture } from "../lib/consensus/marketparquet-settlement.ts";
 import { ENGINE_VERSION, FAMILIES } from "../lib/consensus/registry.ts";
 import { newYorkDate } from "../lib/consensus/time.ts";
 import { HORIZONS } from "../lib/consensus/types.ts";
@@ -125,7 +125,10 @@ try {
     const evidence = JSON.parse(await readFile(resolve(directory, review.evidence), "utf8"));
     if (matchesMarketParquetReview(evidence, licensed ? "licensed" : "sample", review.through,
       captured, marketParquetIssuerFingerprints(incoming.distributions, licensed ? from : captured[0]?.session ?? from, review.through)) &&
-      JSON.stringify(evidence.earlyClosesVerified) === JSON.stringify(early)) {
+      JSON.stringify(evidence.earlyClosesVerified) === JSON.stringify(early) && (!licensed ||
+        (evidence.reconciledAt === review.reviewedAt && (await loadLicensedSettlement(root, now, {
+          through: review.through, reviewedAt: review.reviewedAt, ledgerSha256: evidence.ledgerSha256,
+        })).length === ETF_SYMBOLS.length))) {
       multiSessionReviewedThrough = review.through;
       reviewedEarlyCloses = early;
       if (licensed) licensedReviewThrough = review.through;

@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
-import { durableJSON } from "../publication-storage.ts";
 import { exchangeSession } from "./exchange-calendar.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
-import { sourceChunk, sourceResponse } from "./source-failure.ts";
+import { SourceMissingError, type sourceResponse } from "./source-failure.ts";
+import { NASDAQ_WEBSITE_PRICE_PERMISSION } from "./nasdaq-website-access.ts";
 
 type Stamp = { source: string; sha256: string; capturedAt: string };
 type Capture = Stamp & { body: string };
@@ -32,24 +32,6 @@ export function validQqqAuction(auction: QqqAuction, asOf?: string) {
   return Number.isFinite(auction.officialClose) && auction.officialClose > 0 &&
     Number.isSafeInteger(auction.crossShares) && auction.crossShares >= 100 &&
     validStamp(auction.nocp, urls.nocp, closeAt, asOf) && validStamp(auction.cross, urls.cross, closeAt, asOf);
-}
-
-async function capture(url: string, limit: number, fetcher: Fetcher, now: () => string): Promise<Capture> {
-  const response = await sourceResponse(fetcher, url, { redirect: "error", signal: AbortSignal.timeout(12000),
-    headers: { Accept: "*/*", "User-Agent": "DailyConsensus ETF historical verification" } });
-  const reader = response.body!.getReader(), parts: Uint8Array[] = [];
-  let length = 0;
-  try {
-    for (;;) {
-      const part = await sourceChunk(reader);
-      if (part.done) break;
-      length += part.value.byteLength;
-      if (length > limit) throw new Error("Oversized Nasdaq auction response");
-      parts.push(part.value);
-    }
-  } finally { await reader.cancel().catch(() => undefined); reader.releaseLock(); }
-  const bytes = Buffer.concat(parts);
-  return { source: url, capturedAt: now(), sha256: sha(bytes), body: bytes.toString("base64") };
 }
 
 function decoded(capture: Capture, url: string, limit: number, closeAt: string, asOf: string) {
@@ -85,17 +67,15 @@ function closingCrossShares(text: string, usDay: string) {
   return Number(selected[0][4]);
 }
 
-/** Two exchange records distinguish the official auction from the earlier continuous endpoint. Store both privately. */
-export async function readQqqAuction(directory: string, day: string, cachedOnly: boolean, fetcher: Fetcher = fetch,
+/** Replay the two retained exchange records distinguishing the auction from the continuous close. */
+export async function readQqqAuction(directory: string, day: string, cachedOnly: boolean, _fetcher: Fetcher = fetch,
   now = () => new Date().toISOString()): Promise<QqqAuction | null> {
   const urls = qqqAuctionUrls(day), closeAt = exchangeSession(day)!.closeAt;
   const path = resolve(directory, "nasdaq-QQQ-auction-" + day + ".json");
-  const retained = await readResearchReceipt<{ nocp: Capture; cross: Capture }>(path);
-  let captures = retained;
+  const captures = await readResearchReceipt<{ nocp: Capture; cross: Capture }>(path);
   if (!captures) {
     if (cachedOnly || now() < closeAt) return null;
-    const [nocp, cross] = await Promise.all([capture(urls.nocp, MAX_NOCP, fetcher, now), capture(urls.cross, MAX_CROSS, fetcher, now)]);
-    captures = { nocp, cross };
+    throw new SourceMissingError(NASDAQ_WEBSITE_PRICE_PERMISSION);
   }
   const asOf = now(), usDay = day.slice(5, 7) + "/" + day.slice(8) + "/" + day.slice(0, 4);
   const nocp = decoded(captures.nocp, urls.nocp, MAX_NOCP, closeAt, asOf);
@@ -104,6 +84,5 @@ export async function readQqqAuction(directory: string, day: string, cachedOnly:
   const result = { session: day, officialClose: officialClose(nocp, day, usDay), crossShares: closingCrossShares(cross, usDay),
     nocp: stamp(captures.nocp), cross: stamp(captures.cross) };
   if (!validQqqAuction(result, asOf)) throw new Error("Nasdaq official close lacks a confirmed full-lot closing cross");
-  if (!retained) await durableJSON(path, captures, true);
   return result;
 }

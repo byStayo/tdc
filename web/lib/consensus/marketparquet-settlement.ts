@@ -7,6 +7,7 @@ import type { PriceEvidence } from "./evaluation.ts";
 import { loadFirstRatePrices } from "./firstrate.ts";
 import { digest } from "./history.ts";
 import { collectKibotSeries, KIBOT_PRICE_CITATION, MAX_KIBOT_RANGE_MS, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
+import { KIBOT_SUBSCRIBER_REQUIRED, verifyKibotSubscriberProof, type KibotSubscriber, type KibotSubscriberProof } from "./kibot-subscriber.ts";
 import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import { loadTltSettlement } from "./market-history-settlement.ts";
@@ -27,7 +28,8 @@ export type LicensedControlChunk = ControlResponses & { from: string; through: s
 export type LicensedSettlement = { mode: string; through: string; reconciledAt: string; ledgerSha256: string;
   ledgerText: string; earlyClosesVerified: string[] } & (
   { schemaVersion: 1; reference: ControlCapture & ControlResponses } |
-  { schemaVersion: 2; reference: ControlCapture & { chunks: LicensedControlChunk[] } });
+  { schemaVersion: 2; reference: ControlCapture & { chunks: LicensedControlChunk[] } } |
+  { schemaVersion: 3; reference: ControlCapture & { chunks: LicensedControlChunk[]; subscriber: KibotSubscriberProof } });
 const CONTROL_CHUNK_SESSIONS = 120;
 type Pointer = { schemaVersion: number; through: string; reviewedAt: string; sha256: string };
 const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
@@ -60,7 +62,9 @@ function issuerActionsHash(actions: CashDistribution[]) {
   return result.digest("hex");
 }
 
-export async function collectLicensedControls(dates: string[], fetcher: (url: string, init?: RequestInit) => Promise<Response> = fetch) {
+export async function collectLicensedControls(dates: string[], subscriber: KibotSubscriber, fetcher: (url: string, init?: RequestInit) => Promise<Response> = fetch) {
+  const now = new Date().toISOString();
+  if (!ETF_SYMBOLS.every(symbol => verifyKibotSubscriberProof(subscriber?.proof, now, symbol))) throw new Error(KIBOT_SUBSCRIBER_REQUIRED);
   if (!dates.length || !same(dates, exchangeSessions(dates[0], dates.at(-1)!)))
     throw new Error("Independent controls require the complete reviewed calendar");
   const chunks: LicensedControlChunk[] = [], reference = {} as ReferenceBars;
@@ -69,7 +73,7 @@ export async function collectLicensedControls(dates: string[], fetcher: (url: st
     const sessions = dates.slice(start, start + CONTROL_CHUNK_SESSIONS);
     const hashes: Record<string, string> = {}, csv = {} as Record<ETF, string>;
     for (const symbol of ETF_SYMBOLS) {
-      const response = await collectKibotSeries(symbol, sessions, { unadjusted: true, fetcher,
+      const response = await collectKibotSeries(symbol, sessions, { unadjusted: true, fetcher, subscriber,
         onVerifiedResponse: body => { csv[symbol] = body; } });
       reference[symbol].push(...response.sessions);
       hashes[symbol] = response.sha256;
@@ -87,13 +91,18 @@ function replayLicensedControls(review: LicensedSettlement, dates: string[], led
     ? [{ ...review.reference, from: dates[0], through: dates.at(-1)! }]
     : review.reference.chunks;
   if (!Array.isArray(chunks) || !chunks.length || chunks.length > dates.length) throw new Error("Missing independent control chunks");
+  if (review.schemaVersion === 3) {
+    const authorization = review.reference.subscriber;
+    if (!ETF_SYMBOLS.every(symbol => verifyKibotSubscriberProof(authorization, chunks[0].capturedAt, symbol)))
+      throw new Error(KIBOT_SUBSCRIBER_REQUIRED);
+  }
   const reference = {} as ReferenceBars;
   for (const symbol of ETF_SYMBOLS) reference[symbol] = [];
   let start = 0, precedingCapture = ledgerCapturedAt;
   for (const chunk of chunks) {
     const end = dates.indexOf(chunk.through, start);
     if (dates[start] !== chunk.from || end < start || Date.parse(chunk.through) - Date.parse(chunk.from) > MAX_KIBOT_RANGE_MS ||
-        (review.schemaVersion === 2 && end - start + 1 > CONTROL_CHUNK_SESSIONS) || !keys(chunk.hashes) || !keys(chunk.csv) ||
+        (review.schemaVersion >= 2 && end - start + 1 > CONTROL_CHUNK_SESSIONS) || !keys(chunk.hashes) || !keys(chunk.csv) ||
         !ordered(precedingCapture, chunk.capturedAt, control.capturedAt))
       throw new Error("Independent control windows or capture times do not match the reviewed calendar");
     const sessions = dates.slice(start, end + 1);
@@ -111,7 +120,7 @@ function replayLicensedControls(review: LicensedSettlement, dates: string[], led
 }
 
 export function licensedSettlementPrices(review: LicensedSettlement, asOf: string) {
-  if (![1, 2].includes(review.schemaVersion) || review.mode !== "licensed" || typeof review.ledgerText !== "string" ||
+  if (![1, 2, 3].includes(review.schemaVersion) || review.mode !== "licensed" || typeof review.ledgerText !== "string" ||
       hash(review.ledgerText) !== review.ledgerSha256) throw new Error("Invalid licensed ledger fingerprint");
   const ledger: Ledger = JSON.parse(review.ledgerText);
   const dates = ledger.expectedSessions, first = dates[0], through = review.through;
@@ -157,21 +166,29 @@ export function licensedSettlementPrices(review: LicensedSettlement, asOf: strin
 
 /** Called only after an operator records a passing paid-source reconciliation under the publication lock. */
 export async function recordLicensedSettlement(directory: string, receipt: LicensedSettlement, asOf: string) {
-  licensedSettlementPrices(receipt, asOf);
   const sha256 = digest(receipt), store = resolve(directory, "settlements"), file = resolve(store, sha256 + ".json");
   const pointerPath = resolve(directory, "settlement-review.json");
   const latest = await readResearchReceipt<Pointer>(pointerPath);
   if (latest && (latest.through > receipt.through || latest.reviewedAt > receipt.reconciledAt))
     throw new Error("An older MarketParquet review cannot replace a later settlement");
-  await durableDirectory(store, 0o700);
   const prior = await readResearchReceipt<LicensedSettlement>(file);
   if (prior && digest(prior) !== sha256) throw new Error("A saved settlement receipt changed");
+  if (receipt.schemaVersion !== 3) {
+    if (!prior || latest?.sha256 !== sha256 || latest.through !== receipt.through || latest.reviewedAt !== receipt.reconciledAt)
+      throw new Error(KIBOT_SUBSCRIBER_REQUIRED);
+    licensedSettlementPrices(prior, asOf);
+    return;
+  }
+  licensedSettlementPrices(receipt, asOf);
+  await durableDirectory(store, 0o700);
   if (!prior) await durableJSON(file, receipt, true);
   await durableJSON(pointerPath,
     { schemaVersion: 1, through: receipt.through, reviewedAt: receipt.reconciledAt, sha256 } satisfies Pointer);
 }
 
-export async function loadLicensedSettlement(root: string, asOf: string) {
+export async function loadLicensedSettlement(root: string, asOf: string, currentProductionReview?: {
+  through: string; reviewedAt: string; ledgerSha256: string;
+}) {
   const directory = resolve(root, ".consensus/private-marketparquet");
   const pointer = await readResearchReceipt<Pointer>(resolve(directory, "settlement-review.json"));
   if (!pointer) return [];
@@ -179,6 +196,8 @@ export async function loadLicensedSettlement(root: string, asOf: string) {
   const receipt = await readResearchReceipt<LicensedSettlement>(resolve(directory, "settlements", pointer.sha256 + ".json"));
   if (!receipt || digest(receipt) !== pointer.sha256 || receipt.through !== pointer.through || receipt.reconciledAt !== pointer.reviewedAt)
     throw new Error("Private settlement differs from its reviewed fingerprint");
+  if (currentProductionReview && (receipt.schemaVersion !== 3 || receipt.through !== currentProductionReview.through ||
+      receipt.reconciledAt !== currentProductionReview.reviewedAt || receipt.ledgerSha256 !== currentProductionReview.ledgerSha256)) return [];
   return licensedSettlementPrices(receipt, asOf);
 }
 

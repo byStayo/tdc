@@ -6,6 +6,7 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { collectKibotPrices, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
+import { authenticateKibotSubscriber, type KibotSubscriberProof } from "../lib/consensus/kibot-subscriber.ts";
 import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement,
   type LicensedControlChunk, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
 import { ETF_SYMBOLS, reconcileMarketParquet, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
@@ -18,6 +19,8 @@ const referenceAt = args.indexOf("--reference");
 const referencePath = referenceAt < 0 ? undefined : args.splice(referenceAt, 2)[1];
 if (args.length || (referenceAt >= 0 && !referencePath))
   throw new Error("Usage: reconcile-marketparquet.ts [--licensed] [--reference /absolute/private/reference.json] [--record-review]");
+if (licensed && record && referencePath)
+  throw new Error("Operator-supplied reference files support private comparison. Recording a new licensed review requires verified production control provenance.");
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const directory = resolve(root, ".consensus/private-marketparquet");
@@ -43,10 +46,11 @@ try {
   })) as Parameters<typeof reconcileMarketParquet>[2];
 
   // An operator reference quoted to the cent is held to one cent-scale
-  // tolerance. The built-in guest feed uses its last regular trade, which can
+  // tolerance. The built-in as-traded reference uses its last regular trade, which can
   // sit several basis points from the listing venue's closing auction.
   let reference: ReferenceBars, source: string, hashes: Record<string, string> | undefined;
   let controlChunks: LicensedControlChunk[] | undefined;
+  let subscriber: KibotSubscriberProof | undefined;
   let tolerance = { openBps: 3, closeBps: 15 };
   if (referencePath) {
     if (!isAbsolute(referencePath)) throw new Error("Provide an absolute private reference path");
@@ -62,7 +66,9 @@ try {
     hashes = { reference: createHash("sha256").update(text).digest("hex") };
     tolerance = { openBps: 0.5, closeBps: 0.5 };
   } else if (licensed) {
-    const controls = await collectLicensedControls(calendar);
+    const account = await authenticateKibotSubscriber(root);
+    subscriber = account.proof;
+    const controls = await collectLicensedControls(calendar, account);
     reference = controls.reference;
     controlChunks = controls.chunks;
     source = KIBOT_PRICE_CITATION;
@@ -93,17 +99,18 @@ try {
   let reviewed = false;
   if (record && result.passed && capturedAfterClose) {
     let settlement: LicensedSettlement | undefined;
-    if (controlChunks) {
-      settlement = { schemaVersion: 2, mode: "licensed", through, reconciledAt: now,
+    if (controlChunks && subscriber) {
+      settlement = { schemaVersion: 3, mode: "licensed", through, reconciledAt: now,
         ledgerText, ledgerSha256: summary.ledgerSha256, earlyClosesVerified: result.earlyClosesVerified,
-        reference: { source, capturedAt: controlsAt, chunks: controlChunks } };
+        reference: { source, capturedAt: controlsAt, chunks: controlChunks, subscriber } };
       licensedSettlementPrices(settlement, now);
     }
+    if (licensed && !settlement) throw new Error("Missing independently authorized production controls for MarketParquet");
+    if (settlement) await recordLicensedSettlement(directory, settlement, now);
     // Extending the review asserts one unbroken share basis from the first
     // captured session and issuer histories read after the final close.
     await durableJSON(resolve(directory, licensed ? "licensed-actions-review.json" : "actions-review.json"), { through, issuerActionsVerified: true,
       splitBasisVerified: true, earlyClosesVerified: result.earlyClosesVerified, evidence: evidenceName, reviewedAt: now });
-    if (settlement) await recordLicensedSettlement(directory, settlement, now);
     reviewed = true;
   }
   console.log(JSON.stringify({ mode: summary.mode, sessions: result.sessions, reference: source, tolerance,

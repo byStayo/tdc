@@ -13,7 +13,7 @@ import { collectKibotSeries, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot
 import { boundaryClock, compareMarketHistoryBoundary, contiguousTltWindows, freeMarketHistoryBalance, marketHistoryBoundaries } from "../lib/consensus/market-history-boundaries.ts";
 import { importMarketHistoryHours, type DeliveredMarketHistoryHours, type MarketHistoryGrid } from "../lib/consensus/market-history-closes.ts";
 import { fetchFreeTltHours, tltHourSource } from "../lib/consensus/market-history-hourly-access.ts";
-import { readTltIssuer, recordTltSettlement, tltNativeBar, type IssuerLocation, type NativeOriginal,
+import { readTltIssuer, recordTltSettlement, TLT_LEGACY_CONTROL_SCOPE, tltNativeBar, type IssuerLocation, type NativeOriginal,
   type ListedLocation, type NativeLocation } from "../lib/consensus/market-history-settlement.ts";
 import { readResearchReceipt } from "../lib/consensus/research-price-capture.ts";
 import { SourceMissingError } from "../lib/consensus/source-failure.ts";
@@ -35,6 +35,8 @@ if (!from || !through || new Set(flags).size !== flags.length || flags.some(f =>
 const dates = hasReviewedCalendar(from) ? exchangeSessions(from, through) : extendedResearchSessions(from, through);
 const clocks = dates.map(day => boundaryClock(day)!);
 if (!dates.length || Date.parse(clocks.at(-1)!.closeAt) >= Date.now()) throw new Error("Completed exchange sessions required");
+// The old settlement proof uses a website listing record and guest share-basis controls. Preserve quota until a production comparator exists.
+if (collect && flags.includes("--settle-verified")) throw new Error(TLT_LEGACY_CONTROL_SCOPE);
 await durableDirectory(dir, 0o700);
 const now = () => new Date().toISOString();
 
@@ -116,31 +118,13 @@ async function nasdaq(day: string) {
   const canonical = resolve(witnesses, day);
   const saved = await readResearchReceipt(resolve(canonical, "TLT-daily.json"));
   const range = { from: dates[0], through: dates.at(-1)! };
-  // The exchange sometimes answers a one-day request with an empty table while its dated range contains the row.
-  let source, selectedGeneration: string | undefined;
-  if (saved) source = await readNasdaqHistoricalControl(canonical, "TLT", day, false);
-  else {
-    if (rangePointer && !flags.includes("--refresh")) {
-      try {
-        source = await readNasdaqHistoricalControl(resolve(dir, "controls", rangePointer.generation),
-          "TLT", day, false, fetch, boundaryClock, range);
-        selectedGeneration = rangePointer.generation;
-        if (source.stamp.sha256 !== rangePointer.sha256) throw new Error("Pinned Nasdaq history changed");
-      } catch (error) { if (!(error instanceof SourceMissingError) || !controls) throw error; }
-    }
-    if (!source) {
-      const generation = rangePointer || flags.includes("--refresh") ? generationAtStart : generationAtStart.slice(0, 10);
-      source = await readNasdaqHistoricalControl(resolve(dir, "controls", generation), "TLT", day, controls, fetch, boundaryClock, range);
-      selectedGeneration = generation;
-      if (rangePointer?.sha256 !== source.stamp.sha256) {
-        rangePointer = { generation, sha256: source.stamp.sha256 };
-        await durableJSON(rangePointerPath, rangePointer);
-      }
-    }
-  }
+  if (!saved && !rangePointer) throw new SourceMissingError(TLT_LEGACY_CONTROL_SCOPE);
+  const source = saved ? await readNasdaqHistoricalControl(canonical, "TLT", day, false) :
+    await readNasdaqHistoricalControl(resolve(dir, "controls", rangePointer!.generation), "TLT", day, false, fetch, boundaryClock, range);
+  if (!saved && source.stamp.sha256 !== rangePointer!.sha256) throw new Error("Pinned Nasdaq history changed");
   if (source.stamp.capturedAt > now()) throw new Error("Nasdaq comparison capture is future-dated");
   const stamp = { sha256: source.stamp.sha256, capturedAt: source.stamp.capturedAt };
-  const location: ListedLocation = saved ? { kind: "kibot", ...stamp } : { kind: "range", generation: selectedGeneration, ...stamp };
+  const location: ListedLocation = saved ? { kind: "kibot", ...stamp } : { kind: "range", generation: rangePointer!.generation, ...stamp };
   return { session: day, ...source.prices, sha256: source.stamp.sha256, location };
 }
 
@@ -155,8 +139,8 @@ async function historicalAuction(day: string) {
   const cross = record.comparison.find(r => r.symbol === "TLT")!;
   return { session: day, open: cross.open.price, close: cross.close.price };
 }
-const generationAtStart = now().replaceAll(":", "-"), rangePointerPath = resolve(dir, `${from}-${through}-nasdaq.json`);
-let rangePointer = await readResearchReceipt<{ generation: string; sha256: string }>(rangePointerPath);
+const rangePointerPath = resolve(dir, `${from}-${through}-nasdaq.json`);
+const rangePointer = await readResearchReceipt<{ generation: string; sha256: string }>(rangePointerPath);
 if (rangePointer && (!/^\d{4}-\d\d-\d\d(?:T\d\d-\d\d-\d\d\.\d{3}Z)?$/.test(rangePointer.generation) ||
     !/^[a-f0-9]{64}$/.test(rangePointer.sha256))) throw new Error("Invalid Nasdaq range receipt");
 const cash = await issuer(), opening = await hourly("Asia/Kolkata"), closing = await hourly("exchange");

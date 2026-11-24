@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -20,6 +21,25 @@ import type { Snapshot } from "../lib/consensus/types.ts";
 
 const days = ["2026-10-30", "2026-11-02"], asOf = "2026-11-03T03:00:00.000Z";
 const sha = (input: string) => createHash("sha256").update(input).digest("hex");
+async function sealHistorical(dir: string, review: TltSettlementReview, reviewedAt: string) {
+  const record = { review, reviewedAt };
+  await durableJSON(join(dir, "settlements", [review.windowThrough, review.windowFrom, digest(review)].join("_") + ".json"),
+    { ...record, sha256: digest(record) }, true);
+}
+test("ordinary TLT settlement withholds before consuming a free bar or writing when only legacy controls exist", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-paid-scope-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const script = "scripts/research-market-history-boundaries.ts";
+  await mkdir(join(root, "scripts"));
+  await symlink(new URL("../lib", import.meta.url), join(root, "lib"));
+  await copyFile(new URL("../" + script, import.meta.url), join(root, script));
+  const result = spawnSync(process.execPath, ["--experimental-strip-types", "--import",
+    "data:text/javascript,globalThis.fetch%3Dasync()%3D%3E%7Bthrow%20Error('Unexpected%20network')%7D",
+    script, "2026-11-16", "2026-11-17", "--collect", "--settle-verified"], { cwd: root, encoding: "utf8" });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Error: New TLT settlements require independent production-permitted/);
+  await assert.rejects(access(join(root, ".consensus")));
+});
 async function fixture(root: string, sessions = days, retrieved = "2026-11-03T02:00:00.000Z") {
   const dir = join(root, ".consensus/private-market-history/tlt-settlement"), witnesses = join(root, ".consensus/private-kibot/sources");
   const from = sessions[0], through = sessions.at(-1)!;
@@ -65,8 +85,11 @@ async function fixture(root: string, sessions = days, retrieved = "2026-11-03T02
 
 test("qualified dated originals feed the normal evaluator after replay and only derived identities leave the ledger", async t => {
   const root = await mkdtemp(join(tmpdir(), "tlt-settlement-")); t.after(() => rm(root, { recursive: true, force: true }));
-  const { review } = await fixture(root), warnings: string[] = [];
+  const { dir, review } = await fixture(root), warnings: string[] = [];
   assert.deepEqual(await defaultEvaluationPrices(root, asOf, message => warnings.push(message)), []);
+  await assert.rejects(recordTltSettlement(root, review, asOf), /independent production-permitted/);
+  await assert.rejects(access(join(dir, "settlements")));
+  await sealHistorical(dir, review, asOf);
   const staged = await recordTltSettlement(root, review, asOf);
   assert.deepEqual(await defaultEvaluationPrices(root, "2026-11-03T02:59:59.000Z", message => warnings.push(message)), []);
   const [evidence] = await defaultEvaluationPrices(root, asOf, message => warnings.push(message));
@@ -87,18 +110,19 @@ test("qualified dated originals feed the normal evaluator after replay and only 
 test("incomplete, mixed, stale, anonymous or changed source originals cannot enter settlement", async t => {
   const root = await mkdtemp(join(tmpdir(), "tlt-rejected-")); t.after(() => rm(root, { recursive: true, force: true }));
   const { dir, review } = await fixture(root);
-  await assert.rejects(recordTltSettlement(root, { ...review, controls: review.controls.slice(1) }, asOf), /every dated/);
-  await assert.rejects(recordTltSettlement(root, { ...review, closing: review.opening }, asOf), /Invalid/);
-  await assert.rejects(recordTltSettlement(root, { ...review, windowFrom: days[1], controls: review.controls.slice(1) }, asOf), /preceding session/);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, controls: review.controls.slice(1) }, asOf), /every dated/);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, closing: review.opening }, asOf), /Invalid/);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, windowFrom: days[1], controls: review.controls.slice(1) }, asOf), /preceding session/);
   const mixed = structuredClone(review); mixed.controls[0].split = mixed.controls[0].raw;
-  await assert.rejects(recordTltSettlement(root, mixed, asOf), /share-basis/);
+  await assert.rejects(tltSettlementPriceEvidence(root, mixed, asOf), /share-basis/);
   const recast = structuredClone(review); recast.controls[0].listed.capturedAt = asOf;
-  await assert.rejects(recordTltSettlement(root, recast, asOf), /historical response/);
+  await assert.rejects(tltSettlementPriceEvidence(root, recast, asOf), /historical response/);
   await assert.rejects(tltSettlementPriceEvidence(root, review, "2026-11-02T21:01:00.000Z"));
   const original = JSON.parse(await readFile(join(dir, review.opening + ".json"), "utf8"));
   delete original.headers["x-bars-paid-remaining"];
   const altered = digest(original); await durableJSON(join(dir, altered + ".json"), original);
-  await assert.rejects(recordTltSettlement(root, { ...review, opening: altered }, asOf), /free-only/);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, opening: altered }, asOf), /free-only/);
+  await sealHistorical(dir, review, asOf);
   await recordTltSettlement(root, review, asOf);
   await rm(join(dir, "controls", days[1], "TLT-splits.json"));
   const warnings: string[] = [];
@@ -109,16 +133,17 @@ test("incomplete, mixed, stale, anonymous or changed source originals cannot ent
 test("November's unproven early-close auction withholds the short day and crossing weekly target; both flanking windows settle", async t => {
   const root = await mkdtemp(join(tmpdir(), "tlt-short-session-")); t.after(() => rm(root, { recursive: true, force: true }));
   const dates = exchangeSessions("2026-11-23", "2026-12-02"), asOf = "2026-12-03T04:00:00.000Z";
-  const { review } = await fixture(root, dates, "2026-12-03T02:00:00.000Z");
-  await assert.rejects(recordTltSettlement(root, review, asOf), /short_session_auction_missing/);
+  const { dir, review } = await fixture(root, dates, "2026-12-03T02:00:00.000Z");
+  await assert.rejects(tltSettlementPriceEvidence(root, review, asOf), /short_session_auction_missing/);
   const rows = dates.map(day => ({ day, raw: { close: 100 }, boundary: { close: 100 },
     status: day === "2026-11-27" ? "short_session_auction_missing" : "matched" }));
   const windows = contiguousTltWindows(rows, []);
   assert.deepEqual(windows.map(w => [w[0].day, w.at(-1)!.day]), [["2026-11-23", "2026-11-25"], ["2026-11-30", "2026-12-02"]]);
   for (const window of windows) {
     const windowFrom = window[0].day, windowThrough = window.at(-1)!.day;
-    await recordTltSettlement(root, { ...review, windowFrom, windowThrough,
-      controls: review.controls.filter(row => row.session >= windowFrom && row.session <= windowThrough) }, asOf);
+    const approved = { ...review, windowFrom, windowThrough, controls: review.controls.filter(row => row.session >= windowFrom && row.session <= windowThrough) };
+    await sealHistorical(dir, approved, asOf);
+    await recordTltSettlement(root, approved, asOf);
   }
   const sources = await defaultEvaluationPrices(root, asOf);
   assert.equal(sources.length, 2);

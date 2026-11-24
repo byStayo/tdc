@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { durableJSON } from "../lib/publication-storage.ts";
+import { writeHourlyFixtures } from "./fixtures/firstrate-hourly-controls.ts";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -18,14 +21,20 @@ const nocp = { status: { rCode: 200 }, data: { headers: { date: "Trade Date", pr
     y: "98.60", z: { date: "Friday , Nov 20, 2026", details: "QQQ Close Price: $98.60" } }] } } };
 const header = "Date      ,Symbol,ListingMarket,OpeningCross,ClosingCross,IntradayCross,";
 const cross = header + "\n11/20/2026,QQQ   ,       ,    1000,     2000,    0,\n";
-const fetcher = (official = JSON.stringify(nocp), volumes = cross) => async (url: string) =>
-  new Response(url === urls.nocp ? official : url === urls.cross ? volumes : null,
-    { status: [urls.nocp, urls.cross].includes(url) ? 200 : 404 });
+const offline = async () => { throw Error("Unexpected website request"); };
+async function seedAuction(dir: string, official = JSON.stringify(nocp), volumes = cross) {
+  const capture = (source: string, text: string) => ({ source, capturedAt: day + "T21:20:00.000Z",
+    body: Buffer.from(text).toString("base64"), sha256: createHash("sha256").update(text).digest("hex") });
+  await durableJSON(join(dir, "nasdaq-QQQ-auction-" + day + ".json"),
+    { nocp: capture(urls.nocp, official), cross: capture(urls.cross, volumes) });
+}
 
 test("a genuine Nasdaq closing cross explains an official daily close only when the full continuous session matches independent raw and split prices", async () => {
   const dir = await mkdtemp(join(tmpdir(), "first-rate-nocp-"));
   try {
-    const auction = (await readQqqAuction(dir, day, false, fetcher()))!;
+    await assert.rejects(readQqqAuction(dir, day, false, offline), /written permission/);
+    await seedAuction(dir);
+    const auction = (await readQqqAuction(dir, day, false, offline))!;
     assert.equal(auction.officialClose, 98.6);
     assert.equal(auction.crossShares, 2000);
     assert.deepEqual(await readQqqAuction(dir, day, true), auction);
@@ -65,13 +74,13 @@ test("the Nasdaq auction requires the exact ETF, both prices, a dated full-lot c
     const dir = await mkdtemp(join(tmpdir(), "first-rate-invalid-nocp-"));
     try {
       assert.equal(await readQqqAuction(dir, day, true), null);
-      await assert.rejects(readQqqAuction(dir, day, false, fetcher(json, csv)), /Nasdaq/);
-      assert.equal(await readQqqAuction(dir, day, true), null);
+      await seedAuction(dir, json, csv);
+      await assert.rejects(readQqqAuction(dir, day, true, offline), /Nasdaq/);
     } finally { await rm(dir, { recursive: true, force: true }); }
   }
 });
 
-test("normal preparation recovers a prior QQQ dispute from pinned inputs when the newest ZIP is late, and offline replay admits no substitute", async () => {
+test("normal preparation withholds a new QQQ auction repair and replays an existing sealed repair from exact original controls", async () => {
   const root = await mkdtemp(join(tmpdir(), "firstrate-qqq-replay-"));
   const originalFetch = globalThis.fetch;
   try {
@@ -96,28 +105,29 @@ test("normal preparation recovers a prior QQQ dispute from pinned inputs when th
     await writeFile(join(scripts, day + ".json"), JSON.stringify({ samples: [sample], issuers,
       sampleFailures: failures.filter(row => row.symbol !== "QQQ") }));
     await writeFile(join(scripts, next + ".json"), JSON.stringify({ samples: [], issuers: [], sampleFailures: failures }));
-    for (const basis of ["raw", "splits"]) await writeFile(join(privateDir, `QQQ-2026-${from}-${day}-${basis}.json`),
-      JSON.stringify({ instrument: "QQQ", from, through: day, sha256: digest(basis),
-        priceDigest: digest([prior, raw]), sessions: [prior, raw] }), { mode: 0o600 });
+    await writeHourlyFixtures(root, "QQQ", [prior, raw]);
     let requests = 0;
-    globalThis.fetch = async (input) => { requests++; return fetcher()(String(input)); };
+    globalThis.fetch = async () => { requests++; throw Error("Unexpected network request"); };
+    await seedAuction(privateDir);
     assert.equal((await prepareFirstRate(root, true, stamp)).status, "qualified");
-    assert.equal((await prepareFirstRate(root, false, stamp, true)).status, "no_verified_disputes");
+    assert.deepEqual((await loadFirstRatePrices(root))[0].sessions, [prior]);
+    const first = await prepareFirstRate(root, false, stamp, true);
+    assert.equal(first.status, "no_verified_disputes");
+    await assert.rejects(prepareFirstRate(root, false, next + "T22:00:00.000Z"), /could not verify a sample for 2026-11-23/);
+    assert.deepEqual((await loadFirstRatePrices(root))[0].sessions, [prior]);
     assert.equal(requests, 0);
-    const result = await prepareFirstRate(root, false, next + "T22:00:00.000Z");
-    assert.equal(result.status, "qualified");
-    assert.equal("awaitingSession" in result && result.awaitingSession, next);
-    assert.equal(requests, 2);
-    const [evidence] = await loadFirstRatePrices(root);
-    assert.deepEqual(evidence.sessions, [prior, raw]);
-    assert.equal((await prepareFirstRate(root, false, stamp, true)).status, "reused");
-    assert.equal(requests, 2);
-    const calls = (await readFile(join(scripts, "calls.txt"), "utf8")).trim().split("\n");
-    assert.ok(calls.filter(call => call.startsWith(day)).slice(0, 3).every(call => call.includes("--cached-only")));
-    const proof = JSON.parse(await readFile(join(privateDir, "approved.json"), "utf8")).approval.symbols[0].proof.minuteRepairs[0];
-    assert.equal(proof.source.sha256, sample.sha256);
-    assert.equal(proof.captureSession, day);
-    assert.equal(proof.auction.nocp.source, urls.nocp);
+
+    // An approval issued before the acquisition restriction retains both original exchange hashes.
+    const { approval } = JSON.parse(await readFile(join(privateDir, "approved.json"), "utf8"));
+    const qqq = approval.symbols[0], auction = await readQqqAuction(privateDir, day, true, offline);
+    qqq.rows.push(raw); qqq.withheld = [];
+    qqq.proof.minuteRepairs = [{ session: day, captureSession: day, source: qqq.proof.source, minutes: 390,
+      rawSha256: qqq.proof.comparison[0], splitSha256: qqq.proof.splitComparison[0], auction, daily }];
+    const stored = { approval, sha256: digest(approval) };
+    await durableJSON(join(privateDir, "approved.json"), stored);
+    await durableJSON(join(privateDir, "approvals", approval.through + "-" + stored.sha256 + ".json"), stored);
+    assert.deepEqual((await loadFirstRatePrices(root))[0].sessions, [prior, raw]);
+    assert.equal(requests, 0);
     const file = join(privateDir, "nasdaq-QQQ-auction-" + day + ".json");
     const captured = JSON.parse(await readFile(file, "utf8"));
     captured.cross.sha256 = "0".repeat(64);

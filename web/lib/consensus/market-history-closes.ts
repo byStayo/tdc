@@ -13,6 +13,7 @@ export type MarketHistoryCapture = {
 };
 export type DeliveredMarketHistoryHours = { source: string; status: number; headers: Record<string, string>;
   text: string; sha256: string };
+export type MarketHistoryAdjustment = "raw" | "splits";
 export type MarketHistoryGrid = "exchange" | "Asia/Kolkata";
 export type CoreClock = { session: string; openAt: string; closeAt: string };
 export type CoreClose = { session: string; closeAt: string; bucketAt: string; close: number; earlyClose: boolean };
@@ -84,7 +85,7 @@ export async function fetchMarketHistoryHours(
   return capture;
 }
 
-function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL, grid: MarketHistoryGrid) {
+function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL, grid: MarketHistoryGrid, adjustment: MarketHistoryAdjustment) {
   const query = url.searchParams, keys = [...query.keys()];
   const page = capture.pages?.[0], headers = page?.headers;
   const from = query.get("start"), end = query.get("end");
@@ -97,7 +98,7 @@ function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL, grid: Mark
   if (!from || !end || ![from, end].every(day => /^\d{4}-\d\d-\d\d$/.test(day) && instant(day + "T00:00:00Z")) ||
       from > end || Date.parse(end) - Date.parse(from) > 370 * 86_400_000 || url.hash ||
       keys.length !== new Set(keys).size || keys.some(key => !["start", "end", "adjust", "feed", "limit", "format", "tz"].includes(key)) ||
-      query.get("adjust") !== "raw" || query.get("feed") !== "consolidated" ||
+      query.get("adjust") !== adjustment || query.get("feed") !== "consolidated" ||
       ![null, "jsonl"].includes(query.get("format")) || !gridMatches ||
       (query.has("limit") && (!/^[1-9]\d*$/.test(query.get("limit")!) || Number(query.get("limit")) < capture.count)) ||
       capture.pages?.length !== 1 || !page || !headers || page.status !== 200 || page.source !== capture.source ||
@@ -113,7 +114,7 @@ function verifyDeliveredPage(capture: MarketHistoryCapture, url: URL, grid: Mark
 
 /** Normalize an owner's completed HTTP response. The provider's Date is the original retrieval clock. */
 export function importMarketHistoryHours(delivery: DeliveredMarketHistoryHours, symbol: string, cutoff: string,
-  grid: MarketHistoryGrid = "exchange"): MarketHistoryCapture {
+  grid: MarketHistoryGrid = "exchange", adjustment: MarketHistoryAdjustment = "raw"): MarketHistoryCapture {
   const source = new URL(delivery.source);
   if (source.pathname !== `/query/v1/bars/stocks/us/${symbol}/1h` || typeof delivery.text !== "string")
     throw new Error("Expected a delivered signed-in Market History hourly response");
@@ -126,21 +127,23 @@ export function importMarketHistoryHours(delivery: DeliveredMarketHistoryHours, 
   const capture: MarketHistoryCapture = { source: delivery.source, text, sha256, count,
     capturedAt: new Date(served).toISOString(), through: headers["x-data-through"] ?? "",
     pages: [{ source: delivery.source, status: delivery.status, count, sha256, headers }] };
-  parseMarketHistoryHours(capture, symbol, grid);
+  parseMarketHistoryHours(capture, symbol, grid, adjustment);
   return capture;
 }
 
-export function parseMarketHistoryHours(capture: MarketHistoryCapture, symbol: string, grid: MarketHistoryGrid = "exchange"): MarketHistoryHour[] {
+export function parseMarketHistoryHours(capture: MarketHistoryCapture, symbol: string, grid: MarketHistoryGrid = "exchange",
+  adjustment: MarketHistoryAdjustment = "raw"): MarketHistoryHour[] {
   const url = new URL(capture.source);
   const delivered = url.pathname === `/query/v1/bars/stocks/us/${symbol}/1h`;
   if (url.origin !== "https://getmarkethistory.com" || url.username || url.password ||
-      (!delivered && (grid !== "exchange" || url.pathname !== `/api/v1/bars/stocks/us/${symbol}/1h`)) ||
-      ![null, "raw"].includes(url.searchParams.get("adjust")) ||
+      (!delivered && (adjustment !== "raw" || grid !== "exchange" || url.pathname !== `/api/v1/bars/stocks/us/${symbol}/1h`)) ||
+      !["raw", "splits"].includes(adjustment) || (delivered ? url.searchParams.get("adjust") !== adjustment :
+        ![null, "raw"].includes(url.searchParams.get("adjust"))) ||
       ![null, "consolidated"].includes(url.searchParams.get("feed")) ||
       !instant(capture.capturedAt) || !instant(capture.through) || Date.parse(capture.through) > Date.parse(capture.capturedAt) ||
       !Number.isSafeInteger(capture.count) || capture.count < 1 || capture.count > 5000)
     throw new Error("Invalid Market History provenance");
-  if (delivered) verifyDeliveredPage(capture, url, grid);
+  if (delivered) verifyDeliveredPage(capture, url, grid, adjustment);
   if (createHash("sha256").update(capture.text).digest("hex") !== capture.sha256)
     throw new Error("Market History body hash differs from its receipt");
   const from = url.searchParams.get("start"), through = url.searchParams.get("end");

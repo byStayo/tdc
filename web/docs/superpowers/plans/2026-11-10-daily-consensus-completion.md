@@ -1,5 +1,9 @@
 # The Daily Consensus completion plan
 
+- [x] Run the private prospective evaluator after the November 23 data arrived and independently compare the five outcomes against the vendor evaluation sample. Five more rows resolved. Every forecast had abstained.
+- [x] Verify independently delivered free regular-session raw and split-only grids for the four equity funds. All 16 endpoints matched the complete FirstRate minutes on November 19–20. Reconcile all five issuer cash histories through November 23 against an authenticated second delivery.
+- [ ] Settle November 23 publicly once a permitted production combination covers each fund, both edges, the correct share basis and the original issuer evidence. Five overdue targets remain. The new QQQ exception and TLT listing routes need authorized inputs. A pending market feed does not occupy a reserved model holdout. [Price and permissions review](../../FREE_FEED_PATH.md#november-24-independent-price-controls-and-monday-outcomes)
+
 - [x] Recover 16 regular TLT sessions from a permitted free account, verify opens, closes, split basis and the issuer's November 2 distribution. The evaluator added 74 edition targets. It reports five eligible outcomes on both November 19 and November 20. [Price and cash checks](../../FREE_FEED_PATH.md#november-24-free-five-etf-prices-and-tlt-settlement)
 - [x] Test the same free candidate independently across all five funds. Of 80 regular-session pairs, 78 met every check. The two exceptions are identified by fund and date. The separate half-day test qualified zero of five. [Five-fund procedure](../../../scripts/qualify-market-history-etfs.ts)
 - [x] Connect six prospective feature comparisons to the normal public pre-open witness and private post-close evaluator. One SPY options comparison qualified at the November 24 capture. Four equity inputs were stale for their target and the most recent payroll release was outside its target window.

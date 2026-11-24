@@ -7,6 +7,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { digest } from "../lib/consensus/history.ts";
+import { durableJSON } from "../lib/publication-storage.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { dailySessionOutcomes } from "../lib/consensus/outcome-coverage-audit.ts";
@@ -26,6 +27,12 @@ const issuerURLs = {
   IWM: "https://www.ishares.com/us/products/239710/ishare",
   TLT: "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf?cid=synd",
 };
+
+const loginBody = "200 OK\nAuthorizations\n=====================\nAll Stocks,1/1/1998,1\n";
+function subscriber(capturedAt: string) {
+  return { user: "test-paid-user", password: "test-paid-secret", proof: { source: "https://api.kibot.com/?action=login",
+    capturedAt, body: loginBody, sha256: hash(loginBody) } };
+}
 
 function proof(sessions = dates, closing = 101) {
   const through = sessions.at(-1)!, captured = through + "T22:04:00.000Z", reviewed = through + "T22:10:00.000Z";
@@ -73,10 +80,13 @@ test("replays bounded independent responses across years and rejects a missing, 
   const rows = legacy.reference.csv.TLT.replaceAll(",100,", ",100." + "0".repeat(130) + ",").split("\n");
   assert.ok(Buffer.byteLength(rows.join("\n")) > 64 * 1024);
   const datesBySymbol = new Map<string, string[]>();
-  const observed = await settlement.collectLicensedControls(calendar, async input => {
+  const account = subscriber(legacy.reconciledAt);
+  const observed = await settlement.collectLicensedControls(calendar, account, async input => {
     const url = new URL(input), params = url.searchParams, symbol = params.get("symbol")!;
     assert.equal(url.origin, "https://api.kibot.com");
     assert.equal(params.get("unadjusted"), "1");
+    assert.equal(params.get("user"), account.user);
+    assert.equal(params.get("password"), account.password);
     const iso = (day: string) => day.slice(6) + "-" + day.slice(0, 2) + "-" + day.slice(3, 5);
     const first = calendar.indexOf(iso(params.get("startdate")!)), last = calendar.indexOf(iso(params.get("enddate")!));
     assert.ok(first >= 0 && last >= first);
@@ -85,13 +95,22 @@ test("replays bounded independent responses across years and rejects a missing, 
     datesBySymbol.set(symbol, [...(datesBySymbol.get(symbol) ?? []), ...calendar.slice(first, last + 1)]);
     return new Response(csv);
   });
-  const receipt = { ...legacy, schemaVersion: 2 as const, reference: { source: KIBOT_PRICE_CITATION,
+  const receipt = { ...legacy, schemaVersion: 3 as const, reference: { source: KIBOT_PRICE_CITATION, subscriber: account.proof,
     capturedAt: legacy.reconciledAt, chunks: observed.chunks } };
   assert.ok(observed.chunks.length > 1);
   const root = await mkdtemp(join(tmpdir(), "marketparquet-controls-test-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await settlement.recordLicensedSettlement(join(root, ".consensus/private-marketparquet"), receipt, legacy.reconciledAt);
-  const verified = await settlement.loadLicensedSettlement(root, legacy.reconciledAt);
+  const verify = { through: legacy.through, reviewedAt: legacy.reconciledAt, ledgerSha256: receipt.ledgerSha256 };
+  const verified = await settlement.loadLicensedSettlement(root, legacy.reconciledAt, verify);
+  assert.deepEqual(await settlement.loadLicensedSettlement(root, legacy.reconciledAt, { ...verify, ledgerSha256: hash("other") }), []);
+  const bad = structuredClone(receipt); bad.reference.subscriber.body = "200 OK";
+  assert.throws(() => settlement.licensedSettlementPrices(bad, legacy.reconciledAt), /verified subscriber/);
+  const v2 = { ...legacy, schemaVersion: 2 as const, reference: { source: KIBOT_PRICE_CITATION,
+    capturedAt: legacy.reconciledAt, chunks: observed.chunks } };
+  assert.equal(settlement.licensedSettlementPrices(v2, legacy.reconciledAt).length, 5);
+  await assert.rejects(settlement.recordLicensedSettlement(join(root, ".consensus/private-marketparquet"), v2, legacy.reconciledAt),
+    /verified subscriber/);
   for (const symbol of ETF_SYMBOLS) {
     assert.deepEqual(datesBySymbol.get(symbol), calendar);
     assert.deepEqual(observed.reference[symbol].map(row => row.session), calendar);
@@ -146,7 +165,13 @@ test("default settlement ignores an unapproved sample, verifies the immutable re
   await writeFile(join(dir, "licensed.json"), JSON.stringify(ledger), { mode: 0o600 });
   const warnings: string[] = [];
   assert.deepEqual(await settlement.defaultEvaluationPrices(root, reviewed, s => warnings.push(s)), []);
+  await assert.rejects(settlement.recordLicensedSettlement(dir, receipt, reviewed), /verified subscriber/);
+  await durableJSON(join(dir, "settlements", digest(receipt) + ".json"), receipt, true);
+  await assert.rejects(settlement.recordLicensedSettlement(dir, receipt, reviewed), /verified subscriber/);
+  await durableJSON(join(dir, "settlement-review.json"), { schemaVersion: 1, through, reviewedAt: reviewed, sha256: digest(receipt) });
   await settlement.recordLicensedSettlement(dir, receipt, reviewed);
+  assert.deepEqual(await settlement.loadLicensedSettlement(root, reviewed,
+    { through: receipt.through, reviewedAt: reviewed, ledgerSha256: receipt.ledgerSha256 }), []);
   assert.equal((await settlement.defaultEvaluationPrices(root, reviewed, s => warnings.push(s))).length, 5);
   assert.equal(warnings.length, 0);
   await assert.rejects(settlement.recordLicensedSettlement(dir, { ...receipt, reconciledAt: "2026-11-30T22:09:00.000Z",
@@ -204,12 +229,19 @@ test("the journalled evaluator selects complete vendor windows, retains settled 
   const existing = await loadEvaluationOutcomes(root);
   assert.deepEqual(existing.map(r => [r.instrument, r.horizon, r.source]), [["SPY", "daily", FIRST_RATE_SOURCE]]);
   await writeFile(join(vendor, "licensed.json"), receipt.ledgerText, { mode: 0o600 });
+  const credentials = { user: "test-subscriber", password: "test-password" };
   const syntheticControl = clock + "const rows=" + JSON.stringify(receipt.reference.csv) +
-    ";globalThis.fetch=async input=>{const url=new URL(input);if(url.hostname!=='api.kibot.com'||url.searchParams.get('unadjusted')!=='1')" +
-    "throw Error('Unexpected control');return new Response(rows[url.searchParams.get('symbol')])};";
-  const reconciliation = execFileSync(process.execPath, ["--experimental-strip-types", "--import",
-    "data:text/javascript," + encodeURIComponent(syntheticControl), "scripts/reconcile-marketparquet.ts", "--licensed", "--record-review"],
-  { cwd: root, encoding: "utf8" });
+    ";globalThis.fetch=async input=>{const url=new URL(input),p=url.searchParams;if(url.hostname!=='api.kibot.com'" +
+    "||p.get('user')!=='test-subscriber'||p.get('password')!=='test-password')throw Error('Unexpected control');" +
+    "if(p.get('action')==='login')return new Response(" + JSON.stringify(loginBody) + ");" +
+    "if(p.get('unadjusted')!=='1')throw Error('Missing basis');return new Response(rows[p.get('symbol')])};";
+  const reconcile = (...extra: string[]) => execFileSync(process.execPath, ["--experimental-strip-types", "--import",
+    "data:text/javascript," + encodeURIComponent(syntheticControl), "scripts/reconcile-marketparquet.ts", "--licensed", "--record-review", ...extra],
+    { cwd: root, encoding: "utf8", stdio: "pipe", env: { ...process.env, KIBOT_PRODUCTION_USER: undefined, KIBOT_PRODUCTION_PASSWORD: undefined } });
+  assert.throws(() => reconcile(), /verified subscriber/);
+  assert.throws(() => reconcile("--reference", empty), /verified production control/);
+  await durableJSON(join(root, ".consensus/private-kibot/production-credentials.json"), credentials);
+  const reconciliation = reconcile();
   assert.equal(JSON.parse(reconciliation).journalEligible, true);
   run();
   const accepted = await loadEvaluationOutcomes(root);

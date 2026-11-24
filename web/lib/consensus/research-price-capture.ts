@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { lstat, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { durableJSON } from "../publication-storage.ts";
@@ -5,12 +6,14 @@ import { type SessionPrice } from "./evaluation.ts";
 import { extendedResearchSession, extendedResearchSessions } from "./extended-research-calendar.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import { digest } from "./history.ts";
-import { collectKibotSeries } from "./kibot.ts";
+import { collectKibotSeries, kibotHistorySource, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
+import { authenticateKibotSubscriber, verifyKibotSubscriberProof, type KibotSubscriberProof } from "./kibot-subscriber.ts";
 import type { Instrument } from "./types.ts";
 
 type ETF = Exclude<Instrument, "MARKET">;
 export type ResearchPriceReceipt = {
   instrument: ETF; from: string; through: string; sha256: string; priceDigest: string; sessions: SessionPrice[];
+  paid?: { authorization: KibotSubscriberProof; source: string; capturedAt: string; basis: "splits" | "raw"; csv: string };
 };
 
 export async function readResearchReceipt<T>(file: string): Promise<T | null> {
@@ -25,29 +28,36 @@ export async function readResearchReceipt<T>(file: string): Promise<T | null> {
 /** Fetch the full calendar between the first and last requested outcome in each year. */
 export async function collectResearchPrices(
   directory: string, instrument: ETF, targets: string[],
-  { splitAdjusted = false, cachedOnly = false, reviewedExchangeCalendar = false } = {},
+  { splitAdjusted = false, cachedOnly = false, reviewedExchangeCalendar = false, productionRoot }: {
+    splitAdjusted?: boolean; cachedOnly?: boolean; reviewedExchangeCalendar?: boolean; productionRoot?: string } = {},
 ) {
+  if (productionRoot !== undefined && !productionRoot.trim()) throw new Error("Expected the project root for a production price control");
   const session = reviewedExchangeCalendar ? exchangeSession : extendedResearchSession;
   const sessions = reviewedExchangeCalendar ? exchangeSessions : extendedResearchSessions;
   const ordered = [...targets].sort();
   const years = [...new Set(ordered.map(day => day.slice(0, 4)))];
   const receipts: ResearchPriceReceipt[] = [];
+  let subscriber: Awaited<ReturnType<typeof authenticateKibotSubscriber>> | undefined;
   for (const year of years) {
     const intents = ordered.filter(day => day.startsWith(year));
     const dates = sessions(intents[0], intents.at(-1)!);
     const from = dates[0], through = dates.at(-1)!;
     if (!from || !through) throw new Error("Private prices need a reviewed research range");
     const basis = splitAdjusted ? "splits" : "raw";
-    const path = resolve(directory, `${instrument}-${year}-${from}-${through}-${basis}.json`);
+    const path = resolve(directory, (productionRoot ? "subscriber-" : "") + `${instrument}-${year}-${from}-${through}-${basis}.json`);
     const stored = await readResearchReceipt<ResearchPriceReceipt>(path);
     let receipt: ResearchPriceReceipt;
     if (stored) receipt = stored;
     else {
-      if (cachedOnly) throw new Error(`Missing private ${basis} comparison for ${instrument} through ${through}`);
+      if (cachedOnly) throw new Error(`Missing private ${productionRoot ? "subscriber " : ""}${basis} comparison for ${instrument} through ${through}`);
+      if (productionRoot) subscriber ??= await authenticateKibotSubscriber(productionRoot);
+      let csv = "";
       const source = await collectKibotSeries(instrument, dates, {
-        unadjusted: !splitAdjusted, splitAdjusted, sessionClock: session,
+        unadjusted: !splitAdjusted, splitAdjusted, sessionClock: session, subscriber, onVerifiedResponse: value => { csv = value; },
       });
-      receipt = { instrument, from, through, ...source, priceDigest: digest(source.sessions) };
+      receipt = { instrument, from, through, ...source, priceDigest: digest(source.sessions),
+        ...(subscriber && { paid: { authorization: subscriber.proof, source: kibotHistorySource(instrument, from, through, basis),
+          capturedAt: new Date().toISOString(), basis, csv } }) };
     }
     if (receipt.instrument !== instrument || receipt.from !== from || receipt.through !== through || !/^[a-f0-9]{64}$/.test(receipt.sha256) ||
         !Array.isArray(receipt.sessions) || receipt.sessions.length !== dates.length || digest(receipt.sessions) !== receipt.priceDigest ||
@@ -56,6 +66,16 @@ export async function collectResearchPrices(
           return bar.session !== dates[i] || bar.openAt !== clock.openAt || bar.closeAt !== clock.closeAt ||
             ![bar.open, bar.close].every(price => Number.isFinite(price) && price > 0);
         })) throw new Error(`The ${instrument} ${year} prices differ from the reviewed private capture`);
+    if (productionRoot) {
+      const p = receipt.paid;
+      if (!p || !Number.isFinite(Date.parse(p.capturedAt)) || new Date(p.capturedAt).toISOString() !== p.capturedAt ||
+          p.capturedAt < session(through)!.closeAt || p.capturedAt > new Date().toISOString() || !verifyKibotSubscriberProof(p.authorization, p.capturedAt, instrument) ||
+          p.basis !== basis || p.source !== kibotHistorySource(instrument, from, through, basis) ||
+          typeof p.csv !== "string" || Buffer.byteLength(p.csv) > MAX_KIBOT_RESPONSE_BYTES ||
+          createHash("sha256").update(p.csv).digest("hex") !== receipt.sha256 ||
+          digest(parseKibotDaily(p.csv, dates, session)) !== receipt.priceDigest)
+        throw new Error("Kibot production control lacks its verified subscriber authorization and original response");
+    }
     if (!stored) await durableJSON(path, receipt, true);
     receipts.push(receipt);
   }

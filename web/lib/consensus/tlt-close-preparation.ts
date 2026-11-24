@@ -6,6 +6,7 @@ import { digest } from "./history.ts";
 import { closeMomentum, coreSessionCloses, importMarketHistoryHours, parseMarketHistoryHours,
   type DeliveredMarketHistoryHours, type MarketHistoryCapture } from "./market-history-closes.ts";
 import { collectResearchPrices, readResearchReceipt, type ResearchPriceReceipt } from "./research-price-capture.ts";
+import { SourceMissingError } from "./source-failure.ts";
 import { TLT_CLOSE_STALE_DAYS, tltCloseSignal } from "./tlt-close-signal.ts";
 
 const DAY = 86_400_000;
@@ -13,7 +14,7 @@ const METHOD = "tlt-consolidated-final-hour-v1";
 const directory = (root: string) => resolve(root, ".consensus/private-market-history/tlt-closing-trend");
 type Issuer = NonNullable<Awaited<ReturnType<typeof loadReviewedTltCash>>>;
 const controlIds = (receipts: ResearchPriceReceipt[]) => receipts.map(({ sha256, priceDigest }) => ({ sha256, priceDigest }));
-type Review = { method: typeof METHOD; checkedAt: string; issuer: Issuer; capture: MarketHistoryCapture;
+type Review = { method: typeof METHOD; controlAccess?: "kibot-subscriber"; checkedAt: string; issuer: Issuer; capture: MarketHistoryCapture;
   from: string; through: string; raw: ReturnType<typeof controlIds>; splits: ReturnType<typeof controlIds> };
 
 function verifiedCloses(review: Review, raw: ResearchPriceReceipt[], splits: ResearchPriceReceipt[]) {
@@ -62,8 +63,8 @@ async function latest(root: string) {
   return review;
 }
 
-async function controls(dir: string, dates: string[], cachedOnly: boolean) {
-  const options = { cachedOnly, reviewedExchangeCalendar: true };
+async function controls(dir: string, dates: string[], cachedOnly: boolean, productionRoot?: string) {
+  const options = { cachedOnly, reviewedExchangeCalendar: true, productionRoot };
   const raw = await collectResearchPrices(dir, "TLT", dates, options);
   const splits = await collectResearchPrices(dir, "TLT", dates, { ...options, splitAdjusted: true });
   return { raw, splits };
@@ -72,7 +73,9 @@ async function controls(dir: string, dates: string[], cachedOnly: boolean) {
 export async function loadTltClosingTrend(root: string, cutoff: string) {
   const review = await latest(root);
   if (!review || review.checkedAt > cutoff || Date.parse(cutoff) - Date.parse(exchangeSession(review.through)!.closeAt) > TLT_CLOSE_STALE_DAYS * DAY) return null;
-  const { raw, splits } = await controls(directory(root), exchangeSessions(review.from, review.through), true);
+  if (review.controlAccess !== undefined && review.controlAccess !== "kibot-subscriber") throw new Error("Unrecognized TLT control permission");
+  const { raw, splits } = await controls(directory(root), exchangeSessions(review.from, review.through), true,
+    review.controlAccess === "kibot-subscriber" ? root : undefined);
   return verifiedCloses(review, raw, splits);
 }
 
@@ -106,8 +109,14 @@ export async function prepareTltClosingTrend(root: string, _recheck = false) {
   if (old && digest(old.capture) === digest(capture) && digest(old.issuer) === digest(issuer))
     return retained(root, now, "reused");
   await durableDirectory(dir, 0o700);
-  const { raw, splits } = await controls(dir, dates, false);
-  const review: Review = { method: METHOD, checkedAt: new Date().toISOString(), issuer, capture, from, through,
+  let comparison;
+  try { comparison = await controls(dir, dates, false, root); }
+  catch (error) {
+    if (!(error instanceof SourceMissingError)) throw error;
+    return { ...await retained(root, now, "waiting_for_production_control"), reason: error.message };
+  }
+  const { raw, splits } = comparison;
+  const review: Review = { method: METHOD, controlAccess: "kibot-subscriber", checkedAt: new Date().toISOString(), issuer, capture, from, through,
     raw: controlIds(raw), splits: controlIds(splits) };
   const reading = verifiedCloses(review, raw, splits);
   const sha256 = digest(review);

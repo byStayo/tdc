@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { FIRST_RATE_SYMBOLS, prepareFirstRate } from "../lib/consensus/firstrate.ts";
+import { writeHourlyFixtures } from "./fixtures/firstrate-hourly-controls.ts";
 import { digest } from "../lib/consensus/history.ts";
 
 test("a late old file advances its ETF without rolling back other ETFs or their newer issuer review", async () => {
@@ -31,10 +32,7 @@ test("a late old file advances its ETF without rolling back other ETFs or their 
       const issuers = samples.length ? [...FIRST_RATE_SYMBOLS, "TLT"].map(symbol =>
         ({ symbol, source: "https://example.test/issuer", sha256: digest([symbol, day]), capturedAt: stamp, cash: [] })) : [];
       await writeFile(join(scripts, day + ".json"), JSON.stringify({ samples, sampleFailures, issuers }));
-      for (const symbol of available) for (const basis of ["raw", "splits"]) {
-        const comparison = { instrument: symbol, from, through: day, sha256: digest([basis, symbol, day]), priceDigest: digest(rows), sessions: rows };
-        await writeFile(join(privateDir, `${symbol}-2026-${from}-${day}-${basis}.json`), JSON.stringify(comparison), { mode: 0o600 });
-      }
+      for (const symbol of FIRST_RATE_SYMBOLS.filter(fund => available.includes(fund))) await writeHourlyFixtures(root, symbol, rows);
     }
     const stored = async () => JSON.parse(await readFile(join(privateDir, "approved.json"), "utf8")).approval;
     await sample("2026-11-10", FIRST_RATE_SYMBOLS);

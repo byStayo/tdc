@@ -7,7 +7,7 @@ import test from "node:test";
 import { extendedResearchSession } from "../lib/consensus/extended-research-calendar.ts";
 import { exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { durableJSON } from "../lib/publication-storage.ts";
-import { readNasdaqHistoricalControl } from "../lib/consensus/kibot-session-witnesses.ts";
+import { nasdaqDaily, readNasdaqHistoricalControl } from "../lib/consensus/kibot-session-witnesses.ts";
 import { importMarketHistoryHours, type DeliveredMarketHistoryHours } from "../lib/consensus/market-history-closes.ts";
 import { marketHistoryBoundaries, compareMarketHistoryBoundary, freeMarketHistoryBalance, type MarketHistoryGrid } from "../lib/consensus/market-history-boundaries.ts";
 import { prepareTltBoundaryQualification } from "../lib/consensus/market-history-boundary-preparation.ts";
@@ -129,19 +129,24 @@ test("one original Nasdaq response reconciles a dated range, preserves absent se
   let requests = 0;
   const payload = (date: string) => ({ date, open: "$90", close: "$91", low: "$89", high: "$92" });
   const rows = [payload("11/28/2025"), payload("11/25/2025")];
-  const fetcher = async (url: string) => {
-    requests++;
-    assert.equal(new URL(url).searchParams.get("limit"), "50");
-    return Response.json({ status: { rCode: 200 }, data: { symbol: "TLT", tradesTable: {
+  const fetcher = async () => { requests++; throw new Error("Unexpected website request"); };
+  const seed = async (folder: string) => {
+    const text = JSON.stringify({ status: { rCode: 200 }, data: { symbol: "TLT", tradesTable: {
       headers: { date: "Date", open: "Open", close: "Close/Last", high: "High", low: "Low" }, rows } } });
+    await durableJSON(join(folder, "TLT-daily-" + range.from + "-" + range.through + ".json"), { url: nasdaqDaily("TLT", range.through, range.from, 50),
+      kind: "daily", status: 200, symbol: "TLT", requestedAt: cutoff, capturedAt: cutoff,
+      body: Buffer.from(text).toString("base64"), sha256: createHash("sha256").update(text).digest("hex") });
   };
   try {
+    await assert.rejects(readNasdaqHistoricalControl(dir, "TLT", range.from, true, fetcher, extendedResearchSession, range), /written permission/);
+    await seed(dir);
     const first = await readNasdaqHistoricalControl(dir, "TLT", range.from, true, fetcher, extendedResearchSession, range);
     const last = await readNasdaqHistoricalControl(dir, "TLT", range.through, false, fetcher, extendedResearchSession, range);
-    assert.equal(requests, 1);
+    assert.equal(requests, 0);
     assert.equal(first.stamp.sha256, last.stamp.sha256);
     await assert.rejects(readNasdaqHistoricalControl(dir, "TLT", "2025-11-26", false, fetcher, extendedResearchSession, range), /no historical ETF row/);
     rows.push(payload("11/24/2025"));
+    await seed(join(dir, "bad"));
     await assert.rejects(readNasdaqHistoricalControl(join(dir, "bad"), "TLT", range.from, true, fetcher, extendedResearchSession, range),
       /out-of-range/);
   } finally { await rm(dir, { recursive: true, force: true }); }

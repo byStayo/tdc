@@ -7,6 +7,7 @@ import test from "node:test";
 import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { digest } from "../lib/consensus/history.ts";
+import { kibotHistorySource } from "../lib/consensus/kibot.ts";
 import { loadTltClosingTrend, prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
 import { tltCloseSignal, validateTltCloseSignal } from "../lib/consensus/tlt-close-signal.ts";
 
@@ -74,6 +75,14 @@ test("preparation verifies, pins and replays an already delivered signed-in TLT 
   const source = `https://getmarkethistory.com/query/v1/bars/stocks/us/TLT/1h?start=${from}&end=${through}&adjust=raw&feed=consolidated&limit=5000`;
   const delivery = { source, status: 200, headers, text: body, sha256: createHash("sha256").update(body).digest("hex") };
   await durableJSON(incoming, delivery);
+  assert.equal((await prepareTltClosingTrend(root)).status, "waiting_for_production_control");
+  await assert.rejects(readFile(pointer));
+  const login = "200 OK\nAuthorizations\n=====================\nAll Stocks,1/1/1998,1\n";
+  const sha = (text: string) => createHash("sha256").update(text).digest("hex");
+  const csv = dates.map(d => d.slice(5, 7) + "/" + d.slice(8) + "/" + d.slice(0, 4) + ",100,101,99,100,100").join("\n");
+  for (const basis of ["raw", "splits"] as const) await durableJSON(join(dir, `subscriber-TLT-2026-${dates[0]}-${through}-${basis}.json`),
+    { ...control, sha256: sha(csv), paid: { basis, csv, source: kibotHistorySource("TLT", dates[0], through, basis), capturedAt: captureTime,
+      authorization: { source: "https://api.kibot.com/?action=login", capturedAt: captureTime, body: login, sha256: sha(login) } } });
   assert.equal((await prepareTltClosingTrend(root)).status, "verified_closing_trend");
   const original = await readFile(pointer);
   const reading = await loadTltClosingTrend(root, now);

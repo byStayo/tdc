@@ -3,6 +3,7 @@ import { exchangeSession, exchangeSessions, hasReviewedCalendar } from "./exchan
 import type { PriceEvidence, SessionPrice } from "./evaluation.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { sourceResponse, sourceChunk, SourceMissingError } from "./source-failure.ts";
+import { verifyKibotSubscriberProof, type KibotSubscriber } from "./kibot-subscriber.ts";
 import { newYorkDate } from "./time.ts";
 import { INSTRUMENTS } from "./types.ts";
 import type { Instrument } from "./types.ts";
@@ -47,10 +48,20 @@ export function parseKibotDaily(csv: string, expectedSessions: string[], session
   return sessions;
 }
 
+/** Canonical price request that can be pinned without the subscriber's credentials. */
+export function kibotHistorySource(instrument: Exclude<Instrument, "MARKET">, from: string, through: string, basis: "raw" | "splits" | "adjusted") {
+  const american = (date: string) => date.slice(5, 7) + "/" + date.slice(8) + "/" + date.slice(0, 4);
+  const url = new URL("https://api.kibot.com/");
+  url.search = new URLSearchParams({ action: "history", interval: "daily", symbol: instrument,
+    ...(basis === "splits" ? { splitadjusted: "1" } : { unadjusted: basis === "raw" ? "1" : "0" }),
+    startdate: american(from), enddate: american(through) }).toString();
+  return url.href;
+}
+
 export async function collectKibotSeries(
   instrument: Exclude<Instrument, "MARKET">,
   expectedSessions: string[],
-  options: { unadjusted?: boolean; splitAdjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock;
+  options: { unadjusted?: boolean; splitAdjusted?: boolean; fetcher?: Fetcher; sessionClock?: SessionClock; subscriber?: KibotSubscriber;
     onVerifiedResponse?: (csv: string) => void } = {},
 ): Promise<{ sessions: SessionPrice[]; sha256: string }> {
   const from = expectedSessions[0];
@@ -61,16 +72,19 @@ export async function collectKibotSeries(
       expectedSessions.some((day, index) => !sessionClock(day) || (index > 0 && day <= expectedSessions[index - 1])))
     throw new Error("Kibot collection requires an ordered, bounded reviewed session range");
 
-  const american = (date: string) => date.slice(5, 7) + "/" + date.slice(8) + "/" + date.slice(0, 4);
-  const url = new URL("https://api.kibot.com/");
-  // Both literal guest values are the provider's documented anonymous access.
-  url.search = new URLSearchParams({
-    action: "history", interval: "daily", symbol: instrument, user: "guest", password: "guest",
-    ...(options.splitAdjusted ? { splitadjusted: "1" } : { unadjusted: options.unadjusted ? "1" : "0" }),
-    startdate: american(from), enddate: american(through),
-  }).toString();
+  const url = new URL(kibotHistorySource(instrument, from, through, options.splitAdjusted ? "splits" : options.unadjusted ? "raw" : "adjusted"));
+  const account = options.subscriber;
+  if (account && (!verifyKibotSubscriberProof(account.proof, new Date().toISOString(), instrument) ||
+      !account.user || !account.password || /^(guest|demo|trial)$/i.test(account.user.trim())))
+    throw new Error("Invalid Kibot subscriber proof");
+  // Guest is the private evaluation lane. Production callers provide a verified subscriber on every individual request.
+  url.searchParams.set("user", account?.user ?? "guest");
+  url.searchParams.set("password", account?.password ?? "guest");
   const response = await sourceResponse(options.fetcher ?? fetch, url.href, {
-    redirect: "error", signal: AbortSignal.timeout(15000),
+    redirect: "error", cache: "no-store", signal: AbortSignal.timeout(15000),
+  }).catch(error => {
+    if (account) throw new Error("Kibot subscriber history request failed");
+    throw error;
   });
   const reader = response.body!.getReader();
   const chunks: Uint8Array[] = [];
@@ -85,6 +99,7 @@ export async function collectKibotSeries(
     }
   } catch (error) {
     await reader.cancel().catch(() => undefined);
+    if (account) throw new Error("Kibot subscriber history response could not be read");
     throw error;
   } finally {
     reader.releaseLock();

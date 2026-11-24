@@ -11,7 +11,8 @@ import { digest } from "./history.ts";
 import { collectKibotSeries, isFullKibotSession, KIBOT_PRICE_CITATION, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
 import type { SessionFundProof, Stamp } from "./kibot-after-close.ts";
 import { durableDirectory, durableJSON, syncDirectory } from "../publication-storage.ts";
-import { sourceChunk, SourceMissingError, sourceResponse, SourceTransportError } from "./source-failure.ts";
+import { SourceMissingError, type sourceResponse, SourceTransportError } from "./source-failure.ts";
+import { NASDAQ_WEBSITE_PRICE_PERMISSION } from "./nasdaq-website-access.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
 import type { SessionPrice } from "./evaluation.ts";
 
@@ -157,38 +158,15 @@ function decodeNasdaq(meta: NasdaqMeta, symbol: ETF, day: string, stamp: Stamp, 
   return { open, close };
 }
 
+/** Decode a previously retained website receipt. New comparison data requires a separately licensed source. */
 export async function readNasdaqHistoricalControl(directory: string, symbol: ETF, day: string, collect: boolean,
-  fetcher: Fetcher = fetch, sessionClock: typeof exchangeSession = exchangeSession, range?: NasdaqRange) {
+  _fetcher: Fetcher = fetch, sessionClock: typeof exchangeSession = exchangeSession, range?: NasdaqRange) {
   if (range && (!sessionClock(range.from) || !sessionClock(range.through) || day < range.from || day > range.through ||
       Date.parse(range.through) - Date.parse(range.from) > 35 * 86_400_000))
     throw new Error("Nasdaq history comparison requires a bounded reviewed session range");
-  const url = range ? nasdaqDaily(symbol, range.through, range.from, 50) : nasdaqDaily(symbol, day);
   const name = range ? symbol + "-daily-" + range.from + "-" + range.through + ".json" : symbol + "-daily.json";
-  const path = resolve(directory, name);
-  let meta = await readResearchReceipt<NasdaqMeta>(path);
-  if (!meta && collect) {
-    const requestedAt = new Date().toISOString();
-    const response = await sourceResponse(fetcher, url, { redirect: "error", signal: AbortSignal.timeout(12000),
-      headers: { Accept: "application/json", "User-Agent": "DailyConsensus ETF historical verification" } });
-    const reader = response.body!.getReader(), parts: Uint8Array[] = [];
-    let length = 0;
-    try {
-      for (;;) {
-        const part = await sourceChunk(reader);
-        if (part.done) break;
-        length += part.value.byteLength;
-        if (length > 100000) throw new Error("Invalid Nasdaq history response size");
-        parts.push(part.value);
-      }
-    } finally { await reader.cancel().catch(() => undefined); reader.releaseLock(); }
-    const bytes = Buffer.concat(parts);
-    meta = { requestedAt, capturedAt: new Date().toISOString(), sha256: hash(bytes), body: bytes.toString("base64"),
-      kind: "daily", url, status: response.status, symbol };
-    decodeNasdaq(meta, symbol, day, { ...meta, source: url }, sessionClock, range);
-    await durableDirectory(directory, 0o700);
-    await durableJSON(path, meta, true);
-  }
-  if (!meta) throw new Error("Missing dated Nasdaq ETF historical response");
+  const meta = await readResearchReceipt<NasdaqMeta>(resolve(directory, name));
+  if (!meta) throw new SourceMissingError(collect ? NASDAQ_WEBSITE_PRICE_PERMISSION : "Missing dated Nasdaq ETF historical response");
   const stamp = { source: meta.url, capturedAt: meta.capturedAt, sha256: meta.sha256, basis: "Nasdaq historical Open and Close/Last" };
   return { stamp, prices: decodeNasdaq(meta, symbol, day, stamp, sessionClock, range) };
 }
@@ -264,9 +242,8 @@ function readSessionPrices(sourceRoot: string, day: string, collect: boolean, fe
     if (primary) return readControl(symbol, primaryKind);
     const secondary = await readResearchReceipt(resolve(directory, "stocklake-" + symbol + ".json"));
     if (!secondary) return readControl(symbol, primaryKind);
-    if (collect) {
-      // A secondary bar can be delivered before the exchange's final price.
-      // Preserve its original bytes and try the exchange again on the next collection.
+    if (collect && arca) {
+      // The secondary bar can precede CTA's final participant report.
       try { return await readControl(symbol, primaryKind); }
       catch (error) {
         if (!(error instanceof SourceMissingError || error instanceof SourceTransportError)) throw error;

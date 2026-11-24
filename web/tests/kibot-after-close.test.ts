@@ -293,76 +293,73 @@ test("an ex-date return records the actual arrival time of the independent prior
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
-test("the exact-date collector saves the independent witness while Kibot is late and reuses each successful capture", async () => {
+async function retainedQqqFixture(dir: string, rows: { date: string; open: string; close: string; high: string; low: string }[], field = "Close/Last") {
+  const text = JSON.stringify({ status: { rCode: 200 }, data: { symbol: "QQQ", tradesTable: {
+    headers: { date: "Date", open: "Open", close: field, low: "Low", high: "High" }, rows } } });
+  const at = target + "T22:00:00.000Z";
+  await durableJSON(join(dir, "QQQ-daily.json"), { url: nasdaqDaily("QQQ", target), symbol: "QQQ", kind: "daily", status: 200,
+    requestedAt: at, capturedAt: at, body: Buffer.from(text).toString("base64"), sha256: hash(text) });
+}
+const witnessBar = { date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" };
+
+test("private after-close retains independently timed native responses while missing website permission keeps the comparison pending", async t => {
   const root = await mkdtemp(join(tmpdir(), "consensus-kibot-capture-"));
-  try {
-    await symlink(new URL("../scripts", import.meta.url), join(root, "scripts"));
-    const sourceRoot = join(root, "captures");
-    const { dir } = await syntheticSources(root, sourceRoot, target, first, false);
-    await rename(join(dir, "stocklake-QQQ.json"), join(root, "retired-test-stocklake.json"));
-    await rename(join(dir, "QQQ-kibot.json"), join(root, "retired-test-native.json"));
-    let native = 0, nasdaq = 0;
-    const read = retainedSessionWitnesses(root, join(sourceRoot, "sources"), target, true, async input => {
-      const url = new URL(String(input));
-      if (url.origin === "https://api.kibot.com") {
-        assert.equal(url.searchParams.get("symbol"), "QQQ");
-        assert.equal(url.searchParams.get("unadjusted"), "1");
-        assert.equal(url.searchParams.get("startdate"), "11/17/2026"); assert.equal(url.searchParams.get("enddate"), "11/17/2026");
-        native++;
-        return new Response(native === 1 ? "No data found for the specified period" : "11/17/2026,100,102,99,101,2500\n");
-      }
-      assert.equal(url.href, nasdaqDaily("QQQ", target)); nasdaq++;
-      return Response.json({ status: { rCode: 200 }, data: { symbol: "QQQ", tradesTable: {
-        headers: { date: "Date", open: "Open", close: "Close/Last", low: "Low", high: "High" },
-        rows: [{ date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" }],
-      } } });
-    });
-    await assert.rejects(read("QQQ"), /no completed sessions/);
-    await access(join(dir, "QQQ-daily.json"));
-    await assert.rejects(access(join(dir, "QQQ-kibot.json")));
-    const complete = await read("QQQ");
-    assert.equal(complete.asTraded[0].session, target); assert.deepEqual(complete.asTraded, complete.selectedBars);
-    assert.deepEqual(await read("QQQ"), complete);
-    assert.deepEqual([native, nasdaq], [2, 1]);
-  } finally { await rm(root, { recursive: true, force: true }); }
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await symlink(new URL("../scripts", import.meta.url), join(root, "scripts"));
+  const sourceRoot = join(root, "captures");
+  const { dir } = await syntheticSources(root, sourceRoot, target, first, false);
+  await rename(join(dir, "stocklake-QQQ.json"), join(root, "retired-test-stocklake.json"));
+  await rename(join(dir, "QQQ-kibot.json"), join(root, "retired-test-native.json"));
+  let native = 0;
+  const read = retainedSessionWitnesses(root, join(sourceRoot, "sources"), target, true, async input => {
+    const url = new URL(String(input));
+    assert.equal(url.origin, "https://api.kibot.com");
+    assert.equal(url.searchParams.get("symbol"), "QQQ");
+    assert.equal(url.searchParams.get("unadjusted"), "1");
+    assert.equal(url.searchParams.get("startdate"), "11/17/2026");
+    assert.equal(url.searchParams.get("enddate"), "11/17/2026");
+    native++;
+    return new Response(native === 1 ? "No data found for the specified period" : "11/17/2026,100,102,99,101,2500\n");
+  });
+  await assert.rejects(read("QQQ"), /no completed sessions/);
+  await assert.rejects(access(join(dir, "QQQ-kibot.json")));
+  await assert.rejects(read("QQQ"), /written permission/);
+  await access(join(dir, "QQQ-kibot.json"));
+  await assert.rejects(access(join(dir, "QQQ-daily.json")));
+  await retainedQqqFixture(dir, [witnessBar]);
+  const complete = await read("QQQ");
+  assert.deepEqual(complete.asTraded, complete.selectedBars);
+  assert.deepEqual(await read("QQQ"), complete);
+  assert.equal(native, 2);
 });
 
-test("an early secondary close cannot suppress a later exchange price or mask an invalid exchange response", async () => {
+test("a private secondary cannot mask a changed retained exchange price or trigger new website capture", async t => {
   const root = await mkdtemp(join(tmpdir(), "consensus-kibot-late-control-"));
-  try {
-    await symlink(new URL("../scripts", import.meta.url), join(root, "scripts"));
-    const sourceRoot = join(root, "captures");
-    const { dir } = await syntheticSources(root, sourceRoot, target, first, false);
-    const path = join(dir, "stocklake-QQQ.json"), early = JSON.parse(await readFile(path, "utf8"));
-    const packet = JSON.parse(early.rawText), history = JSON.parse(packet.result.content[0].text);
-    history.history[0].close = 99;
-    packet.result.content[0].text = JSON.stringify(history);
-    early.rawText = JSON.stringify(packet); early.sha256 = hash(early.rawText);
-    await durableJSON(path, early);
-    const before = await readFile(path);
-    let requests = 0;
-    const read = retainedSessionWitnesses(root, join(sourceRoot, "sources"), target, true, async url => {
-      assert.equal(String(url), nasdaqDaily("QQQ", target));
-      requests++;
-      const headers = { date: "Date", open: "Open", close: requests === 2 ? "Unknown" : "Close/Last", low: "Low", high: "High" };
-      const query = new URL(String(url));
-      assert.equal(query.searchParams.get("fromdate"), first); assert.equal(query.searchParams.get("todate"), target);
-      const prior = { date: "11/16/2026", open: "$99", close: "$98", low: "$97", high: "$100" };
-      const today = { date: "11/17/2026", open: "$100", close: "$101", low: "$99", high: "$102" };
-      const rows = requests === 1 ? [prior] : requests === 3 ? [today, today] : [prior, today];
-      return Response.json({ status: { rCode: 200 }, data: { symbol: "QQQ", tradesTable: { headers, rows } } });
-    });
-    const interim = await read("QQQ");
-    assert.ok(interim.sources.secondary); assert.equal(interim.selectedBars[0].close, 99);
-    assert.throws(() => reviewedFund(interim, "QQQ", target, first, edition(target), new Date().toISOString()), /prices or directions disagree/);
-    await assert.rejects(read("QQQ"), /price definition differs/);
-    await assert.rejects(read("QQQ"), /Duplicate or out-of-range/);
-    const final = await read("QQQ");
-    assert.ok(final.sources.historical); assert.equal(final.selectedBars[0].close, 101);
-    assert.equal(reviewedFund(final, "QQQ", target, first, edition(target), new Date().toISOString()).directionCorrect, null);
-    assert.deepEqual(await read("QQQ"), final);
-    assert.equal(requests, 4); assert.deepEqual(await readFile(path), before);
-  } finally { await rm(root, { recursive: true, force: true }); }
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await symlink(new URL("../scripts", import.meta.url), join(root, "scripts"));
+  const sourceRoot = join(root, "captures");
+  const { dir } = await syntheticSources(root, sourceRoot, target, first, false);
+  const path = join(dir, "stocklake-QQQ.json"), early = JSON.parse(await readFile(path, "utf8"));
+  const packet = JSON.parse(early.rawText), history = JSON.parse(packet.result.content[0].text);
+  history.history[0].close = 99;
+  packet.result.content[0].text = JSON.stringify(history);
+  early.rawText = JSON.stringify(packet); early.sha256 = hash(early.rawText);
+  await durableJSON(path, early);
+  const before = await readFile(path);
+  const read = retainedSessionWitnesses(root, join(sourceRoot, "sources"), target, true, async () => { throw Error("Unexpected request"); });
+  const interim = await read("QQQ");
+  assert.ok(interim.sources.secondary); assert.equal(interim.selectedBars[0].close, 99);
+  assert.throws(() => reviewedFund(interim, "QQQ", target, first, edition(target), new Date().toISOString()), /prices or directions disagree/);
+  await retainedQqqFixture(dir, [witnessBar], "Unknown");
+  await assert.rejects(read("QQQ"), /price definition differs/);
+  await retainedQqqFixture(dir, [witnessBar, witnessBar]);
+  await assert.rejects(read("QQQ"), /Duplicate or out-of-range/);
+  await retainedQqqFixture(dir, [witnessBar]);
+  const final = await read("QQQ");
+  assert.ok(final.sources.historical); assert.equal(final.selectedBars[0].close, 101);
+  assert.equal(reviewedFund(final, "QQQ", target, first, edition(target), new Date().toISOString()).directionCorrect, null);
+  assert.deepEqual(await read("QQQ"), final);
+  assert.deepEqual(await readFile(path), before);
 });
 
 test("a published Nasdaq historical pair retains its field definition", () => {

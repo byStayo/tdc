@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { lstat, readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { durableDirectory, durableJSON } from "../publication-storage.ts";
 import { adjustETFPrices, ETF_CASH_SOURCES, officialCashLocation, type CashDistribution } from "./corporate-adjustment.ts";
 import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
 import type { PriceEvidence } from "./evaluation.ts";
@@ -14,6 +13,9 @@ import { boundaryClock, compareMarketHistoryBoundary, freeMarketHistoryBalance, 
 import type { DeliveredMarketHistoryHours } from "./market-history-closes.ts";
 import { OUTCOME_PRICE_BASIS } from "./price-basis.ts";
 import { readResearchReceipt } from "./research-price-capture.ts";
+import { NASDAQ_WEBSITE_PRICE_PERMISSION } from "./nasdaq-website-access.ts";
+
+export const TLT_LEGACY_CONTROL_SCOPE = "New TLT settlements require independent production-permitted listing and share-basis controls. " + NASDAQ_WEBSITE_PRICE_PERMISSION + " Kibot guest is evaluation-only.";
 
 export const MARKET_HISTORY_SOURCE = "https://getmarkethistory.com/docs/guides/historical-stock-market-data/";
 const fingerprint = (input: Buffer | string) => createHash("sha256").update(input).digest("hex");
@@ -93,7 +95,7 @@ async function originalControls(root: string, day: string, input: SessionInputs,
   return { raw, split, listed: { session: day, ...history.prices } };
 }
 
-/** Rebuild only from complete original, post-close, owner-authorized source and control responses. */
+/** Reconstruct a historical settlement from its complete original post-close inputs. */
 export async function tltSettlementPriceEvidence(root: string, review: TltSettlementReview, asOf: string): Promise<PriceEvidence> {
   if (!isTime(asOf) || review.schema !== 1 || !hasHash(review.opening) || !hasHash(review.closing) || review.opening === review.closing ||
       !review.issuer || !hasHash(review.issuer.sha256) || Date.parse(review.through) - Date.parse(review.from) > 35 * 86_400_000)
@@ -140,21 +142,16 @@ export async function tltSettlementPriceEvidence(root: string, review: TltSettle
 }
 
 export async function recordTltSettlement(root: string, review: TltSettlementReview, asOf: string) {
-  const evidence = await tltSettlementPriceEvidence(root, review, asOf);
+  if (!/^\d{4}-\d\d-\d\d$/.test(review.windowFrom) || !/^\d{4}-\d\d-\d\d$/.test(review.windowThrough) || !isTime(asOf))
+    throw new Error("Invalid TLT settlement replay window");
   const id = digest(review), folder = resolve(directory(root), "settlements");
-  await durableDirectory(folder, 0o700);
   const path = resolve(folder, review.windowThrough + "_" + review.windowFrom + "_" + id + ".json");
   const saved = await readResearchReceipt<StoredSettlement>(path);
-  const valid = (record: StoredSettlement | null) => record && digest(record.review) === id && isTime(record.reviewedAt) &&
-    record.reviewedAt <= asOf && digest({ review: record.review, reviewedAt: record.reviewedAt }) === record.sha256;
-  if (saved && !valid(saved)) throw new Error("TLT settlement proof changed");
-  if (!saved) {
-    const entry = { review, reviewedAt: asOf };
-    try { await durableJSON(path, { ...entry, sha256: digest(entry) }, true); } catch (error) {
-      if (!valid(await readResearchReceipt<StoredSettlement>(path))) throw error;
-    }
-  }
-  return evidence;
+  if (!saved) throw new Error(TLT_LEGACY_CONTROL_SCOPE);
+  if (digest(saved.review) !== id || !isTime(saved.reviewedAt) || saved.reviewedAt > asOf ||
+      digest({ review: saved.review, reviewedAt: saved.reviewedAt }) !== saved.sha256)
+    throw new Error("TLT settlement proof changed");
+  return tltSettlementPriceEvidence(root, saved.review, saved.reviewedAt);
 }
 
 export async function loadTltSettlement(root: string, asOf: string, warn: (message: string) => void) {
