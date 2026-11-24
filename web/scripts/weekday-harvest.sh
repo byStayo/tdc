@@ -3,12 +3,7 @@ set -eu
 umask 077
 
 cd "$(dirname "$0")/.."
-if [ "$(/usr/bin/git branch --show-current)" != codex/daily-consensus-polish ] ||
-   [ -n "$(/usr/bin/git status --porcelain)" ] ||
-   [ "$(/usr/bin/git rev-parse HEAD)" != "$(/usr/bin/git rev-parse '@{upstream}')" ]; then
-  printf '%s\n' 'Daily Consensus capture skipped because the publishing checkout is dirty, is on another branch or differs from its upstream.' >&2
-  exit 2
-fi
+/usr/bin/python3 -B scripts/check-publisher-checkout.py
 
 node_bin=/opt/homebrew/opt/node@24/bin/node
 if ! "$node_bin" --experimental-strip-types scripts/research-occ-volume.ts; then
