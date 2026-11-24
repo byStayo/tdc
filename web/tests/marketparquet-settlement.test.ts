@@ -14,7 +14,10 @@ import { dailySessionOutcomes } from "../lib/consensus/outcome-coverage-audit.ts
 import { loadEvaluationOutcomes, outcomeIndex } from "../lib/consensus/outcome-ledger.ts";
 import { missingSignals } from "../lib/consensus/registry.ts";
 import type { Snapshot } from "../lib/consensus/types.ts";
-import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, type MarketParquetDay } from "../lib/consensus/marketparquet.ts";
+import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
+import { marketHistoryActionCachePath, sealMarketHistoryActionCapture, type MarketHistoryActionCapture } from "../lib/consensus/market-history-actions.ts";
+import { marketParquetHourlyWindows, verifyMarketParquetHorizonSigns, type MarketParquetIssuerCash } from "../lib/consensus/marketparquet-market-history.ts";
+import { writeHourlyFixtures } from "./fixtures/firstrate-hourly-controls.ts";
 import * as settlement from "../lib/consensus/marketparquet-settlement.ts";
 
 const dates = exchangeSessions("2026-11-19", "2026-11-30"), through = dates.at(-1)!;
@@ -258,4 +261,123 @@ test("the journalled evaluator selects complete vendor windows, retains settled 
   const retained = await loadEvaluationOutcomes(root);
   assert.deepEqual(retained.slice(0, accepted.length), accepted);
   assert.deepEqual(retained.slice(accepted.length).map(r => [r.instrument, r.horizon, r.source]), [["SPY", "daily", FIRST_RATE_SOURCE]]);
+});
+
+test("a chosen native hourly comparator seals every ordinary session and replays originals without network", async t => {
+  const root = await mkdtemp(join(tmpdir(), "marketparquet-native-controls-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const sessions = exchangeSessions("2026-09-22", "2026-11-20");
+  const windows = marketParquetHourlyWindows(sessions);
+  assert.equal(windows.length, 2);
+  assert.deepEqual(windows.flat(), sessions);
+  const { ledger } = proof(sessions);
+  const vendor = join(root, ".consensus/private-marketparquet");
+  await mkdir(vendor, { recursive: true, mode: 0o700 });
+  await durableJSON(join(vendor, "licensed.json"), ledger);
+  await mkdir(join(root, "scripts"));
+  await copyFile(new URL("../scripts/reconcile-marketparquet.ts", import.meta.url), join(root, "scripts/reconcile-marketparquet.ts"));
+  await symlink(new URL("../lib/", import.meta.url), join(root, "lib"));
+  await writeFile(join(root, "package.json"), '{"type":"module"}');
+  const noHttp = "data:text/javascript," + encodeURIComponent("globalThis.fetch = async () => { throw new Error('unexpected outbound request') }");
+  const run = (args: string[], provider?: string) => execFileSync(process.execPath, [
+    "--disable-warning=ExperimentalWarning", "--experimental-strip-types", "--import", noHttp,
+    join(root, "scripts/reconcile-marketparquet.ts"), "--licensed", "--record-review", ...args,
+  ], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, MARKETPARQUET_CONTROL: provider ?? "", MARKET_HISTORY_KEY: "" } });
+  for (const days of windows) {
+    const rows = days.map(day => ({ ...exchangeSession(day)!, open: 100, close: 101 }));
+    for (const symbol of ETF_SYMBOLS) await writeHourlyFixtures(root, symbol, rows);
+  }
+
+  // The independent original initially omits the TLT issuer payment.
+  assert.throws(() => run(["--control", "market-history"]), /corporate-action|corporate actions|free Market History/i);
+  await assert.rejects(readFile(join(vendor, "settlement-review.json")), { code: "ENOENT" });
+  const nativeActions = marketHistoryActionCachePath(root, "TLT", windows[0][0], windows[0].at(-1)!);
+  const saved = JSON.parse(await readFile(nativeActions, "utf8")).capture as MarketHistoryActionCapture;
+  saved.raw = JSON.stringify({ id: "native-TLT", symbol: "TLT", cusip: "464287432", ex_date: sessions[1],
+    type: "cash_dividends", rate: 0.4, source: null }) + "\n";
+  saved.sha256 = hash(saved.raw);
+  saved.headers["x-row-count"] = "1";
+  saved.headers["x-bars-charged"] = "1000";
+  await durableJSON(nativeActions, sealMarketHistoryActionCapture(saved));
+  const result = JSON.parse(run([], "market-history"));
+  assert.deepEqual([result.mode, result.passed, result.reviewRecorded, result.journalEligible],
+    ["licensed", true, true, true]);
+  const pointerText = await readFile(join(vendor, "settlement-review.json"), "utf8");
+  const pointer = JSON.parse(pointerText);
+  const receipt = JSON.parse(await readFile(join(vendor, "settlements", pointer.sha256 + ".json"), "utf8"));
+  assert.equal(receipt.schemaVersion, 4);
+  assert.equal(receipt.reference.source, "https://getmarkethistory.com/docs/bars/");
+  assert.deepEqual(receipt.reference.chunks.map((chunk: { funds: { symbol: string }[] }) => chunk.funds.map(f => f.symbol)),
+    windows.map(() => [...ETF_SYMBOLS]));
+  assert.equal(JSON.stringify(receipt.reference).includes("Authorization"), false);
+  const bound = { through: pointer.through, reviewedAt: pointer.reviewedAt, ledgerSha256: receipt.ledgerSha256 };
+  const verified = await settlement.loadLicensedSettlement(root, pointer.reviewedAt, bound);
+  assert.equal(verified.length, 5);
+  assert.equal(verified.find(row => row.instrument === "TLT")!.sessions[0].open, 100 * (101 - 0.4) / 101);
+  const controlStore = join(root, ".consensus/private-market-history/firstrate-controls");
+  const final = windows.at(-1)!;
+  for (const basis of ["raw", "splits"]) {
+    const closeFile = join(controlStore, ["QQQ", final[0], final.at(-1), basis, "close"].join("-") + ".json");
+    const original = JSON.parse(await readFile(closeFile, "utf8"));
+    const lines = original.text.trim().split("\n").map((line: string) => JSON.parse(line));
+    lines.at(-1).close = 100.74;
+    original.text = lines.map((line: object) => JSON.stringify(line)).join("\n") + "\n";
+    original.sha256 = hash(original.text);
+    await durableJSON(closeFile, original);
+  }
+  try {
+    run(["--control", "market-history"]);
+    assert.fail("A discrepant day must withhold the native review");
+  } catch (error) {
+    const failure = error as { status: number; stdout: string };
+    assert.equal(failure.status, 2);
+    const rejected = JSON.parse(failure.stdout);
+    assert.equal(rejected.passed, false);
+    assert.equal(rejected.reviewRecorded, false);
+    assert.equal(rejected.verifiedThrough, sessions.at(-2));
+    assert.equal(rejected.symbols.find((row: { symbol: string }) => row.symbol === "QQQ").differing[0], sessions.at(-1));
+  }
+  assert.equal(await readFile(join(vendor, "settlement-review.json"), "utf8"), pointerText);
+
+  const file = join(controlStore, ["SPY", windows[0][0], windows[0].at(-1), "raw", "open"].join("-") + ".json");
+  const original = JSON.parse(await readFile(file, "utf8"));
+  original.headers["x-bars-remaining"] = "2999";
+  await durableJSON(file, original);
+  await assert.rejects(settlement.loadLicensedSettlement(root, pointer.reviewedAt, bound), /originals differ/);
+  const incomplete = structuredClone(receipt);
+  incomplete.reference.chunks.pop();
+  await assert.rejects(settlement.recordLicensedSettlement(vendor, incomplete, pointer.reviewedAt), /originals differ/);
+  assert.equal(await readFile(join(vendor, "settlement-review.json"), "utf8"), pointerText);
+});
+
+test("short sessions and skipped dates are ineligible before any native comparator request", () => {
+  const dates = exchangeSessions("2026-11-23", "2026-11-30");
+  assert.throws(() => marketParquetHourlyWindows(dates), /shortened session 2026-11-27/);
+  assert.throws(() => marketParquetHourlyWindows(dates.filter(day => day !== "2026-11-27")), /every exchange session/);
+  assert.throws(() => marketParquetHourlyWindows([]), /every exchange session/);
+});
+
+test("native controls with agreeing daily signs can disagree over a weekly or monthly holding period", () => {
+  const dates = exchangeSessions("2026-09-22", "2026-10-23").slice(0, 21);
+  for (const span of [5, 21]) {
+    const { ledger } = proof(dates.slice(0, span));
+    const cash = Object.fromEntries(ETF_SYMBOLS.map(s => [s, []])) as unknown as MarketParquetIssuerCash;
+    const refs = Object.fromEntries(ETF_SYMBOLS.map(s => [s, ledger.bars.map(file => ({
+      session: file.session, ...file.bars[s],
+    }))])) as ReferenceBars;
+    const last = ledger.bars[span - 1].bars.QQQ;
+    last.open = 99.9;
+    last.close = 100.002;
+    Object.assign(refs.QQQ[span - 1], { open: 99.9, close: 99.998 });
+    if (span === 21) {
+      // The final five-session return remains positive in both series. Only the 21-session endpoints disagree.
+      ledger.bars[span - 5].bars.QQQ.open = 99.9;
+      refs.QQQ[span - 5].open = 99.9;
+    }
+    assert.throws(() => verifyMarketParquetHorizonSigns(ledger.bars, refs, cash),
+      new RegExp("horizon direction differs for QQQ from " + dates[0] + " through " + dates[span - 1]));
+    refs.QQQ[span - 1].close = 100.001;
+    assert.doesNotThrow(() => verifyMarketParquetHorizonSigns(ledger.bars, refs, cash));
+  }
 });

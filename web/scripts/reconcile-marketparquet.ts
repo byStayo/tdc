@@ -7,7 +7,9 @@ import { durableJSON } from "../lib/publication-storage.ts";
 import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { collectKibotPrices, KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { authenticateKibotSubscriber, type KibotSubscriberProof } from "../lib/consensus/kibot-subscriber.ts";
-import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement,
+import { MARKETPARQUET_HOURLY_REFERENCE, marketParquetHourlyControls, verifyMarketParquetHorizonSigns,
+  type MarketParquetHourlyReference } from "../lib/consensus/marketparquet-market-history.ts";
+import { collectLicensedControls, licensedSettlementPrices, recordLicensedSettlement, verifyMarketParquetControlEntitlement,
   type LicensedControlChunk, type LicensedSettlement } from "../lib/consensus/marketparquet-settlement.ts";
 import { ETF_SYMBOLS, reconcileMarketParquet, marketParquetIssuerFingerprints, type MarketParquetDay, type ReferenceBars } from "../lib/consensus/marketparquet.ts";
 
@@ -17,8 +19,12 @@ const flag = (name: string) => { const at = args.indexOf(name); return at < 0 ? 
 const licensed = flag("--licensed"), record = flag("--record-review");
 const referenceAt = args.indexOf("--reference");
 const referencePath = referenceAt < 0 ? undefined : args.splice(referenceAt, 2)[1];
-if (args.length || (referenceAt >= 0 && !referencePath))
-  throw new Error("Usage: reconcile-marketparquet.ts [--licensed] [--reference /absolute/private/reference.json] [--record-review]");
+const controlAt = args.indexOf("--control");
+const selected = controlAt < 0 ? undefined : args.splice(controlAt, 2)[1];
+const control = selected ?? (licensed && !referencePath ? process.env.MARKETPARQUET_CONTROL : undefined) ?? "kibot";
+if (args.length || (referenceAt >= 0 && !referencePath) || (controlAt >= 0 && (!selected || !licensed || referencePath)) ||
+    !["kibot", "market-history"].includes(control))
+  throw new Error("Usage: reconcile-marketparquet.ts [--licensed] [--control kibot|market-history] [--reference /absolute/private/reference.json] [--record-review]");
 if (licensed && record && referencePath)
   throw new Error("Operator-supplied reference files support private comparison. Recording a new licensed review requires verified production control provenance.");
 
@@ -50,6 +56,7 @@ try {
   // sit several basis points from the listing venue's closing auction.
   let reference: ReferenceBars, source: string, hashes: Record<string, string> | undefined;
   let controlChunks: LicensedControlChunk[] | undefined;
+  let hourlyProof: MarketParquetHourlyReference | undefined;
   let subscriber: KibotSubscriberProof | undefined;
   let tolerance = { openBps: 3, closeBps: 15 };
   if (referencePath) {
@@ -65,6 +72,12 @@ try {
     source = supplied.source;
     hashes = { reference: createHash("sha256").update(text).digest("hex") };
     tolerance = { openBps: 0.5, closeBps: 0.5 };
+  } else if (licensed && control === "market-history") {
+    verifyMarketParquetControlEntitlement(ledgerText, through, startedAt);
+    const controls = await marketParquetHourlyControls(root, calendar, cash);
+    reference = controls.reference;
+    hourlyProof = controls.proof;
+    source = MARKETPARQUET_HOURLY_REFERENCE;
   } else if (licensed) {
     const account = await authenticateKibotSubscriber(root);
     subscriber = account.proof;
@@ -82,6 +95,7 @@ try {
 
   const controlsAt = new Date().toISOString();
   const result = reconcileMarketParquet(calendar, files, cash, reference, tolerance, { requireDirection: licensed });
+  if (hourlyProof && result.passed) verifyMarketParquetHorizonSigns(files, reference, cash);
   const now = new Date().toISOString();
   const capturedAfterClose = !!ledger.capturedAt &&
     Date.parse(ledger.capturedAt) >= Date.parse(exchangeSession(through)!.closeAt);
@@ -92,7 +106,7 @@ try {
     issuerActions: marketParquetIssuerFingerprints(ledger.distributions, first, through),
     reference: { source, tolerance, ...(controlChunks ? {
       chunks: controlChunks.map(({ from, through, capturedAt, hashes }) => ({ from, through, capturedAt, hashes })),
-    } : { hashes }) }, capturedAfterClose, ...result };
+    } : hourlyProof ? { capturedAt: hourlyProof.capturedAt, chunks: hourlyProof.chunks } : { hashes }) }, capturedAfterClose, ...result };
   const evidenceName = `reconciliation-${through}-${now.replace(/[:.]/g, "-")}.json`;
   await durableJSON(resolve(directory, evidenceName), summary, true);
 
@@ -104,6 +118,9 @@ try {
         ledgerText, ledgerSha256: summary.ledgerSha256, earlyClosesVerified: result.earlyClosesVerified,
         reference: { source, capturedAt: controlsAt, chunks: controlChunks, subscriber } };
       licensedSettlementPrices(settlement, now);
+    } else if (hourlyProof) {
+      settlement = { schemaVersion: 4, mode: "licensed", through, reconciledAt: now, ledgerText,
+        ledgerSha256: summary.ledgerSha256, earlyClosesVerified: result.earlyClosesVerified, reference: hourlyProof };
     }
     if (licensed && !settlement) throw new Error("Missing independently authorized production controls for MarketParquet");
     if (settlement) await recordLicensedSettlement(directory, settlement, now);

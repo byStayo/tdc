@@ -8,7 +8,7 @@ import { exchangeSession, exchangeSessions, EXCHANGE_CALENDAR, REVIEWED_EXCHANGE
 import { outcomeKey, outcomeWindowSessions, SCORING_POLICY, type PriceEvidence } from "./evaluation.ts";
 import { firstRatePriceEvidence, loadFirstRatePrices, FIRST_RATE_SOURCE, FIRST_RATE_SYMBOLS } from "./firstrate.ts";
 import { readQqqAuction } from "./firstrate-nasdaq-auction.ts";
-import { licensedSettlementPrices, loadLicensedSettlement, type LicensedSettlement } from "./marketparquet-settlement.ts";
+import { replayLicensedSettlement, loadLicensedSettlement, type LicensedSettlement } from "./marketparquet-settlement.ts";
 import { MARKETPARQUET_SOURCE } from "./marketparquet.ts";
 import { loadTltSettlement, MARKET_HISTORY_SOURCE } from "./market-history-settlement.ts";
 import { PROSPECTIVE_MINIMUM, readReservations, type EvaluationReservation } from "./learning-audit.ts";
@@ -268,7 +268,7 @@ async function archivedPriceMatch(root: string, source: string, r: Request, asOf
       if (!/^[a-f0-9]{64}\.json$/.test(name)) continue;
       const review=await readResearchReceipt<LicensedSettlement>(resolve(archive,name));
       if (!review || name!==digest(review)+".json") throw Error("Archived licensed price assessment changed");
-      if (review.through>=r.session && review.reconciledAt<=asOf && exact(licensedSettlementPrices(review,asOf))) return true;
+      if (review.through>=r.session && review.reconciledAt<=asOf && exact(await replayLicensedSettlement(base,review,asOf))) return true;
     }
   }
   return false;
