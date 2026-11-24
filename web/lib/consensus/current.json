@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2026-11-24T09-39-37-253Z",
-  "issuedAt": "2026-11-24T09:39:37.253Z",
-  "cutoff": "2026-11-24T09:39:05.751Z",
+  "id": "2026-11-24T12-16-35-024Z",
+  "issuedAt": "2026-11-24T12:16:35.024Z",
+  "cutoff": "2026-11-24T12:03:42.858Z",
   "origin": "prospective",
   "engineVersion": "consensus-rules-2.0.0",
   "signals": [
@@ -29532,7 +29532,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://thedailyconsensus.com/research-desk",
-        "retrievedAt": "2026-11-24T09:39:05.751Z",
+        "retrievedAt": "2026-11-24T12:03:42.858Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -29849,7 +29849,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://firstratedata.com/stock-data",
-        "retrievedAt": "2026-11-24T09:39:05.751Z",
+        "retrievedAt": "2026-11-24T12:03:42.858Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -30666,30 +30666,30 @@
       ],
       "directionalInstruments": [],
       "status": "available",
-      "summary": "2104 covered ETFs: 1,908,063,225 USD net flow dated 2026-11-20. 82 funds held for review and 48 multi-session counts excluded. Dated creations/redemptions context; no directional vote.",
+      "summary": "2684 covered ETFs: 2,197,614,281 USD net flow dated 2026-11-20. 84 funds held for review and 49 multi-session counts excluded. Dated creations/redemptions context; no directional vote.",
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-24T05:37:13.523Z",
+        "retrievedAt": "2026-11-24T12:03:42.559Z",
         "observedAt": "2026-11-20",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
         "attribution": "Source: ETFIQ (https://etfiq.com/flows/). Computed figures selected by The Daily Consensus; no endorsement implied.",
         "usage": "ETFIQ-computed figures may be reused, republished and used in models with attribution: https://etfiq.com/license/. Issuer NAV, net assets, share counts and vendor prices are excluded.",
-        "sha256": "10991cfd69e29f19aac50a412224f548f8c9d99dd60eb1db502a0e4597faf823"
+        "sha256": "92fcf7a6dc33e4bfca5188736a70272465dfb08f58058d4b722812982972319a"
       },
       "methodology": "ETFIQ computes creations/redemptions from changes in issuer share counts valued at the earlier NAV, adjusted for confirmed splits. The displayed flow date follows the provider count convention and reflects the previous trading day’s orders. Only its computed flows and coverage counts are republished. Held rows and counts spanning sessions are excluded, never set to zero.",
       "limitation": "Flows do not identify investors or trade direction, are not returns or private-equity flows, and do not measure real-time buying. Coverage is a dated provider sample, not the entire US ETF market. No directional vote or model accuracy is inferred.",
       "series": [
         {
           "date": "2026-11-20",
-          "value": 1908063225
+          "value": 2197614281
         }
       ],
       "metrics": [
         {
           "label": "Net creations / redemptions",
-          "value": 1908063225,
+          "value": 2197614281,
           "unit": "USD",
           "date": "2026-11-20"
         },
@@ -30701,19 +30701,19 @@
         },
         {
           "label": "Funds with daily observations",
-          "value": 2104,
+          "value": 2684,
           "unit": "funds",
           "date": "2026-11-20"
         },
         {
           "label": "Funds held for review",
-          "value": 82,
+          "value": 84,
           "unit": "funds",
           "date": "2026-11-20"
         },
         {
           "label": "Funds excluded for multi-session counts",
-          "value": 48,
+          "value": 49,
           "unit": "funds",
           "date": "2026-11-20"
         }
@@ -30735,30 +30735,65 @@
         "SPY"
       ],
       "directionalInstruments": [],
-      "status": "unavailable",
-      "summary": "SPY is not included in the provider’s daily flow file dated 2026-11-20. No zero or substituted observation is inferred.",
+      "status": "available",
+      "summary": "SPY: -1,539,201,250 USD net flow dated 2026-11-20. Source NAV date: 2026-11-19. Dated creations/redemptions context; no directional vote.",
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-24T05:37:13.523Z",
-        "observedAt": null,
+        "retrievedAt": "2026-11-24T12:03:42.559Z",
+        "observedAt": "2026-11-20",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
         "attribution": "Source: ETFIQ (https://etfiq.com/flows/). Computed figures selected by The Daily Consensus; no endorsement implied.",
         "usage": "ETFIQ-computed figures may be reused, republished and used in models with attribution: https://etfiq.com/license/. Issuer NAV, net assets, share counts and vendor prices are excluded.",
-        "sha256": null
+        "sha256": "92fcf7a6dc33e4bfca5188736a70272465dfb08f58058d4b722812982972319a"
       },
       "methodology": "ETFIQ computes creations/redemptions from changes in issuer share counts valued at the earlier NAV, adjusted for confirmed splits. The displayed flow date follows the provider count convention and reflects the previous trading day’s orders. Only its computed flows and coverage counts are republished. Held rows and counts spanning sessions are excluded, never set to zero.",
       "limitation": "Flows do not identify investors or trade direction, are not returns or private-equity flows, and do not measure real-time buying. Coverage is a dated provider sample, not the entire US ETF market. No directional vote or model accuracy is inferred.",
-      "series": [],
-      "metrics": [],
+      "series": [
+        {
+          "date": "2026-11-20",
+          "value": -1539201250
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Net creations / redemptions",
+          "value": -1539201250,
+          "unit": "USD",
+          "date": "2026-11-20"
+        },
+        {
+          "label": "Round trips included in net flow",
+          "value": 0,
+          "unit": "USD",
+          "date": "2026-11-20"
+        },
+        {
+          "label": "Flow / previous net assets",
+          "value": -0.2,
+          "unit": "%",
+          "date": "2026-11-20"
+        }
+      ],
       "scores": {
         "daily": null,
         "weekly": null,
         "monthly": null
       },
       "staleAfterDays": 7,
-      "unit": "USD net flow"
+      "unit": "USD net flow",
+      "etfFlowPeers": {
+        "category": "Stocks",
+        "creations": 149,
+        "redemptions": 99,
+        "flat": 579,
+        "navDate": "2026-11-19",
+        "url": "https://etfiq.com/data/flows/funds/spy.json",
+        "historySha256": "a8535ed757b0a5b98d6375dafbcd62e403e943415250f5a5fdae08520b707358",
+        "observedThrough": "2026-11-24T12:03:42.661Z",
+        "seal": "b7103bebf9396f13909848e3f6dd07a47e107bdfae59a587c2d949de8785313a"
+      }
     },
     {
       "id": "etfiq-flow-QQQ",
@@ -30774,13 +30809,13 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-24T05:37:13.523Z",
+        "retrievedAt": "2026-11-24T12:03:42.559Z",
         "observedAt": "2026-11-20",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
         "attribution": "Source: ETFIQ (https://etfiq.com/flows/). Computed figures selected by The Daily Consensus; no endorsement implied.",
         "usage": "ETFIQ-computed figures may be reused, republished and used in models with attribution: https://etfiq.com/license/. Issuer NAV, net assets, share counts and vendor prices are excluded.",
-        "sha256": "10991cfd69e29f19aac50a412224f548f8c9d99dd60eb1db502a0e4597faf823"
+        "sha256": "92fcf7a6dc33e4bfca5188736a70272465dfb08f58058d4b722812982972319a"
       },
       "methodology": "ETFIQ computes creations/redemptions from changes in issuer share counts valued at the earlier NAV, adjusted for confirmed splits. The displayed flow date follows the provider count convention and reflects the previous trading day’s orders. Only its computed flows and coverage counts are republished. Held rows and counts spanning sessions are excluded, never set to zero.",
       "limitation": "Flows do not identify investors or trade direction, are not returns or private-equity flows, and do not measure real-time buying. Coverage is a dated provider sample, not the entire US ETF market. No directional vote or model accuracy is inferred.",
@@ -30816,7 +30851,18 @@
         "monthly": null
       },
       "staleAfterDays": 7,
-      "unit": "USD net flow"
+      "unit": "USD net flow",
+      "etfFlowPeers": {
+        "category": "Stocks",
+        "creations": 148,
+        "redemptions": 100,
+        "flat": 579,
+        "navDate": "2026-11-19",
+        "url": "https://etfiq.com/data/flows/funds/qqq.json",
+        "historySha256": "0777d71ac07bdc5ae11f794ff973fa99b799c0c059bbe8f5f491e17277da1591",
+        "observedThrough": "2026-11-24T12:03:42.706Z",
+        "seal": "9cbdd99b31536e03a7e3b3923c7d487ab99ac2bbd0f50c808de979e6a9d4b13a"
+      }
     },
     {
       "id": "etfiq-flow-IWM",
@@ -30832,13 +30878,13 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-24T05:37:13.523Z",
+        "retrievedAt": "2026-11-24T12:03:42.559Z",
         "observedAt": "2026-11-20",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
         "attribution": "Source: ETFIQ (https://etfiq.com/flows/). Computed figures selected by The Daily Consensus; no endorsement implied.",
         "usage": "ETFIQ-computed figures may be reused, republished and used in models with attribution: https://etfiq.com/license/. Issuer NAV, net assets, share counts and vendor prices are excluded.",
-        "sha256": "10991cfd69e29f19aac50a412224f548f8c9d99dd60eb1db502a0e4597faf823"
+        "sha256": "92fcf7a6dc33e4bfca5188736a70272465dfb08f58058d4b722812982972319a"
       },
       "methodology": "ETFIQ computes creations/redemptions from changes in issuer share counts valued at the earlier NAV, adjusted for confirmed splits. The displayed flow date follows the provider count convention and reflects the previous trading day’s orders. Only its computed flows and coverage counts are republished. Held rows and counts spanning sessions are excluded, never set to zero.",
       "limitation": "Flows do not identify investors or trade direction, are not returns or private-equity flows, and do not measure real-time buying. Coverage is a dated provider sample, not the entire US ETF market. No directional vote or model accuracy is inferred.",
@@ -30874,7 +30920,18 @@
         "monthly": null
       },
       "staleAfterDays": 7,
-      "unit": "USD net flow"
+      "unit": "USD net flow",
+      "etfFlowPeers": {
+        "category": "Stocks",
+        "creations": 148,
+        "redemptions": 100,
+        "flat": 579,
+        "navDate": "2026-11-19",
+        "url": "https://etfiq.com/data/flows/funds/iwm.json",
+        "historySha256": "12c92b31c723147eb109a6ba1c812629a3bb0e28120a2e9f837321a0fc624c56",
+        "observedThrough": "2026-11-24T12:03:42.824Z",
+        "seal": "ca4ec6e1ad2c4df094dbcc46da795112bb79b70f39a11154253b954cec69cf26"
+      }
     },
     {
       "id": "etfiq-flow-DIA",
@@ -30885,30 +30942,65 @@
         "DIA"
       ],
       "directionalInstruments": [],
-      "status": "unavailable",
-      "summary": "DIA is not included in the provider’s daily flow file dated 2026-11-20. No zero or substituted observation is inferred.",
+      "status": "available",
+      "summary": "DIA: -24,539,606 USD net flow dated 2026-11-20. Source NAV date: 2026-11-19. Dated creations/redemptions context; no directional vote.",
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-24T05:37:13.523Z",
-        "observedAt": null,
+        "retrievedAt": "2026-11-24T12:03:42.559Z",
+        "observedAt": "2026-11-20",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
         "attribution": "Source: ETFIQ (https://etfiq.com/flows/). Computed figures selected by The Daily Consensus; no endorsement implied.",
         "usage": "ETFIQ-computed figures may be reused, republished and used in models with attribution: https://etfiq.com/license/. Issuer NAV, net assets, share counts and vendor prices are excluded.",
-        "sha256": null
+        "sha256": "92fcf7a6dc33e4bfca5188736a70272465dfb08f58058d4b722812982972319a"
       },
       "methodology": "ETFIQ computes creations/redemptions from changes in issuer share counts valued at the earlier NAV, adjusted for confirmed splits. The displayed flow date follows the provider count convention and reflects the previous trading day’s orders. Only its computed flows and coverage counts are republished. Held rows and counts spanning sessions are excluded, never set to zero.",
       "limitation": "Flows do not identify investors or trade direction, are not returns or private-equity flows, and do not measure real-time buying. Coverage is a dated provider sample, not the entire US ETF market. No directional vote or model accuracy is inferred.",
-      "series": [],
-      "metrics": [],
+      "series": [
+        {
+          "date": "2026-11-20",
+          "value": -24539606
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Net creations / redemptions",
+          "value": -24539606,
+          "unit": "USD",
+          "date": "2026-11-20"
+        },
+        {
+          "label": "Round trips included in net flow",
+          "value": 0,
+          "unit": "USD",
+          "date": "2026-11-20"
+        },
+        {
+          "label": "Flow / previous net assets",
+          "value": -0.06,
+          "unit": "%",
+          "date": "2026-11-20"
+        }
+      ],
       "scores": {
         "daily": null,
         "weekly": null,
         "monthly": null
       },
       "staleAfterDays": 7,
-      "unit": "USD net flow"
+      "unit": "USD net flow",
+      "etfFlowPeers": {
+        "category": "Stocks",
+        "creations": 149,
+        "redemptions": 99,
+        "flat": 579,
+        "navDate": "2026-11-19",
+        "url": "https://etfiq.com/data/flows/funds/dia.json",
+        "historySha256": "881fe15fcd5fd1f7a76da8da3ad0f979cb7385478900edfd39f902b85f3b456d",
+        "observedThrough": "2026-11-24T12:03:42.844Z",
+        "seal": "73833b856883c1df1f766fefdf04c7c825b6b438599c21d34b4cd90013939a5b"
+      }
     },
     {
       "id": "etfiq-flow-TLT",
@@ -30924,13 +31016,13 @@
       "source": {
         "name": "ETFIQ · computed daily fund flows",
         "url": "https://etfiq.com/data/flows/daily/latest.json",
-        "retrievedAt": "2026-11-24T05:37:13.523Z",
+        "retrievedAt": "2026-11-24T12:03:42.559Z",
         "observedAt": "2026-11-20",
         "releasedAt": null,
         "frequency": "daily fund creations/redemptions; dated issuer counts",
         "attribution": "Source: ETFIQ (https://etfiq.com/flows/). Computed figures selected by The Daily Consensus; no endorsement implied.",
         "usage": "ETFIQ-computed figures may be reused, republished and used in models with attribution: https://etfiq.com/license/. Issuer NAV, net assets, share counts and vendor prices are excluded.",
-        "sha256": "10991cfd69e29f19aac50a412224f548f8c9d99dd60eb1db502a0e4597faf823"
+        "sha256": "92fcf7a6dc33e4bfca5188736a70272465dfb08f58058d4b722812982972319a"
       },
       "methodology": "ETFIQ computes creations/redemptions from changes in issuer share counts valued at the earlier NAV, adjusted for confirmed splits. The displayed flow date follows the provider count convention and reflects the previous trading day’s orders. Only its computed flows and coverage counts are republished. Held rows and counts spanning sessions are excluded, never set to zero.",
       "limitation": "Flows do not identify investors or trade direction, are not returns or private-equity flows, and do not measure real-time buying. Coverage is a dated provider sample, not the entire US ETF market. No directional vote or model accuracy is inferred.",
@@ -30966,7 +31058,18 @@
         "monthly": null
       },
       "staleAfterDays": 7,
-      "unit": "USD net flow"
+      "unit": "USD net flow",
+      "etfFlowPeers": {
+        "category": "Bonds",
+        "creations": 54,
+        "redemptions": 43,
+        "flat": 301,
+        "navDate": "2026-11-19",
+        "url": "https://etfiq.com/data/flows/funds/tlt.json",
+        "historySha256": "1211fa0faabc2567e6e406d662ec730a63931ee9746ece4d91e9f73f59b3471a",
+        "observedThrough": "2026-11-24T12:03:42.757Z",
+        "seal": "55fca7b819f35d4059fb24411dd54ee09f62c91da36335a4572d17ed69067d50"
+      }
     },
     {
       "id": "quantisnow-monthly-ratings",
@@ -34560,7 +34663,7 @@
       "source": {
         "name": "Not connected",
         "url": "https://www.gdeltproject.org/",
-        "retrievedAt": "2026-11-24T09:39:05.751Z",
+        "retrievedAt": "2026-11-24T12:03:42.858Z",
         "observedAt": null,
         "releasedAt": null,
         "frequency": "unavailable",
@@ -35547,7 +35650,7 @@
       }
     ]
   },
-  "sourcesAttempted": 2,
+  "sourcesAttempted": 1,
   "collectionErrors": [
     "off-exchange: No current off-exchange activity sample is available. CFTC futures positions measure a different part of the market.",
     "global-equities: Broad international equity coverage is unavailable. Separately labelled regional observations, currency fixes and policy releases provide only partial context.",
@@ -35557,8 +35660,6 @@
     "analyst-revisions: Analyst estimate and revision observations are unavailable. Reported results alone cannot establish an earnings beat.",
     "earnings-expectations: Reported filings and analyst expectations must be matched to the same period. A verified expectations feed is not connected.",
     "private-capital: Market-wide private-equity calls and distributions await a verified source. Oregon pension schedules cover one limited partner.",
-    "etfiq-flow-SPY: SPY is not included in the provider’s daily flow file dated 2026-11-20. No zero or substituted observation is inferred.",
-    "etfiq-flow-DIA: DIA is not included in the provider’s daily flow file dated 2026-11-20. No zero or substituted observation is inferred.",
     "daily-prices: TLT. TLT has verified regular-session opens and closes through 2026-11-20. The opening range and twenty-session trend remain pending for that session.",
     "premarket-bars: MARKET, SPY, QQQ, IWM, DIA, TLT. The current session’s premarket gap, range and volume await a verified extended-hours feed.",
     "previous-premarket-bars: TLT. The preceding exchange session needs verified 4:00 a.m. and 9:29 a.m. New York bars for this ETF."
@@ -36031,7 +36132,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.6718376068376071,
+      "coverage": 0.6769658119658122,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -36176,7 +36277,7 @@
           "label": "Capital flows",
           "weight": 1,
           "expected": 13,
-          "available": 10,
+          "available": 11,
           "score": null,
           "status": "available"
         }
@@ -36187,7 +36288,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "score": 0.10943947838038715,
-      "coverage": 0.6718376068376071,
+      "coverage": 0.6769658119658122,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 2,
@@ -36331,7 +36432,7 @@
           "label": "Capital flows",
           "weight": 1,
           "expected": 13,
-          "available": 10,
+          "available": 11,
           "score": 0.4153333333333285,
           "status": "available"
         }
@@ -36342,7 +36443,7 @@
       "instrument": "SPY",
       "horizon": "monthly",
       "score": -0.0032994151367838676,
-      "coverage": 0.6718376068376071,
+      "coverage": 0.6769658119658122,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 2,
@@ -36486,7 +36587,7 @@
           "label": "Capital flows",
           "weight": 1,
           "expected": 13,
-          "available": 10,
+          "available": 11,
           "score": 0.732666666666665,
           "status": "available"
         }
@@ -37429,7 +37530,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "score": -0.008580000000000924,
-      "coverage": 0.6657770007770007,
+      "coverage": 0.6709052059052059,
       "directionalCoverage": 0.2,
       "agreement": null,
       "bullish": 0,
@@ -37574,7 +37675,7 @@
           "label": "Capital flows",
           "weight": 1,
           "expected": 13,
-          "available": 10,
+          "available": 11,
           "score": null,
           "status": "available"
         }
@@ -37585,7 +37686,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "score": 0.023045043769380845,
-      "coverage": 0.6657770007770007,
+      "coverage": 0.6709052059052059,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.5,
       "bullish": 2,
@@ -37729,7 +37830,7 @@
           "label": "Capital flows",
           "weight": 1,
           "expected": 13,
-          "available": 10,
+          "available": 11,
           "score": 0.4153333333333285,
           "status": "available"
         }
@@ -37740,7 +37841,7 @@
       "instrument": "DIA",
       "horizon": "monthly",
       "score": -0.08842090704041224,
-      "coverage": 0.6657770007770007,
+      "coverage": 0.6709052059052059,
       "directionalCoverage": 0.3333333333333333,
       "agreement": 0.6666666666666666,
       "bullish": 1,
@@ -37884,7 +37985,7 @@
           "label": "Capital flows",
           "weight": 1,
           "expected": 13,
-          "available": 10,
+          "available": 11,
           "score": 0.732666666666665,
           "status": "available"
         }
