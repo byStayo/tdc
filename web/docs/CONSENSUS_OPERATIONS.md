@@ -1,6 +1,6 @@
 # Visual consensus publication and evaluation
 
-For a current inventory, `npm run --silent consensus:connections -- --html` prints a standalone chart with the product features, every source label, its measurements and all 18 fund and horizon views. The chart reads the settled and pending forecast counts from the completed evaluation and includes the historical ETF price comparison. `--json` yields the same underlying counts. Supply an edition ID to reproduce only the information available when it was issued.
+Each production build generates `/research/connections.html` from the reviewed edition and completed evaluation. The home page and methodology link to it. From `web`, `npm run --silent consensus:connections -- --html` reproduces the standalone chart with the product features, every source label, its measurements and all 18 fund and horizon views. The chart includes the settled and pending forecast counts and the historical ETF price comparison. `--json` yields the same underlying counts. Supply an edition ID to reproduce only the information available when it was issued.
 
 ## Historical price check across a quarterly distribution cycle
 

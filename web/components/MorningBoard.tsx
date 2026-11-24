@@ -1574,6 +1574,7 @@ export default function MorningBoard({
               Equal family weights. Correlated indicators share a vote. These
               are declared rules, not learned accuracy.
             </p>
+            {!historical && <a className={layout.inspectLink} href="/research/connections.html">View the full connection chart</a>}
           </div>
           <div className={layout.partialInputs}>
             <h3>

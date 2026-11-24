@@ -91,6 +91,7 @@ export default function Methodology() {
           </section>
           <section id="sources" aria-labelledby="sources-heading">
             <h2 id="sources-heading">Official public observations</h2>
+            <p><a href="/research/connections.html">Explore the current providers, measurements and family votes</a></p>
             <ul>
               <li>
                 <a

@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3107",
+    "predev": "sh scripts/build-connection-chart.sh",
     "build": "next build",
-    "prebuild": "node --experimental-strip-types scripts/verify-consensus.ts",
+    "prebuild": "node --experimental-strip-types scripts/verify-consensus.ts && sh scripts/build-connection-chart.sh",
     "start": "next start --hostname 127.0.0.1 --port 3107",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",

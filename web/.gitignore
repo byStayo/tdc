@@ -6,5 +6,7 @@ node_modules/
 *.tsbuildinfo
 .editorial/
 .consensus/
+public/research/connections.html
+public/research/.connections.*
 
 .design/**/screenshots/
