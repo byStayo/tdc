@@ -66,6 +66,7 @@ const pct = (value: number | null) =>
 const number = (value: number, decimals = 2) =>
   value.toLocaleString("en-US", { maximumFractionDigits: decimals });
 const visibleAttribution = new Set([
+  "taiwan-semiconductor-relative",
   "nyfed-sce-stock-outlook", "nyfed-desk-year-end-policy-expectations", "japan-mof-equity-flows",
   "bls-payroll-revision-news", "nyfed-dealer-long-treasury-positions",
 ]);

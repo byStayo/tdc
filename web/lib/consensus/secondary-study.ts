@@ -31,7 +31,7 @@ type Options = {
   requireNewRelease: boolean;
   disjointTests: boolean;
   validFeature: (p: Pick<Event, "fund" | "id" | "session" | "control" | "candidate">) => boolean;
-  readPoints: (root: string, session: string, edition: string, fund?: StudyFund) => Promise<StudyPoint[]>;
+  readPoints: (root: string, session: string, edition: string, fund: StudyFund | undefined, registeredAt: string) => Promise<StudyPoint[]>;
 };
 
 const wall = () => new Date().toISOString();
@@ -290,7 +290,7 @@ export function createSecondaryStudy(options: Options) {
     const start = wall(),
       c = hasReviewedCalendar(session) && exchangeSession(session);
     if (!c || Date.parse(c.closeAt) - Date.parse(c.openAt) !== 390 * 60000 || newYorkDate(start) !== session || start >= c.openAt) return { status: "outside_preopen", enrolled: 0 };
-    const points = await options.readPoints(root, session, edition);
+    const points = await options.readPoints(root, session, edition, undefined, r.registeredAt);
     if (!points.length) return { status: "no_new_witnessed_release", enrolled: 0 };
     const records = await readReservations(root);
     if (records.some((record) => record.reservedAt > wall()))
@@ -393,7 +393,7 @@ export function createSecondaryStudy(options: Options) {
           .reduce<(typeof archives)[number] | undefined>((a, b) => (!a || b.issuedAt > a.issuedAt ? b : a), undefined);
         if (final?.id !== e.edition) continue;
         // Verify exactly the original feature certificate again before receiving even its single sign.
-        const source = (await options.readPoints(root, e.session, e.edition, fund)).find((x) => x.instrument === fund);
+        const source = (await options.readPoints(root, e.session, e.edition, fund, r.registeredAt)).find((x) => x.instrument === fund);
         if (
           !source ||
           source.issuedAt !== e.issuedAt ||

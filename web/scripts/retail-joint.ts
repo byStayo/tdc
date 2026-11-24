@@ -4,7 +4,7 @@ import { publisherSecondaryStudies } from "../lib/consensus/secondary-studies.ts
 import { secondaryFamilyStudies } from "../lib/consensus/secondary-family-studies.ts";
 
 const flags = process.argv.slice(2);
-const group = ["--premarket", "--fund-flows", "--analysts", "--institutions", "--families"].includes(flags[0]) ? flags[0] : "--retail";
+const group = ["--premarket", "--fund-flows", "--analysts", "--institutions", "--international", "--families"].includes(flags[0]) ? flags[0] : "--retail";
 if (group !== "--retail") flags.shift();
 const [action = "--status", ...extra] = flags;
 if (extra.length || !["--register", "--status", "--advance"].includes(action))

@@ -58,3 +58,19 @@ split basis, applies cash distributions and computes the published results.
 https://getmarkethistory.com/docs/guides/historical-stock-market-data/
 https://getmarkethistory.com/docs/terms/
 https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf
+
+Taiwan semiconductor and TAIEX closing-market comparison
+
+Securities and Futures Bureau, Financial Supervisory Commission, Executive Yuan,
+R.O.C. 2026 After-market information – Daily closing market information – Market
+statistics and The opening (closing) dates of the centralized securities trading
+market (dataset versions not stated).
+https://data.gov.tw/en/datasets/11555
+https://data.gov.tw/en/datasets/11761
+
+The Open Data is made available to the public under the Open Government Data
+License, User can make use of it when complying to the condition and obligation
+of its terms.
+https://data.gov.tw/license
+Source selection, session verification and relative performance calculations
+by The Daily Consensus.

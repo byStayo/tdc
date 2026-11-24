@@ -27,6 +27,7 @@ const HOSTS = new Set([
   "www.treasurydirect.gov",
   "www.optionseducation.org",
   "openapi.twse.com.tw",
+  "www.twse.com.tw",
   "www.quantisnow.com",
   "etfiq.com",
   "www.dolthub.com",
@@ -37,6 +38,7 @@ export function safeURL(input: string): string {
   if (
     url.protocol !== "https:" ||
     !HOSTS.has(url.hostname) ||
+    (url.hostname === "www.twse.com.tw" && !/^https:\/\/www\.twse\.com\.tw\/(?:exchangeReport\/MI_INDEX\?(?:response=open_data&date=\d{8}|date=\d{8}&type=IND&response=json)|holidaySchedule\/holidaySchedule\?response=open_data&date=\d{4}0101)$/.test(url.href)) ||
     url.username ||
     url.password ||
     url.port ||

@@ -59,7 +59,7 @@ if (scoped && !previous)
 let snapshot: Snapshot = reviewOnly || technicalsOnly
   ? { ...previous!, id: now.replace(/[:.]/g, "-"), issuedAt: now, cutoff: now }
   : privateCreditOnly ? await refreshPrivateCredit(previous!, publicText)
-  : taiwanOnly ? await refreshTaiwan(previous!, publicText)
+  : taiwanOnly ? await refreshTaiwan(previous!, publicText, undefined, root)
   : etfFlowsOnly ? await refreshEtfFlows(previous!, publicText, undefined, root)
   : analystOnly ? await refreshAnalystRatings(previous!, publicText, undefined, root)
   : inflationAndMoneyOnly ? await refreshInflationAndMoney(previous!, fetch, root)

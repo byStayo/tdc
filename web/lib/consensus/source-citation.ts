@@ -8,7 +8,7 @@ const HOSTS = new Set([
   "www.federalreserve.gov", "www.gdeltproject.org", "www.microsoft.com", "www.optionseducation.org",
   "www.mof.go.jp", "www.newyorkfed.org", "www.oregon.gov", "www.census.gov", "www.bea.gov",
   "www.sec.gov", "www.treasurydirect.gov", "www.ons.gov.uk",
-  "etfiq.com", "openapi.twse.com.tw", "www.quantisnow.com",
+  "data.gov.tw", "etfiq.com", "openapi.twse.com.tw", "www.quantisnow.com",
 ]);
 
 export function validateSourceCitation(value: string): void {
@@ -16,6 +16,7 @@ export function validateSourceCitation(value: string): void {
   try { url = new URL(value); }
   catch { throw new Error("Unsafe public source URL"); }
   if (url.protocol !== "https:" || !HOSTS.has(url.hostname) || url.port || url.username || url.password ||
+      (url.hostname === "data.gov.tw" && !/^https:\/\/data\.gov\.tw\/dataset\/(11555|11761)$/.test(url.href)) ||
       [...url.searchParams.keys()].some(key => /token|api.?key|secret|password|authorization/i.test(key)))
     throw new Error("Unsafe or unreviewed public source URL");
 }

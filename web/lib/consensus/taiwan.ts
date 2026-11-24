@@ -122,8 +122,15 @@ export function validateTaiwan(signal: Signal, immutableLegacyAttribution = fals
     throw new Error("Invalid TWSE session change");
 }
 
-export async function refreshTaiwan(previous: Snapshot, read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString()): Promise<Snapshot> {
-  const collected = await collectTaiwan(read, now), issuedAt = now();
+export async function collectTaiwanForPublication(read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString(), root?: string) {
+  if (!root) return collectTaiwan(read, now);
+  const { collectTwseSector } = await import("./twse-sector-source.ts");
+  const [broad, sector] = await Promise.all([collectTaiwan(read, now), collectTwseSector(root, read, now)]);
+  return [...broad, sector];
+}
+
+export async function refreshTaiwan(previous: Snapshot, read: (url: string) => Promise<PublicDocument>, now = () => new Date().toISOString(), root?: string): Promise<Snapshot> {
+  const collected = await collectTaiwanForPublication(read, now, root), issuedAt = now();
   const ids = new Set(collected.map(s => s.id));
   const gap = missingSignals(issuedAt).find(s => s.id === "global-equities")!;
   const signals = previous.signals.filter(s => !ids.has(s.id)).map(s => s.id === gap.id ? { ...s, title: gap.title, shortLabel: gap.shortLabel, reason: gap.summary, summary: gap.summary, limitation: gap.limitation } : s);
@@ -131,7 +138,7 @@ export async function refreshTaiwan(previous: Snapshot, read: (url: string) => P
   const anchor = signals.findIndex(s => s.id === "fed-private-credit-loans");
   signals.splice(anchor < 0 ? signals.length : anchor, 0, ...collected);
   return { ...previous, id: issuedAt.replace(/[:.]/g, "-"), issuedAt, cutoff: issuedAt, consensus: undefined, forecasts: undefined,
-    signals, sourcesAttempted: TWSE_SERIES.length,
+    signals, sourcesAttempted: collected.length,
     collectionErrors: [...previous.collectionErrors.filter(s => !collected.some(c => s.startsWith(`${c.id}:`))), ...collected.filter(s => s.status === "unavailable").map(s => `${s.id}: ${s.summary}`)],
   };
 }

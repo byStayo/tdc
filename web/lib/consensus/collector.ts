@@ -30,7 +30,7 @@ import { join } from "node:path";
 import { collectMarketHistoryVolatility } from "./market-history-volatility.ts";
 import { collectOptionActivity } from "./option-activity.ts";
 import { cftcTableClock, cftcReportCitation } from "./cftc-provenance.ts";
-import { collectTaiwan } from "./taiwan.ts";
+import { collectTaiwanForPublication } from "./taiwan.ts";
 import { fedMarketProviders } from "./fed-market-data.ts";
 import { federalReserveBoardProviders } from "./board-statistics.ts";
 import { sourceFailureKind } from "./source-failure.ts";
@@ -917,7 +917,7 @@ export async function collectSnapshot(
     collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),
     collectUsTrade((url) => publicText(url, fetcher)),
     collectHoldings((url) => publicText(url, fetcher)),
-    collectTaiwan((url) => publicText(url, fetcher)),
+    collectTaiwanForPublication((url) => publicText(url, fetcher), undefined, archiveRoot),
     collectAnalystRatings((url) => publicText(url, fetcher), undefined, previous, archiveRoot),
     collectEtfFlows((url) => publicText(url, fetcher), undefined, archiveRoot),
     collectFuturesOptions((url) => publicText(url, fetcher)),
@@ -1008,7 +1008,7 @@ export async function collectSnapshot(
     ...(news.pulse ? { news: news.pulse } : {}),
     ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
     ...(optionActivity ? { optionActivity } : {}),
-    sourcesAttempted: MACRO_SERIES.length + 66 + inflationAndMoney.length + REVENUE_ISSUERS.length + Number(!!optionActivity),
+    sourcesAttempted: MACRO_SERIES.length + 64 + taiwan.length + inflationAndMoney.length + REVENUE_ISSUERS.length + Number(!!optionActivity),
     collectionErrors: signals
       .filter(
         (signal) =>

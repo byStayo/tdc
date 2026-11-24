@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { digest } from "./history.ts";
 import { readReservations, reservationAnchors, type EvaluationReservation } from "./learning-audit.ts";
 import { analystStudy } from "./analyst-study.ts";
+import { twseSectorStudy } from "./twse-sector-study.ts";
 import { dealerStudy } from "./dealer-study.ts";
 import { premarketStudy } from "./premarket-study.ts";
 import { etfFlowStudy } from "./etf-flow-study.ts";
@@ -17,6 +18,7 @@ export const publisherSecondaryStudies = [
   { name: "fund-flows", study: etfFlowStudy },
   { name: "analysts", study: analystStudy },
   { name: "institutions", study: dealerStudy },
+  { name: "international", study: twseSectorStudy },
   ...secondaryFamilyStudies,
 ] as const;
 
