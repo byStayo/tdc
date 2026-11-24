@@ -29,7 +29,7 @@ import { FAMILIES } from "@/lib/consensus/registry";
 import { HORIZONS, INSTRUMENTS } from "@/lib/consensus/types";
 import type { PerformanceReport } from "@/lib/consensus/performance-types";
 import type { DailySettlementStatus } from "@/lib/consensus/outcome-coverage-audit";
-import { IEM_ELECTION_RESEARCH, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, OFR_GEOGRAPHIC_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
+import { G17_MANUFACTURING_RESEARCH, IEM_ELECTION_RESEARCH, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH, OFR_GEOGRAPHIC_RESEARCH, KIBOT_DATED_RESEARCH, FOMC_EVE_RESEARCH, FT900_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH,
   TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH, researchStudyFor, type FomcEveStudyRow, type KibotResearch } from "@/lib/consensus/kibot-research";
 import { currentOptionActivity } from "@/lib/consensus/option-activity-clock";
 import type {
@@ -1326,6 +1326,7 @@ export default function MorningBoard({
   const ofrStudy = kibotResearch?.studies.find(row => "nativeOnlySamples" in row);
   const geographicStudy = kibotResearch?.studies.find(row => "deferredNativeSamples" in row);
   const electionStudy = kibotResearch?.studies.find(row => "test2020Samples" in row);
+  const manufacturingStudy = kibotResearch?.studies.find(row => "priorTechnicalTestSamples" in row);
   const timing = editionTiming(snapshot, history);
   const cohort = performanceView(
     performance,
@@ -2605,6 +2606,10 @@ export default function MorningBoard({
                                 <br />95% interval for improvement over vote share {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
                                 <br />Two-campaign test p-value {row.campaignControlP.toFixed(2)}
                               </>}
+                              {"priorTechnicalTestSamples" in row && <>
+                                <br />Manufacturing coefficient {row.coefficientSign} (expected positive)
+                                <br />95% interval for improvement over total production alone {row.controlImprovement95.map(n => n.toFixed(4)).join(" to ")}
+                              </>}
                               {"strictBeforeCutoff" in row && <><br />{row.strictBeforeCutoff} dates have a verified pre-open receipt</>}
                             </td>
                           </tr>
@@ -2697,6 +2702,16 @@ export default function MorningBoard({
                       The interval describes variation within those campaigns.{" "}
                       <a href={IEM_ELECTION_RESEARCH.olderData}>Iowa historical election data</a>
                       {" · "}<a href={IEM_ELECTION_RESEARCH.recentData}>Iowa 2024 election data</a>
+                    </p>
+                  )}
+                  {manufacturingStudy && (instrument === "MARKET" || instrument === "DIA") && (
+                    <p className={styles.muted}>
+                      The Federal Reserve manufacturing study tested DIA’s open-to-close direction on the next full session.
+                      Of {manufacturingStudy.monthlyReleases} original releases, {manufacturingStudy.unconfirmedClocks} had unconfirmed time zones
+                      and one had two preliminary months. The earlier DIA technical study used {manufacturingStudy.priorTechnicalTestSamples} of
+                      the {manufacturingStudy.testSamples} held-out dates. The interval describes uncertainty in the comparison.{" "}
+                      <a href={G17_MANUFACTURING_RESEARCH.source}>Federal Reserve monthly reports</a>
+                      {" · "}<a href={G17_MANUFACTURING_RESEARCH.vintages}>Original growth estimates</a>
                     </p>
                   )}
                   {geographicStudy && (instrument === "MARKET" || instrument === "DIA") && (
