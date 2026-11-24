@@ -69,8 +69,16 @@ export const OFR_VOLATILITY_RESEARCH = {
   archive: "https://www.loc.gov/item/lcwaN0017866/",
   mirror: "https://github.com/oid87/PersonalFiance",
 } as const;
+export const OFR_GEOGRAPHIC_RESEARCH = {
+  id: "prelaunch-ofr-international-stress-dia-v1-witnessed-maturity", family: "international", instrument: "DIA",
+  label: "Financial stress outside the U.S.", controlLabel: "U.S. financial stress alone",
+  samples: 147, expectedSign: "positive", timingBasis: "archived-before-cutoff",
+  source: "https://www.financialresearch.gov/financial-stress-index/regions/",
+  archive: "https://www.loc.gov/item/lcwaN0017866/",
+} as const;
 const versionSevenStudies = [TIC_TREASURY_RESEARCH, SWVXX_FLOW_RESEARCH, VX_CURVE_RESEARCH] as const;
-export const KIBOT_DATED_RESEARCH = [...versionSevenStudies, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH] as const;
+const versionEightStudies = [...versionSevenStudies, BLS_PAYROLL_RESEARCH, OFR_VOLATILITY_RESEARCH] as const;
+export const KIBOT_DATED_RESEARCH = [...versionEightStudies, OFR_GEOGRAPHIC_RESEARCH] as const;
 export const KIBOT_RESEARCH_STUDIES = [
   ...KIBOT_LEGACY_RESEARCH_STUDIES, FT900_RESEARCH, SPY_CLOSE_LOCATION_RESEARCH, FOMC_EVE_RESEARCH, QQQ_ISSUER_GUIDANCE_RESEARCH, ...KIBOT_DATED_RESEARCH,
 ] as const;
@@ -103,14 +111,17 @@ export type DatedStudyRow = StudyMetrics & { controlBrier: number; coinBrier: nu
   (StudyIdentity<typeof BLS_PAYROLL_RESEARCH> & { timingBasis: "dated-release"; controlImprovement95: [number, number] }) |
   (StudyIdentity<typeof VX_CURVE_RESEARCH> & { timingBasis: "historical-reconstruction"; strictBeforeCutoff: number }) |
   (StudyIdentity<typeof OFR_VOLATILITY_RESEARCH> & { timingBasis: "archived-before-cutoff"; sourceBasis: "originals-and-four-decimal-mirror";
-    nativeOnlySamples: number; nativeSamples: number; mirrorSamples: number; controlImprovement95: [number, number] })
+    nativeOnlySamples: number; nativeSamples: number; mirrorSamples: number; controlImprovement95: [number, number] }) |
+  (StudyIdentity<typeof OFR_GEOGRAPHIC_RESEARCH> & { timingBasis: "archived-before-cutoff"; nativeSamples: number;
+    mirrorSamples: number; deferredNativeSamples: number; controlImprovement95: [number, number]; adjustedControlP: number;
+    comparisonCount: number })
 );
 type LegacyStudyRow = StudyMetrics & {
   family: typeof KIBOT_LEGACY_RESEARCH_STUDIES[number]["family"]; instrument: Symbol;
 };
 
 export interface KibotResearch {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   source: typeof KIBOT_RESEARCH_LICENSE;
   firstEdition: string;
   through: string;
@@ -190,10 +201,12 @@ function isQqqIssuerGuidanceRow(row: unknown): row is QqqIssuerGuidanceRow {
 
 function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number]): row is DatedStudyRow {
   const keys = [...studyKeys, "studyId", "controlBrier", "coinBrier", "coefficientSign", "timingBasis"];
-  const hasInterval = study === SWVXX_FLOW_RESEARCH || study === BLS_PAYROLL_RESEARCH || study === OFR_VOLATILITY_RESEARCH;
+  const hasInterval = study === SWVXX_FLOW_RESEARCH || study === BLS_PAYROLL_RESEARCH ||
+    study === OFR_VOLATILITY_RESEARCH || study === OFR_GEOGRAPHIC_RESEARCH;
   if (hasInterval) keys.push("controlImprovement95");
   if (study === VX_CURVE_RESEARCH) keys.push("strictBeforeCutoff");
   if (study === OFR_VOLATILITY_RESEARCH) keys.push("sourceBasis", "nativeOnlySamples", "nativeSamples", "mirrorSamples");
+  if (study === OFR_GEOGRAPHIC_RESEARCH) keys.push("nativeSamples", "mirrorSamples", "deferredNativeSamples", "adjustedControlP", "comparisonCount");
   if (!exact(row, keys) || !validMetrics(row) || row.studyId !== study.id || row.family !== study.family ||
       row.instrument !== study.instrument || !brier(row.modelBrier) || !brier(row.baseRateBrier) ||
       !brier(row.controlBrier) || row.coinBrier !== 0.25 || !["positive", "negative", "zero"].some(sign => sign === row.coefficientSign))
@@ -203,6 +216,9 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
   if (study === VX_CURVE_RESEARCH && row.strictBeforeCutoff !== 4) return false;
   if (study === OFR_VOLATILITY_RESEARCH && (row.sourceBasis !== "originals-and-four-decimal-mirror" ||
       row.nativeOnlySamples !== 76 || row.nativeSamples !== 70 || row.mirrorSamples !== 55)) return false;
+  if (study === OFR_GEOGRAPHIC_RESEARCH && (row.nativeSamples !== 110 || row.mirrorSamples !== 37 ||
+      row.deferredNativeSamples !== 38 || row.comparisonCount !== 96 || !brier(row.adjustedControlP) ||
+      row.adjustedControlP < Number((96 / 1024).toFixed(4)))) return false;
   let lowerBound: number | undefined;
   if (hasInterval) {
     const interval = row.controlImprovement95;
@@ -223,7 +239,7 @@ function isDatedStudyRow(row: unknown, study: typeof KIBOT_DATED_RESEARCH[number
 export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry | undefined): asserts value is KibotResearch {
   const fail = (): never => { throw new Error("Kibot research report is outside its reviewed aggregate schema"); };
   if (!exact(value, ["schemaVersion", "source", "firstEdition", "through", "daily", "studies"]) ||
-      ![1, 2, 3, 4, 5, 6, 7, 8].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
+      ![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(value.schemaVersion as number) || value.source !== KIBOT_RESEARCH_LICENSE ||
       !firstEdition || value.firstEdition !== firstEdition.id ||
       typeof value.through !== "string" || publicDate(value.through) !== value.through ||
       !hasReviewedCalendar(value.through) || !exchangeSession(value.through) || value.through < newYorkDate(firstEdition.issuedAt) ||
@@ -236,7 +252,8 @@ export function validateKibotResearch(value: unknown, firstEdition: HistoryEntry
   const hasCloseLocation = Number(value.schemaVersion) >= 4;
   const hasFomcEve = Number(value.schemaVersion) >= 5;
   const hasIssuerGuidance = Number(value.schemaVersion) >= 6;
-  const newStudies = value.schemaVersion === 8 ? KIBOT_DATED_RESEARCH : value.schemaVersion === 7 ? versionSevenStudies : [];
+  const version = Number(value.schemaVersion);
+  const newStudies = version === 9 ? KIBOT_DATED_RESEARCH : version === 8 ? versionEightStudies : version === 7 ? versionSevenStudies : [];
   const existing = legacyCount + Number(hasFt900) + Number(hasCloseLocation) + Number(hasFomcEve) + Number(hasIssuerGuidance);
   const studyRows = value.studies;
   if (studyRows.length !== existing + newStudies.length || newStudies.some((study, i) => !isDatedStudyRow(studyRows[existing + i], study)) ||

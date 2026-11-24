@@ -62,6 +62,28 @@ class Geography(unittest.TestCase):
         self.assertEqual(source.vintage.selected_dates([one, two], cal, holiday, set()), {})
         self.assertEqual(len(source.vintage.selected_dates([one, two], cal, set(), set())), 1)
 
+    def test_delayed_original_preserves_actual_capture_and_old_targets_and_refuses_mirrors(self):
+        day = dt.date.fromisoformat
+        calendar = {day(d): True for d in ("2021-11-10", "2021-11-11", "2021-11-12", "2021-11-15", "2021-11-16")}
+        holiday = {day("2021-11-11")}
+        first = dt.datetime(2021, 11, 10, 15, tzinfo=dt.timezone.utc)
+        earlier = (first, "native-wayback", ((day("2021-11-08"), 0, 1, 0), (day("2021-11-09"), 0, 2, 0)))
+        later = (first + dt.timedelta(hours=1), "native-wayback", earlier[2])
+        mirror = (first, source.vintage.MIRROR, earlier[2])
+        captures = [earlier, later, mirror]
+        artifacts = {r: {"available": r[0].isoformat(), "rawSha256": hex(i + 1)} for i, r in enumerate(captures)}
+        select = lambda old: source.admitted_after_maturity(old, captures, artifacts, set(), holiday, calendar)[0]
+        result = select([])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["sha256"], artifacts[later]["rawSha256"])
+        self.assertEqual(result[0]["publishedBy"], later[0].isoformat())
+        self.assertEqual(result[0]["economic"], "2021-11-09")
+        self.assertEqual(result[0]["maturityDate"], "2021-11-12")
+        self.assertEqual(result[0]["session"], "2021-11-15")
+        self.assertEqual(select([{"session": "2021-11-16", "economic": "2021-11-09"}]), [])
+        self.assertEqual(select([{"session": "2021-11-15", "economic": "2021-11-02"}]), [])
+        self.assertEqual(source.admitted_after_maturity([], [mirror], artifacts, set(), holiday, calendar)[0], [])
+
     def test_substituted_memento_cannot_admit_wrong_time_or_bytes(self):
         stamp = "20210422085142"
         origin = archive.NATIVE + "csv"
