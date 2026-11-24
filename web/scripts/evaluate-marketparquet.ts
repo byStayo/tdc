@@ -7,7 +7,9 @@ import { acquirePublicationLock, finishPublicationLock } from "../lib/publicatio
 import { durableDirectory, durableJSON } from "../lib/publication-storage.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
 import type { CashDistribution } from "../lib/consensus/corporate-adjustment.ts";
-import { evaluateOutcome, outcomeTrainingRow, outcomeWindowSessions, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { evaluateOutcome, outcomeKey, outcomeTrainingRow, outcomeWindowSessions, performance, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { observationCutoff, outcomeClockMap, researchOutcomeAvailability, type OutcomeAvailability } from "../lib/consensus/outcome-availability.ts";
+import type { Outcome } from "../lib/consensus/types.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { exchangeCalendarVersion, exchangeSession, exchangeSessions, REVIEWED_EXCHANGE_THROUGH } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
@@ -155,6 +157,13 @@ try {
     return row ? [row] : [];
   })));
   const { selected, policy } = selectScoredOutcomes(outcomes);
+  const evaluationFile = resolve(directory, licensed ? "licensed-evaluation.json" : "sample-evaluation.json");
+  const previous = await readFile(evaluationFile, "utf8").then(t => JSON.parse(t) as { outcomes: Outcome[]; availability?: OutcomeAvailability })
+    .catch((e: NodeJS.ErrnoException) => { if (e.code === "ENOENT") return undefined; throw e; });
+  const verifiedAt = new Date().toISOString();
+  const availability = researchOutcomeAvailability(outcomes, verifiedAt, previous);
+  const clocks = outcomeClockMap(outcomes, availability);
+  const evaluatedAt = await observationCutoff(verifiedAt);
   const reservations = await readReservations(root);
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
   const savedHoldout = licensed && reservations.length ? await marketParquetHoldouts(root, snapshots, reservations) : null;
@@ -171,13 +180,13 @@ try {
     const prior = reservations.filter(row => row.instrument === instrument && row.horizon === horizon)
       .sort((a, b) => b.attempt - a.attempt)[0];
     const eligible = rows.filter(row => permitsModelInputs(byId.get(row.snapshotId)!, instrument, horizon));
-    const trainingRows = eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!));
-    const plan = planCandidate(trainingRows, now, {
+    const trainingRows = eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!, clocks.get(outcomeKey(row))!));
+    const plan = planCandidate(trainingRows, evaluatedAt, {
       engineVersion: ENGINE_VERSION, consumedThrough: prior?.consumedThrough,
       minimumSamples: PROSPECTIVE_MINIMUM, minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true,
     });
     const stats = performance(rows, 2, ENGINE_VERSION);
-    const holdout = savedHoldout ? await savedHoldout(instrument, horizon, trainingRows, ENGINE_VERSION, plan.datasetHash) : null;
+    const holdout = savedHoldout ? await savedHoldout(instrument, horizon, trainingRows, ENGINE_VERSION, plan.datasetHash, eligible) : null;
     cohorts.push({ instrument, horizon, resolved: rows.length, calls: stats.calls, abstentions: stats.abstentions,
       minimumSamples: plan.minimum, eligibility: plan.status, holdout });
   }
@@ -195,7 +204,7 @@ try {
     missingCompletedSessions: missingSessions.length, multiSessionReviewedThrough, cohorts, families };
   await durableJSON(ledgerPath, { schemaVersion: 1, capturedAt, expectedSessions: licensed ? completed : undefined, bars: captured,
     distributions: incoming.distributions, ...(licensed ? { licensedCapture: incoming.licensedCapture } : {}) } satisfies Ledger);
-  const evaluation = { ...report, evaluatedAt: now, missingSessions, unreviewedEarlyCloses, outcomes, trainingPerformed,
+  const evaluation = { ...report, evaluatedAt, missingSessions, unreviewedEarlyCloses, outcomes, availability, trainingPerformed,
     // Inputs that reproduce this run from the private ledger.
     inputs: {
       mode: licensed ? "licensed" : "sample",
@@ -206,7 +215,7 @@ try {
       issuers: incoming.distributions.map(({ symbol, sha256 }) => ({ symbol, sha256 })),
       reviewedEarlyCloses,
     } };
-  await durableJSON(resolve(directory, licensed ? "licensed-evaluation.json" : "sample-evaluation.json"), evaluation);
+  await durableJSON(evaluationFile, evaluation);
   // Later runs replace the latest report. Each run also keeps its own record.
   await durableJSON(resolve(directory, "runs", `${licensed ? "licensed" : "sample"}-${now.replace(/[:.]/g, "-")}.json`),
     evaluation, true);

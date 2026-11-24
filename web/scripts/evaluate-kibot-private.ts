@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { acquirePublicationLock, finishPublicationLock } from "../lib/publication-lock.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { observationCutoff, outcomeClockMap, researchOutcomeAvailability, type OutcomeAvailability } from "../lib/consensus/outcome-availability.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { EXCHANGE_CALENDAR } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
@@ -53,14 +54,15 @@ async function evaluateBulk() {
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
   const collectionStart = [newYorkDate(snapshots[0].issuedAt), EXCHANGE_CALENDAR.from,
     new Date(Date.parse(newYorkDate(now)) - 90 * 86400000).toISOString().slice(0, 10)].sort().at(-1)!;
-  let outcomes: Outcome[] = [];
+  let outcomes: Outcome[] = [], previous: { outcomes: Outcome[]; availability?: OutcomeAvailability } | undefined;
   try {
     const saved = JSON.parse(await readFile(path, "utf8"));
     if (saved.schemaVersion !== 2 || !Array.isArray(saved.outcomes) ||
         saved.outcomes.some((row: Outcome) => row.horizon !== "daily" ||
           byId.get(row.snapshotId)?.engineVersion !== row.engineVersion))
       throw new Error("Private outcome ledger differs from verified history");
-    outcomes = saved.outcomes;
+    previous = saved;
+    outcomes = [...saved.outcomes];
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
@@ -88,16 +90,20 @@ async function evaluateBulk() {
       if (row) outcomes.push(row);
     }
   const qualifiedOutcomes = outcomes.filter(row => isFullKibotSession(row.entryAt, row.exitAt));
+  const verifiedAt = new Date().toISOString();
+  const availability = researchOutcomeAvailability(outcomes, verifiedAt, previous);
+  const clocks = outcomeClockMap(outcomes, availability);
+  const evaluatedAt = await observationCutoff(verifiedAt);
   const selected = selectScoredOutcomes(qualifiedOutcomes).selected;
   const cohorts = [];
   for (const instrument of INSTRUMENTS.filter(symbol => symbol !== "MARKET"))
     for (const horizon of HORIZONS) {
       const rows = selected.filter(row => row.instrument === instrument && row.horizon === horizon &&
         row.engineVersion === ENGINE_VERSION && permitsModelInputs(byId.get(row.snapshotId)!, instrument, horizon))
-        .map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!));
+        .map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!, clocks.get(outcomeKey(row))!));
       const consumedThrough = reservations.filter(record => record.instrument === instrument && record.horizon === horizon)
         .sort((a, b) => b.attempt - a.attempt)[0]?.consumedThrough;
-      const plan = planCandidate(rows, now, {
+      const plan = planCandidate(rows, evaluatedAt, {
         engineVersion: ENGINE_VERSION, consumedThrough,
         minimumSamples: PROSPECTIVE_MINIMUM, minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true,
       });
@@ -119,7 +125,7 @@ async function evaluateBulk() {
     const file = await open(temporary, "wx", 0o600);
     try {
       await file.writeFile(JSON.stringify({
-        schemaVersion: 2, evaluatedAt: now, collectionStart, hashes, summary, cohorts, outcomes,
+        schemaVersion: 2, evaluatedAt, collectionStart, hashes, summary, cohorts, outcomes, availability,
       }, null, 2) + "\n");
       await file.sync();
     } finally { await file.close(); }

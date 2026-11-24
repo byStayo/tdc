@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile, rename, unlink } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rename, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { publicText } from "../lib/consensus/collector.ts";
 import { adjustETFPrices } from "../lib/consensus/corporate-adjustment.ts";
-import { evaluateOutcome, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { observationCutoff, outcomeClockMap, researchOutcomeAvailability, type OutcomeAvailability } from "../lib/consensus/outcome-availability.ts";
 import { exchangeSessions, exchangeSession, hasReviewedCalendar } from "../lib/consensus/exchange-calendar.ts";
 import { verifyPublicationTree } from "../lib/consensus/history.ts";
 import { planCandidate } from "../lib/consensus/learning.ts";
@@ -114,12 +115,19 @@ for (const instrument of instruments) {
     }
 }
 const selected = selectScoredOutcomes(outcomes).selected;
+const directory = resolve(root, ".consensus/private-dolthub");
+const previous = await readFile(resolve(directory, "research.json"), "utf8").then(txt => JSON.parse(txt) as { outcomes: Outcome[]; availability?: OutcomeAvailability })
+  .catch((e: NodeJS.ErrnoException) => { if (e.code === "ENOENT") return undefined; throw e; });
+const verifiedAt = new Date().toISOString();
+const availability = researchOutcomeAvailability(outcomes, verifiedAt, previous);
+const clocks = outcomeClockMap(outcomes, availability);
+const evaluatedAt = await observationCutoff(verifiedAt);
 const cohorts = instruments.flatMap(instrument => HORIZONS.map(horizon => {
   const rows = selected.filter(row => row.instrument === instrument && row.horizon === horizon && row.engineVersion === ENGINE_VERSION)
-    .map(row => outcomeTrainingRow(row, snapshotById.get(row.snapshotId)!));
+    .map(row => outcomeTrainingRow(row, snapshotById.get(row.snapshotId)!, clocks.get(outcomeKey(row))!));
   const consumedThrough = reservations.filter(record => record.instrument === instrument && record.horizon === horizon)
     .sort((a, b) => b.attempt - a.attempt)[0]?.consumedThrough;
-  const plan = planCandidate(rows, now, {
+  const plan = planCandidate(rows, evaluatedAt, {
     engineVersion: ENGINE_VERSION, consumedThrough, minimumSamples: PROSPECTIVE_MINIMUM,
     minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true,
   });
@@ -130,12 +138,11 @@ const summary = {
   sessionsPerSymbol: expectedSessions.length, resolved: outcomes.length, selected: selected.length,
   eligible: cohorts.filter(cohort => cohort.status === "ready").length, trained: 0,
 };
-const directory = resolve(root, ".consensus/private-dolthub");
 await mkdir(directory, { recursive: true, mode: 0o700 });
 const temporary = resolve(directory, randomUUID() + ".tmp");
 try {
   await writeFile(temporary, JSON.stringify({
-    collectedAt: now, from, summary, cohorts, outcomes,
+    collectedAt: now, verifiedAt, evaluatedAt, from, summary, cohorts, outcomes, availability,
     evidence: { collection, license, bars, dividends, splits },
   }, null, 2) + "\n", { flag: "wx", mode: 0o600 });
   await rename(temporary, resolve(directory, "research.json"));

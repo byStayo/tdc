@@ -3,6 +3,8 @@ import { readFile, rename, lstat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { durableDirectory, durableJSON, syncDirectory } from "../publication-storage.ts";
 import { COMPLETED_EVALUATIONS, EVALUATION_RELEASE_STATE, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX, verifyPairedOutcomes } from "./outcome-ledger.ts";
+import { PRIVATE_OUTCOME_AVAILABILITY, validateOutcomeAvailability, type OutcomeAvailability } from "./outcome-availability.ts";
+import type { Outcome } from "./types.ts";
 
 export interface EvaluationWrite { path: string; value: unknown; immutable?: boolean }
 interface PlannedWrite extends EvaluationWrite { before: string | null; after: string }
@@ -16,7 +18,7 @@ const mutable = new Set([PUBLIC_OUTCOME_INDEX, "public/consensus/outcome-selecti
 const immutablePath = (path: string) => /^public\/consensus\/(?:models\/[A-Za-z0-9_-]+|model-actions\/[0-9a-f-]+)\.json$/.test(path);
 const privateCandidatePath = (path: string) => /^\.consensus\/private-kibot\/production-daily\/candidates\/(?:SPY|QQQ|IWM|DIA|TLT)-daily-wf2-[0-9a-f]{16}\.json$/.test(path);
 function checkPath(write: EvaluationWrite): void {
-  if (!((mutable.has(write.path) || write.path === PRIVATE_OUTCOME_LEDGER) && !write.immutable) &&
+  if (!((mutable.has(write.path) || write.path === PRIVATE_OUTCOME_LEDGER || write.path === PRIVATE_OUTCOME_AVAILABILITY) && !write.immutable) &&
       !((immutablePath(write.path) || privateCandidatePath(write.path)) && write.immutable === true))
     throw new Error("Unexpected evaluation transaction destination");
 }
@@ -24,6 +26,11 @@ function checkOutcomeWrites(writes: EvaluationWrite[]): void {
   const index = writes.find(write => write.path === PUBLIC_OUTCOME_INDEX);
   const ledger = writes.find(write => write.path === PRIVATE_OUTCOME_LEDGER);
   if (index || ledger) verifyPairedOutcomes(index?.value, ledger ? ledger.value : []);
+  const clocks = writes.find(write => write.path === PRIVATE_OUTCOME_AVAILABILITY);
+  if (clocks) {
+    if (!ledger) throw Error("Outcome availability must be committed alongside its private ledger");
+    validateOutcomeAvailability(clocks.value, ledger.value as Outcome[], new Date().toISOString());
+  }
 }
 function checkArtifacts(artifacts: Record<string, string>): void {
   if (!artifacts || typeof artifacts !== "object" || Array.isArray(artifacts) ||
@@ -160,6 +167,23 @@ export async function commitEvaluationTransaction(root: string, writes: Evaluati
   await assertNoPendingEvaluation(root);
   if (!writes.length || new Set(writes.map(write => write.path)).size !== writes.length) throw new Error("Empty or duplicate evaluation write set");
   checkOutcomeWrites(writes);
+  const previous = await readReleaseState(root);
+  const ledger = writes.find(w => w.path === PRIVATE_OUTCOME_LEDGER);
+  if (ledger) {
+    let sealed: string | null = null;
+    if (previous?.outcomeLedgerTransactionId) {
+      const receipt: Journal = JSON.parse(await readFile(resolve(root, COMPLETED_EVALUATIONS, previous.outcomeLedgerTransactionId + ".json"), "utf8"));
+      if (receipt.id !== previous.outcomeLedgerTransactionId) throw Error("Invalid completed outcome transaction");
+      sealed = receipt.writes.find(write => write.path === PRIVATE_OUTCOME_AVAILABILITY)?.after ?? null;
+    }
+    if (await currentHash(root, PRIVATE_OUTCOME_AVAILABILITY) !== sealed) throw Error("Private outcome availability differs from its completed transaction");
+    if (sealed) {
+      const clocks: OutcomeAvailability = JSON.parse(await readFile(resolve(root, PRIVATE_OUTCOME_AVAILABILITY), "utf8"));
+      const next = writes.find(w => w.path === PRIVATE_OUTCOME_AVAILABILITY)?.value as OutcomeAvailability | undefined;
+      validateOutcomeAvailability(clocks, (ledger.value as Outcome[]).slice(0, clocks.knownAt.length), new Date().toISOString());
+      if (!next || clocks.knownAt.some((at, i) => next.knownAt[i] !== at)) throw Error("Cannot replace a previously recorded outcome availability");
+    }
+  }
   const planned: PlannedWrite[] = [];
   for (const write of writes) {
     checkPath(write);
@@ -167,7 +191,6 @@ export async function commitEvaluationTransaction(root: string, writes: Evaluati
     if (write.immutable && before !== null && before !== after) throw new Error("Immutable evaluation artifact cannot be replaced");
     planned.push({ ...write, before, after });
   }
-  const previous = await readReleaseState(root);
   const artifacts = { ...previous?.artifacts };
   for (const write of planned.filter(write => write.immutable && immutablePath(write.path))) artifacts[write.path] = write.after;
   await assertArtifactReferences(root, artifacts, planned.find(write => write.path === "lib/consensus/performance.json")?.value);

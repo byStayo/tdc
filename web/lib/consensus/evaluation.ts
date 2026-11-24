@@ -20,15 +20,16 @@ export function asIssuedOutcomeCall(snapshot: Snapshot, instrument: Instrument, 
   return { forecast, score, called, call };
 }
 
-export function outcomeTrainingRow(row: Outcome, snapshot: Snapshot): TrainingRow {
+export function outcomeTrainingRow(row: Outcome, snapshot: Snapshot, labelKnownAt: string): TrainingRow {
   if (snapshot.id !== row.snapshotId || snapshot.engineVersion !== row.engineVersion)
     throw new Error("Outcome differs from its immutable edition");
+  if (!canonicalInstant(labelKnownAt) || labelKnownAt < row.exitAt) throw Error("Training requires a verified outcome clock at or after its market close");
   const consensus = asIssuedConsensus(snapshot, row.instrument, row.horizon);
   return {
     id: outcomeKey(row),
     engineVersion: snapshot.engineVersion,
     issuedAt: snapshot.issuedAt,
-    labelKnownAt: row.exitAt,
+    labelKnownAt,
     features: consensus.families.flatMap(family => [family.score ?? 0, family.score === null ? 0 : 1]),
     up: row.returnPct > 0 ? 1 : 0,
   };

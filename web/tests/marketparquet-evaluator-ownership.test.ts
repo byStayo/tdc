@@ -9,8 +9,6 @@ import { exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
 import { readReservations, validateActivePromotion } from "../lib/consensus/learning-audit.ts";
 import { ETF_SYMBOLS, MARKETPARQUET_SOURCE, marketParquetIssuerFingerprints } from "../lib/consensus/marketparquet.ts";
 import { loadEvaluationOutcomes } from "../lib/consensus/outcome-ledger.ts";
-import { commitEvaluationTransaction } from "../lib/consensus/evaluation-transaction.ts";
-import { outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
 import { KIBOT_PRICE_CITATION } from "../lib/consensus/kibot.ts";
 import { ENGINE_VERSION, missingSignals } from "../lib/consensus/registry.ts";
@@ -19,13 +17,14 @@ import { createHash } from "node:crypto";
 
 const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 
-test("scheduled vendor staging leaves 550 new labels for the journalled evaluator and mirrors only its matching source evidence", async () => {
+test("a bulk backfill cannot create a walk-forward record; fully dated core settlements alone can support matching vendor scores", async () => {
   const root = await mkdtemp(join(tmpdir(), "tdc-marketparquet-ownership-"));
   try {
     const library = join(root, "lib/consensus"), scripts = join(root, "scripts");
     const archive = join(root, "public/consensus"), vendor = join(root, ".consensus/private-marketparquet");
     await cp(new URL("../lib", import.meta.url), join(root, "lib"), { recursive: true });
     await rm(join(library, "evaluation-state.json"), { force: true });
+    await rm(join(library, "performance.json"), { force: true });
     for (const dir of [scripts, archive, vendor, join(root, "bin"), join(vendor, "settlements")])
       await mkdir(dir, { recursive: true, mode: 0o700 });
     for (const name of ["evaluate-marketparquet.ts", "evaluate-consensus.ts"])
@@ -135,11 +134,25 @@ test("scheduled vendor staging leaves 550 new labels for the journalled evaluato
     const staged = JSON.parse(run("evaluate-marketparquet.ts", "--scheduled"));
     assert.equal(staged.trainingPerformed, false);
     assert.deepEqual(await readReservations(root), [], "the vendor stage must leave all new test windows unconsumed");
-    assert.equal(staged.cohorts.find((c: { instrument: string; horizon: string }) => c.instrument === "SPY" && c.horizon === "daily").eligibility, "ready");
+    assert.equal(staged.cohorts.find((c: { instrument: string; horizon: string }) => c.instrument === "SPY" && c.horizon === "daily").eligibility, "insufficient_data");
     assert.equal(staged.cohorts[0].resolved, 550);
     assert.equal(staged.cohorts[0].holdout, null);
     assert.deepEqual(JSON.parse(await readFile(join(library, "models.json"), "utf8")).models, []);
     assert.ok(!(await readdir(vendor)).some(name => /^validation-/.test(name)));
+    // Independent positive fixture: the core saw these synthetic prices six hours after each actual session.
+    // Change one source before the original transaction to test attribution even when the two price series are equal.
+    await writeFile(join(scripts, "seed-dated-fixture.ts"), `
+      import {readFile} from 'node:fs/promises';
+      import {outcomeAvailability,PRIVATE_OUTCOME_AVAILABILITY} from '../lib/consensus/outcome-availability.ts';
+      import {outcomeIndex,PRIVATE_OUTCOME_LEDGER,PUBLIC_OUTCOME_INDEX} from '../lib/consensus/outcome-ledger.ts';
+      import {commitEvaluationTransaction} from '../lib/consensus/evaluation-transaction.ts';
+      const {outcomes}=JSON.parse(await readFile('.consensus/private-marketparquet/licensed-evaluation.json','utf8'));
+      outcomes.find(row=>row.instrument==='SPY'&&row.horizon==='daily').source=${JSON.stringify(FIRST_RATE_SOURCE)};
+      const knownAt=outcomes.map(row=>new Date(Date.parse(row.exitAt)+6*3600000).toISOString());
+      await commitEvaluationTransaction('.', [{path:PRIVATE_OUTCOME_LEDGER,value:outcomes},{path:PUBLIC_OUTCOME_INDEX,value:outcomeIndex(outcomes)},
+        {path:PRIVATE_OUTCOME_AVAILABILITY,value:outcomeAvailability(outcomes,knownAt)}]);
+    `);
+    run("seed-dated-fixture.ts");
     run("evaluate-consensus.ts");
     const reservations = await readReservations(root);
     assert.equal(reservations.length, 5);
@@ -147,31 +160,20 @@ test("scheduled vendor staging leaves 550 new labels for the journalled evaluato
     const registry = JSON.parse(await readFile(join(library, "models.json"), "utf8"));
     assert.equal(registry.models.length, 5);
     for (const model of registry.models) validateActivePromotion(model, reservations);
-    assert.ok((await loadEvaluationOutcomes(root)).every(row => row.source === MARKETPARQUET_SOURCE));
+    assert.equal((await loadEvaluationOutcomes(root)).filter(row => row.source !== MARKETPARQUET_SOURCE).length, 1);
     assert.throws(() => run("evaluate-consensus.ts"), /Commit the pending evaluation reservations/);
     commit();
     const before = await Promise.all(reservations.map(r => readFile(join(archive, "evaluations", `${r.instrument}-${r.horizon}-000001.json`), "utf8")));
     const mirrored = JSON.parse(run("evaluate-marketparquet.ts", "--scheduled"));
     assert.equal(mirrored.trainingPerformed, false);
-    assert.equal(mirrored.cohorts[0].holdout?.testLabels, 110);
-    assert.equal(mirrored.cohorts[0].holdout?.passed, true);
+    assert.equal(mirrored.cohorts[0].holdout, null, "a mixed-source SPY score cannot be attributed to this vendor");
+    assert.equal(mirrored.cohorts[3].holdout?.testLabels, 110);
+    assert.equal(mirrored.cohorts[3].holdout?.passed, true);
     run("evaluate-consensus.ts");
     assert.deepEqual(await readReservations(root), reservations);
     assert.deepEqual(await Promise.all(reservations.map(r => readFile(join(archive, "evaluations", `${r.instrument}-${r.horizon}-000001.json`), "utf8"))), before);
     const report = JSON.parse(await readFile(join(archive, "marketparquet-validation.json"), "utf8"));
     assert.equal(report.cohorts[0].resolved, 550);
     assert.doesNotMatch(JSON.stringify(report), /"(?:bars|outcomes|features|weights|entry|exit|returnPct)"/);
-    // Identical signs from another approved feed leave the training hash intact.
-    // The vendor aggregate must still withhold that mixed-source model's score.
-    const settled = await loadEvaluationOutcomes(root);
-    settled.find(row => row.instrument === "SPY" && row.horizon === "daily")!.source = FIRST_RATE_SOURCE;
-    await commitEvaluationTransaction(root, [
-      { path: PRIVATE_OUTCOME_LEDGER, value: settled }, { path: PUBLIC_OUTCOME_INDEX, value: outcomeIndex(settled) },
-    ]);
-    const mixed = JSON.parse(run("evaluate-marketparquet.ts", "--scheduled"));
-    assert.equal(mixed.cohorts[0].holdout, null);
-    assert.equal(mixed.cohorts[0].resolved, 550);
-    assert.equal(mixed.cohorts[3].holdout?.testLabels, 110);
-    assert.deepEqual(await readReservations(root), reservations);
   } finally { await rm(root, { recursive: true, force: true }); }
 });

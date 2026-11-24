@@ -156,7 +156,7 @@ test("whole scheduled and evaluator entry points require paid delivery, independ
   assert.equal(outcomes.length, 1);
   assert.equal(outcomes[0].source, KIBOT_SUBSCRIBER_EOD_SOURCE);
   assert.equal(outcomes[0].entry, bar.open);
-  assert.equal(outcomeTrainingRow(outcomes[0], snapshot).up, 1);
+  assert.equal(outcomeTrainingRow(outcomes[0], snapshot, verified[0].approvedAt).up, 1);
   const summary = JSON.parse(await readFile(join(library, "performance.json"), "utf8"));
   const model = summary.learning.find((row: { instrument: string; horizon: string }) =>
     row.instrument === "SPY" && row.horizon === "daily");
@@ -168,7 +168,7 @@ test("whole scheduled and evaluator entry points require paid delivery, independ
   assert.equal((await stat(privateCandidate)).mode & 0o777, 0o600);
   const privateResult = JSON.parse(await readFile(privateCandidate, "utf8"));
   assert.equal(privateResult.datasetHash, await kibotCommitment(root, privateResult.unblindedDatasetHash));
-  const sourceClockRow = { ...outcomeTrainingRow(outcomes[0], snapshot), labelKnownAt: verified[0].approvedAt };
+  const sourceClockRow = outcomeTrainingRow(outcomes[0], snapshot, verified[0].approvedAt);
   assert.equal(privateResult.unblindedDatasetHash, sha(JSON.stringify([sourceClockRow])));
   assert.ok(sourceClockRow.labelKnownAt > outcomes[0].exitAt);
   const marker = await readFile(join(library, "evaluation-state.json"), "utf8");

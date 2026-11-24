@@ -5,6 +5,7 @@ import { digest, verifyPublicationTree } from "../lib/consensus/history.ts";
 import { performance } from "../lib/consensus/evaluation.ts";
 import { auditOutcomeCoverage } from "../lib/consensus/outcome-coverage-audit.ts";
 import { loadEvaluationOutcomes, PUBLIC_OUTCOME_INDEX, validateOutcomeIndex } from "../lib/consensus/outcome-ledger.ts";
+import { loadOutcomeAvailability } from "../lib/consensus/outcome-availability.ts";
 import { readReservations, validateActiveModelTree } from "../lib/consensus/learning-audit.ts";
 import { assertEvaluationReleaseState } from "../lib/consensus/evaluation-transaction.ts";
 import { asIssuedConsensus } from "../lib/consensus/as-issued.ts";
@@ -28,7 +29,15 @@ for (const row of outcomes) {
   if (history.find(entry => entry.id === row.snapshotId)?.engineVersion !== row.engineVersion)
     throw new Error("Outcome engine version differs from its immutable edition");
 }
-if (audit) performance(await loadEvaluationOutcomes(root), 2, current.engineVersion);
+let labelAvailability;
+if (audit) {
+  const ledger = await loadEvaluationOutcomes(root);
+  performance(ledger, 2, current.engineVersion);
+  const clocks = await loadOutcomeAvailability(root, ledger, new Date().toISOString());
+  const delays = ledger.map((row, i) => Date.parse(clocks.knownAt[i]) - Date.parse(row.exitAt));
+  labelAvailability = { checked: delays.length, afterMarketClose: delays.filter(delay => delay > 0).length,
+    moreThanOneDayAfterClose: delays.filter(delay => delay > 86400000).length };
+}
 const registry = JSON.parse(
   await readFile(resolve(root, "lib/consensus/models.json"), "utf8"),
 );
@@ -81,7 +90,7 @@ if (!audit) {
       votingFamilies: FAMILIES.filter(family => voting.has(family.id)).map(family => family.id),
       missingFamilies,
     },
-    evaluation: { asOf: now, pendingTargets, ...coverage, missingModels },
+    evaluation: { asOf: now, pendingTargets, ...coverage, missingModels, labelAvailability },
     coverageAndModelGates: ready ? "complete" : "open",
   }, null, 2));
   if (requireComplete && !ready) process.exitCode = 2;

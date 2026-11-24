@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { digest } from "./history.ts";
-import { outcomeTrainingRow, selectScoredOutcomes } from "./evaluation.ts";
+import { outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "./evaluation.ts";
+import { loadOutcomeAvailability, outcomeClockMap } from "./outcome-availability.ts";
 import { planCandidate, type ReadyCandidate, type TrainingRow, type evaluateCandidate } from "./learning.ts";
 import { LEARNING_POLICY, MINIMUM_TEST_LABELS, PROSPECTIVE_MINIMUM, resamplesForAlpha,
   type EvaluationReservation, type PromotionEvidence } from "./learning-audit.ts";
@@ -64,38 +65,51 @@ export async function marketParquetHoldouts(root: string, snapshots: Snapshot[],
   }
   const byId = new Map(snapshots.map(snapshot => [snapshot.id, snapshot]));
   let canonical: Outcome[] = [];
+  let clocks = new Map<string, string>();
   if (artifacts.length) {
     // A public checkout can verify artifacts without holding the private journal.
     // Missing or unverifiable attribution keeps the source-specific score pending.
-    try { canonical = selectScoredOutcomes(await loadEvaluationOutcomes(root)).selected; }
+    try {
+      const ledger = await loadEvaluationOutcomes(root);
+      clocks = outcomeClockMap(ledger, await loadOutcomeAvailability(root, ledger, new Date().toISOString()));
+      canonical = selectScoredOutcomes(ledger).selected;
+    }
     catch { /* Counts and eligibility do not depend on a reusable model summary. */ }
   }
-  return async (instrument: Instrument, horizon: Horizon, rows: TrainingRow[], engineVersion: string, datasetHash: string): Promise<MarketParquetHoldout | null> => {
+  return async (instrument: Instrument, horizon: Horizon, rows: TrainingRow[], engineVersion: string, datasetHash: string,
+    vendorOutcomes: Outcome[] = []): Promise<MarketParquetHoldout | null> => {
     const matching = reservations.filter(r => r.instrument === instrument && r.horizon === horizon &&
-      r.engineVersion === engineVersion && r.datasetHash === datasetHash).sort((a, b) => b.attempt - a.attempt);
+      r.engineVersion === engineVersion).sort((a, b) => b.attempt - a.attempt);
+    const vendor = new Map(vendorOutcomes.map(row => [outcomeKey(row), digest(row)]));
     for (const reservation of matching) {
       const preceding = reservations.find(r => r.instrument === instrument && r.horizon === horizon && r.attempt === reservation.attempt - 1);
-      const plan = planCandidate(rows, reservation.reservedAt, { engineVersion, consumedThrough: preceding?.consumedThrough,
-        minimumSamples: PROSPECTIVE_MINIMUM, minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true });
-      if (plan.status !== "ready" || plan.datasetHash !== datasetHash ||
-          JSON.stringify(plan.split.test.map(({ id, issuedAt, labelKnownAt }) => ({ id, issuedAt, labelKnownAt }))) !== JSON.stringify(reservation.testWindows) ||
-          JSON.stringify(plan.split.test.map(row => row.id)) !== JSON.stringify(reservation.testIds)) continue;
-      const saved = await optionalJSON<SavedResult>(resolve(root, ".consensus/private-marketparquet", `validation-${instrument}-${horizon}.json`));
-      if (saved?.engineVersion === engineVersion && saved.datasetHash === datasetHash && saved.attempt === reservation.attempt) {
-        const summary = matchingSummary(saved.candidate, saved.gate, plan, reservation);
-        if (summary && JSON.stringify(saved.summary) === JSON.stringify(summary)) return summary;
+      function originalPlan(inputs: TrainingRow[]) {
+        const p = planCandidate(inputs, reservation.reservedAt, { engineVersion, consumedThrough: preceding?.consumedThrough,
+          minimumSamples: PROSPECTIVE_MINIMUM, minimumTestSamples: MINIMUM_TEST_LABELS, nonOverlappingTest: true });
+        return p.status === "ready" && p.datasetHash === reservation.datasetHash &&
+          JSON.stringify(p.split.test.map(({ id, issuedAt, labelKnownAt }) => ({ id, issuedAt, labelKnownAt }))) === JSON.stringify(reservation.testWindows) &&
+          JSON.stringify(p.split.test.map(row => row.id)) === JSON.stringify(reservation.testIds) ? p : null;
       }
-      const cohort = canonical.filter(row => row.engineVersion === engineVersion && row.instrument === instrument && row.horizon === horizon);
+      if (reservation.datasetHash === datasetHash) {
+        const saved = await optionalJSON<SavedResult>(resolve(root, ".consensus/private-marketparquet", `validation-${instrument}-${horizon}.json`));
+        if (saved?.engineVersion === engineVersion && saved.datasetHash === datasetHash && saved.attempt === reservation.attempt) {
+          const p = originalPlan(rows);
+          const summary = p && matchingSummary(saved.candidate, saved.gate, p, reservation);
+          if (summary && JSON.stringify(saved.summary) === JSON.stringify(summary)) return summary;
+        }
+      }
+      const cohort = canonical.filter(row => row.engineVersion === engineVersion && row.instrument === instrument && row.horizon === horizon &&
+        clocks.get(outcomeKey(row))! < reservation.reservedAt);
       if (cohort.some(row => !byId.has(row.snapshotId))) continue;
       const eligible = cohort.filter(row => permitsModelInputs(byId.get(row.snapshotId)!, instrument, horizon));
-      // Training hashes omit price-source names. Equal signs from another feed
-      // must not become MarketParquet model performance by association.
-      if (!eligible.length || eligible.some(row => row.source !== MARKETPARQUET_SOURCE) ||
-          planCandidate(eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!)), reservation.reservedAt,
-            { engineVersion }).datasetHash !== datasetHash) continue;
+      // A recent re-download can reproduce the price without reproducing its first delivery time. Use the cohort's
+      // actual, sealed clocks only after the provider reproduces every original outcome, including source and prices.
+      if (!eligible.length || eligible.some(row => row.source !== MARKETPARQUET_SOURCE || vendor.get(outcomeKey(row)) !== digest(row))) continue;
+      const plan = originalPlan(eligible.map(row => outcomeTrainingRow(row, byId.get(row.snapshotId)!, clocks.get(outcomeKey(row))!)));
+      if (!plan) continue;
       for (const artifact of artifacts) {
         if (artifact.instrument !== instrument || artifact.horizon !== horizon || artifact.engineVersion !== engineVersion ||
-            artifact.datasetHash !== datasetHash || artifact.promotionEvidence?.attempt !== reservation.attempt) continue;
+            artifact.datasetHash !== reservation.datasetHash || artifact.promotionEvidence?.attempt !== reservation.attempt) continue;
         const summary = matchingSummary(artifact, artifact.promotionEvidence, plan, reservation);
         if (summary) return summary;
       }

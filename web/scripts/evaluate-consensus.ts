@@ -12,6 +12,7 @@ import { OUTCOME_PRICE_BASIS } from "../lib/consensus/price-basis.ts";
 import { assertCommittedReservations, prospectiveAttemptBudget } from "../lib/consensus/learning-audit.ts";
 import { digest, validateSnapshot } from "../lib/consensus/history.ts";
 import { evaluateOutcome, outcomeKey, outcomeTrainingRow, selectScoredOutcomes } from "../lib/consensus/evaluation.ts";
+import { loadOutcomeAvailability, observationCutoff, outcomeAvailability, outcomeClockMap, PRIVATE_OUTCOME_AVAILABILITY } from "../lib/consensus/outcome-availability.ts";
 import { loadEvaluationOutcomes, outcomeIndex, PRIVATE_OUTCOME_LEDGER, PUBLIC_OUTCOME_INDEX } from "../lib/consensus/outcome-ledger.ts";
 import { permitsModelInputs } from "../lib/consensus/model.ts";
 import { FIRST_RATE_SOURCE } from "../lib/consensus/firstrate.ts";
@@ -72,6 +73,7 @@ try {
     catch { damagedChoice = true; }
     const outcomes: Outcome[] = await loadEvaluationOutcomes(root);
     const previouslySettled = outcomes.length;
+    const priorAvailability = await loadOutcomeAvailability(root, outcomes, now);
     if (outcomes.some(row => row.source === KIBOT_SUBSCRIBER_EOD_SOURCE && !kibotSelectedTarget(choice, row.issuedAt, row.horizon)))
       damagedChoice = true;
     let subscriber: Awaited<ReturnType<typeof readKibotPrimaryPrices>> = [];
@@ -134,6 +136,14 @@ try {
         }
       }
     }
+    // New outcomes first became usable after this run actually validated their prices. Earlier receipts keep their own clocks.
+    const verifiedAt = new Date().toISOString();
+    const availability = outcomeAvailability(outcomes, [...priorAvailability.knownAt, ...outcomes.slice(previouslySettled).map(row => {
+      if (row.source !== KIBOT_SUBSCRIBER_EOD_SOURCE) return verifiedAt;
+      const day = kibotSelectedTarget(choice, row.issuedAt, row.horizon);
+      return primary.get(row.instrument + ":" + day)!.approvedAt;
+    })]);
+    const knownAt = outcomeClockMap(outcomes, availability);
     const selection = selectScoredOutcomes(outcomes),
       metrics = publicEvaluationMetrics(outcomes, ENGINE_VERSION),
       cohorts: PerformanceReport["cohorts"] = [],
@@ -164,6 +174,7 @@ try {
       if (model.engineVersion !== ENGINE_VERSION) throw new Error("Deactivate incompatible incumbent before evaluating a new rule version");
       await validateActiveModelTree(root, model, reservations);
     }
+    const modelAsOf = await observationCutoff(verifiedAt);
     for (const instrument of INSTRUMENTS.filter((symbol) => symbol !== "MARKET"))
       for (const horizon of HORIZONS) {
         const sample = outcomes.filter(row => row.instrument === instrument && row.horizon === horizon);
@@ -204,21 +215,20 @@ try {
           const snapshot = snapshots.find((item) => item.id === row.snapshotId);
           if (!snapshot) throw new Error("Outcome references missing snapshot");
           if (!permitsModelInputs(snapshot, instrument, horizon)) continue;
-          const training = outcomeTrainingRow(row, snapshot);
+          let labelKnownAt = knownAt.get(outcomeKey(row))!;
           if (row.source === KIBOT_SUBSCRIBER_EOD_SOURCE) {
             const day = kibotSelectedTarget(choice, snapshot.issuedAt, horizon)!;
-            // The completed market session alone did not establish this label. Purge by the first qualified delivery.
-            training.labelKnownAt = primary.get(instrument + ":" + day)!.approvedAt;
-            if (training.labelKnownAt >= now) continue;
-            subscriberIds.add(training.id);
+            labelKnownAt = primary.get(instrument + ":" + day)!.approvedAt;
+            if (labelKnownAt >= modelAsOf) continue;
+            subscriberIds.add(outcomeKey(row));
           }
-          trainingRows.push(training);
+          trainingRows.push(outcomeTrainingRow(row, snapshot, labelKnownAt));
         }
         const incumbent = registry.models.find(
             (model) =>
               model.instrument === instrument && model.horizon === horizon,
           );
-        const planned = planCandidate(trainingRows, now, {
+        const planned = planCandidate(trainingRows, modelAsOf, {
           engineVersion: ENGINE_VERSION,
           consumedThrough: prior?.consumedThrough,
           minimumSamples: PROSPECTIVE_MINIMUM,
@@ -231,7 +241,7 @@ try {
         const plan = subscriberCohort ? { ...planned, datasetHash: await kibotCommitment(root, planned.datasetHash) } : planned;
         // Reserve before fitting/evaluating: failed candidates and crashes consume their test window too.
         const reservation = plan.status === "ready"
-          ? await reserveEvaluation(root, reservations, plan, instrument, horizon, now, incumbent) : null;
+          ? await reserveEvaluation(root, reservations, plan, instrument, horizon, modelAsOf, incumbent) : null;
         if (reservation) reservations.push(reservation);
         const result = plan.status === "ready" ? evaluateCandidate(plan, incumbent?.model) : plan;
         const gate = plan.status === "ready" && result.status === "evaluated" && reservation
@@ -250,7 +260,7 @@ try {
             instrument,
             horizon,
             engineVersion: ENGINE_VERSION,
-            trainedAt: now,
+            trainedAt: modelAsOf,
             labelsThrough: gate!.consumedThrough,
             datasetHash: result.datasetHash,
             samples: result.samples,
@@ -279,7 +289,7 @@ try {
         catch (error) {
           if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
           const full = { ...result, promoted: promote, promotionEvidence: gate, instrument, horizon,
-            engineVersion: ENGINE_VERSION, priceAdjustment: OUTCOME_PRICE_BASIS, evaluatedAt: now,
+            engineVersion: ENGINE_VERSION, priceAdjustment: OUTCOME_PRICE_BASIS, evaluatedAt: modelAsOf,
             activated: promote && !subscriberCohort, featureSchema: "family-score-plus-observation-mask-v1" };
           if (subscriberCohort) {
             writes.push({ path: privateArtifact, immutable: true,
@@ -309,7 +319,7 @@ try {
       }
     const report: PerformanceReport = {
       engineVersion: ENGINE_VERSION,
-      generatedAt: now,
+      generatedAt: modelAsOf,
       status: supplied.length || outcomes.length ? "tracking" : "awaiting_price_evidence",
       resolved: metrics.resolved,
       calls: metrics.calls,
@@ -331,7 +341,7 @@ try {
         (outcomes.some(row => row.source === MARKET_HISTORY_SOURCE)
           ? " Verified Market History consolidated bars and iShares distributions supply covered TLT outcome windows." : ""),
     };
-    if (outcomes.length) writes.push({ path: PRIVATE_OUTCOME_LEDGER, value: outcomes });
+    if (outcomes.length) writes.push({ path: PRIVATE_OUTCOME_LEDGER, value: outcomes }, { path: PRIVATE_OUTCOME_AVAILABILITY, value: availability });
     writes.push(
       { path: PUBLIC_OUTCOME_INDEX, value: outcomeIndex(outcomes) },
       { path: "public/consensus/outcome-selection.json", value: { policy: selection.policy, superseded: selection.superseded } },
