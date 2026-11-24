@@ -74,6 +74,8 @@ const lanes = {
 };
 type Lane = typeof lanes[FeatureLane];
 type Rule = Lane["policy"]["rules"][number];
+type Scope = Pick<Rule, "id" | "instrument">;
+const inScope = (row: Scope, scope?: Scope) => !scope || (row.id === scope.id && row.instrument === scope.instrument);
 type Proof = { file: string; sha256: string };
 type Data = { candidate: number; control: number; eventId: string; observedThrough: string; availableAt: string; sourceHashes: string[]; proofs: Proof[] };
 type Reason = "as-issued-input-unavailable" | "not-immediately-prior-session" | "outside-payroll-release-target" | "outside-survey-release-target" | "release-predates-registration" | "insufficient-prior-closes" |
@@ -301,7 +303,7 @@ async function assertLedgerClock(root: string, session: string, now: string, lan
       bad("The feature ledger was observed after the registration clock");
   }
 }
-async function replay(root: string, archive: Archive, registration: Registration, session: string, asOf: string, lane: Lane) {
+async function replay(root: string, archive: Archive, registration: Registration, session: string, asOf: string, lane: Lane, scope?: Scope) {
   const { snapshot, observedAt, archiveSha256 } = archive, edition = snapshot.id;
   const seal = await readResearchReceipt<Seal>(sealFile(root, session, edition, lane));
   if (!seal) return null;
@@ -319,7 +321,7 @@ async function replay(root: string, archive: Archive, registration: Registration
     if (o.id !== rule.id || o.instrument !== rule.instrument || ("reason" in o) === ("data" in o))
       bad("Invalid prospective feature identity");
     // A missing source at registration can never become a historical feature after recovery.
-    if ("data" in o) {
+    if ("data" in o && inScope(o, scope)) {
       const fresh = await reading(root, snapshot, rule, session, registration.registeredAt, o.data.proofs);
       if (!("data" in fresh) || !equal(fresh.data, o.data)) bad("Sealed native input no longer reproduces its registered feature");
     }
@@ -370,19 +372,26 @@ export async function recordProspectiveFamilyFeatures(root: string, session: str
   };
 }
 
-/** Read one exact, already sealed SCE observation and its original sources. No enrollment or price reads. */
-export async function readSealedRetailSession(root: string, session: string, edition: string) {
-  const lane = lanes.retail, now = wall(), raw = await readResearchReceipt<Registration>(join(root, lane.file));
+/** Verify the entire as-issued draft and seal, and replay the native sources for the requested original comparisons. */
+export async function readSealedFamilySession(root: string, session: string, edition: string, which: FeatureLane, scope?: Scope) {
+  const lane = lanes[which];
+  if (scope && !lane.policy.rules.some(rule => inScope(rule, scope))) return [];
+  const now = wall(), raw = await readResearchReceipt<Registration>(join(root, lane.file));
   if (!raw) return [];
   const registration = verifyRegistration(raw, now, lane);
   const archive = await publicArchive(root, session, edition, now);
-  const saved = await replay(root, archive, registration, session, now, lane);
+  const saved = await replay(root, archive, registration, session, now, lane, scope);
   if (!saved) return [];
-  return saved.draft.observations.flatMap(o => "data" in o ? [{
+  return saved.draft.observations.flatMap(o => "data" in o && inScope(o, scope) ? [{
     id: o.id, instrument: o.instrument, session, edition, issuedAt: saved.draft.issuedAt,
     witnessedAt: saved.draft.witnessedAt, recordedAt: saved.seal.recordedAt,
     sourceSeal: digest({ draft: saved.seal.preparedSha256, data: o.data }), ...o.data,
   }] : []);
+}
+
+/** Preserve the original SCE row shape, data and seal. */
+export function readSealedRetailSession(root: string, session: string, edition: string) {
+  return readSealedFamilySession(root, session, edition, "retail");
 }
 
 /** Replay exact public witnesses and bounded provider receipts without consulting outcomes or promoting any signal. */
