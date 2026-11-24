@@ -2,14 +2,17 @@
 
 import json
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
 from datetime import datetime, timezone
 from decimal import Decimal
-from io import BytesIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from unittest.mock import patch
+from urllib.error import URLError
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
@@ -190,6 +193,81 @@ class SurveyTests(unittest.TestCase):
             result, _ = study.verified_first_release(root, Q3, {}, True)
             self.assertEqual(result["status"], "first_release_reconciled")
             self.assertEqual(study.verified_first_release(root, Q3, {}, False)[0], result)
+
+    def test_scheduled_entry_skips_unenrolled_and_early_runs_without_source_access(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(study, "command", side_effect=AssertionError("unexpected comparison")):
+                self.assertEqual(study.scheduled(root), {"status": "not_enrolled"})
+                self.assertEqual(list(root.iterdir()), [])
+                study.seal(root / "prerelease.json", {"synthetic": True})
+                when = study.utc("2026-11-25T13:29:59Z")
+                with patch.object(study, "now", return_value=when):
+                    self.assertEqual(study.scheduled(root), {"status": "awaiting_first_release",
+                                                             "scheduledAt": Q3["releaseAt"]})
+            self.assertEqual([p.name for p in root.iterdir()], ["prerelease.json"])
+
+    def test_scheduled_release_recovers_after_missing_delivery_then_calls_only_offline_replay(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            study.seal(root / "prerelease.json", {"synthetic": True})
+
+            def perform(path, action, include_example):
+                self.assertEqual(path, root)
+                self.assertFalse(include_example)
+                calls.append(action)
+                if len(calls) == 1:
+                    raise URLError("SYNTHETIC_PRIVATE_RESPONSE")
+                if action == "compare":
+                    study.seal(path / "first-release.json", {"synthetic": True})
+                return {"prospective": {"target": "2026Q3", "actualAvailableOnHostAt": "2026-11-26T12:48:01Z"}}
+
+            with patch.object(study, "command", side_effect=perform), patch.object(study, "now", return_value=study.utc(Q3["releaseAt"])):
+                with patch("sys.stdout", new_callable=StringIO) as out:
+                    self.assertEqual(study.scheduled_cli(root), 1)
+                    self.assertEqual(json.loads(out.getvalue()), {"status": "pending_verification", "reason": "source_unavailable"})
+                self.assertFalse((root / "first-release.json").exists())
+                first = study.scheduled(root)
+                saved = (root / "first-release.json").stat()
+                second = study.scheduled(root)
+                self.assertEqual(first["status"], "verified_first_release")
+                self.assertEqual(second["status"], "verified_saved_result")
+                self.assertEqual(first["resultSHA256"], second["resultSHA256"])
+                self.assertEqual((root / "first-release.json").stat().st_mtime_ns, saved.st_mtime_ns)
+                self.assertEqual(calls, ["compare", "compare", "replay"])
+
+    def test_due_comparisons_share_one_native_capture_lock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with study.comparison_lock(root):
+                with self.assertRaises(BlockingIOError):
+                    with study.comparison_lock(root):
+                        self.fail("Duplicate native capture")
+            with study.comparison_lock(root):
+                self.assertEqual((root / ".comparison.lock").stat().st_mode & 0o777, 0o600)
+
+    @unittest.skipUnless(Path("/opt/homebrew/opt/node@24/bin/node").is_file(), "macOS weekday publisher runtime")
+    def test_weekday_entry_preserves_normal_output_and_status_on_optional_failure(self):
+        script = Path(__file__).resolve().parents[1] / "scripts/weekday-harvest.sh"
+        with tempfile.TemporaryDirectory() as tmp:
+            scripts = Path(tmp) / "scripts"
+            scripts.mkdir()
+            shutil.copyfile(script, scripts / script.name)
+            for name in ("check-publisher-checkout.py", "collect-sec-etf-flows.py", "reconcile-sec-etfiq-flows.py",
+                         "verify-live-consensus.ts", "research-occ-volume.ts", "collect-sentisense-options-private.ts"):
+                (scripts / name).write_text("")
+            (scripts / "prepare-daily-data.ts").write_text(
+                'console.log("ordinary fixture prepared"); process.exit(Number(process.env.SYNTHETIC_PREPARATION));')
+            (scripts / "qualify_spf_profits.py").write_text(
+                'import sys\nassert sys.argv[1:] == ["scheduled"]\nprint("private fixture pending")\nraise SystemExit(1)\n')
+            for code in (0, 7):
+                result = subprocess.run(["/bin/bash", str(scripts / script.name)], capture_output=True, text=True,
+                                        env={**os.environ, "SYNTHETIC_PREPARATION": str(code)}, timeout=15)
+                self.assertEqual(result.returncode, code)
+                self.assertEqual(result.stdout.strip(), "ordinary fixture prepared")
+                self.assertIn("private fixture pending", result.stderr)
+                self.assertIn("Private corporate-profits comparison remains pending", result.stderr)
 
 
 if __name__ == "__main__":

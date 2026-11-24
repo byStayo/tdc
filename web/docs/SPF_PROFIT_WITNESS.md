@@ -22,4 +22,16 @@ python3 -B scripts/qualify_spf_profits.py compare
 - `replay` verifies the saved files and recomputes the comparisons offline. Use `--private-root PATH` for a store on another authorized local checkout.
 - `compare` checks the actual clock before any source access. After release it requires the exact Q3 vintage on both delivery paths. Missing or inconsistent inputs leave the prospective result pending. The first complete packet is saved once and subsequent calls replay it.
 
+The existing 07:48 New York weekday harvester runs `scheduled` after ordinary preparation. An unenrolled host or a run before the release makes no source request. A due run has a 60-second budget and a separate private lock. When BEA or its mirror is incomplete, the following weekday run can try again. After the original packet qualifies, the harvester uses its local copies. The scheduled log contains only status, quarter, result digest and verification time. Preparation preserves its own exit status on a research failure. [Weekday entry point](../scripts/weekday-harvest.sh)
+
+On the authorized Mac, transfer the existing witness after installing the checker on the publisher. Run these commands from the publisher's `web` directory. They preserve any existing local originals. The offline replay must produce witness SHA-256 `fc6aacf1c01ae8de78ffcf84d84e9dd5505b1c2b4c301b712748134fdcb9ccb1`.
+
+```sh
+profit_source=../../daily-consensus-profits-forecast/web/.consensus/private-spf-profit-witness
+profit_store=.consensus/private-spf-profit-witness
+mkdir -m 700 -p "$profit_store"
+/usr/bin/rsync -a --ignore-existing "$profit_source/originals" "$profit_source/prerelease.json" "$profit_store/"
+/usr/bin/python3 -B scripts/qualify_spf_profits.py replay
+```
+
 The Philadelphia Fed limits site content to information, education and research and identifies restrictions on copyrighted material and use of its name. Keep the source files, participant records, survey-derived comparisons and any related experimentation in the owner's private research store. Its website does not establish a grant for product redistribution or commercial model use. [Philadelphia Fed usage terms](https://www.philadelphiafed.org/about-us/privacy-notice)

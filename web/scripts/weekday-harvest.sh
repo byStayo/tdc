@@ -22,4 +22,9 @@ fi
 if ! "$node_bin" --experimental-strip-types scripts/collect-sentisense-options-private.ts; then
   printf '%s\n' 'Private options capture did not complete. Continuing with official collection.' >&2
 fi
-exec "$node_bin" --experimental-strip-types scripts/prepare-daily-data.ts --weekday
+preparation_status=0
+"$node_bin" --experimental-strip-types scripts/prepare-daily-data.ts --weekday || preparation_status=$?
+if ! /usr/bin/python3 -B scripts/qualify_spf_profits.py scheduled >&2; then
+  printf '%s\n' 'Private corporate-profits comparison remains pending.' >&2
+fi
+exit "$preparation_status"

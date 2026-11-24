@@ -2,12 +2,16 @@
 
 import argparse
 import csv
+import fcntl
 import hashlib
 import json
 import os
 import re
+import signal
+import stat
 import subprocess
 import tempfile
+from contextlib import contextmanager, nullcontext
 from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation
 from html.parser import HTMLParser
@@ -15,6 +19,7 @@ from io import BytesIO, StringIO
 from pathlib import Path
 from statistics import median
 from urllib.parse import urljoin, urlsplit
+from urllib.error import URLError
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
@@ -378,7 +383,20 @@ def verified_first_release(root, period, benchmark, online):
     return result, saved.records
 
 
-def command(root, action):
+@contextmanager
+def comparison_lock(root):
+    fd = os.open(root / ".comparison.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    try:
+        info = os.fstat(fd)
+        check(stat.S_ISREG(info.st_mode) and info.st_uid == os.getuid() and info.st_nlink == 1
+              and not info.st_mode & 0o077, "Untrusted private comparison lock")
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield
+    finally:
+        os.close(fd)
+
+
+def command(root, action, include_example=True):
     policy = json.loads(POLICY_FILE.read_bytes())
     witness_file = root / "prerelease.json"
     cutoff = utc(policy["prospective"]["releaseAt"])
@@ -386,7 +404,9 @@ def command(root, action):
         check(now() >= cutoff, "The scheduled first release has not occurred")
     if not witness_file.exists():
         check(action == "witness" and now() < cutoff, "No genuine pre-release witness exists")
-    store = SourceStore(root, action != "replay")
+    # Once witnessed, the prospective baselines, source clocks and completed control
+    # example are immutable. Missing originals require recovery from the owner's store.
+    store = SourceStore(root, action == "witness" and not witness_file.exists())
     baselines = pre_release(store, policy)
     binding = {"policySHA256": sha(POLICY_FILE.read_bytes()), "method": policy["method"],
                "sourceReceipts": dict(store.records), "baselines": baselines}
@@ -403,30 +423,75 @@ def command(root, action):
     check(saved == binding and max(utc(r["receivedAt"]) for r in store.records.values()) <= witnessed < cutoff,
           "Pre-release witness no longer binds the original sources, forecast or cutoff")
     result = {"method": policy["method"], "witnessSHA256": sha(private_bytes(witness_file)),
-              "witnessedAt": witnessed.isoformat(timespec="milliseconds"), "baselines": baselines,
-              "priorQuarter": release_comparison(store, "retrospective_original", policy["completedExample"], baselines["completedExample"])}
+              "witnessedAt": witnessed.isoformat(timespec="milliseconds"), "baselines": baselines}
+    if include_example:
+        example = SourceStore(root, action == "witness")
+        result["priorQuarter"] = release_comparison(example, "retrospective_original", policy["completedExample"],
+                                                   baselines["completedExample"])
     result_file = root / "first-release.json"
     if action == "compare" or result_file.exists():
-        result["prospective"], native = verified_first_release(root, policy["prospective"], baselines["prospective"],
-                                                              action == "compare")
-        comparison = {"witnessSHA256": result["witnessSHA256"], "prospective": result["prospective"], "sources": native}
-        if action == "compare" and not result_file.exists():
-            try:
+        lock = comparison_lock(root) if action == "compare" else nullcontext()
+        with lock:
+            collect_actual = action == "compare" and not result_file.exists()
+            result["prospective"], native = verified_first_release(root, policy["prospective"], baselines["prospective"],
+                                                                  collect_actual)
+            comparison = {"witnessSHA256": result["witnessSHA256"], "prospective": result["prospective"], "sources": native}
+            if collect_actual:
                 seal(result_file, comparison)
-            except FileExistsError:
-                pass
-        check(json.loads(private_bytes(result_file)) == comparison, "Previously verified first-release comparison changed")
+            check(json.loads(private_bytes(result_file)) == comparison, "Previously verified first-release comparison changed")
     else:
         result["prospective"] = {"status": "awaiting_first_release" if now() < cutoff else "awaiting_verified_first_release",
                                  "scheduledAt": policy["prospective"]["releaseAt"]}
     return result
 
 
+def scheduled(root):
+    if not (root / "prerelease.json").exists():
+        check(not (root / "originals").exists() and not (root / "first-release.json").exists(),
+              "Missing pre-release witness for an existing source store")
+        return {"status": "not_enrolled"}
+    release_at = json.loads(POLICY_FILE.read_bytes())["prospective"]["releaseAt"]
+    if now() < utc(release_at):
+        return {"status": "awaiting_first_release", "scheduledAt": release_at}
+    result_file = root / "first-release.json"
+    completed = result_file.exists()
+    result = command(root, "replay" if completed else "compare", include_example=False)
+    return {"status": "verified_saved_result" if completed else "verified_first_release",
+            "quarter": result["prospective"]["target"], "resultSHA256": sha(private_bytes(result_file)),
+            "availableOnHostAt": result["prospective"]["actualAvailableOnHostAt"]}
+
+
+def scheduled_cli(root):
+    def deadline(_sig, _frame):
+        raise TimeoutError("Scheduled private comparison deadline")
+
+    prior_handler = signal.signal(signal.SIGALRM, deadline)
+    signal.alarm(60)
+    try:
+        result = scheduled(root)
+    except BlockingIOError:
+        result = {"status": "comparison_in_progress"}
+    except TimeoutError:
+        result = {"status": "pending_verification", "reason": "timeout"}
+    except URLError:
+        result = {"status": "pending_verification", "reason": "source_unavailable"}
+    except Exception:
+        # Preserve private survey material and source responses inside the private checker.
+        result = {"status": "pending_verification", "reason": "evidence_unverified"}
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, prior_handler)
+    print(json.dumps(result))
+    return 1 if result["status"] == "pending_verification" else 0
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("witness", "replay", "compare"))
+    parser.add_argument("operation", choices=("witness", "replay", "compare", "scheduled"))
     parser.add_argument("--private-root", type=Path, default=DEFAULT)
     args = parser.parse_args()
+    if args.operation == "scheduled":
+        raise SystemExit(scheduled_cli(args.private_root))
     try:
         print(json.dumps(command(args.private_root, args.operation), indent=2))
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
