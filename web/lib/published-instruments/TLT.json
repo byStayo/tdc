@@ -2,15 +2,15 @@
   "status": "ok",
   "scope": "instrument",
   "symbol": "TLT",
-  "createdAt": "2026-11-24T01:43:32.987Z",
+  "createdAt": "2026-11-25T13:06:22.401Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Thirty-year Treasury yield slips to 5.29% while the ten-year holds",
-    "summary": "The thirty-year yield fell two basis points on November 23. The ten-year stayed at 4.92%, narrowing their spread to 37 basis points. The change matters most for funds exposed to long maturities, including TLT.",
+    "headline": "Thirty-year Treasury yield rises to 5.30%",
+    "summary": "The thirty-year yield rose one basis point on November 24 while the ten-year fell one. The gap between them widened from 37 to 39 basis points.",
     "bull": [
       {
-        "text": "Monday’s lower thirty-year yield supports the price of a long fixed-rate bond, all else equal.",
+        "text": "The ten-year yield eased to 4.91%, one basis point below its November 23 reading.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -18,22 +18,22 @@
     ],
     "bear": [
       {
-        "text": "Asset managers had reduced their net long in Treasury bond futures from 394,990 to 371,794 contracts in the week to November 17. The latest positioning observation therefore predates Monday’s rate move.",
-        "sourceIds": [
-          "CFTC_BOND"
-        ]
-      }
-    ],
-    "watch": [
-      {
-        "text": "Friday’s thirty-year yield was 5.31%. Compare the next long-end reading with that level and Monday’s 5.29% to see whether the decline persists.",
+        "text": "A rise in long-maturity yields lowers the price of a fixed-rate bond when other inputs are held constant.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
       }
     ],
+    "watch": [
+      {
+        "text": "Asset managers were net long 371,794 Treasury bond futures contracts on November 17, down from 394,990 the week before. That positioning report predates the November 24 yield move.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
     "limitations": [
-      "A Treasury par yield, a futures position and an ETF return measure different things. TLT’s open-to-close return requires its own verified session prices."
+      "The Treasury curve tracks benchmark yields. The CFTC release tracks futures positions. TLT’s session return requires independently verified ETF prices."
     ]
   },
   "sources": [

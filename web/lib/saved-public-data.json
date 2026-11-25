@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-24T01:41:48.642Z",
-  "macroRetrievedAt": "2026-11-24T01:37:12.535Z",
-  "positioningRetrievedAt": "2026-11-24T01:37:12.963Z",
+  "collectedAt": "2026-11-25T12:48:42.240Z",
+  "macroRetrievedAt": "2026-11-25T12:48:19.838Z",
+  "positioningRetrievedAt": "2026-11-25T12:48:20.325Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -261,46 +261,6 @@
       "url": "https://fred.stlouisfed.org/series/DPRIME",
       "observations": [
         {
-          "date": "2026-08-18",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-19",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-20",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-21",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-24",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-25",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-26",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-27",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-28",
-          "value": 6.75
-        },
-        {
-          "date": "2026-08-31",
-          "value": 6.75
-        },
-        {
           "date": "2026-09-01",
           "value": 6.75
         },
@@ -498,6 +458,46 @@
         },
         {
           "date": "2026-11-09",
+          "value": 7
+        },
+        {
+          "date": "2026-11-10",
+          "value": 7
+        },
+        {
+          "date": "2026-11-11",
+          "value": 7
+        },
+        {
+          "date": "2026-11-12",
+          "value": 7
+        },
+        {
+          "date": "2026-11-13",
+          "value": 7
+        },
+        {
+          "date": "2026-11-16",
+          "value": 7
+        },
+        {
+          "date": "2026-11-17",
+          "value": 7
+        },
+        {
+          "date": "2026-11-18",
+          "value": 7
+        },
+        {
+          "date": "2026-11-19",
+          "value": 7
+        },
+        {
+          "date": "2026-11-20",
+          "value": 7
+        },
+        {
+          "date": "2026-11-23",
           "value": 7
         }
       ]
@@ -841,7 +841,7 @@
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-24T01:37:12.516Z",
+      "retrievedAt": "2026-11-25T12:48:19.900Z",
       "data": [
         {
           "id": "sec:0000320193:0001140361-26-044952",
@@ -927,7 +927,7 @@
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-24T01:37:12.729Z",
+      "retrievedAt": "2026-11-25T12:48:20.122Z",
       "data": [
         {
           "id": "sec:0000789019:0000789019-26-000236",
@@ -1013,7 +1013,7 @@
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-24T01:37:13.014Z",
+      "retrievedAt": "2026-11-25T12:48:20.361Z",
       "data": [
         {
           "id": "sec:0001045810:0001696841-26-000016",
@@ -1099,8 +1099,18 @@
     },
     {
       "symbol": "WMT",
-      "retrievedAt": "2026-11-24T01:37:13.305Z",
+      "retrievedAt": "2026-11-25T12:48:20.648Z",
       "data": [
+        {
+          "id": "sec:0000104169:0001959173-26-008280",
+          "company": "Walmart Inc.",
+          "cik": "0000104169",
+          "form": "144",
+          "filedAt": "2026-11-24",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000195917326008280/xsl144X01/primary_doc.xml",
+          "description": "144 filing"
+        },
         {
           "id": "sec:0000104169:0001696737-26-000023",
           "company": "Walmart Inc.",
@@ -1170,16 +1180,6 @@
           "reportDate": "2026-11-13",
           "url": "https://www.sec.gov/Archives/edgar/data/104169/000173985926000004/xslF345X06/wk-form3_1794871045.xml",
           "description": "FORM 3"
-        },
-        {
-          "id": "sec:0000104169:0001739859-26-000003",
-          "company": "Walmart Inc.",
-          "cik": "0000104169",
-          "form": "4",
-          "filedAt": "2026-11-16",
-          "reportDate": "2026-11-13",
-          "url": "https://www.sec.gov/Archives/edgar/data/104169/000173985926000003/xslF345X06/wk-form4_1794871039.xml",
-          "description": "FORM 4"
         }
       ]
     }

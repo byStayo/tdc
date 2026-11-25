@@ -2218,5 +2218,29 @@
     "instrument": "TLT",
     "horizon": "daily",
     "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-23T13-08-51-071Z",
+    "instrument": "SPY",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-23T13-08-51-071Z",
+    "instrument": "QQQ",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-23T13-08-51-071Z",
+    "instrument": "IWM",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
+  },
+  {
+    "snapshotId": "2026-11-23T13-08-51-071Z",
+    "instrument": "DIA",
+    "horizon": "daily",
+    "engineVersion": "consensus-rules-2.0.0"
   }
 ]

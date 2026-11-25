@@ -1,15 +1,15 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-24T01:43:32.986Z",
+  "createdAt": "2026-11-25T13:06:22.401Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Two- and ten-year yields hold steady after Friday’s decline",
-    "summary": "The two-year Treasury yield ended Monday at 4.63% and the ten-year at 4.92%, both level with Friday. The thirty-year yield edged down two basis points to 5.29%.",
+    "headline": "Ten-year Treasury yield eases as thirty-year rises",
+    "summary": "On November 24 the ten-year Treasury yield slipped one basis point to 4.91% while the thirty-year rose one to 5.30%. The two-year held at 4.63%.",
     "bull": [
       {
-        "text": "The rise in bond prices implied by Monday’s yield decline was concentrated at the long end. The thirty-year benchmark eased from 5.31% on November 20 to 5.29% on November 23.",
+        "text": "The ten-year yield fell from 4.92%. Its spread over the two-year narrowed from 29 to 28 basis points.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -17,7 +17,7 @@
     ],
     "bear": [
       {
-        "text": "Borrowers watching the ten-year benchmark saw no further easing on Monday. Its spread over the two-year held at 29 basis points.",
+        "text": "The thirty-year yield moved up from 5.29%, leaving the longest benchmark with a higher borrowing rate than on November 23.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
@@ -25,14 +25,14 @@
     ],
     "watch": [
       {
-        "text": "The thirty-year yield ended 37 basis points above the ten-year, down from 39 on Friday. The next release will show whether that gap narrows further.",
+        "text": "The thirty-year yield finished 39 basis points above the ten-year, compared with 37 the previous session.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
       }
     ],
     "limitations": [
-      "Treasury reports constant-maturity par yields. These benchmark levels measure borrowing conditions and do not establish the return or direction of a stock index."
+      "The Treasury series measures constant-maturity par yields. Equity ETF returns are measured separately."
     ]
   },
   "sources": [
