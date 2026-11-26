@@ -1,0 +1,16 @@
+{
+  "status": "insufficient_data",
+  "engineVersion": "consensus-rules-2.0.0",
+  "samples": 3,
+  "minimum": 500,
+  "datasetHash": "3223b64a7ced7f14fb1eb37c7dedc7347931577379dbe3fd59b35d0f4902fa16",
+  "promoted": false,
+  "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+  "promotionEvidence": null,
+  "instrument": "IWM",
+  "horizon": "daily",
+  "priceAdjustment": "total-return-adjusted",
+  "evaluatedAt": "2026-11-25T13:07:22.469Z",
+  "activated": false,
+  "featureSchema": "family-score-plus-observation-mask-v1"
+}

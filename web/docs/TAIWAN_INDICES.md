@@ -1,0 +1,42 @@
+# Taiwan equity context
+
+The connected source is Taiwan Stock Exchange (TWSE) end-of-day index data. It supplies Taiwan context, not US ETF prices or complete global equity coverage. Both series remain nonvoting across all instruments and horizons. The original US price, premarket, options and outcome requirements remain open.
+
+## Source and reuse
+
+The government catalogue identifies [TAIEX price-index history](https://data.gov.tw/en/datasets/11755) and the [TAIEX total-return index](https://data.gov.tw/dataset/11871) as free daily datasets under [Open Government Data License 1.0](https://data.gov.tw/en/license). Both point to TWSE's [official OpenAPI schema](https://openapi.twse.com.tw/v1/swagger.json). The licence permits retention, public reuse and derived analysis with attribution; it grants no trademark or endorsement rights. TWSE's [general website terms, section 8](https://www.twse.com.tw/zh/terms/use.html) recognize the separate government open-data licence.
+
+The public panel and new saved provenance use the full agency and dataset names, observation year, licence Exhibit statement and canonical licence URL. No dataset version is supplied by the catalogue. `/consensus/ATTRIBUTION.txt` supplies this complete notice for archived Taiwan data and test fixtures, including the immutable first Taiwan edition. That exact first archive is accepted only in archive mode with its pinned canonical hash; its abbreviated attribution cannot pass new-publication validation. The attribution correction creates a new edition without rewriting earlier data.
+
+Two documented no-key endpoints:
+
+- `https://openapi.twse.com.tw/v1/indicesReport/MI_5MINS_HIST`: latest-month opening, high, low and closing price-index levels.
+- `https://openapi.twse.com.tw/v1/indicesReport/MFI94U`: latest-month total-return index, with distributions reinvested as defined by TWSE.
+
+Original responses retrieved on November 4, 2026 each contained three observations, November 2–4. Source hashes and retrieval timestamps are captured. The saved source date is the observation date, converted from the ROC calendar. HTTP modification dates and catalogue update dates are not substituted for a release timestamp. No exact release clock time is supplied.
+
+## Contracts
+
+The two source series retain separate identities, hashes, observation dates and index-point units. They are related measures of one market, never two independent votes. Displayed percentage change is between the last two returned sessions; it is not an annualized return or a US price response. A one-session month has a known level and no percentage comparison. Sparklines have independent scales and state their actual sample window.
+
+The parser bounds response size and rows, requires the documented fields, validates real dates and numeric values, rejects duplicate or mixed-month dates, and checks the OHLC range. Validation failures withhold the source. Only transport failures can retain earlier verified observations, preserving their original age and displaying the existing refresh notice. Seven-day stale limits still apply.
+
+Full morning collection includes both broad series. The publisher also reads the dated semiconductor comparison described below. `npm run consensus:taiwan` makes the bounded Taiwan-only draft; append `-- --publish` for the normal immutable publication path. It preserves unrelated observations and reports, while changing the existing international gap wording to reflect partial regional coverage. A repeated retrieval with identical observations does not create an edition. Neither command scores outcomes, fits models or republishes a social sample.
+
+Old editions contain only their stored data and do not acquire the Taiwan panel. Earlier archives are never rewritten. Future month rollover creates a new dated window; this endpoint does not promise complete historical backfill.
+
+## UI decisions
+
+Live Jev 1.14.0 chose paired rows. Its first placement decision requested expanded candidates; a second bounded request chose a full-width panel below the currencies/rates group. Both requests, answer probabilities and usage are recorded in `jev-taiwan-*.json`. The combination preserves the existing source drawer and 44px controls. Implementation maps the state description's color names to the actual `--positive`/`--negative` tokens and uses the existing `--font-display`. Confidence is a choice distribution, not evidence of visual quality; rendered checks are recorded separately in the root build ledger.
+
+## QQQ semiconductor comparison
+
+The weekday full collector and Taiwan-only refresh now check the signed changes in TWSE’s domestic semiconductor price index and TAIEX price index on the date of the last completed U.S. session. They read the government catalogue CSV and the exchange’s dated JSON report, and verify each percentage against its reported closing level and signed point change. The two formats describe one exchange observation. The derived spread belongs to QQQ and has no directional vote. Earlier Taiwan panels retain their original two broad indices. [Daily market statistics](https://data.gov.tw/en/datasets/11555) · [TWSE index methodology](https://www.twse.com.tw/downloads/en/products/indices/IndexSen03.pdf) · [Open Government Data License](https://data.gov.tw/en/license)
+
+The annual Taiwan calendar identifies closed and settlement-only dates, and explicitly marks the sessions when trading resumes. A Taiwan holiday on the exact required date leaves the observation unavailable. A shortened U.S. target or a gap in the reviewed U.S. calendar precludes enrollment. Actual capture times establish when information was available to the publisher. The local market closes at 1:30 p.m. Taipei time. The first verified originals and their timestamps stay under the owner-only `.consensus/private-twse-sector` directory. [Taiwan exchange calendar](https://data.gov.tw/en/datasets/11761) · [Trading hours](https://www.twse.com.tw/en/products/system/trading.html) · [U.S. calendar coverage](US_EQUITY_CALENDAR_REVIEW.md)
+
+From `web`, run `npm run consensus:taiwan-sector-study -- --register` once. The registration is idempotent. Read aggregate status with `npm run consensus:taiwan-sector-study -- --status`. Ordinary live pre-open verification enrolls the witnessed comparison. Only the first qualifying core settlement for the final QQQ edition and full session can supply the private label. The native Taiwan session must begin after registration. The held-out comparison requires 300 training dates, 100 validation dates and 100 test dates. The controls are the broad TAIEX move, the training prevalence and 0.50. [Frozen method](../lib/consensus/twse-sector-study-policy.ts)
+
+November 23’s two native deliveries agreed on a +2.58% semiconductor move and +2.16% broad move, a difference of +0.42 percentage points. November 24’s values were +9.78% and +8.99%, a difference of +0.79 points. Both were reviewed before registration. Neither enters a forward test. For registration on November 24 before the next Taiwan open, November 30 is the first possible full U.S. target, using verified November 27 Taiwan data. The published 2026 and 2027 Taiwan calendars and reviewed U.S. calendars allow at most 254 such targets from November 30, 2026 through December 30, 2027. Actual source delivery, witnesses and settlement can reduce that count.
+
+A source-only historical check established four pre-open vintages. Internet Archive retained the original October 15 and October 16 exchange reports. GitHub’s server-stamped check suites fixed October 29 and October 30 copies of both index rows before the respective U.S. cutoffs. All four reconciled to dated exchange originals. The historical registration needs 120 dates, so the check opened zero QQQ outcomes. [October 15 exchange capture](https://web.archive.org/web/20261016044931id_/https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20261015&type=IND&response=json) · [October 16 exchange capture](https://web.archive.org/web/20261016165436id_/https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20261016&type=IND&response=json) · [October 29 GitHub receipt](https://api.github.com/repos/joy40217/TWSE-daily/commits/6c8e58c7a7a4f9c3e83730db7db90516aec5593c/check-suites) · [October 30 GitHub receipt](https://api.github.com/repos/joy40217/TWSE-daily/commits/c1f69c11fba09a647b1ee81b3c69a84ebbed4647/check-suites)

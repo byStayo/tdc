@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-24T01:43:32.987Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Thirty-year Treasury yield slips to 5.29% while the ten-year holds",
+    "summary": "The thirty-year yield fell two basis points on November 23. The ten-year stayed at 4.92%, narrowing their spread to 37 basis points. The change matters most for funds exposed to long maturities, including TLT.",
+    "bull": [
+      {
+        "text": "Monday’s lower thirty-year yield supports the price of a long fixed-rate bond, all else equal.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers had reduced their net long in Treasury bond futures from 394,990 to 371,794 contracts in the week to November 17. The latest positioning observation therefore predates Monday’s rate move.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Friday’s thirty-year yield was 5.31%. Compare the next long-end reading with that level and Monday’s 5.29% to see whether the decline persists.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "A Treasury par yield, a futures position and an ETF return measure different things. TLT’s open-to-close return requires its own verified session prices."
+    ]
+  },
+  "sources": [
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    },
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    }
+  ]
+}

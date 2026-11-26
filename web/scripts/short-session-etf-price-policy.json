@@ -1,0 +1,25 @@
+{
+  "method": "short-session-etf-prices-2025-v1",
+  "selectedAt": "2026-11-24T18:19:36.246898+00:00",
+  "scope": "All three calendar-scheduled early closes in the last fully completed calendar year before the first production forecast. Fixed historical evaluation only.",
+  "dates": [
+    "2025-07-03",
+    "2025-11-28",
+    "2025-12-24"
+  ],
+  "symbols": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "TLT"
+  ],
+  "sources": [
+    "NYSE and Nasdaq session calendars",
+    "Market History consolidated hourly raw and split-only on two clocks",
+    "Kibot as-traded and split-only, evaluation access",
+    "Available original listing venue auction receipts and fund issuer cash ex-dates"
+  ],
+  "rules": "Require a genuine 09:30 New York opening bucket and a 12:00 New York bucket ending at the 13:00 scheduled close. Compare the same date and fund across both bases at each source. Report ordinary-boundary agreement within 3 and 15 bps with identical daily sign separately from exact agreement with the executed opening and closing listing auctions. Record every difference or missing check. No target replacement, training, vote, prospective label or calendar extension.",
+  "priorKnowledge": "November 28, 2025 previously studied, including a DIA open discrepancy and QQQ and TLT executed Nasdaq auctions. Include it regardless of results."
+}

@@ -1,0 +1,55 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-03T04:16:34.456Z",
+  "model": "Codex editorial workflow",
+  "message": "Published IWM research using the linked public evidence. The futures reporting dates are shown in the analysis; refreshing this page does not generate a new report.",
+  "data": {
+    "headline": "IWM: less net short, but no broad agreement.",
+    "summary": "Russell E-mini futures show two different changes in the October 27 report. Leveraged funds were less net short, while asset managers held a smaller net long balance. That combination does not establish broad demand for IWM or a small-cap reversal.",
+    "bull": [
+      {
+        "text": "Leveraged funds’ Russell E-mini net short balance narrowed from 53,035 contracts on October 20 to 48,081 on October 27, a reduction of 4,954. Both gross longs and gross shorts declined, so the net improvement should not be described as fresh long buying.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers’ net long balance declined from 30,960 to 19,602 contracts across the same dates. Long positions fell from 148,470 to 142,993 while short positions rose from 117,510 to 123,391.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Open interest declined from 466,789 to 458,959 contracts. Look for whether the next report changes both gross exposure and the split between categories; contract counts do not measure dollars entering or leaving IWM.",
+        "sourceIds": [
+          "CFTC_RTY",
+          "CFTC_METHOD"
+        ]
+      }
+    ],
+    "limitations": [
+      "CFTC observations are for October 27 and October 20, 2026. These are weekly futures-only reports released after their observation dates, not live positions.",
+      "The related futures contract is not the ETF. Trader-category net positions are long-minus-short contract counts; they are not ETF fund flows, dollar exposure or evidence of investor intent.",
+      "No current support/resistance levels, options chain, gamma levels or dark-pool signal were collected for this report. Hosted charts remain separate from the editorial evidence.",
+      "This AI-assisted report presents supporting observations and counterpoints, without a validated price forecast or conviction score. It is general research, not a buy or sell instruction."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    },
+    {
+      "id": "CFTC_METHOD",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+    }
+  ]
+}

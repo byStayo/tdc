@@ -1,0 +1,58 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Fill the required management-guidance gap in the visual morning market product without adding clutter to the recently simplified landing view.",
+    "catalog": [
+      "Existing collapsed News & company earnings research section",
+      "Reported revenue cards with actual period dates and source drawer",
+      "Neutral range rows with endpoint labels",
+      "Two responsive cards",
+      "Compact accessible table",
+      "Native disclosure for assumptions/provenance"
+    ],
+    "tokens": {
+      "fonts": "self-hosted Manrope body and Space Grotesk headings",
+      "colors": "--panel --text --text-secondary --text-muted --accent --border; charcoal/sage dark and warm neutral light",
+      "target": "44px controls; 390px phone and 1280px desktop; no color-only meaning; reduced motion"
+    },
+    "facts": {
+      "MSFT": "Management Q2 FY2027 revenue guidance $96.0–97.1bn, issued Oct28, from official conference-call transcript; not actual or analyst consensus.",
+      "NVDA": "Management Q3 FY2027 revenue midpoint $108bn plus/minus2%, issued Aug26; derived endpoints $105.84–110.16bn. No China data-center compute revenue assumed. Next scheduled results Nov17. Not actual revenue or analyst consensus."
+    },
+    "constraints": [
+      "Place entirely inside existing earnings research disclosure, after reported results; no new top-level tab or hero item",
+      "Clearly distinguish target fiscal quarter, guidance issue date and source retrieval date",
+      "A row becomes review-due after 120 days or when the matching scheduled results day arrives; never call it updated or superseded without evidence",
+      "No comparable actuals for either guided quarter; never imply a beat or outcome",
+      "Keep original published range format and source links; derived endpoints explicitly labelled",
+      "No fabricated distribution, confidence band, forecast performance or directional vote",
+      "Older snapshots lacking guidance must not gain these rows retroactively"
+    ],
+    "choices": [
+      "plain endpoint interval, not performance gauge",
+      "compact source details",
+      "visible guidance caveat"
+    ]
+  },
+  "questions": {
+    "layout": {
+      "type": "choice",
+      "instructions": "Select the clearest compact presentation for two different companies and fiscal quarters inside the existing earnings section.",
+      "criteria": {
+        "range_rows": "Two aligned rows, each with company and fiscal quarter, prominent low/high revenue interval joined by a neutral line, original range format and issue date; stack metadata below each row on phones.",
+        "cards": "Two equal cards with large range text, company/quarter and provenance; stack on phones.",
+        "table": "A semantic table with company, fiscal quarter, original guidance range, issued date and source.",
+        "expand_candidates": "None of these layouts fits; expand candidates before implementation."
+      }
+    },
+    "details": {
+      "type": "choice",
+      "instructions": "Choose what to show immediately versus in each row disclosure so company forecasts remain honest without recreating the dense dashboard.",
+      "criteria": {
+        "essential_inline": "Immediately show company/quarter, management-guidance label, original range format, issue date, review-due status if applicable and one-line limits; reveal assumptions, source retrieval/hash and direct citation in a native disclosure.",
+        "all_inline": "Show every assumption, retrieval date, source hash and citation immediately next to the range.",
+        "mostly_collapsed": "Show only company and range; put provenance, quarter, limitations and review status in a disclosure."
+      }
+    }
+  }
+}

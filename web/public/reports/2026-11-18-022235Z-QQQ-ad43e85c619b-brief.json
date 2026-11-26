@@ -1,0 +1,52 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-18T02:22:35.142Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Nasdaq futures net longs diverge as benchmark yields stay higher",
+    "summary": "Leveraged funds increased their E-mini Nasdaq-100 net long in the November 10 report while the asset-manager net long edged lower. The ten-year yield eased on November 16 but stayed above the previous week’s reading.",
+    "bull": [
+      {
+        "text": "The leveraged-fund net long rose from 10,073 to 13,967 contracts between November 3 and 10. Both sides of the position declined, with short holdings falling more than longs.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The ten-year Treasury yield was 5.12% on November 16, 24 basis points above November 9. Higher benchmark discount rates can put pressure on valuations that depend on distant earnings.",
+        "sourceIds": [
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The asset-manager net long slipped from 73,137 to 72,785 contracts and open interest declined from 292,587 to 288,717. The next report can show whether leveraged funds continue to move differently from asset managers.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "limitations": [
+      "The CFTC observations are for E-mini Nasdaq-100 futures as of November 10. They are separate from QQQ holdings, flows and realized returns.",
+      "Treasury yields alone cannot establish a valuation change or cause an ETF move. This report has no verified QQQ closing price, return, options exposure or dealer gamma."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    }
+  ]
+}

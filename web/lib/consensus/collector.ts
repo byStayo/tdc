@@ -1,0 +1,1021 @@
+import { collectIssuerGuidance } from "./issuer-guidance-match.ts";
+import { REVENUE_ISSUERS } from "./issuer-revenue.ts";
+import { collectNews } from "./news.ts";
+import { collectBlsPayrollNews } from "./bls-payroll-news.ts";
+import { newYorkTimestamp } from "./time.ts";
+export { newYorkTimestamp } from "./time.ts";
+import type { PublicDocument } from "./calendars.ts";
+import { collectMarketCalendarsWithAuction } from "./auction-dispersion-study.ts";
+import { collectCapital } from "./capital.ts";
+import { collectPrivateFunds } from "./private-funds.ts";
+import { collectPrivateCredit } from "./private-credit.ts";
+import { collectOperfCapital } from "./operf-capital-source.ts";
+import { collectHouseholdEquity, HOUSEHOLD_EQUITY_ID } from "./household-equity.ts";
+import { collectBocSurvey } from "./boc-survey.ts";
+import { collectNyFedDeskSurvey } from "./nyfed-desk-survey.ts";
+import { collectRetailWithOriginals } from "./prospective-retail.ts";
+import { collectDealerPositionsWithStudy, DEALER_DIRECTORY } from "./dealer-study-sources.ts";
+import { collectSchwabRetailFlows } from "./schwab-retail-flows.ts";
+import { collectVxCurve, VX_CURVE_ID } from "./vx-curve.ts";
+import { collectJapanPortfolioFlows } from "./japan-portfolio-flows.ts";
+import { archivedOnsReader, collectOnsInflation } from "./ons-inflation.ts";
+import { collectFedRetailMoney } from "./fed-retail-money.ts";
+import { collectUsTrade, TRADE_ID } from "./us-trade.ts";
+import { collectPolicyRates } from "./policy.ts";
+import { collectHoldings } from "./holdings.ts";
+import { collectAnalystRatings } from "./analyst-ratings.ts";
+import { collectEtfFlows } from "./etf-flows.ts";
+import { collectEtfiqRetailOrders, collectSecMidas } from "./order-activity.ts";
+import { collectFuturesOptions } from "./futures-options.ts";
+import { join } from "node:path";
+import { collectMarketHistoryVolatility } from "./market-history-volatility.ts";
+import { collectOptionActivity } from "./option-activity.ts";
+import { cftcTableClock, cftcReportCitation } from "./cftc-provenance.ts";
+import { collectTaiwanForPublication } from "./taiwan.ts";
+import { fedMarketProviders } from "./fed-market-data.ts";
+import { federalReserveBoardProviders } from "./board-statistics.ts";
+import { sourceFailureKind } from "./source-failure.ts";
+import { publicBytes, publicText, type Fetcher } from "./public-source.ts";
+export { publicBytes, publicText, safeURL } from "./public-source.ts";
+import { createHash } from "node:crypto";
+import { MACRO_SERIES, ENGINE_VERSION, missingSignals } from "./registry.ts";
+import { clamp } from "./engine.ts";
+import { applyScoringPolicy } from "./scoring-policy.ts";
+import {
+  latestPublicPositioning,
+  PUBLIC_CONTRACT_CODES,
+  publicDate,
+} from "../public-normalization.ts";
+import type {
+  Signal,
+  Point,
+  Snapshot,
+  Catalyst,
+  Instrument,
+  Provenance,
+} from "./types.ts";
+
+const ALL: Instrument[] = ["MARKET", "SPY", "QQQ", "IWM", "DIA", "TLT"];
+const noScores = () => ({ daily: null, weekly: null, monthly: null });
+function source(
+  input: Partial<Provenance> & Pick<Provenance, "name" | "url" | "retrievedAt">,
+): Provenance {
+  return {
+    observedAt: null,
+    releasedAt: null,
+    frequency: "daily",
+    attribution: input.name,
+    usage:
+      "Official public observations; modifications attributed to The Daily Consensus",
+    sha256: null,
+    ...input,
+  };
+}
+function blank(
+  id: string,
+  title: string,
+  family: Signal["family"],
+  url: string,
+  at: string,
+): Signal {
+  return {
+    id,
+    title,
+    shortLabel: title,
+    family,
+    instruments: ALL,
+    status: "unavailable",
+    summary: "The source did not return a usable observation.",
+    source: source({ name: title, url, retrievedAt: at }),
+    methodology:
+      "Official public source with dated observations; no substitute values on failure.",
+    limitation: "Missing is not neutral.",
+    series: [],
+    metrics: [],
+    scores: noScores(),
+    staleAfterDays: 7,
+    unit: "",
+  };
+}
+function changeScore(
+  series: Point[],
+  count: number,
+  scale: number,
+  polarity: number,
+): number | null {
+  return series.length > count
+    ? clamp(
+        ((series.at(-1)!.value - series.at(-1 - count)!.value) / scale) *
+          polarity,
+      )
+    : null;
+}
+export async function macro(fetcher: Fetcher, treasuryDocuments?: ReadonlyMap<string, PublicDocument>): Promise<Signal[]> {
+  const now = new Date().toISOString();
+  const read = async (url: string) => treasuryDocuments?.get(url) ?? publicText(url, fetcher);
+  const providers = { ...fedMarketProviders(read, now), ...federalReserveBoardProviders(read) };
+  return Promise.all(
+    MACRO_SERIES.map(async (descriptor) => {
+      const provider = providers[descriptor.id];
+      // Keep existing series IDs for rule replay. Provenance identifies the actual origin.
+      const signal = blank(`fred-${descriptor.id}`, descriptor.title, descriptor.family, provider.source.url, now);
+      signal.source = source({ ...provider.source, retrievedAt: now, frequency: descriptor.frequency });
+      signal.unit = descriptor.unit;
+      signal.staleAfterDays = descriptor.lag;
+      signal.methodology = `Change in the published series scaled by ${descriptor.scale} ${descriptor.unit}, capped to [-1,1], with ${descriptor.polarity > 0 ? "rises" : "falls"} treated as a supportive prior. Daily/weekly/monthly views use ${descriptor.frequency === "daily" ? "1/5/21 observations" : descriptor.frequency === "weekly" ? "1/4/13 observations" : "1/3/6 observations"}. These are context windows, not validated return predictions.`;
+      signal.limitation =
+        "Macro relationships change by regime. Latest-vintage observations may be revised; historical values are not an as-known backtest.";
+      try {
+        const reading = await provider.read();
+        const { series } = reading;
+        if (!series.length) throw new Error("No numeric observations");
+        const current = series.at(-1)!,
+          previous = series.at(-2),
+          windows =
+            descriptor.frequency === "daily"
+              ? [1, 5, 21]
+              : descriptor.frequency === "weekly"
+                ? [1, 4, 13]
+                : [1, 3, 6];
+        return {
+          ...signal,
+          status: "available" as const,
+          source: source({
+            ...(reading.source ?? provider.source),
+            retrievedAt: reading.retrievedAt,
+            releasedAt: reading.releasedAt,
+            sha256: reading.sha256,
+            observedAt: current.date,
+            frequency: descriptor.frequency,
+          }),
+          series,
+          metrics: [
+            {
+              label: descriptor.title,
+              value: current.value,
+              unit: descriptor.unit,
+              date: current.date,
+            },
+            ...(previous
+              ? [
+                  {
+                    label: "Change from previous observation",
+                    value: current.value - previous.value,
+                    unit: descriptor.unit,
+                    date: current.date,
+                  },
+                ]
+              : []),
+          ],
+          summary: previous
+            ? `${current.value.toLocaleString("en-US", { maximumFractionDigits: 3 })} ${descriptor.unit}; ${current.value > previous.value ? "up" : current.value < previous.value ? "down" : "unchanged"} from the previous ${descriptor.frequency} observation.`
+            : "Latest published observation.",
+          scores: {
+            daily: changeScore(
+              series,
+              windows[0],
+              descriptor.scale,
+              descriptor.polarity,
+            ),
+            weekly: changeScore(
+              series,
+              windows[1],
+              descriptor.scale,
+              descriptor.polarity,
+            ),
+            monthly: changeScore(
+              series,
+              windows[2],
+              descriptor.scale,
+              descriptor.polarity,
+            ),
+          },
+        };
+      } catch (error) {
+        signal.failureKind = sourceFailureKind(error);
+        signal.summary = `Source unavailable: ${error instanceof Error ? error.message : "fetch failed"}.`;
+        return signal;
+      }
+    }),
+  );
+}
+export function ecbPoints(xml: string): Map<string, Point[]> {
+  const result = new Map<string, Point[]>();
+  for (const match of xml.matchAll(
+    /<Cube\s+time=['"](\d{4}-\d{2}-\d{2})['"]\s*>([\s\S]*?)<\/Cube>/g,
+  )) {
+    for (const value of match[2].matchAll(
+      /<Cube\s+currency=['"]([A-Z]{3})['"]\s+rate=['"]([0-9.]+)['"]\s*\/>/g,
+    )) {
+      if (
+        !publicDate(match[1]) ||
+        !Number.isFinite(Number(value[2])) ||
+        Number(value[2]) <= 0
+      )
+        continue;
+      result.set(value[1], [
+        ...(result.get(value[1]) ?? []),
+        { date: match[1], value: Number(value[2]) },
+      ]);
+    }
+  }
+  for (const points of result.values())
+    points.sort((a, b) => a.date.localeCompare(b.date));
+  return result;
+}
+export const FX_CURRENCIES = ["EUR", "JPY", "GBP", "CHF", "CAD", "AUD", "CNY"] as const;
+export async function currencies(fetcher: Fetcher): Promise<Signal[]> {
+  const url =
+    "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
+  try {
+    const response = await publicText(url, fetcher);
+    const rows = ecbPoints(response.text),
+      usd = rows.get("USD");
+    if (!usd?.length) throw new Error("No ECB dollar series");
+    return FX_CURRENCIES.map((currency) => {
+      const input =
+        currency === "EUR"
+          ? usd.map((point) => ({ ...point, value: 1 }))
+          : (rows.get(currency) ?? []);
+      const pairs = input.flatMap((point) => {
+        const dollar = usd.find((item) => item.date === point.date);
+        return dollar && point.date <= response.retrievedAt.slice(0, 10)
+          ? [{ date: point.date, value: dollar.value / point.value }]
+          : [];
+      });
+      const latest = pairs.at(-1),
+        previous = pairs.at(-2),
+        signal = blank(
+          `fx-${currency}`,
+          `${currency} / USD`,
+          "fx",
+          url,
+          response.retrievedAt,
+        );
+      return {
+        ...signal,
+        status: latest ? ("available" as const) : ("unavailable" as const),
+        ...(latest ? {} : { failureKind: "validation" as const }),
+        series: pairs,
+        unit: "USD",
+        metrics: latest
+          ? [
+              {
+                label: `1 ${currency} in USD`,
+                value: latest.value,
+                unit: "USD",
+                date: latest.date,
+              },
+              ...(previous
+                ? [
+                    {
+                      label: "Daily change",
+                      value: (latest.value / previous.value - 1) * 100,
+                      unit: "%",
+                      date: latest.date,
+                    },
+                  ]
+                : []),
+            ]
+          : [],
+        summary:
+          latest && previous
+            ? `${currency} ${latest.value > previous.value ? "strengthened" : latest.value < previous.value ? "weakened" : "was unchanged"} against the US dollar at the reference fix.`
+            : "Reference exchange rate.",
+        source: source({
+          name: "European Central Bank",
+          url,
+          retrievedAt: response.retrievedAt,
+          sha256: response.sha256,
+          observedAt: latest?.date ?? null,
+          attribution:
+            "Source: ECB. USD cross rates and percentage changes calculated by The Daily Consensus.",
+        }),
+        methodology:
+          "ECB units per euro are converted into USD per unit of the selected currency using same-date USD/EUR. Published reference fixes are not executable quotes. Currency moves remain context, not extra equity-direction votes.",
+        limitation: "Daily reference fix; no live or intraday currency prices.",
+        scores: noScores(),
+      };
+    });
+  } catch (error) {
+    return FX_CURRENCIES.map((currency) => ({
+      ...blank(`fx-${currency}`, `${currency} / USD`, "fx", url, new Date().toISOString()),
+      failureKind: sourceFailureKind(error),
+    }));
+  }
+}
+const CONTRACTS: Record<string, { symbol: Instrument; title: string }> = {
+  "13874A": { symbol: "SPY", title: "S&P 500 futures" },
+  "209742": { symbol: "QQQ", title: "Nasdaq-100 futures" },
+  "239742": { symbol: "IWM", title: "Russell 2000 futures" },
+  "124603": { symbol: "DIA", title: "Dow futures" },
+  "020601": { symbol: "TLT", title: "Treasury bond futures" },
+  "043602": { symbol: "TLT", title: "10-year Treasury futures" },
+};
+export function positioningRows(raw: unknown[], code: string, cutoff: string) {
+  type Row = ReturnType<typeof latestPublicPositioning>[number] & { clock: ReturnType<typeof cftcTableClock> };
+  const rows = new Map<string, Row>();
+  for (const item of raw) {
+    const [position] = latestPublicPositioning([item], [code]);
+    if (!position || position.reportDate > cutoff.slice(0,10)) continue;
+    const clock = cftcTableClock(item as Record<string, unknown>, position.reportDate, code, cutoff);
+    const prior = rows.get(position.reportDate);
+    if (prior) {
+      const { clock: previousClock, ...previousPosition } = prior;
+      if (JSON.stringify(previousPosition) !== JSON.stringify(position) ||
+          (previousClock && clock && previousClock.createdAt !== clock.createdAt))
+        throw new Error("Conflicting CFTC rows for one contract and report date");
+      if (previousClock && (!clock || previousClock.updatedAt >= clock.updatedAt)) continue;
+    }
+    rows.set(position.reportDate, { ...position, clock });
+  }
+  return [...rows.values()].sort((a,b)=>a.reportDate.localeCompare(b.reportDate));
+}
+export async function positioning(fetcher: Fetcher): Promise<Signal[]> {
+  const url = new URL(
+    "https://publicreporting.cftc.gov/resource/gpe5-46if.json",
+  );
+  url.searchParams.set("$limit", "300");
+  url.searchParams.set("$order", "report_date_as_yyyy_mm_dd DESC");
+  url.searchParams.set(
+    "$where",
+    `cftc_contract_market_code in (${PUBLIC_CONTRACT_CODES.map((code) => `'${code}'`).join(",")})`,
+  );
+  url.searchParams.set(
+    "$select",
+    "id,report_date_as_yyyy_mm_dd,contract_market_name,market_and_exchange_names,cftc_contract_market_code,contract_units,open_interest_all,asset_mgr_positions_long,asset_mgr_positions_short,lev_money_positions_long,lev_money_positions_short,dealer_positions_long_all,dealer_positions_short_all,futonly_or_combined,:created_at,:updated_at",
+  );
+  let response: Awaited<ReturnType<typeof publicText>> | null = null,
+    raw: unknown[] = [];
+  let failureKind: Signal["failureKind"] = "validation";
+  try {
+    response = await publicText(url.href, fetcher);
+    const data: unknown = JSON.parse(response.text);
+    if (Array.isArray(data)) raw = data;
+  } catch (error) {
+    failureKind = sourceFailureKind(error);
+    /* Each contract remains explicitly unavailable. */
+  }
+  return Object.entries(CONTRACTS).flatMap(([code, contract]) => {
+    let rows: ReturnType<typeof positioningRows> = [];
+    let contractFailure = failureKind;
+    try { rows = positioningRows(raw, code, response?.retrievedAt ?? ""); }
+    catch { contractFailure = "validation"; }
+    return (["asset", "leveraged"] as const).map((category) => {
+      const title = `${contract.title} · ${category === "asset" ? "asset managers" : "leveraged funds"}`,
+        citation = `https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=${code}`;
+      const signal = blank(
+        `cftc-${code}-${category}`,
+        title,
+        "institutions",
+        citation,
+        response?.retrievedAt ?? new Date().toISOString(),
+      );
+      const series = rows.flatMap((row) => {
+        const long =
+            category === "asset" ? row.assetManagerLong : row.leveragedLong,
+          short =
+            category === "asset" ? row.assetManagerShort : row.leveragedShort;
+        return long !== null && short !== null && row.openInterest
+          ? [
+              {
+                date: row.reportDate,
+                value: ((long - short) / row.openInterest) * 100,
+              },
+            ]
+          : [];
+      });
+      const latest = series.at(-1);
+      const clock = latest && rows.find(row => row.reportDate === latest.date)?.clock;
+      return {
+        ...signal,
+        instruments: ["MARKET", contract.symbol] as Instrument[],
+        status: latest ? ("available" as const) : ("unavailable" as const),
+        ...(latest ? {} : { failureKind: contractFailure }),
+        staleAfterDays: 14,
+        series,
+        unit: "% OI",
+        metrics: latest
+          ? [
+              {
+                label: "Net position / open interest",
+                value: latest.value,
+                unit: "%",
+                date: latest.date,
+              },
+            ]
+          : [],
+        summary: latest
+          ? `${category === "asset" ? "Asset managers" : "Leveraged funds"} are net ${latest.value >= 0 ? "long" : "short"} ${Math.abs(latest.value).toFixed(1)}% of open interest.`
+          : signal.summary,
+        source: source({
+          name: "CFTC · TFF futures only",
+          url: latest && clock ? cftcReportCitation(latest.date, code) : citation,
+          retrievedAt: signal.source.retrievedAt,
+          sha256: response?.sha256 ?? null,
+          observedAt: latest?.date ?? null,
+          ...(clock ? { releasedAt: clock.createdAt, vintageAt: clock.updatedAt } : {}),
+          frequency: "weekly",
+          attribution: "US Commodity Futures Trading Commission",
+        }),
+        scores: {
+          daily: latest ? clamp(latest.value / 40) : null,
+          weekly: changeScore(series, 1, 10, 1),
+          monthly: changeScore(series, 4, 15, 1),
+        },
+        methodology:
+          "Futures-only net contracts divided by open interest. Daily uses net position / 40 percentage points; weekly/monthly use 1/4-report changes scaled by 10/15 points. Capped [-1,1]. Category biases are declared priors, not estimated predictive accuracy.",
+        limitation: "These contract totals describe futures positioning. " +
+          (clock ? "The source timestamps identify the creation and latest update of the displayed report row in the CFTC public table. Other publication channels can have different release times."
+            : latest ? "The public table supplied no row clock for this observation. This capture establishes availability at collection."
+            : "The reported positions or their timing could not be verified for this category."),
+      };
+    });
+  });
+}
+export function cleanXML(input: string): string {
+  return input
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&#(\d+);/g, (_, n: string) =>
+      Number(n) <= 0x10ffff ? String.fromCodePoint(Number(n)) : "",
+    )
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .trim()
+    .slice(0, 500);
+}
+export function rssItems(
+  xml: string,
+  name: string,
+  host: string,
+  cutoff: string,
+): Catalyst[] {
+  const get = (item: string, tag: string) =>
+    cleanXML(
+      item.match(
+        new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i"),
+      )?.[1] ?? "",
+    );
+  const result = new Map<string, Catalyst>();
+  for (const match of xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/g)) {
+    const title = get(match[1], "title"),
+      rawURL = get(match[1], "link"),
+      rawDate = get(match[1], "pubDate");
+    // BOJ's official feed still emits HTTP links. Upgrade its own host, never follow an arbitrary redirect.
+    const url =
+      host === "www.boj.or.jp"
+        ? rawURL.replace(
+            /^http:\/\/www\.boj\.or\.jp\//,
+            "https://www.boj.or.jp/",
+          )
+        : rawURL;
+    if (
+      !title ||
+      !Number.isFinite(Date.parse(rawDate)) ||
+      Date.parse(rawDate) > Date.parse(cutoff)
+    )
+      continue;
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:" || parsed.hostname !== host) continue;
+    } catch {
+      continue;
+    }
+    const at = new Date(rawDate).toISOString(),
+      id = createHash("sha256").update(url).digest("hex").slice(0, 20);
+    result.set(id, {
+      id,
+      title,
+      url,
+      at,
+      source: name,
+      kind: "release",
+      importance: /monetary|rate|inflation|policy|outlook/i.test(title)
+        ? "major"
+        : "context",
+    });
+  }
+  return [...result.values()]
+    .sort((a, b) => b.at.localeCompare(a.at))
+    .slice(0, 8);
+}
+async function centralBanks(
+  fetcher: Fetcher,
+): Promise<{ signals: Signal[]; catalysts: Catalyst[] }> {
+  const feeds = [
+    {
+      id: "fed",
+      name: "Federal Reserve",
+      url: "https://www.federalreserve.gov/feeds/press_all.xml",
+      host: "www.federalreserve.gov",
+    },
+    {
+      id: "ecb",
+      name: "European Central Bank",
+      url: "https://www.ecb.europa.eu/rss/press.html",
+      host: "www.ecb.europa.eu",
+    },
+    {
+      id: "boj",
+      name: "Bank of Japan",
+      url: "https://www.boj.or.jp/en/rss/whatsnew.xml",
+      host: "www.boj.or.jp",
+    },
+    {
+      id: "boe",
+      name: "Bank of England",
+      url: "https://www.bankofengland.co.uk/rss/news",
+      host: "www.bankofengland.co.uk",
+    },
+  ];
+  const results = await Promise.all(
+    feeds.map(async (feed) => {
+      const signal = blank(
+        `news-${feed.id}`,
+        feed.name,
+        feed.id === "fed" ? "news" : "international",
+        feed.url,
+        new Date().toISOString(),
+      );
+      try {
+        const response = await publicText(feed.url, fetcher),
+          catalysts = rssItems(
+            response.text,
+            feed.name,
+            feed.host,
+            response.retrievedAt,
+          );
+        if (!catalysts.length) throw new Error("No dated releases");
+        return {
+          signal: {
+            ...signal,
+            status: "available" as const,
+            staleAfterDays: 14,
+            source: source({
+              name: feed.name,
+              url: feed.url,
+              retrievedAt: response.retrievedAt,
+              sha256: response.sha256,
+              observedAt: catalysts[0].at,
+              releasedAt: catalysts[0].at,
+              frequency: "event-driven",
+              usage:
+                "Official RSS headlines with attribution and direct source links",
+            }),
+            summary: catalysts[0].title,
+            metrics: [
+              {
+                label: "Recent official releases sampled",
+                value: catalysts.length,
+                unit: "releases",
+                date: catalysts[0].at,
+              },
+            ],
+            methodology:
+              "Deduplicated official RSS release headlines. Date is the publisher timestamp. No headline-only sentiment is silently converted into a market forecast.",
+            limitation:
+              "Selected official releases, not the full news cycle. Publication sentiment and policy impact require separate reviewed analysis.",
+          },
+          catalysts,
+        };
+      } catch {
+        return { signal, catalysts: [] };
+      }
+    }),
+  );
+  return {
+    signals: results.map((result) => result.signal),
+    catalysts: results
+      .flatMap((result) => result.catalysts)
+      .sort((a, b) => b.at.localeCompare(a.at)),
+  };
+}
+export function blsEvents(ics: string, cutoff: string): Catalyst[] {
+  const unfolded = ics.replace(/\r?\n[ \t]/g, "");
+  const events = new Map<string, Catalyst>(),
+    max = Date.parse(cutoff) + 35 * 86400000;
+  for (const match of unfolded.matchAll(
+    /BEGIN:VEVENT\s*([\s\S]*?)END:VEVENT/g,
+  )) {
+    const title = match[1]
+        .match(/(?:^|\n)SUMMARY:([^\r\n]+)/)?.[1]
+        ?.replace(/\\,/g, ",")
+        .trim(),
+      local = match[1].match(
+        /DTSTART;TZID=(?:US-Eastern|America\/New_York):(\d{8}T\d{6})/,
+      )?.[1];
+    const at = local ? newYorkTimestamp(local) : null;
+    if (
+      !title ||
+      !at ||
+      Date.parse(at) < Date.parse(cutoff) ||
+      Date.parse(at) > max
+    )
+      continue;
+    const id = `bls-${createHash("sha256").update(`${at}:${title}`).digest("hex").slice(0, 16)}`;
+    events.set(id, {
+      id,
+      title,
+      at,
+      url: `https://www.bls.gov/schedule/${at.slice(0, 4)}/${at.slice(5, 7)}_sched.htm`,
+      source: "Bureau of Labor Statistics",
+      kind: "scheduled",
+      importance:
+        /consumer price|producer price|employment situation|job openings|employment cost/i.test(
+          title,
+        )
+          ? "major"
+          : "context",
+    });
+  }
+  return [...events.values()].sort((a, b) => a.at.localeCompare(b.at));
+}
+async function calendar(fetcher: Fetcher) {
+  const url = "https://www.bls.gov/schedule/news_release/bls.ics",
+    signal = blank(
+      "bls-calendar",
+      "Economic release calendar",
+      "events",
+      url,
+      new Date().toISOString(),
+    );
+  try {
+    const response = await publicText(url, fetcher),
+      catalysts = blsEvents(response.text, response.retrievedAt);
+    if (!catalysts.length) throw new Error("No upcoming events");
+    return {
+      signal: {
+        ...signal,
+        status: "available" as const,
+        source: source({
+          name: "US Bureau of Labor Statistics",
+          url,
+          retrievedAt: response.retrievedAt,
+          sha256: response.sha256,
+          observedAt: response.retrievedAt,
+          frequency: "scheduled events",
+        }),
+        metrics: [
+          {
+            label: "Upcoming releases · 35 days",
+            value: catalysts.length,
+            unit: "events",
+            date: response.retrievedAt,
+          },
+        ],
+        summary: `${catalysts[0].title} is the next scheduled release.`,
+        methodology:
+          "Official BLS iCalendar, filtered to the next 35 days. US Eastern timestamps are converted with America/New_York daylight-saving rules. Event presence does not cast a directional vote.",
+        limitation:
+          "Schedules can change. This calendar does not include every central-bank meeting, earnings release or geopolitical event.",
+      },
+      catalysts,
+    };
+  } catch {
+    return { signal, catalysts: [] };
+  }
+}
+interface Quarter {
+  start: string;
+  end: string;
+  value: number;
+  filed: string;
+  accession: string;
+}
+export function secQuarters(
+  data: unknown,
+  expectedCik: string,
+  unit: string,
+  cutoff: string,
+): Quarter[] {
+  if (!data || typeof data !== "object") return [];
+  const root = data as Record<string, unknown>;
+  if (Number(root.cik) !== Number(expectedCik)) return [];
+  const units = root.units as Record<string, unknown> | undefined,
+    input = units?.[unit];
+  if (!Array.isArray(input)) return [];
+  const quarters = new Map<string, Quarter>();
+  for (const item of input) {
+    if (!item || typeof item !== "object") continue;
+    const row = item as Record<string, unknown>;
+    const start = publicDate(row.start),
+      end = publicDate(row.end),
+      filed = publicDate(row.filed),
+      value = row.val;
+    if (
+      !start ||
+      !end ||
+      !filed ||
+      filed > cutoff.slice(0, 10) ||
+      end > cutoff.slice(0, 10) ||
+      typeof value !== "number" ||
+      !Number.isFinite(value) ||
+      !["10-Q", "10-K", "10-Q/A", "10-K/A"].includes(String(row.form)) ||
+      !/^\d{10}-\d{2}-\d{6}$/.test(String(row.accn))
+    )
+      continue;
+    const duration = (Date.parse(end) - Date.parse(start)) / 86400000;
+    if (duration < 75 || duration > 105) continue;
+    const prior = quarters.get(end);
+    if (!prior || prior.filed < filed)
+      quarters.set(end, {
+        start,
+        end,
+        value,
+        filed,
+        accession: String(row.accn),
+      });
+  }
+  return [...quarters.values()].sort((a, b) => a.end.localeCompare(b.end));
+}
+export async function earnings(fetcher: Fetcher): Promise<Signal[]> {
+  const issuers = [
+    {
+      ticker: "AAPL",
+      cik: "0000320193",
+      name: "Apple",
+      concept: "RevenueFromContractWithCustomerExcludingAssessedTax",
+    },
+    {
+      ticker: "MSFT",
+      cik: "0000789019",
+      name: "Microsoft",
+      concept: "RevenueFromContractWithCustomerExcludingAssessedTax",
+    },
+    { ticker: "NVDA", cik: "0001045810", name: "NVIDIA", concept: "Revenues" },
+  ];
+  return Promise.all(
+    issuers.map(async (issuer) => {
+      const url = `https://data.sec.gov/api/xbrl/companyconcept/CIK${issuer.cik}/us-gaap/${issuer.concept}.json`,
+        signal = blank(
+          `earnings-${issuer.ticker}`,
+          `${issuer.name} · reported revenue`,
+          "earnings",
+          url,
+          new Date().toISOString(),
+        );
+      signal.instruments = ["MARKET", "SPY", "QQQ", "DIA"];
+      signal.staleAfterDays = 150;
+      try {
+        const response = await publicText(url, fetcher),
+          quarters = secQuarters(
+            JSON.parse(response.text),
+            issuer.cik,
+            "USD",
+            response.retrievedAt,
+          ),
+          latest = quarters.at(-1);
+        if (!latest) throw new Error("No reported quarter");
+        const previousYear = [...quarters].reverse().find((quarter) => {
+          const days =
+            (Date.parse(latest.end) - Date.parse(quarter.end)) / 86400000;
+          return days >= 350 && days <= 380;
+        });
+        const growth =
+          previousYear && previousYear.value > 0
+            ? (latest.value / previousYear.value - 1) * 100
+            : null;
+        const reading = growth === null ? null : clamp(growth / 20);
+        return {
+          ...signal,
+          status: "available" as const,
+          unit: "$bn",
+          series: quarters.slice(-16).map((quarter) => ({
+            date: quarter.end,
+            value: quarter.value / 1e9,
+          })),
+          source: source({
+            name: `SEC XBRL · ${issuer.ticker}`,
+            url,
+            retrievedAt: response.retrievedAt,
+            sha256: response.sha256,
+            observedAt: latest.end,
+            releasedAt: null,
+            frequency: "quarterly",
+            attribution:
+              "US Securities and Exchange Commission; company-filed US GAAP facts",
+          }),
+          metrics: [
+            {
+              label: "Quarter revenue",
+              value: latest.value / 1e9,
+              unit: "$bn",
+              date: latest.end,
+            },
+            ...(growth !== null
+              ? [
+                  {
+                    label: "Year-over-year revenue change",
+                    value: growth,
+                    unit: "%",
+                    date: latest.end,
+                  },
+                ]
+              : []),
+          ],
+          summary: `${issuer.name} reported $${(latest.value / 1e9).toFixed(2)}bn revenue for the quarter ended ${latest.end}${growth === null ? "" : `, ${growth >= 0 ? "up" : "down"} ${Math.abs(growth).toFixed(1)}% year over year`}. Filed ${latest.filed}.`,
+          scores: { daily: reading, weekly: reading, monthly: reading },
+          methodology:
+            "Only 75–105-day US GAAP revenue periods from 10-Q/10-K filings are used. Latest known filing per period; prior year matched within 350–380 days. YoY growth / 20 percentage points is a capped contextual prior, identical across horizons until the next quarter.",
+          limitation:
+            "Three selected mega-cap companies, not all index constituents. Revenue growth is not an earnings surprise, EPS result, analyst revision or guidance assessment. Prior periods can be restated.",
+        };
+      } catch (error) {
+        return {...signal, failureKind: sourceFailureKind(error)};
+      }
+    }),
+  );
+}
+async function collectInflationAndMoney(fetcher: Fetcher, archiveRoot?: string, now = () => new Date().toISOString()) {
+  return Promise.all([
+    collectOnsInflation(archivedOnsReader(url => publicText(url, fetcher),
+      archiveRoot ? join(archiveRoot, ".consensus/private-ons-services-tlt/live") : undefined), now),
+    collectFedRetailMoney(fetcher, now, archiveRoot ? join(archiveRoot, ".consensus/private-h6-retail-money/current-collector") : undefined),
+  ]);
+}
+
+/** Refresh these official monthly releases without re-requesting the rest of a reviewed edition. */
+export async function refreshInflationAndMoney(previous: Snapshot, fetcher: Fetcher = fetch,
+  archiveRoot?: string, now = () => new Date().toISOString()): Promise<Snapshot> {
+  const releases = await collectInflationAndMoney(fetcher, archiveRoot, now);
+  const ids = new Set(releases.map(s => s.id));
+  const signals = previous.signals.filter(s => !ids.has(s.id));
+  const anchor = signals.findIndex(s => s.id === TRADE_ID);
+  signals.splice(anchor < 0 ? signals.length : anchor + 1, 0, ...releases);
+  const issuedAt = now();
+  return {...previous, id:issuedAt.replace(/[:.]/g,"-"), issuedAt, cutoff:issuedAt, signals,
+    consensus:undefined, forecasts:undefined, sourcesAttempted:releases.length,
+    collectionErrors:[...previous.collectionErrors.filter(e => !releases.some(s => e.startsWith(s.id + ":"))),
+      ...releases.filter(s => s.status === "unavailable").map(s => s.id + ": " + s.summary)]};
+}
+
+export async function collectSnapshot(
+  fetcher: Fetcher = fetch,
+  previous?: Snapshot,
+  operfReceiptDirectory?: string,
+  optionReceiptDirectory?: string,
+  archiveRoot?: string,
+  treasuryDocuments?: ReadonlyMap<string, PublicDocument>,
+): Promise<Snapshot> {
+  // Small independent source batches; each failed source is retained as unavailable.
+  const [
+    economic,
+    fx,
+    institutions,
+    banks,
+    releases,
+    results,
+    marketCalendars,
+    news,
+    capital,
+    privateFunds,
+    privateCredit,
+    operfCapital,
+    householdEquity,
+    policyRates,
+    bocSurvey,
+    householdOutlook,
+    deskSurvey,
+    japanPortfolioFlows,
+    usExports,
+    holdings,
+    taiwan,
+    analystRatings,
+    etfFlows,
+    futuresOptions,
+    retailOrders,
+    exchangeOrders,
+    optionActivity,
+    volatility,
+    issuerGuidance,
+    retailFundFlow,
+    vxCurve,
+    dealerPositions,
+    payrollNews,
+    inflationAndMoney,
+  ] = await Promise.all([
+    macro(fetcher, treasuryDocuments),
+    currencies(fetcher),
+    positioning(fetcher),
+    centralBanks(fetcher),
+    calendar(fetcher),
+    earnings(fetcher),
+    collectMarketCalendarsWithAuction((url) => publicText(url, fetcher), fetcher, archiveRoot),
+    collectNews(fetcher),
+    collectCapital((url) => publicText(url, fetcher)),
+    collectPrivateFunds((url) => publicText(url, fetcher), fetcher),
+    collectPrivateCredit((url) => publicText(url, fetcher)),
+    collectOperfCapital((url) => publicBytes(url, fetcher, 2_000_000, "text/html,application/pdf"), operfReceiptDirectory),
+    collectHouseholdEquity((url) => publicText(url, fetcher), () => new Date().toISOString(), previous?.signals.find(s => s.id === HOUSEHOLD_EQUITY_ID)),
+    collectPolicyRates((url) => publicText(url, fetcher)),
+    collectBocSurvey((url) => publicText(url, fetcher)),
+    collectRetailWithOriginals((url) => publicBytes(url, fetcher), archiveRoot),
+    collectNyFedDeskSurvey((url) => publicBytes(url, fetcher, 2_000_000, "*/*"),
+      archiveRoot ? join(archiveRoot, ".consensus/private-nyfed-desk-survey/live") : undefined),
+    collectJapanPortfolioFlows((url) => publicBytes(url, fetcher)),
+    collectUsTrade((url) => publicText(url, fetcher)),
+    collectHoldings((url) => publicText(url, fetcher)),
+    collectTaiwanForPublication((url) => publicText(url, fetcher), undefined, archiveRoot),
+    collectAnalystRatings((url) => publicText(url, fetcher), undefined, previous, archiveRoot),
+    collectEtfFlows((url) => publicText(url, fetcher), undefined, archiveRoot),
+    collectFuturesOptions((url) => publicText(url, fetcher)),
+    collectEtfiqRetailOrders((url) => publicText(url, fetcher)),
+    collectSecMidas((url) => publicText(url, fetcher), fetcher, previous?.signals),
+    optionReceiptDirectory ? collectOptionActivity(optionReceiptDirectory, fetcher, new Date().toISOString(), previous?.optionActivity).catch((error: Error) => {
+      console.error("Market History options receipt check failed:", error.message);
+      return undefined;
+    }) : undefined,
+    collectMarketHistoryVolatility(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-volatility-indices") : undefined),
+    (async () => {
+      const signals = [];
+      const read = async (url: string) => {
+        const {bytes, sha256, retrievedAt} = await publicBytes(url, fetcher, url.endsWith("_htm.xml") ? 5_000_000 : 2_000_000);
+        return {url, text: bytes.toString("utf8"), sha256, retrievedAt};
+      };
+      for (const ticker of REVENUE_ISSUERS) {
+        signals.push(await collectIssuerGuidance(ticker, read, undefined,
+          archiveRoot ? join(archiveRoot, ".consensus/private-issuer-revenue") : undefined,
+          previous?.signals.find(signal => signal.issuerGuidance?.ticker === ticker)));
+      }
+      return signals;
+    })(),
+    collectSchwabRetailFlows(fetcher, undefined,
+      archiveRoot ? join(archiveRoot, ".consensus/private-retail-nmfp/live-collector") : undefined),
+    collectVxCurve(fetcher, archiveRoot ? join(archiveRoot, ".consensus/private-vx-curve/live") : undefined,
+      previous?.signals.find(signal => signal.id === VX_CURVE_ID)),
+    collectDealerPositionsWithStudy(url => publicText(url, fetcher),
+      archiveRoot ? join(archiveRoot, DEALER_DIRECTORY) : undefined),
+    collectBlsPayrollNews(fetcher, undefined,
+      archiveRoot ? join(archiveRoot, ".consensus/private-bls-payroll-news/current-collector") : undefined),
+    collectInflationAndMoney(fetcher, archiveRoot),
+  ]);
+  const issuedAt = new Date().toISOString(),
+    signals = [
+      ...economic,
+      ...fx,
+      ...institutions,
+      ...banks.signals,
+      releases.signal,
+      ...results,
+      ...marketCalendars.signals,
+      news.signal,
+      ...capital,
+      privateFunds,
+      operfCapital,
+      ...policyRates,
+      bocSurvey,
+      householdOutlook,
+      deskSurvey,
+      japanPortfolioFlows,
+      usExports,
+      ...inflationAndMoney,
+      ...holdings.signals,
+      ...missingSignals(issuedAt),
+      // Match the scoped addition's position so a full refresh cannot create
+      // an edition solely by moving otherwise identical source evidence.
+      ...futuresOptions,
+      ...volatility,
+      ...etfFlows,
+      analystRatings,
+      ...taiwan,
+      privateCredit,
+      ...retailOrders,
+      ...exchangeOrders,
+      // Preserve the insertion anchors used by existing scoped refreshes.
+      householdEquity,
+      ...issuerGuidance,
+      retailFundFlow,
+      vxCurve,
+      dealerPositions,
+      payrollNews,
+    ];
+  const id = issuedAt.replace(/[:.]/g, "-");
+  return applyScoringPolicy({
+    schemaVersion: 1,
+    id,
+    issuedAt,
+    cutoff: issuedAt,
+    origin: "prospective",
+    engineVersion: ENGINE_VERSION,
+    signals,
+    catalysts: [
+      ...banks.catalysts,
+      ...releases.catalysts,
+      ...marketCalendars.catalysts,
+    ],
+    ...(news.pulse ? { news: news.pulse } : {}),
+    ...(holdings.holdings.length ? { holdings: holdings.holdings } : {}),
+    ...(optionActivity ? { optionActivity } : {}),
+    sourcesAttempted: MACRO_SERIES.length + 65 + taiwan.length + inflationAndMoney.length + REVENUE_ISSUERS.length + Number(!!optionActivity),
+    collectionErrors: signals
+      .filter(
+        (signal) =>
+          signal.status === "unavailable" && !signal.id.startsWith("social-"),
+      )
+      .map((signal) => `${signal.id}: ${signal.summary}`),
+  });
+}

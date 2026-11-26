@@ -1,0 +1,32 @@
+{
+  "id": "prelaunch-qqq-original-revenue-guidance-v1",
+  "instrument": "QQQ",
+  "family": "earnings",
+  "priceLabelsInspectedByThisStudyBeforeRegistration": false,
+  "panel": "Fixed NVIDIA, AMD, TXN. NVDA and AMD original discovery starts January 2009. Separately source-qualified TXN original discovery from September 2015. AMD included only from announced Dec 24 2018 Nasdaq-100 entry. Original TXN/Navidia Nasdaq-entry and SPY filing held separately for source scope. One test, QQQ daily only; SPY is a source-availability count only. This is a disclosed three-semiconductor panel, not the index as a whole or analyst consensus.",
+  "source": "Exact issuer-furnished earnings exhibit identifies fiscal quarter and table first-column date. Compare complete nominal guidance about next quarter or explicit sequential rate interval applied to exact prior consolidated GAAP revenue on confirmed previous original. Same capitalized currency / units. Require later first original issuer earnings table and a separate statutory first 10-Q/10-K for this identical period end and exact USD amount (FY minus original nine-month same basis allowed). Require prior guidance filed before period end. Do not substitute amendments, estimates, later revised historical numbers or use disclosures as independently authored sources. First complete quarter guidance is fixed even when later revised or anticipated; feature is original management midpoint deviation.",
+  "period": "Only reviewed full sessions January 2013 through Nov 2 2026, before first archive Nov 3 2026 06:28:30.460Z. Use only presealed native sources. No post-launch features/outcomes, no date selection by realized returns.",
+  "clock": "Regular-session 07:48 New York preopen cutoff on the first exchange session strictly after ALL NY-local acceptance dates, official filing dates and report dates of the original prior and actual 8-Ks and confirming first 10-Q/K. Aggregate overlapping events once by target. Drop early closes; do not move their events to a later session. Confirm 2013–15 dates independently on three venues vs original calendars.",
+  "feature": "Equally weighted 100*(reported consolidated quarterly GAAP revenue / original forward range midpoint - 1), in percent. If multiple issuers map to the same date, take arithmetic mean. Hypothesis: larger positive signed midpoint deviation increases odds of QQQ close > open.",
+  "control": "One matched information-age covariate: arithmetic mean across those same issuers of log1p(calendar days from each original actual 8-K NY acceptance date to the targeted session date), pre-calculated from original timestamps. Compare augmented [age, midpoint deviation] vs matched [age] alone, training base rate and no-skill coin. Neither issuer weights nor thresholds may be adjusted.",
+  "label": "QQQ full regular-session close > open as one, flat or negative as zero. Owner-only Kibot historical daily as-traded and split-only, its documented regular-hours daily bars; positive finite prices and physical OHLC, exact complete contiguous calendar bounds in each annual request. Require the two bases from this same provider to give the same sign, drop mismatches, never use adjusted total-return substitute. No dividend or split adjustment is needed across a single intraday session; raw prices never public. A missing source window is a collection failure and may be retried with the same policy. Do not skip available selected dates to construct a favorable sample.",
+  "evaluation": "One chronological purged 60/20/20 trainCandidate run per matched augmented/control model. The existing training implementation selects lambda only on validation. Require >=120 unique matched dates, train>=50 with both classes, validation>=20/test>=20. Positive earnings coefficient and held-out candidate Brier strictly >0.01 lower than EACH of matched age only, training base and 0.25 coin. Report all four, split, selected coefficient and sample losses. Also report paired percentile 95% interval for control Brier minus augmented Brier using a fixed-seed 10,000 moving-block resamples (consecutive block length 3), descriptive only. No alternate funds or reverse hypothesis, remapping, feature variation, outcome expansion or param tuning.",
+  "scope": "Research only. These prelaunch QQQ dates overlap other historical research. Private source matching and price checks establish no public settlement rights, prospective test, historical availability of aggregate entire archive, or production vote.",
+  "finiteSourceDates": 124,
+  "dependencies": {
+    "source-only-matches.json": "dffd91e5f9260225bfa1d01309fdf393cfc5a2dd64114e737f80a6fd9a34b5f0",
+    "txn-source-matches.json": "55fed9f168368e7d7a4fd24844c9daa0f7f09a58303bb13a16fcc77c7b285a22",
+    "older-calendar-private.json": "1c46ee024f22687fd51d1d318d9fafaa1f15637fe4251ae0d9928fcf01bfc92d",
+    "qqq-source-candidates.json": "45e4ebec6487e50583a5bd9c9889cc4ebf0e984c784cba22870fe80b45d95f62",
+    "txn-source-protocol.json": "22162ff49e7c520befb5f466d290cc97debe702c752a60e006257871f39f5f2e",
+    "calendar-counts.json": "a8650efb3f0c34868649032de365d9fd552361f4a873f37cb38ec418ed60ba1f",
+    "replay.py": "73f72018a8ccfc782f98f86b72b2ce33f372a58b6ea515fbe941e8fc370a414f",
+    "txn.py": "d278107fcf4eb292b2369fdaa7309972afba696a1d2fc8d8c0a5e0c758be1a8a",
+    "count-sessions.mjs": "be089a11422eb363c0a705775d62ebcd2c19de79429a66a8daf5daf7382306ad",
+    "calendar-sources.py": "b029a3172ddf6825568a7e0a7ff6c3c08a37efccadecbbb118848c013d0f2c90",
+    "../../lib/consensus/learning.ts": "d109a465c5f9c5d7db9e0f9ec1bd4f27451e65f4b77d09f3c774ec89bab6f8b9",
+    "../../lib/consensus/model.ts": "5a89d62c6a732ba3fecde8839104a1ae375097d38c6a0b34fd9a8c0521666fd6",
+    "../../lib/consensus/kibot.ts": "7092fbefd09d6a8aaf4b2e2699fc01738c8352b36d638436b59cda7a9e99def1",
+    "../../lib/consensus/extended-research-calendar.ts": "02525ae0038f2cd7cb9040a52d031a164446eab5b8f0b5ef25fbaba3369732c5"
+  }
+}

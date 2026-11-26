@@ -1,0 +1,46 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "DIA",
+  "createdAt": "2026-11-23T13:07:15.644Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Asset managers turn net short Dow futures",
+    "summary": "Asset managers moved from 2,080 contracts net long in Dow futures on November 10 to 7,708 net short on November 17. Leveraged funds added to a smaller position on the long side.",
+    "bull": [
+      {
+        "text": "Leveraged funds increased their net long from 1,315 to 3,449 contracts. Both readings were positive.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers’ weekly shift amounted to 9,788 contracts toward the short side, taking their net exposure below zero.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Dow futures open interest changed little, from 83,148 to 83,431 contracts. The next positioning release will show whether the shift persists with a similar number of outstanding contracts.",
+        "sourceIds": [
+          "CFTC_DOW"
+        ]
+      }
+    ],
+    "limitations": [
+      "The CFTC report covers Dow futures positions as of Tuesday. It provides no direct measure of DIA creations, Friday’s ex-distribution price change or current dealer gamma."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_DOW",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=124603"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "placement": {
+      "type": "choice",
+      "choice": "right_rail",
+      "confidence": 0.52,
+      "probabilities": {
+        "market_panel": 0.33,
+        "daily_brief_panel": 0.02,
+        "right_rail": 0.64,
+        "expand_candidates": 0.01
+      }
+    },
+    "detail": {
+      "type": "choice",
+      "choice": "values_with_history",
+      "confidence": 0.73,
+      "probabilities": {
+        "values_with_history": 0.8,
+        "sparklines": 0.06,
+        "single_table": 0.14,
+        "expand_candidates": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 826,
+    "output_tokens": 104
+  }
+}

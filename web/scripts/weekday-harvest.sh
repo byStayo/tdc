@@ -1,0 +1,33 @@
+#!/bin/bash
+set -eu
+umask 077
+
+cd "$(dirname "$0")/.."
+/usr/bin/python3 -B scripts/check-publisher-checkout.py
+
+node_bin=/opt/homebrew/opt/node@24/bin/node
+if ! "$node_bin" --experimental-strip-types scripts/verify-live-consensus.ts --scheduled-preopen; then
+  printf '%s\n' 'The existing public edition could not be witnessed before the open. Continuing with independently locked collection.' >&2
+fi
+if /usr/bin/python3 -B scripts/collect-sec-etf-flows.py --collect-latest --summary; then
+  if ! /usr/bin/python3 -B scripts/reconcile-sec-etfiq-flows.py --scheduled; then
+    printf '%s\n' 'Private SEC and ETFIQ flow reconciliation needs review. Continuing with the daily collection.' >&2
+  fi
+else
+  printf '%s\n' 'Private SEC fund-flow check incomplete. Continuing with the daily collection.' >&2
+fi
+if ! "$node_bin" --experimental-strip-types scripts/research-occ-volume.ts; then
+  printf '%s\n' 'Private OCC capture did not complete. Continuing with official collection.' >&2
+fi
+if ! "$node_bin" --experimental-strip-types scripts/collect-sentisense-options-private.ts; then
+  printf '%s\n' 'Private options capture did not complete. Continuing with official collection.' >&2
+fi
+preparation_status=0
+"$node_bin" --experimental-strip-types scripts/prepare-daily-data.ts --weekday || preparation_status=$?
+if ! PATH="${node_bin%/*}:$PATH" /usr/bin/python3 -B scripts/research-tlt-share-counts.py --scheduled >&2; then
+  printf '%s\n' 'Private TLT share-count comparison remains pending.' >&2
+fi
+if ! /usr/bin/python3 -B scripts/qualify_spf_profits.py scheduled >&2; then
+  printf '%s\n' 'Private corporate-profits comparison remains pending.' >&2
+fi
+exit "$preparation_status"

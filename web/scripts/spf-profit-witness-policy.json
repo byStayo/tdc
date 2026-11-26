@@ -1,0 +1,11 @@
+{
+  "method": "phl-spf-bea-first-profits-2026q3-v1",
+  "scope": "Owner-only research on total US corporate after-tax profits with inventory valuation and capital consumption adjustments, in billions of dollars at a seasonally adjusted annual rate. No company EPS, ETF return, model vote, or publicly redistributed panel data.",
+  "forecast": "Use CPROF2, the median nowcast from the survey conducted during the target quarter. Require the dated original PDF's Table One, the native median workbook and a recomputed median from the individual CPROF2 levels for the same quarter. A numeric CPROF1 in another workbook is not a released actual.",
+  "control": "Freeze a no-change forecast equal to the preceding quarter's A551RC profits as known in the target quarter's advance GDP release. Require the target profit cell to be absent from that original. A later annual revision can change this benchmark legitimately. It never replaces the target's already frozen survey.",
+  "actual": "Use the first official BEA release with corporate profits. Require the release title, public date and time, exact vintage of NIPA table 1.12 quarterly, series A551RC, and an independent delivery check from the same date's ALFRED CPATAX vintage on the exact quarter. ALFRED and the original BEA workbook report the same originating statistic.",
+  "comparison": "Report signed surprise actual minus forecast in USD billions, and improvement in absolute error abs(actual minus prior-quarter control) minus abs(actual minus median). Positive improvement favors the survey on that release. No historic or prospective ETF price is an input.",
+  "completedExample": {"quarter":2,"year":2026,"survey":"2026-05-15","advance":"2026-07-30","first":"2026-08-26","releaseAt":"2026-08-26T12:30:00Z"},
+  "prospective": {"quarter":3,"year":2026,"survey":"2026-08-14","advance":"2026-10-29","first":"2026-11-25","releaseAt":"2026-11-25T13:30:00Z"},
+  "admission": "Seal verifiable source bytes, this policy, and both numerical forecasts on the actual host clock before the scheduled Q3 release. Do not fetch Q3 outcomes before that time. After release use the first verified original, save its actual capture time, and leave missing or conflicting data pending. No backdated witness, substitutions, or scheduled price/holdout access."
+}

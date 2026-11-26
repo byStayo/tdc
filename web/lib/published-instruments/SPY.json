@@ -1,0 +1,46 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "SPY",
+  "createdAt": "2026-11-23T13:07:15.644Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "S&P 500 futures funds trim net shorts as asset managers pare longs",
+    "summary": "The November 17 CFTC report shows two groups moving closer together. Leveraged funds reduced their net short by 68,082 E-mini S&P 500 contracts over the week. Asset managers cut their net long by 19,081.",
+    "bull": [
+      {
+        "text": "Leveraged funds were net short 234,978 contracts on November 17, down from 303,060 on November 10. Their position remained net short after the reduction.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers’ net long fell from 914,130 to 895,049 contracts. Their smaller position tempers the more constructive reading from leveraged funds.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Open interest rose to 2,096,958 contracts from 2,017,687. The next weekly report can show whether participation keeps growing as the groups adjust their positions.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "limitations": [
+      "E-mini S&P 500 futures are a proxy for SPY exposure. Weekly positions can include hedges. This report supplies no current SPY options-chain or dealer-gamma measurement."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    }
+  ]
+}

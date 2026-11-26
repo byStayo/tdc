@@ -1,0 +1,50 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-23T13:07:15.644Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Two-year Treasury yield drops 13 basis points as the curve steepens",
+    "summary": "Friday’s decline in Treasury yields was largest at the short end. From November 19 to 20, the two-year yield fell from 4.76% to 4.63%, the ten-year from 5.04% to 4.92%, and the thirty-year from 5.40% to 5.31%.",
+    "bull": [
+      {
+        "text": "The ten-year yield fell 12 basis points. All else equal, a lower benchmark reduces the discount rate applied to future corporate earnings.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Long-term financing benchmarks eased less. The thirty-year yield finished 68 basis points above the two-year, up from 64 the previous day.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "S&P 500 futures positioning was divided before Friday’s rate move. On November 17 asset managers were net long 895,049 contracts and leveraged funds were net short 234,978. The next report will show whether that gap persisted.",
+        "sourceIds": [
+          "CFTC_ES"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury publishes constant-maturity par yields. The CFTC observations are a Tuesday futures snapshot. The two sources cover different dates and do not measure Monday’s return."
+    ]
+  },
+  "sources": [
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    },
+    {
+      "id": "CFTC_ES",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&cftc_contract_market_code=13874A"
+    }
+  ]
+}

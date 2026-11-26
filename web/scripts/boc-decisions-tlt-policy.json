@@ -1,0 +1,24 @@
+{
+  "method": "prelaunch-tlt-canadian-policy-change-v1",
+  "family": "international",
+  "firstIssue": "2026-11-03T06:28:30.460Z",
+  "population": "All eight advance-scheduled Bank of Canada decisions for each calendar year 2003 through 2021. This is the full calendar-year span after TLT's 2002 launch and before the pre-existing consecutive-session TLT studies start in 2022. Keep source absence explicit. Intermeeting decisions are excluded as events but affect the prior rate. The fund is US long Treasury bonds, not Canadian equities or a Canadian bond ETF.",
+  "asOf": "Use the native advance calendar and contemporaneous Bank of Canada statement on the actual scheduled date, separately rechecking its target against Valet V39079. Prior is the latest strictly earlier Canadian business observation. Use midnight New York following the statement as a conservative public-availability bound; target the first subsequent exchange session at 07:48 ET. An individual original supplies the pretarget release day; the different historical morning press times are never applied to same-day outcomes. No retrospective claims about the Market Participants Survey, traded probabilities or OIS surprises.",
+  "control": "Two controls precede the event: the 42-calendar-day change in the previously prevailing Canadian overnight target, and the same U.S. federal-funds-target midpoint change over those dates. End both at calendar event date minus one, start at calendar event date minus 43. Value at either boundary means the last posted rate on or before it. Fed source is the Board's own open-market-operations implementation history. Express all changes as signed easing in percentage points (old minus new), unscaled before training.",
+  "candidate": "Append the previous Canadian overnight target minus the newly announced target. Positive is an announced easing relative to the prevailing rate. An easing signal is hypothesized positive for the subsequent regular-session TLT return conditional on previous monetary-policy changes. This is a change against an observable prior level, not an unexpected policy surprise or a measure of traded market expectations.",
+  "target": "Fixed next U.S. exchange session only. Exclude shortened sessions, withdrawn or missing originals, discrepancies in the new rate versus the Bank's next native business observation, duplicated targets, and every TLT target date from other registered research. Also exclude TLT input dates previously inspected by the FOMC dissent study. Never advance to the next full day as a substitute. U.S. as-traded open-to-close direction must match a separately requested split-only original; same-session dividend entitlement precedes entry. The endpoint is next-session intraday direction, never a cross-session or raw price publication.",
+  "statistics": "Minimum 120 consecutive eligible distinct target dates and 20 test. Freeze exact source-only dates and 60/20/20 chronological fold boundaries before opening any prices. Fit canonical trainCandidate nested logistic comparisons with training-only normalization, four fixed L2 values selected on validation, time-purged boundaries. No data-driven feature, asset, cutoff, date range or coefficient sign changes. Compare to the control alone, training up-rate and 0.5. Require expected positive added coefficient, strictly greater than 0.01 Brier gain against each and positive multiplicity-adjusted one-sided lower bound over at least 36 studies x 3 benchmarks. Report descriptive two-sided 95% bounds via 100000 contiguous three-meeting moving-block paired resamples, seed 20261124. Calendar exclusions cannot shift retained rows across frozen fold boundaries. No prospective vote, training weights or live forecast.",
+  "sources": [
+    "https://www.bankofcanada.ca/2000/10/release-dates-bank-rate-actions/",
+    "https://www.bankofcanada.ca/2012/12/bank-canada-announces-new-publication-time-2013-fad-mpr/",
+    "https://www.bankofcanada.ca/valet/observations/V39079/json",
+    "https://www.bankofcanada.ca/terms/",
+    "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+    "https://www.federalreserve.gov/monetarypolicy/openmarket_archive.htm",
+    "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf",
+    "https://www.kibot.com/api/history-request.html",
+    "https://www.kibot.com/api/api-overview.html",
+    "https://www.kibot.com/license.html"
+  ],
+  "rights": "Free private historical research. Cite Bank of Canada, identify The Daily Consensus's calculations, indicate if sold that the Bank's content is free, retain all native text and prices privately. U.S. Federal Reserve Board government releases. Kibot guest evaluation and only non-reconstructible aggregate backtest statistics allowed under its licence. No individually dated outcomes, raw quotes or licensed weights for publication."
+}

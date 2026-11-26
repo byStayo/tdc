@@ -1,0 +1,122 @@
+{
+  "method": "quarterly-etf-price-qualification-v1",
+  "from": "2026-08-31",
+  "through": "2026-10-01",
+  "funds": [
+    {
+      "symbol": "SPY",
+      "daily": {
+        "checked": 23,
+        "passed": 23
+      },
+      "weekly": {
+        "checked": 19,
+        "passed": 19,
+        "withDividend": 4,
+        "changedByDividend": 0
+      },
+      "monthly": {
+        "checked": 3,
+        "passed": 3,
+        "withDividend": 3,
+        "changedByDividend": 0
+      },
+      "dividends": {
+        "checked": 1,
+        "passed": 1
+      }
+    },
+    {
+      "symbol": "QQQ",
+      "daily": {
+        "checked": 23,
+        "passed": 23
+      },
+      "weekly": {
+        "checked": 19,
+        "passed": 19,
+        "withDividend": 4,
+        "changedByDividend": 0
+      },
+      "monthly": {
+        "checked": 3,
+        "passed": 3,
+        "withDividend": 3,
+        "changedByDividend": 0
+      },
+      "dividends": {
+        "checked": 1,
+        "passed": 1
+      }
+    },
+    {
+      "symbol": "IWM",
+      "daily": {
+        "checked": 23,
+        "passed": 23
+      },
+      "weekly": {
+        "checked": 19,
+        "passed": 19,
+        "withDividend": 4,
+        "changedByDividend": 0
+      },
+      "monthly": {
+        "checked": 3,
+        "passed": 3,
+        "withDividend": 3,
+        "changedByDividend": 0
+      },
+      "dividends": {
+        "checked": 1,
+        "passed": 1
+      }
+    },
+    {
+      "symbol": "DIA",
+      "daily": {
+        "checked": 23,
+        "passed": 23
+      },
+      "weekly": {
+        "checked": 19,
+        "passed": 19,
+        "withDividend": 4,
+        "changedByDividend": 0
+      },
+      "monthly": {
+        "checked": 3,
+        "passed": 3,
+        "withDividend": 3,
+        "changedByDividend": 0
+      },
+      "dividends": {
+        "checked": 1,
+        "passed": 1
+      }
+    },
+    {
+      "symbol": "TLT",
+      "daily": {
+        "checked": 23,
+        "passed": 23
+      },
+      "weekly": {
+        "checked": 19,
+        "passed": 19,
+        "withDividend": 2,
+        "changedByDividend": 1
+      },
+      "monthly": {
+        "checked": 3,
+        "passed": 3,
+        "withDividend": 2,
+        "changedByDividend": 0
+      },
+      "dividends": {
+        "checked": 2,
+        "passed": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "TLT",
+  "createdAt": "2026-11-20T09:26:01.639Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Thirty-year Treasury yield edges down to 5.40%",
+    "summary": "The 30-year Treasury yield fell one basis point on Thursday, from 5.41% to 5.40%. The ten-year yield dropped three basis points to 5.04%, leaving the long end 36 basis points above the ten-year benchmark.",
+    "bull": [
+      {
+        "text": "The decline in the 30-year benchmark supported long-duration bond prices, all else equal.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Leveraged funds held a net short position of 149,858 Treasury bond futures contracts on November 10. They had been net short 166,257 a week earlier.",
+        "sourceIds": [
+          "CFTC_BOND"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The gap between the 30-year and ten-year yields widened from 34 basis points on Wednesday to 36 on Thursday. Further changes matter to a fund concentrated in longer maturities.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury par yields describe constant maturities. TLT holds a portfolio of bonds, and its realized session return also depends on its market prices and any distributions. The futures positions predate Thursday’s yield observations."
+    ]
+  },
+  "sources": [
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    },
+    {
+      "id": "CFTC_BOND",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-10",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-10T00%3A00%3A00.000%27%2C%272026-11-03T00%3A00%3A00.000%27%29&cftc_contract_market_code=020601"
+    }
+  ]
+}

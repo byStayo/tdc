@@ -1,0 +1,19 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "market_layout": {
+      "type": "choice",
+      "choice": "paired_panels",
+      "confidence": 0.72,
+      "probabilities": {
+        "paired_panels": 0.81,
+        "chart_with_disclosure": 0.18,
+        "tabbed_provider": 0.01
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 724,
+    "output_tokens": 49
+  }
+}

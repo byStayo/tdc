@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-24T01:43:32.986Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Two- and ten-year yields hold steady after Friday’s decline",
+    "summary": "The two-year Treasury yield ended Monday at 4.63% and the ten-year at 4.92%, both level with Friday. The thirty-year yield edged down two basis points to 5.29%.",
+    "bull": [
+      {
+        "text": "The rise in bond prices implied by Monday’s yield decline was concentrated at the long end. The thirty-year benchmark eased from 5.31% on November 20 to 5.29% on November 23.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Borrowers watching the ten-year benchmark saw no further easing on Monday. Its spread over the two-year held at 29 basis points.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "The thirty-year yield ended 37 basis points above the ten-year, down from 39 on Friday. The next release will show whether that gap narrows further.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury reports constant-maturity par yields. These benchmark levels measure borrowing conditions and do not establish the return or direction of a stock index."
+    ]
+  },
+  "sources": [
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    }
+  ]
+}

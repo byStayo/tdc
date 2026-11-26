@@ -1,0 +1,37 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add actual cross-border capital movement and private-equity scale to the visual morning consensus.",
+    "stack": "Next16 React19; existing dark/light CSS tokens, two-column panels, source drawer, SVG sparklines; mobile390px and44px targets.",
+    "realData": {
+      "treasury": "Monthly SLT August2026: foreign net purchases of US Treasuries108.908bn, agency bonds-3.746bn, corporate bonds41.620bn, equities153.942bn. Total300.724bn; US purchases of foreign securities21.563bn. Aligned net cross-border long-term inward transactions279.161bn. These are lagged monthly transactions, no daily directional vote.",
+      "privateEquity": "Latest workbook actually linked on SEC page is2025Q3: gross assets7958bn/net7293bn/25155funds.51quarter observations. Older than270days is STALE; assets are not investment flows. No model or direction inferred."
+    },
+    "catalog": [
+      "existing twoColumns panel grid",
+      "accessible signed horizontal bars",
+      "existing source drawer",
+      "existing large Sparkline",
+      "plain reporting-period and stale badge"
+    ],
+    "constraints": [
+      "Keep consensus-first hierarchy and existing panels",
+      "Show source period prominently, do not imply live flows",
+      "Zero baseline on signed bars, same scale",
+      "No green means bullish mapping for these context measures",
+      "No fake fresh private-equity feed",
+      "No AI request on page read"
+    ]
+  },
+  "questions": {
+    "capital_layout": {
+      "type": "choice",
+      "instructions": "Choose the clearest bounded addition to the morning board.",
+      "criteria": {
+        "paired_panels": "Two responsive panels below positioning/policy: Treasury flow total and4signed component bars plus net outflow context; private-equity gross assets sparkline with reporting period,stale badge and NAV/count.",
+        "flow_with_details": "One full-width Treasury flow panel, with private-equity evidence available only in source drawer.",
+        "combined_table": "A single comparison table combining current monthly transactions and old quarterly asset stocks without charts."
+      }
+    }
+  }
+}

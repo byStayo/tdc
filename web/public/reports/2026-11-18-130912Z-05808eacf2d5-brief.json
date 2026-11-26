@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-18T13:09:12.022Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against the dated NVIDIA filing and primary market releases.",
+  "data": {
+    "headline": "NVIDIA revenue doubles as long Treasury yields stay elevated",
+    "summary": "NVIDIA reported $115.8 billion in revenue for the quarter ended October 25, up 103% from a year earlier. The latest captured ten- and thirty-year Treasury yields were 5.12% and 5.46% on November 16.",
+    "bull": [
+      {
+        "text": "The company reported quarterly GAAP diluted earnings of $2.70 per share, up from $1.30 a year earlier.",
+        "sourceIds": [
+          "SEC_NVDA"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The thirty-year benchmark yielded 5.46% on November 16, 20 basis points above November 9.",
+        "sourceIds": [
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Management’s $130 billion fourth-quarter revenue outlook has a range of plus or minus 3%. The quarter has an additional week.",
+        "sourceIds": [
+          "SEC_NVDA"
+        ]
+      }
+    ],
+    "limitations": [
+      "The NVIDIA figures cover one issuer. The packet lacks matched analyst expectations and a measured post-release price response.",
+      "The Treasury figures are the November 16 benchmark observations."
+    ]
+  },
+  "sources": [
+    {
+      "id": "SEC_NVDA",
+      "title": "SEC EDGAR · NVIDIA’s November 17 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    }
+  ]
+}

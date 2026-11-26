@@ -1,0 +1,52 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-11T13:07:04.481Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Nasdaq futures net longs rise in both categories",
+    "summary": "Asset managers and leveraged funds increased their net longs in E-mini Nasdaq-100 futures between October 27 and November 3. The ten-year Treasury yield rose from 4.86% on November 6 to 4.88% on November 9.",
+    "bull": [
+      {
+        "text": "The asset-manager net long rose from 65,381 to 73,137 contracts and the leveraged-fund net long rose from 2,301 to 10,073.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The ten-year Treasury yield rose 2 basis points to 4.88%. Higher discount rates can weigh on valuations that depend heavily on distant cash flows.",
+        "sourceIds": [
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "E-mini Nasdaq-100 futures open interest rose from 268,508 to 292,587 contracts over the same CFTC reporting week. Compare the next position report with this larger base of open contracts.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "limitations": [
+      "The Treasury observations in this report are dated November 9. No verified ETF closing price or return is available.",
+      "The CFTC observations are weekly futures positions as of November 3. ETF flows and investor intent require separate evidence."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-03",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-03T00%3A00%3A00.000%27%2C%272026-10-27T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    }
+  ]
+}

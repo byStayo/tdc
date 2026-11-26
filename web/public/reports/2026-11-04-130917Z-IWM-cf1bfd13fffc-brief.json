@@ -1,0 +1,65 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-04T13:09:17.947Z",
+  "model": "Codex editorial workflow",
+  "message": "Published research from dated official evidence, reviewed through the Codex subscription. No runtime model generation.",
+  "data": {
+    "headline": "IWM: watch financing conditions beyond the long-bond yield.",
+    "summary": "For small-cap context, distinguish secured overnight funding and short Treasury benchmarks from the longer end of the curve. Their latest moves differ. None supplies the borrowing spread, refinancing schedule or balance-sheet condition of a Russell 2000 company.",
+    "bull": [
+      {
+        "text": "The thirty-year Treasury yield fell 3 basis points to 5.28% on November 2. This is a lower long-term government benchmark; it does not establish cheaper refinancing for small companies.",
+        "sourceIds": [
+          "FRED_DGS30"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "SOFR rose 2 basis points to 3.97% on November 3, and the two-year Treasury yield rose 3 basis points to 4.59% on November 2. These funding references deserve a separate check from long-rate relief; company credit spreads are not supplied.",
+        "sourceIds": [
+          "FRED_SOFR",
+          "FRED_DGS2"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Russell E-mini futures asset managers were net long 19,602 contracts on October 27 versus 30,960 on October 20. Leveraged funds were net short 48,081 versus 53,035. These distinct category changes do not measure IWM subscriptions.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury yields describe November 2; SOFR and reverse-repo figures describe November 3. These are delayed official observations, not live prices or the market response to a release.",
+      "CFTC figures are October 27 futures-only category positions. Related futures differ from ETF shares and do not identify current purchases, fund flows or individual investors.",
+      "Current ETF prices, option chains, gamma, representative social sentiment and dark-pool direction remain independently unmeasured. Hosted displays are separate from saved evidence.",
+      "The interpretation describes possible transmission channels, not measured causation, a return prediction or a calibrated trading probability. No prospective model is qualified."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    },
+    {
+      "id": "FRED_DGS30",
+      "title": "30-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS30"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Overnight funding · SOFR",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    }
+  ]
+}

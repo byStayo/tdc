@@ -1,0 +1,16 @@
+{
+  "method": "prelaunch-ft900-exports-dia-v1",
+  "family": "international",
+  "symbol": "DIA",
+  "target": "DIA regular-session close above open on first NYSE session with a 07:48 New York cutoff AFTER the release. Exclude shortened sessions, duplicate targets and targets on/after the first archived public forecast. A flat outcome is a zero. Ignore later corrections absent an authenticated pre-target vintage.",
+  "periodFrom": "2015-11",
+  "periodThrough": "2026-08",
+  "labelFrom": "2016-01-01",
+  "labelThrough": "2026-11-02",
+  "units": "Original joint BEA/Census FT900. Monthly goods and services exports in seasonally adjusted nominal US billions on balance of payments basis, one reported decimal. Use the stated increase or decrease relative to the prior month of that same initial publish. Imports/deficit never substitute for exports.",
+  "feature": "100 * signed export change / (published exports minus signed change). Direction hypothesis positive increment. Exclude unknown or magnitude-only bounds. Check month, publication date/zone and amount on contemporaneous Census PDF first page vs BEA original release or independently replay the archived original exhibit for exceptional formats. Do not switch reference months or reinterpret revisions in a later release.",
+  "control": "10000*log(USD per EUR last fixing/preceding fixing). ECB EXR.D.USD.EUR.SP00.A; use only two adjacent European Central Bank fixes strictly before the NY target date, max seven-day gaps. Historical ECB values may have been corrected.",
+  "prices": "Kibot owner-only raw daily and split-only prices from the same full calendar session. Both must agree on intraday direction; require valid complete reference calendars. Never enter production settlement.",
+  "evaluation": "Use frozen purged 60/20/20 trainCandidate; at least 120 distinct targets, 20 test labels. Combined [FX, exports] vs matched FX-only, 0.5 and training base rate using identical rows. Require positive export coefficient and more than 0.01 lower Brier than every baseline. No date or feature alternatives after labels; identify overlap with other prelaunch work. Positive research evidence is only a candidate; preserve all as-issued and prospective gates.",
+  "scope": "private historical research; daily observations may be published under public-domain grant with original dates and attribution. No raw ETF prices public."
+}

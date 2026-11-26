@@ -1,0 +1,77 @@
+{
+  "verifiedAt": "2026-11-03T02:42:25.174153+00:00",
+  "deployment": "dpl_BEQwZ7jajfRtQbLCYRUR19hTGSr7",
+  "results": [
+    {
+      "path": "/",
+      "http": 200,
+      "type": "text/html; charset=utf-8",
+      "bytes": 37455,
+      "url": "https://v0-the-daily-consensus.vercel.app/"
+    },
+    {
+      "path": "/api/health",
+      "http": 200,
+      "type": "application/json",
+      "bytes": 173,
+      "url": "https://v0-the-daily-consensus.vercel.app/api/health",
+      "mode": "free-public",
+      "health": {
+        "service": "The Daily Consensus",
+        "mode": "free-public",
+        "status": "ready",
+        "research": {
+          "status": "ok",
+          "publishedAt": "2026-11-03T02:29:04.026063+00:00"
+        },
+        "runtimeGeneration": false
+      }
+    },
+    {
+      "path": "/api/research",
+      "http": 200,
+      "type": "application/json",
+      "bytes": 3730,
+      "url": "https://v0-the-daily-consensus.vercel.app/api/research"
+    },
+    {
+      "path": "/api/workspace?symbol=SPY",
+      "http": 200,
+      "type": "application/json",
+      "bytes": 47184,
+      "url": "https://v0-the-daily-consensus.vercel.app/api/workspace?symbol=SPY",
+      "mode": "public",
+      "filingsStatus": "ok",
+      "filings": 18,
+      "positioning": 1,
+      "macro": 3,
+      "privateDataLengths": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "/research/substack-0",
+      "http": 200,
+      "type": "text/html; charset=utf-8",
+      "bytes": 43163,
+      "url": "https://v0-the-daily-consensus.vercel.app/research/substack-0"
+    },
+    {
+      "path": "/sitemap.xml",
+      "http": 200,
+      "type": "application/xml",
+      "bytes": 8786,
+      "url": "https://v0-the-daily-consensus.vercel.app/sitemap.xml"
+    },
+    {
+      "path": "/robots.txt",
+      "http": 200,
+      "type": "text/plain; charset=utf-8",
+      "bytes": 103,
+      "url": "https://v0-the-daily-consensus.vercel.app/robots.txt"
+    }
+  ]
+}

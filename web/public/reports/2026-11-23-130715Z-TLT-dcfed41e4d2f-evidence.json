@@ -1,0 +1,3410 @@
+{
+  "schemaVersion": 1,
+  "scope": "market",
+  "collectedAt": "2026-11-23T12:48:32.465Z",
+  "sources": [
+    {
+      "id": "CFTC_ES",
+      "kind": "cftc",
+      "title": "CFTC · E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-23T12:48:09.284Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-17",
+        "2026-11-10"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:13874A:2026-11-17",
+        "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
+        "contractCode": "13874A",
+        "reportDate": "2026-11-17",
+        "units": "($50 X S&P 500 INDEX)",
+        "openInterest": 2096958,
+        "assetManagerLong": 1122337,
+        "assetManagerShort": 227288,
+        "leveragedLong": 197833,
+        "leveragedShort": 432811,
+        "dealerLong": 189843,
+        "dealerShort": 977219,
+        "previous": {
+          "id": "cftc-tff-futures:13874A:2026-11-10",
+          "market": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
+          "contractCode": "13874A",
+          "reportDate": "2026-11-10",
+          "units": "($50 X S&P 500 INDEX)",
+          "openInterest": 2017687,
+          "assetManagerLong": 1115756,
+          "assetManagerShort": 201626,
+          "leveragedLong": 145755,
+          "leveragedShort": 448815,
+          "dealerLong": 175005,
+          "dealerShort": 910294
+        }
+      }
+    },
+    {
+      "id": "CFTC_NQ",
+      "kind": "cftc",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-23T12:48:09.284Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-17",
+        "2026-11-10"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:209742:2026-11-17",
+        "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
+        "contractCode": "209742",
+        "reportDate": "2026-11-17",
+        "units": "(NASDAQ 100 STOCK INDEX X $20)",
+        "openInterest": 296423,
+        "assetManagerLong": 112461,
+        "assetManagerShort": 29561,
+        "leveragedLong": 53394,
+        "leveragedShort": 64322,
+        "dealerLong": 46518,
+        "dealerShort": 136196,
+        "previous": {
+          "id": "cftc-tff-futures:209742:2026-11-10",
+          "market": "NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE",
+          "contractCode": "209742",
+          "reportDate": "2026-11-10",
+          "units": "(NASDAQ 100 STOCK INDEX X $20)",
+          "openInterest": 288717,
+          "assetManagerLong": 107927,
+          "assetManagerShort": 35142,
+          "leveragedLong": 58721,
+          "leveragedShort": 44754,
+          "dealerLong": 44896,
+          "dealerShort": 144995
+        }
+      }
+    },
+    {
+      "id": "CFTC_RTY",
+      "kind": "cftc",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-23T12:48:09.284Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-17",
+        "2026-11-10"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:239742:2026-11-17",
+        "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
+        "contractCode": "239742",
+        "reportDate": "2026-11-17",
+        "units": "(RUSSEL 2000 INDEX X $50)",
+        "openInterest": 459730,
+        "assetManagerLong": 145124,
+        "assetManagerShort": 114453,
+        "leveragedLong": 101204,
+        "leveragedShort": 143557,
+        "dealerLong": 112594,
+        "dealerShort": 100129,
+        "previous": {
+          "id": "cftc-tff-futures:239742:2026-11-10",
+          "market": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
+          "contractCode": "239742",
+          "reportDate": "2026-11-10",
+          "units": "(RUSSEL 2000 INDEX X $50)",
+          "openInterest": 440576,
+          "assetManagerLong": 141671,
+          "assetManagerShort": 122008,
+          "leveragedLong": 90791,
+          "leveragedShort": 135220,
+          "dealerLong": 113891,
+          "dealerShort": 91628
+        }
+      }
+    },
+    {
+      "id": "CFTC_DOW",
+      "kind": "cftc",
+      "title": "CFTC · DJIA x $5 - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-23T12:48:09.284Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-17",
+        "2026-11-10"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:124603:2026-11-17",
+        "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
+        "contractCode": "124603",
+        "reportDate": "2026-11-17",
+        "units": "($5 X DJIA INDEX)",
+        "openInterest": 83431,
+        "assetManagerLong": 10750,
+        "assetManagerShort": 18458,
+        "leveragedLong": 12114,
+        "leveragedShort": 8665,
+        "dealerLong": 43436,
+        "dealerShort": 42376,
+        "previous": {
+          "id": "cftc-tff-futures:124603:2026-11-10",
+          "market": "DJIA x $5 - CHICAGO BOARD OF TRADE",
+          "contractCode": "124603",
+          "reportDate": "2026-11-10",
+          "units": "($5 X DJIA INDEX)",
+          "openInterest": 83148,
+          "assetManagerLong": 14272,
+          "assetManagerShort": 12192,
+          "leveragedLong": 10470,
+          "leveragedShort": 9155,
+          "dealerLong": 41417,
+          "dealerShort": 48553
+        }
+      }
+    },
+    {
+      "id": "CFTC_BOND",
+      "kind": "cftc",
+      "title": "CFTC · UST BOND - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-23T12:48:09.284Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-17",
+        "2026-11-10"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:020601:2026-11-17",
+        "market": "UST BOND - CHICAGO BOARD OF TRADE",
+        "contractCode": "020601",
+        "reportDate": "2026-11-17",
+        "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+        "openInterest": 1968013,
+        "assetManagerLong": 1149793,
+        "assetManagerShort": 777999,
+        "leveragedLong": 246674,
+        "leveragedShort": 391903,
+        "dealerLong": 44896,
+        "dealerShort": 259759,
+        "previous": {
+          "id": "cftc-tff-futures:020601:2026-11-10",
+          "market": "UST BOND - CHICAGO BOARD OF TRADE",
+          "contractCode": "020601",
+          "reportDate": "2026-11-10",
+          "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+          "openInterest": 1985709,
+          "assetManagerLong": 1157873,
+          "assetManagerShort": 762883,
+          "leveragedLong": 263868,
+          "leveragedShort": 413726,
+          "dealerLong": 43711,
+          "dealerShort": 290102
+        }
+      }
+    },
+    {
+      "id": "CFTC_TENYEAR",
+      "kind": "cftc",
+      "title": "CFTC · UST 10Y NOTE - CHICAGO BOARD OF TRADE · 2026-11-17",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=043602&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-11-17T00%3A00%3A00.000%27%2C%272026-11-10T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "retrievalUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd+DESC&%24where=cftc_contract_market_code+in+%28%2713874A%27%2C%27209742%27%2C%27239742%27%2C%27124603%27%2C%27020601%27%2C%27043602%27%29&%24select=id%2Creport_date_as_yyyy_mm_dd%2Ccontract_market_name%2Cmarket_and_exchange_names%2Ccftc_contract_market_code%2Ccontract_units%2Copen_interest_all%2Casset_mgr_positions_long%2Casset_mgr_positions_short%2Clev_money_positions_long%2Clev_money_positions_short%2Cdealer_positions_long_all%2Cdealer_positions_short_all%2Cfutonly_or_combined",
+      "retrievedAt": "2026-11-23T12:48:09.284Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-17",
+        "2026-11-10"
+      ],
+      "data": {
+        "id": "cftc-tff-futures:043602:2026-11-17",
+        "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
+        "contractCode": "043602",
+        "reportDate": "2026-11-17",
+        "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+        "openInterest": 6247430,
+        "assetManagerLong": 4019307,
+        "assetManagerShort": 748473,
+        "leveragedLong": 539725,
+        "leveragedShort": 3022168,
+        "dealerLong": 128367,
+        "dealerShort": 796323,
+        "previous": {
+          "id": "cftc-tff-futures:043602:2026-11-10",
+          "market": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
+          "contractCode": "043602",
+          "reportDate": "2026-11-10",
+          "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+          "openInterest": 6095194,
+          "assetManagerLong": 3838858,
+          "assetManagerShort": 685097,
+          "leveragedLong": 586834,
+          "leveragedShort": 2888161,
+          "dealerLong": 114916,
+          "dealerShort": 774940
+        }
+      }
+    },
+    {
+      "id": "FRED_RATE",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Effective federal funds rate",
+      "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS",
+      "retrievedAt": "2026-11-23T12:48:08.383Z",
+      "status": "ok",
+      "observationDates": [
+        "2021-11-01",
+        "2021-12-01",
+        "2022-01-01",
+        "2022-02-01",
+        "2022-03-01",
+        "2022-04-01",
+        "2022-05-01",
+        "2022-06-01",
+        "2022-07-01",
+        "2022-08-01",
+        "2022-09-01",
+        "2022-10-01",
+        "2022-11-01",
+        "2022-12-01",
+        "2023-01-01",
+        "2023-02-01",
+        "2023-03-01",
+        "2023-04-01",
+        "2023-05-01",
+        "2023-06-01",
+        "2023-07-01",
+        "2023-08-01",
+        "2023-09-01",
+        "2023-10-01",
+        "2023-11-01",
+        "2023-12-01",
+        "2024-01-01",
+        "2024-02-01",
+        "2024-03-01",
+        "2024-04-01",
+        "2024-05-01",
+        "2024-06-01",
+        "2024-07-01",
+        "2024-08-01",
+        "2024-09-01",
+        "2024-10-01",
+        "2024-11-01",
+        "2024-12-01",
+        "2025-01-01",
+        "2025-02-01",
+        "2025-03-01",
+        "2025-04-01",
+        "2025-05-01",
+        "2025-06-01",
+        "2025-07-01",
+        "2025-08-01",
+        "2025-09-01",
+        "2025-10-01",
+        "2025-11-01",
+        "2025-12-01",
+        "2026-01-01",
+        "2026-02-01",
+        "2026-03-01",
+        "2026-04-01",
+        "2026-05-01",
+        "2026-06-01",
+        "2026-07-01",
+        "2026-08-01",
+        "2026-09-01",
+        "2026-10-01"
+      ],
+      "data": {
+        "seriesId": "FEDFUNDS",
+        "unit": "percent",
+        "frequency": "monthly",
+        "observations": [
+          {
+            "date": "2021-11-01",
+            "value": 0.08
+          },
+          {
+            "date": "2021-12-01",
+            "value": 0.08
+          },
+          {
+            "date": "2022-01-01",
+            "value": 0.08
+          },
+          {
+            "date": "2022-02-01",
+            "value": 0.08
+          },
+          {
+            "date": "2022-03-01",
+            "value": 0.2
+          },
+          {
+            "date": "2022-04-01",
+            "value": 0.33
+          },
+          {
+            "date": "2022-05-01",
+            "value": 0.77
+          },
+          {
+            "date": "2022-06-01",
+            "value": 1.21
+          },
+          {
+            "date": "2022-07-01",
+            "value": 1.68
+          },
+          {
+            "date": "2022-08-01",
+            "value": 2.33
+          },
+          {
+            "date": "2022-09-01",
+            "value": 2.56
+          },
+          {
+            "date": "2022-10-01",
+            "value": 3.08
+          },
+          {
+            "date": "2022-11-01",
+            "value": 3.78
+          },
+          {
+            "date": "2022-12-01",
+            "value": 4.1
+          },
+          {
+            "date": "2023-01-01",
+            "value": 4.33
+          },
+          {
+            "date": "2023-02-01",
+            "value": 4.57
+          },
+          {
+            "date": "2023-03-01",
+            "value": 4.65
+          },
+          {
+            "date": "2023-04-01",
+            "value": 4.83
+          },
+          {
+            "date": "2023-05-01",
+            "value": 5.06
+          },
+          {
+            "date": "2023-06-01",
+            "value": 5.08
+          },
+          {
+            "date": "2023-07-01",
+            "value": 5.12
+          },
+          {
+            "date": "2023-08-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-09-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-10-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-11-01",
+            "value": 5.33
+          },
+          {
+            "date": "2023-12-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-01-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-02-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-03-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-04-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-05-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-06-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-07-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-08-01",
+            "value": 5.33
+          },
+          {
+            "date": "2024-09-01",
+            "value": 5.13
+          },
+          {
+            "date": "2024-10-01",
+            "value": 4.83
+          },
+          {
+            "date": "2024-11-01",
+            "value": 4.64
+          },
+          {
+            "date": "2024-12-01",
+            "value": 4.48
+          },
+          {
+            "date": "2025-01-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-02-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-03-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-04-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-05-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-06-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-07-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-08-01",
+            "value": 4.33
+          },
+          {
+            "date": "2025-09-01",
+            "value": 4.22
+          },
+          {
+            "date": "2025-10-01",
+            "value": 4.09
+          },
+          {
+            "date": "2025-11-01",
+            "value": 3.88
+          },
+          {
+            "date": "2025-12-01",
+            "value": 3.72
+          },
+          {
+            "date": "2026-01-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-02-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-03-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-04-01",
+            "value": 3.64
+          },
+          {
+            "date": "2026-05-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-06-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-07-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-08-01",
+            "value": 3.63
+          },
+          {
+            "date": "2026-09-01",
+            "value": 3.75
+          },
+          {
+            "date": "2026-10-01",
+            "value": 3.88
+          }
+        ]
+      }
+    },
+    {
+      "id": "FRED_PRIME",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Bank prime loan rate",
+      "url": "https://fred.stlouisfed.org/series/DPRIME",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPRIME",
+      "retrievedAt": "2026-11-23T12:48:08.460Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17",
+        "2026-09-18",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-09"
+      ],
+      "data": {
+        "seriesId": "DPRIME",
+        "unit": "percent",
+        "frequency": "daily",
+        "observations": [
+          {
+            "date": "2026-08-18",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-19",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-20",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-21",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-24",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-25",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-26",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-27",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-28",
+            "value": 6.75
+          },
+          {
+            "date": "2026-08-31",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-01",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-02",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-03",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-04",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-07",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-08",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-09",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-10",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-11",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-14",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-15",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-16",
+            "value": 6.75
+          },
+          {
+            "date": "2026-09-17",
+            "value": 7
+          },
+          {
+            "date": "2026-09-18",
+            "value": 7
+          },
+          {
+            "date": "2026-09-21",
+            "value": 7
+          },
+          {
+            "date": "2026-09-22",
+            "value": 7
+          },
+          {
+            "date": "2026-09-23",
+            "value": 7
+          },
+          {
+            "date": "2026-09-24",
+            "value": 7
+          },
+          {
+            "date": "2026-09-25",
+            "value": 7
+          },
+          {
+            "date": "2026-09-28",
+            "value": 7
+          },
+          {
+            "date": "2026-09-29",
+            "value": 7
+          },
+          {
+            "date": "2026-09-30",
+            "value": 7
+          },
+          {
+            "date": "2026-10-01",
+            "value": 7
+          },
+          {
+            "date": "2026-10-02",
+            "value": 7
+          },
+          {
+            "date": "2026-10-05",
+            "value": 7
+          },
+          {
+            "date": "2026-10-06",
+            "value": 7
+          },
+          {
+            "date": "2026-10-07",
+            "value": 7
+          },
+          {
+            "date": "2026-10-08",
+            "value": 7
+          },
+          {
+            "date": "2026-10-09",
+            "value": 7
+          },
+          {
+            "date": "2026-10-12",
+            "value": 7
+          },
+          {
+            "date": "2026-10-13",
+            "value": 7
+          },
+          {
+            "date": "2026-10-14",
+            "value": 7
+          },
+          {
+            "date": "2026-10-15",
+            "value": 7
+          },
+          {
+            "date": "2026-10-16",
+            "value": 7
+          },
+          {
+            "date": "2026-10-19",
+            "value": 7
+          },
+          {
+            "date": "2026-10-20",
+            "value": 7
+          },
+          {
+            "date": "2026-10-21",
+            "value": 7
+          },
+          {
+            "date": "2026-10-22",
+            "value": 7
+          },
+          {
+            "date": "2026-10-23",
+            "value": 7
+          },
+          {
+            "date": "2026-10-26",
+            "value": 7
+          },
+          {
+            "date": "2026-10-27",
+            "value": 7
+          },
+          {
+            "date": "2026-10-28",
+            "value": 7
+          },
+          {
+            "date": "2026-10-29",
+            "value": 7
+          },
+          {
+            "date": "2026-10-30",
+            "value": 7
+          },
+          {
+            "date": "2026-11-02",
+            "value": 7
+          },
+          {
+            "date": "2026-11-03",
+            "value": 7
+          },
+          {
+            "date": "2026-11-04",
+            "value": 7
+          },
+          {
+            "date": "2026-11-05",
+            "value": 7
+          },
+          {
+            "date": "2026-11-06",
+            "value": 7
+          },
+          {
+            "date": "2026-11-09",
+            "value": 7
+          }
+        ]
+      }
+    },
+    {
+      "id": "FRED_WEALTH",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Household and nonprofit net worth",
+      "url": "https://fred.stlouisfed.org/series/TNWBSHNO",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TNWBSHNO",
+      "retrievedAt": "2026-11-23T12:48:08.588Z",
+      "status": "ok",
+      "observationDates": [
+        "2011-07-01",
+        "2011-10-01",
+        "2012-01-01",
+        "2012-04-01",
+        "2012-07-01",
+        "2012-10-01",
+        "2013-01-01",
+        "2013-04-01",
+        "2013-07-01",
+        "2013-10-01",
+        "2014-01-01",
+        "2014-04-01",
+        "2014-07-01",
+        "2014-10-01",
+        "2015-01-01",
+        "2015-04-01",
+        "2015-07-01",
+        "2015-10-01",
+        "2016-01-01",
+        "2016-04-01",
+        "2016-07-01",
+        "2016-10-01",
+        "2017-01-01",
+        "2017-04-01",
+        "2017-07-01",
+        "2017-10-01",
+        "2018-01-01",
+        "2018-04-01",
+        "2018-07-01",
+        "2018-10-01",
+        "2019-01-01",
+        "2019-04-01",
+        "2019-07-01",
+        "2019-10-01",
+        "2020-01-01",
+        "2020-04-01",
+        "2020-07-01",
+        "2020-10-01",
+        "2021-01-01",
+        "2021-04-01",
+        "2021-07-01",
+        "2021-10-01",
+        "2022-01-01",
+        "2022-04-01",
+        "2022-07-01",
+        "2022-10-01",
+        "2023-01-01",
+        "2023-04-01",
+        "2023-07-01",
+        "2023-10-01",
+        "2024-01-01",
+        "2024-04-01",
+        "2024-07-01",
+        "2024-10-01",
+        "2025-01-01",
+        "2025-04-01",
+        "2025-07-01",
+        "2025-10-01",
+        "2026-01-01",
+        "2026-04-01"
+      ],
+      "data": {
+        "seriesId": "TNWBSHNO",
+        "unit": "millions USD",
+        "frequency": "quarterly",
+        "observations": [
+          {
+            "date": "2011-07-01",
+            "value": 65620320
+          },
+          {
+            "date": "2011-10-01",
+            "value": 67087780
+          },
+          {
+            "date": "2012-01-01",
+            "value": 69057884
+          },
+          {
+            "date": "2012-04-01",
+            "value": 69143450
+          },
+          {
+            "date": "2012-07-01",
+            "value": 71022476
+          },
+          {
+            "date": "2012-10-01",
+            "value": 71627513
+          },
+          {
+            "date": "2013-01-01",
+            "value": 74542848
+          },
+          {
+            "date": "2013-04-01",
+            "value": 75749396
+          },
+          {
+            "date": "2013-07-01",
+            "value": 78235777
+          },
+          {
+            "date": "2013-10-01",
+            "value": 80316298
+          },
+          {
+            "date": "2014-01-01",
+            "value": 81946546
+          },
+          {
+            "date": "2014-04-01",
+            "value": 84144272
+          },
+          {
+            "date": "2014-07-01",
+            "value": 84814961
+          },
+          {
+            "date": "2014-10-01",
+            "value": 86377535
+          },
+          {
+            "date": "2015-01-01",
+            "value": 88014421
+          },
+          {
+            "date": "2015-04-01",
+            "value": 88899443
+          },
+          {
+            "date": "2015-07-01",
+            "value": 87920359
+          },
+          {
+            "date": "2015-10-01",
+            "value": 89394228
+          },
+          {
+            "date": "2016-01-01",
+            "value": 90518522
+          },
+          {
+            "date": "2016-04-01",
+            "value": 92274285
+          },
+          {
+            "date": "2016-07-01",
+            "value": 94095555
+          },
+          {
+            "date": "2016-10-01",
+            "value": 94819015
+          },
+          {
+            "date": "2017-01-01",
+            "value": 97199660
+          },
+          {
+            "date": "2017-04-01",
+            "value": 99381956
+          },
+          {
+            "date": "2017-07-01",
+            "value": 101059673
+          },
+          {
+            "date": "2017-10-01",
+            "value": 103709036
+          },
+          {
+            "date": "2018-01-01",
+            "value": 104806980
+          },
+          {
+            "date": "2018-04-01",
+            "value": 106040910
+          },
+          {
+            "date": "2018-07-01",
+            "value": 108118103
+          },
+          {
+            "date": "2018-10-01",
+            "value": 103703692
+          },
+          {
+            "date": "2019-01-01",
+            "value": 108812649
+          },
+          {
+            "date": "2019-04-01",
+            "value": 111620179
+          },
+          {
+            "date": "2019-07-01",
+            "value": 112089679
+          },
+          {
+            "date": "2019-10-01",
+            "value": 114985456
+          },
+          {
+            "date": "2020-01-01",
+            "value": 109170327
+          },
+          {
+            "date": "2020-04-01",
+            "value": 116683105
+          },
+          {
+            "date": "2020-07-01",
+            "value": 121700798
+          },
+          {
+            "date": "2020-10-01",
+            "value": 130050386
+          },
+          {
+            "date": "2021-01-01",
+            "value": 135686499
+          },
+          {
+            "date": "2021-04-01",
+            "value": 143136162
+          },
+          {
+            "date": "2021-07-01",
+            "value": 146704595
+          },
+          {
+            "date": "2021-10-01",
+            "value": 151002013
+          },
+          {
+            "date": "2022-01-01",
+            "value": 151567444
+          },
+          {
+            "date": "2022-04-01",
+            "value": 145761899
+          },
+          {
+            "date": "2022-07-01",
+            "value": 142190439
+          },
+          {
+            "date": "2022-10-01",
+            "value": 143079491
+          },
+          {
+            "date": "2023-01-01",
+            "value": 146710836
+          },
+          {
+            "date": "2023-04-01",
+            "value": 152542815
+          },
+          {
+            "date": "2023-07-01",
+            "value": 151446471
+          },
+          {
+            "date": "2023-10-01",
+            "value": 155674256
+          },
+          {
+            "date": "2024-01-01",
+            "value": 161085962
+          },
+          {
+            "date": "2024-04-01",
+            "value": 163996688
+          },
+          {
+            "date": "2024-07-01",
+            "value": 167885158
+          },
+          {
+            "date": "2024-10-01",
+            "value": 168721510
+          },
+          {
+            "date": "2025-01-01",
+            "value": 168697860
+          },
+          {
+            "date": "2025-04-01",
+            "value": 175246515
+          },
+          {
+            "date": "2025-07-01",
+            "value": 180509163
+          },
+          {
+            "date": "2025-10-01",
+            "value": 182274207
+          },
+          {
+            "date": "2026-01-01",
+            "value": 183067096
+          },
+          {
+            "date": "2026-04-01",
+            "value": 195870496
+          }
+        ]
+      }
+    },
+    {
+      "id": "FRED_DGS2",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Two-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS2",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS2&cosd=2024-09-14",
+      "retrievedAt": "2026-11-23T12:48:08.388Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17",
+        "2026-09-18",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19"
+      ],
+      "data": {
+        "seriesId": "DGS2",
+        "unit": "percent",
+        "frequency": "daily",
+        "observations": [
+          {
+            "date": "2026-08-28",
+            "value": 4.34
+          },
+          {
+            "date": "2026-08-31",
+            "value": 4.34
+          },
+          {
+            "date": "2026-09-01",
+            "value": 4.39
+          },
+          {
+            "date": "2026-09-02",
+            "value": 4.39
+          },
+          {
+            "date": "2026-09-03",
+            "value": 4.34
+          },
+          {
+            "date": "2026-09-04",
+            "value": 4.37
+          },
+          {
+            "date": "2026-09-07",
+            "value": null
+          },
+          {
+            "date": "2026-09-08",
+            "value": 4.39
+          },
+          {
+            "date": "2026-09-09",
+            "value": 4.43
+          },
+          {
+            "date": "2026-09-10",
+            "value": 4.56
+          },
+          {
+            "date": "2026-09-11",
+            "value": 4.63
+          },
+          {
+            "date": "2026-09-14",
+            "value": 4.65
+          },
+          {
+            "date": "2026-09-15",
+            "value": 4.67
+          },
+          {
+            "date": "2026-09-16",
+            "value": 4.74
+          },
+          {
+            "date": "2026-09-17",
+            "value": 4.67
+          },
+          {
+            "date": "2026-09-18",
+            "value": 4.76
+          },
+          {
+            "date": "2026-09-21",
+            "value": 4.76
+          },
+          {
+            "date": "2026-09-22",
+            "value": 4.71
+          },
+          {
+            "date": "2026-09-23",
+            "value": 4.85
+          },
+          {
+            "date": "2026-09-24",
+            "value": 4.87
+          },
+          {
+            "date": "2026-09-25",
+            "value": 4.81
+          },
+          {
+            "date": "2026-09-28",
+            "value": 4.92
+          },
+          {
+            "date": "2026-09-29",
+            "value": 4.89
+          },
+          {
+            "date": "2026-09-30",
+            "value": 4.88
+          },
+          {
+            "date": "2026-10-01",
+            "value": 4.78
+          },
+          {
+            "date": "2026-10-02",
+            "value": 4.83
+          },
+          {
+            "date": "2026-10-05",
+            "value": 4.84
+          },
+          {
+            "date": "2026-10-06",
+            "value": 4.79
+          },
+          {
+            "date": "2026-10-07",
+            "value": 4.77
+          },
+          {
+            "date": "2026-10-08",
+            "value": 4.75
+          },
+          {
+            "date": "2026-10-09",
+            "value": 4.8
+          },
+          {
+            "date": "2026-10-12",
+            "value": null
+          },
+          {
+            "date": "2026-10-13",
+            "value": 4.79
+          },
+          {
+            "date": "2026-10-14",
+            "value": 4.82
+          },
+          {
+            "date": "2026-10-15",
+            "value": 4.77
+          },
+          {
+            "date": "2026-10-16",
+            "value": 4.74
+          },
+          {
+            "date": "2026-10-19",
+            "value": 4.77
+          },
+          {
+            "date": "2026-10-20",
+            "value": 4.79
+          },
+          {
+            "date": "2026-10-21",
+            "value": 4.81
+          },
+          {
+            "date": "2026-10-22",
+            "value": 4.65
+          },
+          {
+            "date": "2026-10-23",
+            "value": 4.69
+          },
+          {
+            "date": "2026-10-26",
+            "value": 4.68
+          },
+          {
+            "date": "2026-10-27",
+            "value": 4.7
+          },
+          {
+            "date": "2026-10-28",
+            "value": 4.67
+          },
+          {
+            "date": "2026-10-29",
+            "value": 4.61
+          },
+          {
+            "date": "2026-10-30",
+            "value": 4.56
+          },
+          {
+            "date": "2026-11-02",
+            "value": 4.59
+          },
+          {
+            "date": "2026-11-03",
+            "value": 4.61
+          },
+          {
+            "date": "2026-11-04",
+            "value": 4.58
+          },
+          {
+            "date": "2026-11-05",
+            "value": 4.46
+          },
+          {
+            "date": "2026-11-06",
+            "value": 4.51
+          },
+          {
+            "date": "2026-11-09",
+            "value": 4.56
+          },
+          {
+            "date": "2026-11-10",
+            "value": 4.73
+          },
+          {
+            "date": "2026-11-11",
+            "value": null
+          },
+          {
+            "date": "2026-11-12",
+            "value": 4.86
+          },
+          {
+            "date": "2026-11-13",
+            "value": 4.88
+          },
+          {
+            "date": "2026-11-16",
+            "value": 4.83
+          },
+          {
+            "date": "2026-11-17",
+            "value": 4.8
+          },
+          {
+            "date": "2026-11-18",
+            "value": 4.8
+          },
+          {
+            "date": "2026-11-19",
+            "value": 4.76
+          }
+        ],
+        "sha256": "9602fc0c668e25d3303f1cf9637f3b9705311dbfe493405eac802548469a9229"
+      }
+    },
+    {
+      "id": "FRED_DGS10",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Ten-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS10",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10&cosd=2024-09-14",
+      "retrievedAt": "2026-11-23T12:48:08.395Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17",
+        "2026-09-18",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19"
+      ],
+      "data": {
+        "seriesId": "DGS10",
+        "unit": "percent",
+        "frequency": "daily",
+        "observations": [
+          {
+            "date": "2026-08-28",
+            "value": 4.73
+          },
+          {
+            "date": "2026-08-31",
+            "value": 4.75
+          },
+          {
+            "date": "2026-09-01",
+            "value": 4.79
+          },
+          {
+            "date": "2026-09-02",
+            "value": 4.79
+          },
+          {
+            "date": "2026-09-03",
+            "value": 4.77
+          },
+          {
+            "date": "2026-09-04",
+            "value": 4.78
+          },
+          {
+            "date": "2026-09-07",
+            "value": null
+          },
+          {
+            "date": "2026-09-08",
+            "value": 4.8
+          },
+          {
+            "date": "2026-09-09",
+            "value": 4.83
+          },
+          {
+            "date": "2026-09-10",
+            "value": 4.95
+          },
+          {
+            "date": "2026-09-11",
+            "value": 4.96
+          },
+          {
+            "date": "2026-09-14",
+            "value": 4.97
+          },
+          {
+            "date": "2026-09-15",
+            "value": 5
+          },
+          {
+            "date": "2026-09-16",
+            "value": 5.01
+          },
+          {
+            "date": "2026-09-17",
+            "value": 4.94
+          },
+          {
+            "date": "2026-09-18",
+            "value": 5.01
+          },
+          {
+            "date": "2026-09-21",
+            "value": 4.96
+          },
+          {
+            "date": "2026-09-22",
+            "value": 4.96
+          },
+          {
+            "date": "2026-09-23",
+            "value": 5.11
+          },
+          {
+            "date": "2026-09-24",
+            "value": 5.18
+          },
+          {
+            "date": "2026-09-25",
+            "value": 5.17
+          },
+          {
+            "date": "2026-09-28",
+            "value": 5.24
+          },
+          {
+            "date": "2026-09-29",
+            "value": 5.26
+          },
+          {
+            "date": "2026-09-30",
+            "value": 5.29
+          },
+          {
+            "date": "2026-10-01",
+            "value": 5.24
+          },
+          {
+            "date": "2026-10-02",
+            "value": 5.28
+          },
+          {
+            "date": "2026-10-05",
+            "value": 5.31
+          },
+          {
+            "date": "2026-10-06",
+            "value": 5.27
+          },
+          {
+            "date": "2026-10-07",
+            "value": 5.28
+          },
+          {
+            "date": "2026-10-08",
+            "value": 5.22
+          },
+          {
+            "date": "2026-10-09",
+            "value": 5.24
+          },
+          {
+            "date": "2026-10-12",
+            "value": null
+          },
+          {
+            "date": "2026-10-13",
+            "value": 5.21
+          },
+          {
+            "date": "2026-10-14",
+            "value": 5.19
+          },
+          {
+            "date": "2026-10-15",
+            "value": 5.1
+          },
+          {
+            "date": "2026-10-16",
+            "value": 5.09
+          },
+          {
+            "date": "2026-10-19",
+            "value": 5.15
+          },
+          {
+            "date": "2026-10-20",
+            "value": 5.12
+          },
+          {
+            "date": "2026-10-21",
+            "value": 5.13
+          },
+          {
+            "date": "2026-10-22",
+            "value": 4.96
+          },
+          {
+            "date": "2026-10-23",
+            "value": 5
+          },
+          {
+            "date": "2026-10-26",
+            "value": 5
+          },
+          {
+            "date": "2026-10-27",
+            "value": 4.99
+          },
+          {
+            "date": "2026-10-28",
+            "value": 5.05
+          },
+          {
+            "date": "2026-10-29",
+            "value": 4.98
+          },
+          {
+            "date": "2026-10-30",
+            "value": 4.94
+          },
+          {
+            "date": "2026-11-02",
+            "value": 4.91
+          },
+          {
+            "date": "2026-11-03",
+            "value": 4.95
+          },
+          {
+            "date": "2026-11-04",
+            "value": 4.9
+          },
+          {
+            "date": "2026-11-05",
+            "value": 4.84
+          },
+          {
+            "date": "2026-11-06",
+            "value": 4.86
+          },
+          {
+            "date": "2026-11-09",
+            "value": 4.88
+          },
+          {
+            "date": "2026-11-10",
+            "value": 4.98
+          },
+          {
+            "date": "2026-11-11",
+            "value": null
+          },
+          {
+            "date": "2026-11-12",
+            "value": 5.1
+          },
+          {
+            "date": "2026-11-13",
+            "value": 5.15
+          },
+          {
+            "date": "2026-11-16",
+            "value": 5.12
+          },
+          {
+            "date": "2026-11-17",
+            "value": 5.1
+          },
+          {
+            "date": "2026-11-18",
+            "value": 5.07
+          },
+          {
+            "date": "2026-11-19",
+            "value": 5.04
+          }
+        ],
+        "sha256": "a517f56471098bda4b99a32137fdb71aa7b2972e1411243cbab3b9c511e4217b"
+      }
+    },
+    {
+      "id": "FRED_DGS30",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Thirty-year Treasury constant maturity yield",
+      "url": "https://fred.stlouisfed.org/series/DGS30",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS30&cosd=2024-09-14",
+      "retrievedAt": "2026-11-23T12:48:08.386Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17",
+        "2026-09-18",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19"
+      ],
+      "data": {
+        "seriesId": "DGS30",
+        "unit": "percent",
+        "frequency": "daily",
+        "observations": [
+          {
+            "date": "2026-08-28",
+            "value": 5.22
+          },
+          {
+            "date": "2026-08-31",
+            "value": 5.25
+          },
+          {
+            "date": "2026-09-01",
+            "value": 5.27
+          },
+          {
+            "date": "2026-09-02",
+            "value": 5.27
+          },
+          {
+            "date": "2026-09-03",
+            "value": 5.25
+          },
+          {
+            "date": "2026-09-04",
+            "value": 5.24
+          },
+          {
+            "date": "2026-09-07",
+            "value": null
+          },
+          {
+            "date": "2026-09-08",
+            "value": 5.25
+          },
+          {
+            "date": "2026-09-09",
+            "value": 5.28
+          },
+          {
+            "date": "2026-09-10",
+            "value": 5.37
+          },
+          {
+            "date": "2026-09-11",
+            "value": 5.35
+          },
+          {
+            "date": "2026-09-14",
+            "value": 5.34
+          },
+          {
+            "date": "2026-09-15",
+            "value": 5.36
+          },
+          {
+            "date": "2026-09-16",
+            "value": 5.35
+          },
+          {
+            "date": "2026-09-17",
+            "value": 5.29
+          },
+          {
+            "date": "2026-09-18",
+            "value": 5.34
+          },
+          {
+            "date": "2026-09-21",
+            "value": 5.29
+          },
+          {
+            "date": "2026-09-22",
+            "value": 5.29
+          },
+          {
+            "date": "2026-09-23",
+            "value": 5.4
+          },
+          {
+            "date": "2026-09-24",
+            "value": 5.47
+          },
+          {
+            "date": "2026-09-25",
+            "value": 5.49
+          },
+          {
+            "date": "2026-09-28",
+            "value": 5.56
+          },
+          {
+            "date": "2026-09-29",
+            "value": 5.59
+          },
+          {
+            "date": "2026-09-30",
+            "value": 5.64
+          },
+          {
+            "date": "2026-10-01",
+            "value": 5.61
+          },
+          {
+            "date": "2026-10-02",
+            "value": 5.63
+          },
+          {
+            "date": "2026-10-05",
+            "value": 5.66
+          },
+          {
+            "date": "2026-10-06",
+            "value": 5.64
+          },
+          {
+            "date": "2026-10-07",
+            "value": 5.67
+          },
+          {
+            "date": "2026-10-08",
+            "value": 5.6
+          },
+          {
+            "date": "2026-10-09",
+            "value": 5.6
+          },
+          {
+            "date": "2026-10-12",
+            "value": null
+          },
+          {
+            "date": "2026-10-13",
+            "value": 5.56
+          },
+          {
+            "date": "2026-10-14",
+            "value": 5.52
+          },
+          {
+            "date": "2026-10-15",
+            "value": 5.43
+          },
+          {
+            "date": "2026-10-16",
+            "value": 5.43
+          },
+          {
+            "date": "2026-10-19",
+            "value": 5.48
+          },
+          {
+            "date": "2026-10-20",
+            "value": 5.42
+          },
+          {
+            "date": "2026-10-21",
+            "value": 5.42
+          },
+          {
+            "date": "2026-10-22",
+            "value": 5.29
+          },
+          {
+            "date": "2026-10-23",
+            "value": 5.33
+          },
+          {
+            "date": "2026-10-26",
+            "value": 5.31
+          },
+          {
+            "date": "2026-10-27",
+            "value": 5.3
+          },
+          {
+            "date": "2026-10-28",
+            "value": 5.37
+          },
+          {
+            "date": "2026-10-29",
+            "value": 5.32
+          },
+          {
+            "date": "2026-10-30",
+            "value": 5.31
+          },
+          {
+            "date": "2026-11-02",
+            "value": 5.28
+          },
+          {
+            "date": "2026-11-03",
+            "value": 5.32
+          },
+          {
+            "date": "2026-11-04",
+            "value": 5.28
+          },
+          {
+            "date": "2026-11-05",
+            "value": 5.25
+          },
+          {
+            "date": "2026-11-06",
+            "value": 5.26
+          },
+          {
+            "date": "2026-11-09",
+            "value": 5.26
+          },
+          {
+            "date": "2026-11-10",
+            "value": 5.35
+          },
+          {
+            "date": "2026-11-11",
+            "value": null
+          },
+          {
+            "date": "2026-11-12",
+            "value": 5.43
+          },
+          {
+            "date": "2026-11-13",
+            "value": 5.47
+          },
+          {
+            "date": "2026-11-16",
+            "value": 5.46
+          },
+          {
+            "date": "2026-11-17",
+            "value": 5.46
+          },
+          {
+            "date": "2026-11-18",
+            "value": 5.41
+          },
+          {
+            "date": "2026-11-19",
+            "value": 5.4
+          }
+        ],
+        "sha256": "a928202c4fed41978ef7adcf72cde15865cb270df6a4ded530a3c5818c68be6b"
+      }
+    },
+    {
+      "id": "FRED_SOFR",
+      "kind": "fred",
+      "title": "Federal Reserve / FRED · Secured Overnight Financing Rate",
+      "url": "https://fred.stlouisfed.org/series/SOFR",
+      "retrievalUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=SOFR&cosd=2024-09-14",
+      "retrievedAt": "2026-11-23T12:48:08.561Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-14",
+        "2026-09-15",
+        "2026-09-16",
+        "2026-09-17",
+        "2026-09-18",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-26",
+        "2026-10-27",
+        "2026-10-28",
+        "2026-10-29",
+        "2026-10-30",
+        "2026-11-02",
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-06",
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19"
+      ],
+      "data": {
+        "seriesId": "SOFR",
+        "unit": "percent",
+        "frequency": "daily",
+        "observations": [
+          {
+            "date": "2026-08-28",
+            "value": 3.65
+          },
+          {
+            "date": "2026-08-31",
+            "value": 3.68
+          },
+          {
+            "date": "2026-09-01",
+            "value": 3.66
+          },
+          {
+            "date": "2026-09-02",
+            "value": 3.65
+          },
+          {
+            "date": "2026-09-03",
+            "value": 3.66
+          },
+          {
+            "date": "2026-09-04",
+            "value": 3.65
+          },
+          {
+            "date": "2026-09-07",
+            "value": null
+          },
+          {
+            "date": "2026-09-08",
+            "value": 3.64
+          },
+          {
+            "date": "2026-09-09",
+            "value": 3.64
+          },
+          {
+            "date": "2026-09-10",
+            "value": 3.62
+          },
+          {
+            "date": "2026-09-11",
+            "value": 3.62
+          },
+          {
+            "date": "2026-09-14",
+            "value": 3.62
+          },
+          {
+            "date": "2026-09-15",
+            "value": 3.64
+          },
+          {
+            "date": "2026-09-16",
+            "value": 3.62
+          },
+          {
+            "date": "2026-09-17",
+            "value": 3.85
+          },
+          {
+            "date": "2026-09-18",
+            "value": 3.85
+          },
+          {
+            "date": "2026-09-21",
+            "value": 3.85
+          },
+          {
+            "date": "2026-09-22",
+            "value": 3.87
+          },
+          {
+            "date": "2026-09-23",
+            "value": 3.87
+          },
+          {
+            "date": "2026-09-24",
+            "value": 3.88
+          },
+          {
+            "date": "2026-09-25",
+            "value": 3.9
+          },
+          {
+            "date": "2026-09-28",
+            "value": 3.9
+          },
+          {
+            "date": "2026-09-29",
+            "value": 3.88
+          },
+          {
+            "date": "2026-09-30",
+            "value": 3.9
+          },
+          {
+            "date": "2026-10-01",
+            "value": 3.87
+          },
+          {
+            "date": "2026-10-02",
+            "value": 3.88
+          },
+          {
+            "date": "2026-10-05",
+            "value": 3.89
+          },
+          {
+            "date": "2026-10-06",
+            "value": 3.9
+          },
+          {
+            "date": "2026-10-07",
+            "value": 3.88
+          },
+          {
+            "date": "2026-10-08",
+            "value": 3.87
+          },
+          {
+            "date": "2026-10-09",
+            "value": 3.87
+          },
+          {
+            "date": "2026-10-12",
+            "value": null
+          },
+          {
+            "date": "2026-10-13",
+            "value": 3.89
+          },
+          {
+            "date": "2026-10-14",
+            "value": 3.88
+          },
+          {
+            "date": "2026-10-15",
+            "value": 3.89
+          },
+          {
+            "date": "2026-10-16",
+            "value": 3.88
+          },
+          {
+            "date": "2026-10-19",
+            "value": 3.87
+          },
+          {
+            "date": "2026-10-20",
+            "value": 3.88
+          },
+          {
+            "date": "2026-10-21",
+            "value": 3.88
+          },
+          {
+            "date": "2026-10-22",
+            "value": 3.9
+          },
+          {
+            "date": "2026-10-23",
+            "value": 3.92
+          },
+          {
+            "date": "2026-10-26",
+            "value": 3.93
+          },
+          {
+            "date": "2026-10-27",
+            "value": 3.95
+          },
+          {
+            "date": "2026-10-28",
+            "value": 3.94
+          },
+          {
+            "date": "2026-10-29",
+            "value": 3.94
+          },
+          {
+            "date": "2026-10-30",
+            "value": 3.95
+          },
+          {
+            "date": "2026-11-02",
+            "value": 3.95
+          },
+          {
+            "date": "2026-11-03",
+            "value": 3.97
+          },
+          {
+            "date": "2026-11-04",
+            "value": 3.94
+          },
+          {
+            "date": "2026-11-05",
+            "value": 3.92
+          },
+          {
+            "date": "2026-11-06",
+            "value": 3.89
+          },
+          {
+            "date": "2026-11-09",
+            "value": 3.88
+          },
+          {
+            "date": "2026-11-10",
+            "value": 3.89
+          },
+          {
+            "date": "2026-11-11",
+            "value": null
+          },
+          {
+            "date": "2026-11-12",
+            "value": 3.9
+          },
+          {
+            "date": "2026-11-13",
+            "value": 3.9
+          },
+          {
+            "date": "2026-11-16",
+            "value": 3.93
+          },
+          {
+            "date": "2026-11-17",
+            "value": 3.92
+          },
+          {
+            "date": "2026-11-18",
+            "value": 3.9
+          },
+          {
+            "date": "2026-11-19",
+            "value": 3.91
+          }
+        ],
+        "sha256": "01c9b28b82134dfe220e8766690120a2d47c20bc744a0032e928f496e381c046"
+      }
+    },
+    {
+      "id": "SEC_AAPL",
+      "kind": "sec",
+      "title": "SEC · AAPL recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "retrievedAt": "2026-11-23T12:48:08.482Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-19",
+        "2026-11-18",
+        "2026-11-16",
+        "2026-11-12",
+        "2026-11-09",
+        "2026-11-06"
+      ],
+      "data": {
+        "cik": "0000320193",
+        "ticker": "AAPL",
+        "filings": [
+          {
+            "id": "sec:0000320193:0001140361-26-044952",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-11-19",
+            "reportDate": "2026-11-17",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126044952/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-044773",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-11-18",
+            "reportDate": "2026-11-16",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126044773/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001921094-26-001188",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "144",
+            "filedAt": "2026-11-16",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000192109426001188/xsl144X01/primary_doc.xml",
+            "description": "144 filing"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-043484",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "4",
+            "filedAt": "2026-11-12",
+            "reportDate": "2026-11-10",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126043484/xslF345X06/form4.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000320193:0001354457-26-001062",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "25-NSE",
+            "filedAt": "2026-11-09",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000135445726001062/xslF25X02/primary_doc.xml",
+            "description": "25-NSE filing"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-042798",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "8-K",
+            "filedAt": "2026-11-09",
+            "reportDate": "2026-11-05",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042798/ef20085077_8k.htm",
+            "description": "8-K filing"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-042505",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "424B2",
+            "filedAt": "2026-11-06",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042505/ny20084621x2_424b2.htm",
+            "description": "424B2"
+          },
+          {
+            "id": "sec:0000320193:0001140361-26-042173",
+            "company": "Apple Inc.",
+            "cik": "0000320193",
+            "form": "FWP",
+            "filedAt": "2026-11-06",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042173/ny20084621x3_fwp.htm",
+            "description": "FWP"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC_MSFT",
+      "kind": "sec",
+      "title": "SEC · MSFT recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "retrievedAt": "2026-11-23T12:48:08.763Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-16",
+        "2026-11-12",
+        "2026-11-10",
+        "2026-11-09",
+        "2026-11-05",
+        "2026-11-04"
+      ],
+      "data": {
+        "cik": "0000789019",
+        "ticker": "MSFT",
+        "filings": [
+          {
+            "id": "sec:0000789019:0000789019-26-000236",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "4",
+            "filedAt": "2026-11-16",
+            "reportDate": "2026-11-16",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000236/xslF345X06/form4.xml",
+            "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+          },
+          {
+            "id": "sec:0000789019:0000789019-26-000234",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "4",
+            "filedAt": "2026-11-12",
+            "reportDate": "2026-11-10",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000234/xslF345X06/form4.xml",
+            "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+          },
+          {
+            "id": "sec:0000789019:0000789019-26-000232",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "4",
+            "filedAt": "2026-11-10",
+            "reportDate": "2026-11-09",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000232/xslF345X06/form4.xml",
+            "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+          },
+          {
+            "id": "sec:0000789019:0000789019-26-000230",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "4",
+            "filedAt": "2026-11-09",
+            "reportDate": "2026-11-06",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000078901926000230/xslF345X06/form4.xml",
+            "description": "STATEMENT OF CHANGES IN BENEFICIAL OWNERSHIP OF SECURITIES"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-453698",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "DEFA14A",
+            "filedAt": "2026-11-09",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526453698/d136896ddefa14a.htm",
+            "description": "DEFA14A"
+          },
+          {
+            "id": "sec:0000789019:0001959173-26-007778",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "144",
+            "filedAt": "2026-11-05",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000195917326007778/xsl144X01/primary_doc.xml",
+            "description": "144 filing"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-448357",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "8-K",
+            "filedAt": "2026-11-05",
+            "reportDate": "2026-11-04",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526448357/d177209d8k.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0000789019:0001193125-26-447173",
+            "company": "MICROSOFT CORP",
+            "cik": "0000789019",
+            "form": "8-K",
+            "filedAt": "2026-11-04",
+            "reportDate": "2026-10-29",
+            "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526447173/d178557d8k.htm",
+            "description": "8-K"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC_NVDA",
+      "kind": "sec",
+      "title": "SEC · NVDA recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0001045810.json",
+      "retrievedAt": "2026-11-23T12:48:09.050Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-19",
+        "2026-11-17",
+        "2026-11-16",
+        "2026-11-12",
+        "2026-11-06",
+        "2026-10-13",
+        "2026-10-09",
+        "2026-09-23"
+      ],
+      "data": {
+        "cik": "0001045810",
+        "ticker": "NVDA",
+        "filings": [
+          {
+            "id": "sec:0001045810:0001921094-26-001223",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "144",
+            "filedAt": "2026-11-19",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001223/xsl144X01/primary_doc.xml",
+            "description": "144 filing"
+          },
+          {
+            "id": "sec:0001045810:0001045810-26-000088",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "8-K",
+            "filedAt": "2026-11-17",
+            "reportDate": "2026-11-17",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000088/nvda-20261117.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0001045810:0001045810-26-000084",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "13F-HR",
+            "filedAt": "2026-11-16",
+            "reportDate": "2026-09-30",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000084/xslForm13F_X02/primary_doc.xml",
+            "description": "13F-HR filing"
+          },
+          {
+            "id": "sec:0001045810:0001045810-26-000082",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "8-K",
+            "filedAt": "2026-11-12",
+            "reportDate": "2026-11-11",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000082/nvda-20261111.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0001045810:0001197647-26-000013",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-11-06",
+            "reportDate": "2026-11-04",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119764726000013/xslF345X06/wk-form4_1793999520.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0002152188-26-000007",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4/A",
+            "filedAt": "2026-10-13",
+            "reportDate": "2026-09-09",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000215218826000007/xslF345X06/wk-form4a_1791925767.xml",
+            "description": "FORM 4/A"
+          },
+          {
+            "id": "sec:0001045810:0001197647-26-000011",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-10-09",
+            "reportDate": "2026-10-07",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119764726000011/xslF345X06/wk-form4_1791579847.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0001045810:0001696841-26-000014",
+            "company": "NVIDIA CORP",
+            "cik": "0001045810",
+            "form": "4",
+            "filedAt": "2026-09-23",
+            "reportDate": "2026-09-21",
+            "url": "https://www.sec.gov/Archives/edgar/data/1045810/000169684126000014/xslF345X06/wk-form4_1790196985.xml",
+            "description": "FORM 4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC_WMT",
+      "kind": "sec",
+      "title": "SEC · WMT recent filings",
+      "url": "https://data.sec.gov/submissions/CIK0000104169.json",
+      "retrievalUrl": "https://data.sec.gov/submissions/CIK0000104169.json",
+      "retrievedAt": "2026-11-23T12:48:09.316Z",
+      "status": "ok",
+      "observationDates": [
+        "2026-11-19",
+        "2026-11-16",
+        "2026-11-06",
+        "2026-11-05"
+      ],
+      "data": {
+        "cik": "0000104169",
+        "ticker": "WMT",
+        "filings": [
+          {
+            "id": "sec:0000104169:0001949846-26-000669",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "144",
+            "filedAt": "2026-11-19",
+            "reportDate": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000194984626000669/xsl144X01/primary_doc.xml",
+            "description": "144 filing"
+          },
+          {
+            "id": "sec:0000104169:0000104169-26-000168",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "8-K",
+            "filedAt": "2026-11-19",
+            "reportDate": "2026-11-19",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000168/wmt-20261119.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0000104169:0001739859-26-000004",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "3",
+            "filedAt": "2026-11-16",
+            "reportDate": "2026-11-13",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000173985926000004/xslF345X06/wk-form3_1794871045.xml",
+            "description": "FORM 3"
+          },
+          {
+            "id": "sec:0000104169:0001739859-26-000003",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "4",
+            "filedAt": "2026-11-16",
+            "reportDate": "2026-11-13",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000173985926000003/xslF345X06/wk-form4_1794871039.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000104169:0000104169-26-000165",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "8-K",
+            "filedAt": "2026-11-16",
+            "reportDate": "2026-11-13",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000165/wmt-20261113.htm",
+            "description": "8-K"
+          },
+          {
+            "id": "sec:0000104169:0001123292-26-001495",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "13F-HR",
+            "filedAt": "2026-11-06",
+            "reportDate": "2026-09-30",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000112329226001495/xslForm13F_X02/primary_doc.xml",
+            "description": "13F-HR filing"
+          },
+          {
+            "id": "sec:0000104169:0001886367-26-000031",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "4",
+            "filedAt": "2026-11-05",
+            "reportDate": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000188636726000031/xslF345X06/wk-form4_1793915990.xml",
+            "description": "FORM 4"
+          },
+          {
+            "id": "sec:0000104169:0002058309-26-000021",
+            "company": "Walmart Inc.",
+            "cik": "0000104169",
+            "form": "4",
+            "filedAt": "2026-11-05",
+            "reportDate": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/104169/000205830926000021/xslF345X06/wk-form4_1793915984.xml",
+            "description": "FORM 4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CFTC_METHOD",
+      "kind": "methodology",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "retrievalUrl": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "retrievedAt": "2026-11-23T12:48:08.501Z",
+      "status": "ok",
+      "observationDates": [],
+      "data": {
+        "format": "official-document-excerpt",
+        "sha256": "9e4621789f34e2ff1eef71aaa196182f35a17176dea606edade10c7b2b7d75a4",
+        "excerpt": "Commitments of Traders | CFTC /MarketReports/CommitmentsofTraders/index.htm Skip to main content icon-hamburger Created with Sketch. Menu Transparency Contact Us Search Search Main navigation About the CFTC The Commission Chairman & Commissioners CFTC Organization Advisory Committees Innovation at the CFTC Agriculture at the CFTC Budget & Performance Privacy at the CFTC Careers Industry Oversight Industry Filings Trading Organizations Clearing Organizations Data Repositories Intermediaries Market Surveillance Contracts & Products Rules & Rule Amendments Anti-Money Laundering Law & Regulation Commodity Exchange Act & Regulations How Rules Are Made Holding Wrongdoers Accountable Federal Register Public Comments CFTC Staff Letters Market Data & Economic Analysis Data at CFTC Commitments of Traders Bank Participation Reports Cotton On-Call Financial Data for FCMS Staff Reports Weekly Swaps Report Cleared Margin Reports Office of the Chief Economist Forms & Submissions Learn & Protect Understanding Prediction Markets and Event Contracts Check Registration & Disciplinary History Submit a Tip or Complaint RED List Office of Proceedings Learning Resources News & Events Press Releases Public Statements & Remarks Events Carousel Rotation On On Market Data & Economic Analysis Data at CFTC Commitments of Traders Bank Participation Reports Cotton On-Call Financial Data for FCMS Staff Reports Weekly Swaps Report Cleared Margin Reports Office of the Chief Economist Commitments of Traders COT Public Reporting Environment Historical Viewable Historical Compressed About the COT Reports Release Schedule Explanatory Notes Disaggregated Explanatory Notes Historical Special Announcements Commitments of Traders Commitments of Traders (COT) Reports Descriptions Introduction and Classification Methodology The Commodity Futures Trading Commission (Commission or CFTC) publishes the Commitments of Traders (COT) reports to help the public understand market dynamics. Specifically, the COT reports provide a breakdown of each Tuesday’s open interest for futures and options on futures markets in which 20 or more traders hold positions equal to or above the reporting levels established by the CFTC. The CFTC releases the weekly COT reports in static format to support the historical usage patterns of industry professionals viewing and accessing each week’s data. Each historical report is viewable with the data for the respective reporting week, along with all historical data compressed within an annual file. In October 2022, CFTC began publishing weekly and historical report data within a public reporting environment to support industry professionals needing to customize, search, filter, and download report data for analysis and trends. The COT reports are based on position data supplied by reporting firms (FCMs, clearing members, foreign brokers and exchanges). While the position data is supplied by reporting firms, the actual trader category or classification is based on the predominant business purpose self-reported by traders on the CFTC Form 40 and is subject to review by CFTC staff for reasonableness. CFTC staff does not know specific reasons for traders’ positions and hence this information does not factor in determining trader classifications. In practice this means, for example, that the position data for a trader classified in the “producer/merchant/processor/user” category for a particular commodity will include all of its positions in that commodity, regardless of whether the position is for hedging or speculation. Note that traders are able to report business purpose by commodity and, therefore, can have different classifications in the COT reports for different commodities. For one of the reports, Traders in Financial Futures, traders are classified in the same category for all commodities. Due to legal restraints (CEA Section 8 data and confidential business practices), the CFTC does not publish information on how individual traders are classified in the COT reports. Generally, the data in the COT reports is from Tuesday and released Friday. The CFTC receives the data from the reporting firms on Wednesday morning and then corrects and verifies the data for release by Friday afternoon. Frequently Asked Questions (FAQs) The Division of Market Oversight has prepared the following responses to questions regarding Commitments of Traders reports (COT Reports) published by the Commission. The responses to these FAQs reflect only the views of DMO staff, and not necessarily those of the Commission or any other branch or division. The Commission has neither approved nor disapproved of these FAQs, and they have no legal force or effect, do not alter or amend applicable law, and do not create any new or additional obligations for any person. 1. Missing Contract Market I can’t find commodity or contract market I was looking for. It was on last week’s COT Report, but has been dropped from this week’s report. What might be the explanation for this? It is possible that there’s a lack of a sufficient number of Large Traders with respect to the contract market in question. Specifically, when the number of reportable Large Traders drops below 20 for a commodity or contract market, it no longer appears in the COT report. In such event, once a contract market has again reached 20 or more reportable Large Traders, the contract market will be added again to the COT Reports. 2. Contract Reportable Levels Where can I find a list of contract reportable levels? The CFTC publishes a list of contract reportable levels on the CFTC Strike Price Report, which you can find here: https://www.cftc.gov/strikeprice . 3. Clarity of COT Classifications How are traders classified in the COT Reports? If the number of reported long positions fall significantly from a previous week’s COT Report, what is the likely explanation? Trader classifications are based on the information provided by the trader on their CFTC Form 40. 4. Week-to-week changes in the COT report Why might the number of reported long positions fall significantly from the previous week’s COT Report? Generally speaking, there are three ways that a change in reported positions in the COT Report can happen: A trader submits a new Form 40 and indicates they have changed their primary business function (e.g., from Financial Asset Manager (FAM) to Financial Leverage Speculator (FLS)); A new trader has submitted a Form 40, and those new positions alter the previous week’s numbers vis-a-vis the current week; and An existing trader has left the market, altering the previous week vs. current week numbers. 5. COT Release Schedule When do you publish the COT data? The COT Report is generally published each Friday at 3:30 pm Eastern Time (US), using the data from the immediately preceding Tuesday of that week. How do government holidays or days off affect the release schedule? The COT Reports are typically based upon data calculated as of the close of business of Tuesday of a given week. It takes three days to process the data, and therefore the COT Reports are generally released Friday at 3:30 p.m. Eastern Time (US) of the same week. Note that holidays can change the COT release schedule. Accordingly, for instances where a holiday takes place in a reporting week, please consult the COT release schedule, located here: https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm Is there a list of historical release dates? There is not a list of historical release dates; the only available release dates are for the 13 months of reports that are published on the Commission’s website. 6. Corrected Data Do you perform backdated COT updates to the (historical) data? No, historical data is not updated once published. 7. Options Calculations Can I calculate options data from the COT Report, or is there options only data available? Options data can generally be calculated by subtracting from the Futures and Options Combined data information set forth in the Futures report, but some information will be lost due to “spreading,” as discussed further below. 8. Use of COT Data What does this COT data mean, and how do I use it? Can you analyze it for me? The CFTC publishes the COT Reports based upon data we get from the reporting entities. The CFTC does not analyze the data nor make recommendations on it. 9. Notification Can you notify me by email when the COT is released? You can receive such notifications by signing up for the weekly COT announcement emails, at the following location: https://service.govdelivery.com/accounts/USCFTC/subscriber/new Note: You can also use this same link to manage/update your subscriber preferences. 10. Report Frequency Can you release the COT Reports more than once a week? Because of resource constraints, we are currently only able to release this report once a week. 11. Spreading How is open interest calculated? Why, when I add up all long positions (or short), does the sum does not equal open interest? The spread number needs to be added to be both long and short sides, respectively. If you are doing these calculations on the Combined file, the sum of the long and or short positions may be +1 or -1 Open Interest, due to option delta calculations. For the “producer/merchant/processor/user” category, open interest is reported only by long or short positions. The computed amount of spreading is calculated as the number of offsetting futures in different calendar months or offsetting futures and options in the same or different calendar months. Any residual long or short position is reported in the long or short column. Inter-market spreads are not considered. Example: A non-commercial trader has 350 long and 200 short positions. In commitment positions, 150 long, 0 short, and 200 spread. Here is the calculation to balance open interest to published long and short positions: Open Interest = NonC Long + NonC Spread + Com Long + NonRep Long Open Interest = NonC Short + NonC Spread + Com Short + NonRep Short Spreading is the difference, or a computed amount, equal to offsetting long and short positions held by a trader. The Disaggregated COT report sets out open interest by long, short, and spreading for the three categories of traders: “swap dealers,” “managed money,” and “other reportable”. In the COT Report published weekly, I want to understand what the spreading position means. For example, the Managed Money length for ethane on the CME is 5,762 lots long and 3,355 lots short. However, the number of traders reported on the long side is 0 while the short side has 9. How are there 5,762 lots on the long side but zero traders? Is there some type of netting that is occurring in the number of traders category? The sum of the numbers of traders in each separate category typically exceeds the total number of reportable traders. This results from the fact that, in the “swap dealers,” “managed money,” and “other reportable” categories, “spreading” can be a partial activity, so the same trader can fall into either the outright “long” or “short” trader count, as well as into the “spreading” count. Additionally, a reportable producer/merchant/processor/user may be in both the long and the short position columns. In order to preserve the confidentiality of traders, for any given commodity where a specific category has fewer than four active traders, the size of the relevant positions will be provided but the trader count will be suppressed (specifically, a “·” will appear for trader counts of fewer than four traders). Furthermore, the COT long format reports show the percent of open interest held by (i) the largest four and (ii) the largest eight reportable traders, without regard to whether they are classified as commercial or non-commercial. The concentration ratios are shown with trader positions computed on a gross long and gross short basis and on a net long or net short basis. The \"Net Position\" ratios are computed after offsetting each trader’s "
+      }
+    },
+    {
+      "id": "FED_FOMC_MINUTES",
+      "kind": "fed_minutes",
+      "title": "Federal Reserve · FOMC minutes · released 2026-11-18",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm",
+      "retrievalUrl": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20261028.htm",
+      "retrievedAt": "2026-11-23T12:48:08.773Z",
+      "observationDates": [
+        "2026-11-18"
+      ],
+      "status": "ok",
+      "data": {
+        "publishedAt": "2026-11-18T19:00:00.000Z",
+        "releaseClock": "2:00 p.m. EST",
+        "meetingStartedOn": "2026-10-27",
+        "meetingEndedOn": "2026-10-28",
+        "cutoff": "2026-11-23T12:48:08.161Z",
+        "catalog": {
+          "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+          "sha256": "b8d3acfb1010ec8181ec0af9a26ef598585c284055abdaf1e668ddbe712692f4",
+          "retrievedAt": "2026-11-23T12:48:08.505Z"
+        },
+        "release": {
+          "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm",
+          "sha256": "65f8283cafac97fd9e1ef41aafdbacdf901ffbca3a097a05a93d33a35d8c73eb",
+          "retrievedAt": "2026-11-23T12:48:08.623Z"
+        },
+        "minutes": {
+          "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20261028.htm",
+          "sha256": "f9e5633c445854bdf78b740c92bdc05f67253481dbf0ac63f9da70c78b28fb57",
+          "retrievedAt": "2026-11-23T12:48:08.773Z"
+        },
+        "excerpt": "Minutes of the Federal Open Market Committee October 27–28, 2026 A joint meeting of the Federal Open Market Committee and the Board of Governors of the Federal Reserve System was held in the offices of the Board of Governors on Tuesday, October 27, 2026, at 9:30 a.m. and continued on Wednesday, October 28, 2026, at 9:00 a.m. 1 Staff Review and Policymakers' Discussion of Financial Stability The staff presented an assessment of financial stability vulnerabilities. The staff's presentation used a range of tail scenarios to illustrate how a decline in asset prices could amplify economic shocks, with investors and fund managers being forced to sell assets to deleverage and to meet redemptions, respectively. The staff noted that asset sales by return-sensitive investment vehicles such as hedge funds, bond mutual funds, and target date funds could, in very severe scenarios, be substantial enough to impair market functioning. The staff also highlighted the rapid growth of debt associated with the artificial intelligence (AI) buildout, noting that off-balance-sheet leasing commitments and circular financing arrangements among AI-related firms could amplify losses if returns on AI investmen",
+        "excerptTruncated": true,
+        "contentCharacters": 42058,
+        "usage": {
+          "scope": "editorial-context-only",
+          "policyUrl": "https://www.federalreserve.gov/disclaimer.htm",
+          "attribution": "Board of Governors of the Federal Reserve System",
+          "basis": "Board-authored website text is public domain unless otherwise indicated; cite the Board. Third-party material, seals and logos are excluded."
+        }
+      }
+    },
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "kind": "treasury_curve",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "status": "ok",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
+      "retrievalUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "retrievedAt": "2026-11-23T12:48:27.716Z",
+      "observationDates": [
+        "2026-11-20",
+        "2026-11-19"
+      ],
+      "data": {
+        "unit": "percent per annum",
+        "latest": {
+          "date": "2026-11-20",
+          "twoYearPercent": 4.63,
+          "tenYearPercent": 4.92,
+          "thirtyYearPercent": 5.31
+        },
+        "previous": {
+          "date": "2026-11-19",
+          "twoYearPercent": 4.76,
+          "tenYearPercent": 5.04,
+          "thirtyYearPercent": 5.4
+        },
+        "documents": [
+          {
+            "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+            "retrievedAt": "2026-11-23T12:48:27.716Z",
+            "sha256": "80fb996d1364c97ebfdd9346de1b08896c15fbc323f743db8de0719baef4ee3b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SEC144_PLTR_000195004726011415",
+      "kind": "sec_form144",
+      "title": "PLTR proposed sale · SEC Form 144 accepted 2026-11-20",
+      "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011415/0001950047-26-011415-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011415/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:32.260Z",
+      "observationDates": [
+        "2026-11-20"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "PLTR",
+        "cik": "0001321655",
+        "accession": "0001950047-26-011415",
+        "filingDate": "2026-11-20",
+        "acceptedAt": "2026-11-20T22:45:57.000Z",
+        "noticeDate": "2026-11-20",
+        "planAdoptionDates": [],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-20",
+            "shares": 55745,
+            "marketValue": 8185534.48
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011415/primary_doc.xml",
+          "retrievedAt": "2026-11-23T12:48:32.260Z",
+          "sha256": "b94fe7c4b6fbc8e3efbd6606c343ead176d225cbb75a3c2f199eba7e4509ea4a"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "retrievedAt": "2026-11-23T12:48:29.861Z",
+          "sha256": "1c6eeafe3a77bd0a481644d13e6a8a773cdef4dd90f1e17b7c26910ab267cf6c"
+        }
+      }
+    },
+    {
+      "id": "SEC144_PLTR_000195004726011414",
+      "kind": "sec_form144",
+      "title": "PLTR proposed sale · SEC Form 144 accepted 2026-11-20",
+      "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011414/0001950047-26-011414-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011414/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:31.888Z",
+      "observationDates": [
+        "2026-11-20"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "PLTR",
+        "cik": "0001321655",
+        "accession": "0001950047-26-011414",
+        "filingDate": "2026-11-20",
+        "acceptedAt": "2026-11-20T22:45:35.000Z",
+        "noticeDate": "2026-11-20",
+        "planAdoptionDates": [],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-20",
+            "shares": 55745,
+            "marketValue": 8185534.48
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011414/primary_doc.xml",
+          "retrievedAt": "2026-11-23T12:48:31.888Z",
+          "sha256": "6305b51fc1679e3d4f8d5395ea433bd0c914075664242df56e03c148e38929e7"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "retrievedAt": "2026-11-23T12:48:29.861Z",
+          "sha256": "1c6eeafe3a77bd0a481644d13e6a8a773cdef4dd90f1e17b7c26910ab267cf6c"
+        }
+      }
+    },
+    {
+      "id": "SEC144_PLTR_000195004726011412",
+      "kind": "sec_form144",
+      "title": "PLTR proposed sale · SEC Form 144 accepted 2026-11-20",
+      "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011412/0001950047-26-011412-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011412/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:31.617Z",
+      "observationDates": [
+        "2026-11-20"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "PLTR",
+        "cik": "0001321655",
+        "accession": "0001950047-26-011412",
+        "filingDate": "2026-11-20",
+        "acceptedAt": "2026-11-20T22:27:58.000Z",
+        "noticeDate": "2026-11-20",
+        "planAdoptionDates": [],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-20",
+            "shares": 84725,
+            "marketValue": 12440925.8
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011412/primary_doc.xml",
+          "retrievedAt": "2026-11-23T12:48:31.617Z",
+          "sha256": "1f52d14ec9de876106bc499f6eaba4aeae4a87ccf9191504ce8dac5b51998675"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "retrievedAt": "2026-11-23T12:48:29.861Z",
+          "sha256": "1c6eeafe3a77bd0a481644d13e6a8a773cdef4dd90f1e17b7c26910ab267cf6c"
+        }
+      }
+    },
+    {
+      "id": "SEC144_PLTR_000195004726011411",
+      "kind": "sec_form144",
+      "title": "PLTR proposed sale · SEC Form 144 accepted 2026-11-20",
+      "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011411/0001950047-26-011411-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011411/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:31.370Z",
+      "observationDates": [
+        "2026-11-20"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "PLTR",
+        "cik": "0001321655",
+        "accession": "0001950047-26-011411",
+        "filingDate": "2026-11-20",
+        "acceptedAt": "2026-11-20T22:26:15.000Z",
+        "noticeDate": "2026-11-20",
+        "planAdoptionDates": [],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-20",
+            "shares": 585000,
+            "marketValue": 85900756.5
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011411/primary_doc.xml",
+          "retrievedAt": "2026-11-23T12:48:31.370Z",
+          "sha256": "c1e3769adc9a285e073252c15e6eda60d0c4a031d89fc563123b6aba101c2aa7"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "retrievedAt": "2026-11-23T12:48:29.861Z",
+          "sha256": "1c6eeafe3a77bd0a481644d13e6a8a773cdef4dd90f1e17b7c26910ab267cf6c"
+        }
+      }
+    },
+    {
+      "id": "SEC144_PLTR_000195004726011389",
+      "kind": "sec_form144",
+      "title": "PLTR proposed sale · SEC Form 144 accepted 2026-11-20",
+      "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011389/0001950047-26-011389-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011389/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:31.075Z",
+      "observationDates": [
+        "2026-11-20"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "PLTR",
+        "cik": "0001321655",
+        "accession": "0001950047-26-011389",
+        "filingDate": "2026-11-20",
+        "acceptedAt": "2026-11-20T21:21:21.000Z",
+        "noticeDate": "2026-11-20",
+        "planAdoptionDates": [
+          "2026-03-12"
+        ],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-20",
+            "shares": 90000,
+            "marketValue": 13831200
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011389/primary_doc.xml",
+          "retrievedAt": "2026-11-23T12:48:31.075Z",
+          "sha256": "27ac837aec37c3fdc84447c8a39868f8abd9703a3adcb1c98d39ac78a7e3c075"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "retrievedAt": "2026-11-23T12:48:29.861Z",
+          "sha256": "1c6eeafe3a77bd0a481644d13e6a8a773cdef4dd90f1e17b7c26910ab267cf6c"
+        }
+      }
+    },
+    {
+      "id": "SEC144_NVDA_000192109426001223",
+      "kind": "sec_form144",
+      "title": "NVDA proposed sale · SEC Form 144 accepted 2026-11-19",
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001223/0001921094-26-001223-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001223/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:29.073Z",
+      "observationDates": [
+        "2026-11-19"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "NVDA",
+        "cik": "0001045810",
+        "accession": "0001921094-26-001223",
+        "filingDate": "2026-11-19",
+        "acceptedAt": "2026-11-19T21:45:59.000Z",
+        "noticeDate": "2026-11-19",
+        "planAdoptionDates": [
+          "2026-05-22"
+        ],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-19",
+            "shares": 30000,
+            "marketValue": 4542782
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000192109426001223/primary_doc.xml",
+          "retrievedAt": "2026-11-20T09:15:14.610Z",
+          "sha256": "eb0f0357aef720f1d4cbaa6b8974246845f28b8e5886b56e9c92b127ac1729c6"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001045810.json",
+          "retrievedAt": "2026-11-23T12:48:29.073Z",
+          "sha256": "8dd44fbc9bc7fd47f0b16155e66cd22445345d0f9706f316e9e55d7ce4f48045"
+        }
+      }
+    },
+    {
+      "id": "SEC144_PLTR_000195004726011344",
+      "kind": "sec_form144",
+      "title": "PLTR proposed sale · SEC Form 144 accepted 2026-11-19",
+      "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011344/0001950047-26-011344-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011344/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:29.861Z",
+      "observationDates": [
+        "2026-11-19"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "PLTR",
+        "cik": "0001321655",
+        "accession": "0001950047-26-011344",
+        "filingDate": "2026-11-19",
+        "acceptedAt": "2026-11-19T21:16:31.000Z",
+        "noticeDate": "2026-11-19",
+        "planAdoptionDates": [
+          "2026-08-10"
+        ],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-19",
+            "shares": 300000,
+            "marketValue": 47001000
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1321655/000195004726011344/primary_doc.xml",
+          "retrievedAt": "2026-11-20T09:15:14.346Z",
+          "sha256": "e814bb7395494f90ab42b6d608ab729f65a0e93fa815248fd6939a2eee840c60"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "retrievedAt": "2026-11-23T12:48:29.861Z",
+          "sha256": "1c6eeafe3a77bd0a481644d13e6a8a773cdef4dd90f1e17b7c26910ab267cf6c"
+        }
+      }
+    },
+    {
+      "id": "SEC144_WMT_000194984626000669",
+      "kind": "sec_form144",
+      "title": "WMT proposed sale · SEC Form 144 accepted 2026-11-19",
+      "url": "https://www.sec.gov/Archives/edgar/data/104169/000194984626000669/0001949846-26-000669-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/104169/000194984626000669/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:30.537Z",
+      "observationDates": [
+        "2026-11-19"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "WMT",
+        "cik": "0000104169",
+        "accession": "0001949846-26-000669",
+        "filingDate": "2026-11-19",
+        "acceptedAt": "2026-11-19T15:32:59.000Z",
+        "noticeDate": "2026-11-19",
+        "planAdoptionDates": [
+          "2025-12-24"
+        ],
+        "proposals": [
+          {
+            "security": "COMMON",
+            "approxSaleDate": "2026-11-19",
+            "shares": 8700,
+            "marketValue": 1082610
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000194984626000669/primary_doc.xml",
+          "retrievedAt": "2026-11-20T09:15:14.081Z",
+          "sha256": "e774d7a49f3eaec0d6726befc7a99789305b6b00c2ba65468dcaa3be8f57717f"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0000104169.json",
+          "retrievedAt": "2026-11-23T12:48:30.537Z",
+          "sha256": "dbebd8330ad7cae30c60fbfe6a5121814e61d6497b7e2db923fb1ad2f21b3509"
+        }
+      }
+    },
+    {
+      "id": "SEC144_QCOM_000195824426000732",
+      "kind": "sec_form144",
+      "title": "QCOM proposed sale · SEC Form 144 accepted 2026-11-18",
+      "url": "https://www.sec.gov/Archives/edgar/data/804328/000195824426000732/0001958244-26-000732-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/804328/000195824426000732/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:29.622Z",
+      "observationDates": [
+        "2026-11-18"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "QCOM",
+        "cik": "0000804328",
+        "accession": "0001958244-26-000732",
+        "filingDate": "2026-11-18",
+        "acceptedAt": "2026-11-18T22:41:20.000Z",
+        "noticeDate": "2026-11-18",
+        "planAdoptionDates": [
+          "2025-12-08"
+        ],
+        "proposals": [
+          {
+            "security": "Common Stock",
+            "approxSaleDate": "2026-11-18",
+            "shares": 2500,
+            "marketValue": 399525
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/804328/000195824426000732/primary_doc.xml",
+          "retrievedAt": "2026-11-19T01:29:27.542Z",
+          "sha256": "156bcff70997983594980db461b6c5fc0f4ecf977b180b3fbecc4fc9dfbb9f2a"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0000804328.json",
+          "retrievedAt": "2026-11-23T12:48:29.622Z",
+          "sha256": "42f1d3c9ac9bcffe1fc7b27f24c487f90f7dfd7de4bf3402a566f21e798538c3"
+        }
+      }
+    },
+    {
+      "id": "SEC144_AMD_000195004726011199",
+      "kind": "sec_form144",
+      "title": "AMD proposed sale · SEC Form 144 accepted 2026-11-17",
+      "url": "https://www.sec.gov/Archives/edgar/data/2488/000195004726011199/0001950047-26-011199-index.htm",
+      "retrievalUrl": "https://www.sec.gov/Archives/edgar/data/2488/000195004726011199/primary_doc.xml",
+      "retrievedAt": "2026-11-23T12:48:29.334Z",
+      "observationDates": [
+        "2026-11-17"
+      ],
+      "status": "ok",
+      "data": {
+        "ticker": "AMD",
+        "cik": "0000002488",
+        "accession": "0001950047-26-011199",
+        "filingDate": "2026-11-17",
+        "acceptedAt": "2026-11-17T21:00:48.000Z",
+        "noticeDate": "2026-11-17",
+        "planAdoptionDates": [
+          "2026-03-13"
+        ],
+        "proposals": [
+          {
+            "security": "Common",
+            "approxSaleDate": "2026-11-17",
+            "shares": 34,
+            "marketValue": 17374
+          }
+        ],
+        "cutoff": "2026-11-23T12:48:27.883Z",
+        "document": {
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000195004726011199/primary_doc.xml",
+          "retrievedAt": "2026-11-19T01:29:27.216Z",
+          "sha256": "44f43a999037022487cfeab9448fc48376c892b98e7ec4bc9fea80a7e529d56b"
+        },
+        "catalog": {
+          "url": "https://data.sec.gov/submissions/CIK0000002488.json",
+          "retrievedAt": "2026-11-23T12:48:29.334Z",
+          "sha256": "66a7410459e8cf513259a46d036ebb220f1169d1600b532a1a79e9b9576801ae"
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "This is bounded public evidence, not an exhaustive market feed. Missing sources remain unavailable.",
+    "CFTC data is futures-only and weekly, generally observed Tuesday and released Friday. Contract counts have different units and must not be summed across markets.",
+    "FRED observations have different frequencies, publication lags and revision schedules. Null observations are missing, not zero.",
+    "Treasury par yields are dated market observations in percent per annum. The retrieval timestamp records when the official file was captured.",
+    "SEC filing coverage is limited to AAPL, MSFT, NVDA and WMT.",
+    "FOMC minutes are editorial context from an earlier meeting. Availability follows the original release clock, not the meeting dates; this source does not create a forecast vote.",
+    "Hosted widget content, private subscription data and paid AI APIs are not collected.",
+    "The eight-issuer Form 144 check found 13 original notices in the collection window. The evidence includes the 10 most recent. Each notice reports a proposed sale. EDGAR acceptance establishes when it became observable. Executions require a separate transaction report."
+  ]
+}

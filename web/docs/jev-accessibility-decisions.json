@@ -1,0 +1,29 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "family_action": {
+      "type": "choice",
+      "choice": "heading_button",
+      "confidence": 0.26,
+      "probabilities": {
+        "heading_button": 0.51,
+        "footer_button": 0.47,
+        "none_fit": 0.02
+      }
+    },
+    "source_links": {
+      "type": "choice",
+      "choice": "stacked_rows",
+      "confidence": 0.43,
+      "probabilities": {
+        "stacked_rows": 0.62,
+        "wrapping_pills": 0.37,
+        "none_fit": 0.01
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 841,
+    "output_tokens": 90
+  }
+}

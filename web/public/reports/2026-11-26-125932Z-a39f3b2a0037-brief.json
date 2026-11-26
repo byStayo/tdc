@@ -1,0 +1,38 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-26T12:59:32.196Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Treasury yields fall, led by the long end",
+    "summary": "On November 25 the ten- and thirty-year Treasury yields both fell six basis points, to 4.85% and 5.24%. The two-year yield declined two basis points to 4.61%.",
+    "bull": [
+      {
+        "text": "The ten-year yield fell from 4.91% to 4.85%, lowering the benchmark for some longer-term borrowing costs.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "bear": [],
+    "watch": [
+      {
+        "text": "The ten-year spread over the two-year narrowed from 28 to 24 basis points. The thirty-year spread over the ten-year stayed at 39 basis points.",
+        "sourceIds": [
+          "TREASURY_YIELD_CURVE"
+        ]
+      }
+    ],
+    "limitations": [
+      "Treasury reports constant-maturity par yields. The market and ETF outcomes are measured separately using verified session prices."
+    ]
+  },
+  "sources": [
+    {
+      "id": "TREASURY_YIELD_CURVE",
+      "title": "U.S. Treasury · Daily Treasury Par Yield Curve Rates",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve"
+    }
+  ]
+}

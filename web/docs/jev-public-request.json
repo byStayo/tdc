@@ -1,0 +1,87 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "product": "The Daily Consensus free public financial research service",
+    "userRequirements": [
+      "Rebuild from scratch and migrate historicalcontent",
+      "Free to all readers, no subscriptions/paywall/account requirement",
+      "Use existing owner subscription for AI research; publicgeneratedreports can be precomputed",
+      "Exceptionally useful, credible source-linked interpretation",
+      "Preserve dark/light,390pxmobileresponsiveness,accessibility"
+    ],
+    "existingDesign": {
+      "layout": "research_desk",
+      "hierarchy": "evidence_first",
+      "density": "comfortable_with_detail",
+      "presentation": "navy_research"
+    },
+    "catalog": [
+      "sidebar nav",
+      "Daily Brief",
+      "Market & technical",
+      "Options",
+      "News & sentiment",
+      "Research archive",
+      "Watchlist",
+      "Sources & methodology",
+      "right Macro rail",
+      "technical chart",
+      "generatedbrief bull/bear/watch withcitations",
+      "originalarticlecards",
+      "sourcecoveragebadges",
+      "loading/errorstates"
+    ],
+    "verifiedSourceConstraints": [
+      "Polygon personaldata cannotbe publiclyredistributed; removefrompublicruntime",
+      "TradingView freehostedwidgets officiallypermitted onwebsites, attributionpreserved; dataremainswidgetonly and NOT AIinput",
+      "FRED FEDFUNDS/DPRIME/TNWBSHNO publicgovernmentdata verified",
+      "SEC EDGAR publicfilings verified200; institutionalfilings lag and mustnotbe realtimepositions",
+      "CFTC TFF publicdatasetgpe5-46if verified200, actualreportdateexplicit; categories notidentities",
+      "No verified free publicfulloptionschain/darkpooldirection feed yet",
+      "58historicalarticles to migrate intoattributed localarticlepages"
+    ],
+    "platform": "Next16/React19 server-onlydataadapters. Thirdpartywidgets loadclient-side. Existingtokensandcomponentcatalogshouldbe reused."
+  },
+  "questions": {
+    "hierarchy": {
+      "type": "choice",
+      "instructions": "Select first-screen hierarchy for the freepublic service withinexistingresearchdesk layout.",
+      "criteria": {
+        "published_brief_first": "Leadwith datedpublishedsource-linked dailybrief and observedmacrocontext, thenhostedmarketoverview/selectedtickerchart, thenprimarysources/archive.",
+        "chart_first": "Leadwith hostedselectedtickerchart, thenpublishedbrief andpublicprimarysources.",
+        "archive_first": "Leadwith restoredarticles, followedbycurrentdata.",
+        "expand_candidates": "None fits."
+      }
+    },
+    "positioning": {
+      "type": "choice",
+      "instructions": "Select replacementfor oldOptions section now that freepublic CFTCpositioning isverified but optionschain isnot.",
+      "criteria": {
+        "positioning_view": "Rename toPositioning; displayCFTC futurescategories withreportdates and explainoptionscoveragegap insecondarynote.",
+        "options_and_positioning": "Rename toOptions & positioning; leadwithmissingoptionsnote followedbyCFTC.",
+        "separate_views": "KeepOptions andaddnewPositioning sidebarsection.",
+        "expand_candidates": "None fits."
+      }
+    },
+    "news": {
+      "type": "choice",
+      "instructions": "Choosecombinedsourcepage semantics givenprimarySECfilings and hostednewswidget.",
+      "criteria": {
+        "filings_and_headlines": "RenameNews & sentiment toNews & filings; clearlyseparate officialSECfilings fromhostedmarketheadlines.",
+        "filings_only": "Rename toFilings and includehostedheadlines elsewhere.",
+        "keep_news": "Keepold News & sentiment label evenwithoutbackend sentiment.",
+        "expand_candidates": "None fits."
+      }
+    },
+    "archive": {
+      "type": "choice",
+      "instructions": "Choose articlepresentation for migratedpublicarchive, preservingoriginaldate/author/source and historicalcontext.",
+      "criteria": {
+        "editorial_reader": "Localarticlepages withreadable narrowbody, headinghierarchy, originaldate/author/source and archivedcontext banner, plusrelatedarticlelinks.",
+        "external_only": "Keep onlycards linkingoldWordPress/Substack.",
+        "modal_reader": "Fullarticles inmodal overresearchdesk.",
+        "expand_candidates": "None fits."
+      }
+    }
+  }
+}

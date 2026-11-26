@@ -1,0 +1,60 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-03T17:34:12.113Z",
+  "model": "Codex editorial workflow",
+  "message": "Provenance correction: the BLS citation now points to its dated November 3 archive, and the public evidence includes the cited sector and establishment-size details. Figures and interpretation are unchanged from the 12:11 PM ET edition.",
+  "data": {
+    "headline": "QQQ: a labor release is not a technology earnings signal.",
+    "summary": "The new JOLTS report can inform debate about demand and discount rates, both relevant to technology valuations. Its economy-wide hiring counts do not establish Nasdaq-sector strength or a QQQ price response. The related Nasdaq futures book offers a separately dated positioning check.",
+    "bull": [
+      {
+        "text": "September job openings were 7.5 million and hires 5.4 million, both little changed. This is broad labor-market context; it does not isolate technology hiring or cloud spending.",
+        "sourceIds": [
+          "BLS_JOLTS"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Increased quits of 3.4 million leave labor-turnover pressure in the picture. This is not evidence of a rate hike, wage acceleration or a measured change in technology discount rates.",
+        "sourceIds": [
+          "BLS_JOLTS"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Nasdaq mini futures asset managers held a net long 65,381 contracts on October 27, versus 77,790 one week earlier. Leveraged funds were net long 2,301. These related futures positions are not QQQ holdings or real-time buying.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      },
+      {
+        "text": "Separate the next official labor update from analyst earnings estimates and actual long-term yields; none is supplied by the JOLTS headline alone.",
+        "sourceIds": [
+          "BLS_JOLTS"
+        ]
+      }
+    ],
+    "limitations": [
+      "BLS observations describe September and were released November 3 at 10:00 AM ET; they are survey estimates subject to revision. No economist consensus or release-day price reaction was collected.",
+      "CFTC observations are October 27 futures-only category positions, released with a lag. Related futures are not ETF holdings, live fund flows or named-investor intent.",
+      "Current price levels, option chains, gamma, social sentiment and dark-pool direction are not independently measured here. Hosted TradingView displays remain separate.",
+      "This AI-assisted contextual report has no validated directional forecast or conviction score."
+    ]
+  },
+  "sources": [
+    {
+      "id": "BLS_JOLTS",
+      "title": "BLS · September 2026 JOLTS · released November 3 at 10:00 AM ET",
+      "url": "https://www.bls.gov/news.release/archives/jolts_11032026.htm"
+    },
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    }
+  ]
+}

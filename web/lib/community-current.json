@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "method": "bluesky-market-stance-v2",
+  "id": "829994ef73abcd575012e78be24b990470c6c87eb275c94a2c0d5a92b58fc8fa",
+  "startedAt": "2026-11-23T12:49:14.736Z",
+  "endedAt": "2026-11-23T13:03:14.736Z",
+  "expiresAt": "2026-11-24T13:03:14.736Z",
+  "receivedEvents": 39292,
+  "minimumParticipants": 10,
+  "readings": [
+    {
+      "instrument": "MARKET",
+      "participants": 12,
+      "distribution": {
+        "upward": 0,
+        "downward": 0,
+        "mixed": 0,
+        "unclassified": 12
+      }
+    },
+    {
+      "instrument": "SPY",
+      "participants": 1,
+      "distribution": null
+    },
+    {
+      "instrument": "QQQ",
+      "participants": 0,
+      "distribution": null
+    },
+    {
+      "instrument": "IWM",
+      "participants": 0,
+      "distribution": null
+    },
+    {
+      "instrument": "DIA",
+      "participants": 0,
+      "distribution": null
+    },
+    {
+      "instrument": "TLT",
+      "participants": 0,
+      "distribution": null
+    }
+  ]
+}

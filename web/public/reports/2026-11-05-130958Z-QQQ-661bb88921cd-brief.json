@@ -1,0 +1,58 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-05T13:09:58.267Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed from dated primary evidence using the Codex subscription.",
+  "data": {
+    "headline": "QQQ: the long-rate hurdle rose as overnight funding eased.",
+    "summary": "A higher US ten-year yield puts more pressure on the valuation of distant earnings, all else equal. A lower overnight financing rate is a different observation. Neither measures how investors repriced growth stocks.",
+    "bull": [
+      {
+        "text": "SOFR fell 3 basis points to 3.94% on November 4. That eased the overnight secured rate even though the longer Treasury benchmark had risen the previous day.",
+        "sourceIds": [
+          "FRED_SOFR",
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "On November 3 the US ten-year yield reached 4.95%, up from 4.91%. A higher discount rate matters more for cash flows further in the future, but a company’s earnings outlook also matters.",
+        "sourceIds": [
+          "FRED_DGS10"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Nasdaq-100 futures asset managers were net long 65,381 contracts and leveraged funds net long 2,301 on October 27. The same sign across groups is dated positioning, not a fresh growth-stock signal.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "limitations": [
+      "No QQQ price, option chain, company discount rate or analyst revision is measured here. The rate observations are for different maturities and dates.",
+      "The available evidence does not support a calibrated forecast or a directional trading call."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    },
+    {
+      "id": "FRED_DGS10",
+      "title": "10-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "FRED_SOFR",
+      "title": "Overnight funding · SOFR",
+      "url": "https://fred.stlouisfed.org/series/SOFR"
+    }
+  ]
+}

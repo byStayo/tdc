@@ -1,0 +1,19 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "policy_layout": {
+      "type": "choice",
+      "choice": "shared_rate_lanes",
+      "confidence": 0.98,
+      "probabilities": {
+        "shared_rate_lanes": 0.99,
+        "four_step_cards": 0.01,
+        "comparison_table": 0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 824,
+    "output_tokens": 48
+  }
+}

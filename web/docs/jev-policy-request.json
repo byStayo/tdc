@@ -1,0 +1,34 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Add a visual comparison of official central-bank policy rates to the morning market map, next to existing rates/FX context.",
+    "existing": "Next16/React19, dark/light tokens --accent --text --text-muted --border --panel; accessible SVG, source drawers, six instruments and daily/weekly/monthly; 390px phone. Reviewed news cards precede Treasury/liquidity/FX/CFTC charts. Official policy headlines already exist lower down.",
+    "data": "Actual sources: Fed target lower/upper daily percent via FRED; ECB deposit facility daily series, currently2.50%; Bank of England daily Bank Rate, currently3.75%; Bank of Japan October30 saved primary decision, approximate overnight target1.25%, no comparable daily history in this connector. Fed range3.75-4.00. ECB latest actual observationNov3, BoE Oct30, FedNov2; date differences must remain visible. Historical ECB/BoE/Fed series are available; BoJ is a saved decision, not a daily quote.",
+    "constraints": [
+      "Show Fed as a range, BoJ as approximately, ECB/BoE as levels with distinct definitions",
+      "Common numeric scale for comparison; allow future negative rates",
+      "Show each original observation/decision date and source access",
+      "Do not imply rate differences are an FX trade, inflation-adjusted stance or predicted policy move",
+      "No chart fabricated for BoJ and no smooth trend inferred across policy jumps",
+      "Keep existing consensus and source drawer patterns; stack on phones"
+    ],
+    "catalog": [
+      "shared-scale horizontal dot/range plot",
+      "four cards with stepped histories",
+      "compact comparison table",
+      "existing source-drawer buttons",
+      "per-row dated captions"
+    ]
+  },
+  "questions": {
+    "policy_layout": {
+      "type": "choice",
+      "instructions": "Choose a visual layout that makes different rate definitions and asynchronous source dates understandable.",
+      "criteria": {
+        "shared_rate_lanes": "One panel with four labelled horizontal lanes on a common percent axis; Fed range, ECB/BoE points, approximate BoJ marker; numeric values, definition, source dates and inspect control per row. Optional dates/history in drawer.",
+        "four_step_cards": "Four cards with current values and small step charts for US/ECB/UK; BoJ has its published decision only. Each card keeps dates and source access.",
+        "comparison_table": "A compact table with bank, rate, definition, observed date and source link; no comparison graphic."
+      }
+    }
+  }
+}

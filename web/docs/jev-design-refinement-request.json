@@ -1,0 +1,101 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "The user says the Daily Consensus logo is misaligned and the whole design is rough and overloaded. Refine the production morning market dashboard into a polished, calm, visual briefing for a coffee-length scan.",
+    "platform": "Next16 React19 CSS modules; 390px phones, 768px tablets and desktop. No runtime model calls. Real interactive controls, sources, history, keyboard navigation and 44px hit areas.",
+    "catalog": [
+      "brand wordmark plus four-bar mark",
+      "main instrument buttons: MARKET/SPY/QQQ/IWM/DIA/TLT",
+      "daily/weekly/monthly context controls",
+      "3 accessible tabs for morning/signals/history",
+      "consensus card with label, coverage, family votes and source dialog",
+      "Treasury curve, liquidity sparkline, FX sparklines",
+      "upcoming catalysts and full calendar disclosure",
+      "three reviewed primary developments with original facts/interpretation/source links",
+      "hosted TradingView charts",
+      "policy/institutional/holdings/capital/news/earnings panels"
+    ],
+    "current_problems": [
+      "Logo uses two independently styled words and skewed bars; spacing/baselines feel accidental.",
+      "Three equally weighted verdict columns with giant empty gauge and repeated warnings dominate first screen.",
+      "Marketing headline and many metadata lines delay usable information.",
+      "Every research section is expanded and long text cards dominate.",
+      "Tiny grey 10-12px body labels, dark-blue panels everywhere."
+    ],
+    "constraints": [
+      "Preserve saved edition and all data values/dates. No fabricated price, sentiment or accuracy.",
+      "Withheld verdict and directional coverage must stay prominent; observation coverage is separate, never accuracy.",
+      "Source links/limitations and archived isolation remain available.",
+      "Existing mint mark, dark/light preference and navigation retained. Semantic headings and reduced motion.",
+      "No cosmetic call that looks bullish when engine abstains."
+    ],
+    "proposed_tokens": {
+      "palette": "matte charcoal/near-black, warm off-white text, muted sage/mint accent, restrained amber for coverage; semantic red/green only for real measured changes",
+      "type": "Self-hosted Space Grotesk display and Manrope body, generous 13-15px reading sizes, tabular data",
+      "spacing": "4px rhythm; 24-32px sections; 1120-1240px max reading width; 8-12px panel radii"
+    },
+    "evidence": "Current MARKET daily 20% voting coverage (3/15 families), about55% observation coverage. All18 calls abstain. Many integrations missing; show honestly without an oversized empty gauge."
+  },
+  "questions": {
+    "first_screen": {
+      "type": "choice",
+      "instructions": "Choose the strongest morning hierarchy under these constraints.",
+      "criteria": {
+        "briefing": "Compact dated intro, instrument/horizon controls, tabs, two-column consensus and evidence summary; next catalysts and concise reviewed headlines follow.",
+        "terminal": "Minimal intro, dense equal-sized dashboard grid with every research category at once.",
+        "editorial": "Large magazine-style title, lead news feature then verdict and controls below.",
+        "none_fit": "None fit; expand candidates before coding."
+      }
+    },
+    "withheld_visual": {
+      "type": "choice",
+      "instructions": "Choose the visual for an abstaining consensus. Must distinguish absent data from neutral and keep coverage explicit.",
+      "criteria": {
+        "family_grid": "15 labelled family cells with voting/context/missing states; prominent20% directional coverage; exact reasons in disclosure. No gauge until qualified.",
+        "neutral_gauge": "Retain large blank semicircular gauge and greyed votes; separate text for coverage.",
+        "stacked_bars": "Two large horizontal bars for directional and observation coverage, family vote list below; reasons in disclosure.",
+        "none_fit": "None fit; expand candidates before coding."
+      }
+    },
+    "brand": {
+      "type": "choice",
+      "instructions": "Choose a compact brand lockup to resolve baseline and spacing issues throughout morning and research desk.",
+      "criteria": {
+        "two_line": "Small THE DAILY over a stronger consensus. on a shared left edge, four aligned unskewed bars in a fixed square, explicit line heights and gap.",
+        "one_line": "One-line The Daily Consensus wordmark beside the existing four-bar mark, wrapping only on phone.",
+        "word_only": "Remove mark and use a large uppercase editorial wordmark.",
+        "none_fit": "None fit; expand candidates before coding."
+      }
+    },
+    "detail": {
+      "type": "choice",
+      "instructions": "Choose progressive disclosure for the long morning page, preserving source access and meaningful visuals.",
+      "criteria": {
+        "grouped": "Keep rates/liquidity/FX visuals and concise reviewed headlines open. Place institutional/policy/flows and news/earnings in clearly named research sections with short visible summaries and expandable detail. Load hosted charts on explicit open.",
+        "all_open": "Keep every chart and prose paragraph expanded, reduce font size and compress gaps.",
+        "tabs_only": "Move all macro panels to Every signal; morning shows verdict and news only.",
+        "none_fit": "None fit; expand candidates before coding."
+      }
+    },
+    "news_cards": {
+      "type": "choice",
+      "instructions": "Choose how reviewed developments should be shown without changing editorial facts or interpretation.",
+      "criteria": {
+        "headline_disclosure": "Show date, title, transmission channel and explicit expand action; reveal full facts, separate interpretation and original source links on open.",
+        "facts_always": "Show full facts and interpretation on all three cards, hide only source details.",
+        "single_feature": "Only first article visible; remaining articles hidden under next/previous arrows.",
+        "none_fit": "None fit; expand candidates before coding."
+      }
+    },
+    "controls": {
+      "type": "choice",
+      "instructions": "Choose instrument/horizon controls at narrow widths.",
+      "criteria": {
+        "wrap": "Six compact instrument buttons in wrapping row/grid with no hidden options; daily/weekly/monthly in44px group below on phone.",
+        "select_horizon": "Six instrument buttons; labelled native horizon select beside desktop and below on phone,44px high.",
+        "scroll": "Keep long horizontal scroll strip with partly hidden buttons and horizon pills below.",
+        "none_fit": "None fit; expand candidates before coding."
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "prelaunch-fed-h6-retail-deposit-iwm-v1",
+  "purpose": "Historical private evaluation of one new retail allocation feature. No model promotion or production label use.",
+  "instrument": "IWM",
+  "interval": "First H.6 release in each calendar month from 2008-01 through 2021-12 that adds the immediately preceding complete reference month. Preceding dated reports in the same month must not already print that period. Compare two consecutive monthly figures from this same dated original. Stop at first qualifying release, skip multiple changed reference months and incomplete/missing/contradictory originals. One distinct target per period.",
+  "timestamp": "Decision 07:48 New York in the first subsequent exchange session strictly after the verified H.6 release calendar date, beyond that entire publication day; actual early sessions are excluded, never shifted. First-release timestamp is not estimated from economic month.",
+  "candidate": "retail: negative month-over-month growth of seasonally adjusted US retail money-market funds. Clip -100*ln(new/old)/5 to [-1,1]. Rapid accumulation of retail cash is expected to reduce following IWM open-to-close direction controlling for changes in competing retail safe deposits. Expected fitted coefficient positive on negative growth.",
+  "control": "capital: negative month-over-month growth of Board seasonally adjusted aggregate small-denomination time deposits across institutions, identically scaled. Compare two-feature combination with control-only logistic, training prevalence and 0.5.",
+  "definition": "Government-computed balances under $100k small CDs and retail MMFs minus component-specific IRAs/Keogh balances (old basis). Internal source change to monthly release Feb 2021 retained. July 2026 gross-balance basis excluded from historical model; any later prospective enrollment separate.",
+  "prices": "Only after source/features/calendars/out-of-sample dates and scorer hashes sealed, query private research guest original regular-session daily unadjusted and split-adjusted IWM. Positive iff regular close strictly greater than open. Both native bases must agree on sign; fail closed if a target absent/mismatched. A within-session common cash adjustment cancels. For extra pre-open controls use the exchange core clocks and excludes all early closes.",
+  "overlap": "Discard every date in the frozen IWM DOL feature roster of 147, before accession of labels; end 2021 avoids full 2022-26 technical study, official baseline 2025/26 and launch in November 2026. Exclude any other known prior IWM paired dates in this period from the source-only overlap audit. Do not inspect or append prospectively issued outcomes.",
+  "learning": "Existing trainCandidate and chronologicalSplit, as-of 2026-11-03T06:28:30.460Z. Chronological 60/20/20 and 120 distinct total minimum, one selected protocol with no variants. Dated daily direction. Report mean Brier, training prevalence, coin, learned sign and paired moving-block bootstrap interval.",
+  "pass": "Candidate coefficient positive, all three test Brier reductions strictly > 0.01, and simultaneous one-sided moving-block bootstrap lower bounds > 0 for all three across the 32 previous public tests plus this one (alpha 0.05/(33*3), 100,000 deterministic resamples, contiguous length-3 blocks, LCG seed 20261124). Show 95% CI for control. Preserve holdouts regardless of result.",
+  "sealedInputPolicy": {
+    "dolRoster": "4dbf8282584abb313c3ffe7c695e21ce3972fef61ca116c2cec74b7dcf6a7f80",
+    "earlierOverlap": "77054d1f9e535f0d8cac3aa463f7110955678cf3f23e8c2b3cc706a8f8fe606b",
+    "calendar2013To15": "1c46ee024f22687fd51d1d318d9fafaa1f15637fe4251ae0d9928fcf01bfc92d",
+    "calendar2016plus": "02525ae0038f2cd7cb9040a52d031a164446eab5b8f0b5ef25fbaba3369732c5",
+    "learning": "d109a465c5f9c5d7db9e0f9ec1bd4f27451e65f4b77d09f3c774ec89bab6f8b9",
+    "public32": "0f4317faa7572bbdc9c7aaacba96d088edb1b29d4b17865449d8089888b63541"
+  },
+  "sources": {
+    "boardIndex": "https://www.federalreserve.gov/releases/h6/releaseDates.json",
+    "boardGrant": "https://www.federalreserve.gov/disclaimer.htm",
+    "series": "https://fred.stlouisfed.org/series/RMFSL",
+    "depositSeries": "https://fred.stlouisfed.org/series/STDSL",
+    "weeklyHistory": "https://www.federalreserve.gov/releases/h6/perfeval2012.htm",
+    "modernSchedule": "https://www.federalreserve.gov/releases/h6/",
+    "grossBreak": "https://www.federalreserve.gov/releases/h6/20260728/",
+    "kibotResearch": "https://www.kibot.com/api/api-overview.html",
+    "kibotAggregate": "https://www.kibot.com/license.html"
+  }
+}

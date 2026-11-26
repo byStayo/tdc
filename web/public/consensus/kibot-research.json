@@ -1,0 +1,514 @@
+{
+  "schemaVersion": 14,
+  "source": "https://www.kibot.com/license.html",
+  "firstEdition": "2026-11-03T06-28-30-460Z",
+  "through": "2026-11-25",
+  "daily": [
+    {
+      "instrument": "SPY",
+      "sessions": 14,
+      "eligibleSessions": 5,
+      "calls": 0
+    },
+    {
+      "instrument": "QQQ",
+      "sessions": 14,
+      "eligibleSessions": 5,
+      "calls": 0
+    },
+    {
+      "instrument": "IWM",
+      "sessions": 14,
+      "eligibleSessions": 5,
+      "calls": 0
+    },
+    {
+      "instrument": "DIA",
+      "sessions": 14,
+      "eligibleSessions": 5,
+      "calls": 0
+    },
+    {
+      "instrument": "TLT",
+      "sessions": 14,
+      "eligibleSessions": 5,
+      "calls": 0
+    }
+  ],
+  "studies": [
+    {
+      "family": "technicals",
+      "instrument": "SPY",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2504,
+      "baseRateBrier": 0.2535,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "QQQ",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2559,
+      "baseRateBrier": 0.2547,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "IWM",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2629,
+      "baseRateBrier": 0.2645,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "DIA",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2645,
+      "baseRateBrier": 0.2603,
+      "clearedMargin": false
+    },
+    {
+      "family": "technicals",
+      "instrument": "TLT",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.262,
+      "baseRateBrier": 0.2624,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "SPY",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2784,
+      "baseRateBrier": 0.2535,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "QQQ",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2692,
+      "baseRateBrier": 0.2547,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "IWM",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2769,
+      "baseRateBrier": 0.2645,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "DIA",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2591,
+      "baseRateBrier": 0.2603,
+      "clearedMargin": false
+    },
+    {
+      "family": "institutions",
+      "instrument": "TLT",
+      "samples": 209,
+      "testSamples": 42,
+      "modelBrier": 0.2688,
+      "baseRateBrier": 0.2624,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "SPY",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2572,
+      "baseRateBrier": 0.2528,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "QQQ",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2588,
+      "baseRateBrier": 0.254,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "IWM",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2751,
+      "baseRateBrier": 0.2659,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "DIA",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2653,
+      "baseRateBrier": 0.2613,
+      "clearedMargin": false
+    },
+    {
+      "family": "events",
+      "instrument": "TLT",
+      "samples": 210,
+      "testSamples": 42,
+      "modelBrier": 0.2658,
+      "baseRateBrier": 0.261,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "SPY",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2518,
+      "baseRateBrier": 0.251,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "QQQ",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2507,
+      "baseRateBrier": 0.2519,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "IWM",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2645,
+      "baseRateBrier": 0.264,
+      "clearedMargin": false
+    },
+    {
+      "family": "news",
+      "instrument": "DIA",
+      "samples": 205,
+      "testSamples": 41,
+      "modelBrier": 0.2599,
+      "baseRateBrier": 0.2594,
+      "clearedMargin": false
+    },
+    {
+      "family": "rates",
+      "instrument": "TLT",
+      "samples": 135,
+      "testSamples": 27,
+      "modelBrier": 0.2523,
+      "baseRateBrier": 0.2551,
+      "clearedMargin": false
+    },
+    {
+      "family": "international",
+      "instrument": "DIA",
+      "samples": 129,
+      "testSamples": 26,
+      "modelBrier": 0.321,
+      "baseRateBrier": 0.2842,
+      "fxOnlyBrier": 0.3168,
+      "coinBrier": 0.25,
+      "exportCoefficientSign": "negative",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-close-location-2025-v1",
+      "family": "technicals",
+      "instrument": "SPY",
+      "samples": 139,
+      "testSamples": 28,
+      "modelBrier": 0.2555,
+      "returnOnlyBrier": 0.2569,
+      "baseRateBrier": 0.2544,
+      "coinBrier": 0.25,
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-fomc-eve-2016-2025-v1",
+      "family": "events",
+      "instrument": "SPY",
+      "samples": 160,
+      "testSamples": 32,
+      "testEves": 16,
+      "modelBrier": 0.2508,
+      "returnOnlyBrier": 0.2516,
+      "baseRateBrier": 0.2501,
+      "coinBrier": 0.25,
+      "clearedMargin": false,
+      "eveCoefficientSign": "negative"
+    },
+    {
+      "studyId": "prelaunch-qqq-original-revenue-guidance-v1",
+      "family": "earnings",
+      "instrument": "QQQ",
+      "samples": 124,
+      "testSamples": 25,
+      "modelBrier": 0.2599,
+      "ageOnlyBrier": 0.2643,
+      "baseRateBrier": 0.2518,
+      "coinBrier": 0.25,
+      "clearedMargin": false,
+      "earningsCoefficientSign": "negative",
+      "controlImprovement95": [
+        -0.0041,
+        0.0117
+      ]
+    },
+    {
+      "studyId": "prelaunch-tlt-tic-treasury-demand-v1",
+      "family": "capital",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 126,
+      "testSamples": 26,
+      "modelBrier": 0.2512,
+      "controlBrier": 0.2485,
+      "baseRateBrier": 0.2473,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-swvxx-retail-prime-flow-v1",
+      "family": "retail",
+      "instrument": "SPY",
+      "timingBasis": "dated-release",
+      "controlImprovement95": [
+        -0.0114,
+        -0.0009
+      ],
+      "samples": 120,
+      "testSamples": 24,
+      "modelBrier": 0.3223,
+      "controlBrier": 0.3155,
+      "baseRateBrier": 0.25,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "SPY-prior-CFE-VX-monthly-front-second-v1",
+      "family": "options",
+      "instrument": "SPY",
+      "timingBasis": "historical-reconstruction",
+      "strictBeforeCutoff": 4,
+      "samples": 247,
+      "testSamples": 50,
+      "modelBrier": 0.2558,
+      "controlBrier": 0.254,
+      "baseRateBrier": 0.2518,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-tlt-original-bls-payroll-revisions-v1",
+      "family": "news",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 134,
+      "testSamples": 27,
+      "modelBrier": 0.2579,
+      "controlBrier": 0.2505,
+      "baseRateBrier": 0.2473,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "controlImprovement95": [
+        -0.0175,
+        -0.0019
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "ofr-volatility-contribution-prelaunch-v1-time-attested-four-decimal",
+      "family": "macro",
+      "instrument": "SPY",
+      "timingBasis": "archived-before-cutoff",
+      "sourceBasis": "originals-and-four-decimal-mirror",
+      "samples": 125,
+      "testSamples": 25,
+      "nativeOnlySamples": 76,
+      "nativeSamples": 70,
+      "mirrorSamples": 55,
+      "modelBrier": 0.2515,
+      "controlBrier": 0.2518,
+      "baseRateBrier": 0.254,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "controlImprovement95": [
+        -0.002,
+        0.0019
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-ofr-international-stress-dia-v1-witnessed-maturity",
+      "family": "international",
+      "instrument": "DIA",
+      "timingBasis": "archived-before-cutoff",
+      "samples": 147,
+      "testSamples": 30,
+      "nativeSamples": 110,
+      "mirrorSamples": 37,
+      "deferredNativeSamples": 38,
+      "comparisonCount": 96,
+      "adjustedControlP": 1,
+      "modelBrier": 0.2743,
+      "controlBrier": 0.2705,
+      "baseRateBrier": 0.2686,
+      "coinBrier": 0.25,
+      "controlImprovement95": [
+        -0.0119,
+        0.0048
+      ],
+      "coefficientSign": "positive",
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-iem-popular-vote-certainty-spy-v1",
+      "family": "events",
+      "instrument": "SPY",
+      "timingBasis": "historical-reconstruction",
+      "samples": 214,
+      "trainSamples": 131,
+      "validationSamples": 51,
+      "testSamples": 32,
+      "test2020Samples": 24,
+      "test2024Samples": 8,
+      "controlImprovement95": [
+        -0.0024,
+        0.0028
+      ],
+      "campaignControlP": 1,
+      "comparisonCount": 384,
+      "adjustedControlP": 1,
+      "coefficientSign": "negative",
+      "modelBrier": 0.2508,
+      "controlBrier": 0.2499,
+      "baseRateBrier": 0.251,
+      "coinBrier": 0.25,
+      "clearedMargin": false
+    },
+    {
+      "studyId": "original-g17-manufacturing-dia-prelaunch-v1",
+      "family": "news",
+      "instrument": "DIA",
+      "timingBasis": "dated-release",
+      "samples": 125,
+      "testSamples": 25,
+      "monthlyReleases": 129,
+      "multiplePreliminaryMonths": 1,
+      "unconfirmedClocks": 3,
+      "priorTechnicalSamples": 43,
+      "priorTechnicalTestSamples": 19,
+      "modelBrier": 0.2579,
+      "controlBrier": 0.2586,
+      "baseRateBrier": 0.2583,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "controlImprovement95": [
+        -0.0002,
+        0.0016
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "ons-first-services-inflation-tlt-prelaunch-v1",
+      "family": "international",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 121,
+      "testSamples": 25,
+      "modelBrier": 0.2623,
+      "controlBrier": 0.2622,
+      "coinBrier": 0.25,
+      "baseRateBrier": 0.2632,
+      "coefficientSign": "negative",
+      "controlImprovement95": [
+        -0.0037,
+        0.003
+      ],
+      "priorStudySessions": 70,
+      "priorStudyTestSessions": 21,
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-fed-h6-retail-deposit-iwm-v1",
+      "family": "retail",
+      "instrument": "IWM",
+      "timingBasis": "dated-release",
+      "samples": 136,
+      "testSamples": 28,
+      "modelBrier": 0.2499,
+      "controlBrier": 0.2498,
+      "baseRateBrier": 0.2514,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "excludedPriorDates": 32,
+      "controlImprovement95": [
+        -0.0118,
+        0.0114
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-spy-cambria-tail-risk-v1",
+      "family": "options",
+      "instrument": "SPY",
+      "timingBasis": "historical-reconstruction",
+      "samples": 258,
+      "testSamples": 52,
+      "modelBrier": 0.2584,
+      "controlBrier": 0.2568,
+      "baseRateBrier": 0.2592,
+      "coinBrier": 0.25,
+      "coefficientSign": "negative",
+      "excludedTargetOverlap": 137,
+      "excludedInputOverlap": 96,
+      "controlImprovement95": [
+        -0.0092,
+        0.0043
+      ],
+      "clearedMargin": false
+    },
+    {
+      "studyId": "prelaunch-tlt-canadian-policy-change-v1-bank-effective-register",
+      "family": "international",
+      "instrument": "TLT",
+      "timingBasis": "dated-release",
+      "samples": 139,
+      "testSamples": 28,
+      "modelBrier": 0.2408,
+      "controlBrier": 0.244,
+      "baseRateBrier": 0.2452,
+      "coinBrier": 0.25,
+      "coefficientSign": "positive",
+      "scheduledDecisions": 152,
+      "dailyHistoryEligible": 88,
+      "excludedOverlap": 13,
+      "testRateChanges": 4,
+      "controlImprovement95": [
+        -0.0111,
+        0.021
+      ],
+      "clearedMargin": false
+    }
+  ]
+}

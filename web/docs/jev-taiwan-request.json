@@ -1,0 +1,62 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Connect verified Taiwan Stock Exchange daily equity price and total-return indices to the visual morning market product.",
+    "catalog": [
+      "Existing MorningBoard Policy, positioning & capital disclosure with PolicyRates, institutional positioning and central-bank news timeline",
+      "Existing panel, panelHead, panelSubtitle, finePrint, up/down, status and shared light/dark tokens",
+      "Reusable accessible SVG Sparkline and existing international source drawer",
+      "MorningBoard supports MARKET/SPY/QQQ/IWM/DIA/TLT and daily/weekly/monthly windows with immutable historical selection"
+    ],
+    "tokens": {
+      "fonts": "Manrope and Space Grotesk",
+      "layout": "min-width:0, responsive 375/768/1280px; 44px minimum controls",
+      "colors": "var(--panel), var(--text), var(--text-secondary), var(--text-muted), var(--line), var(--accent), var(--up), var(--down)",
+      "motion": "No required animation; reduced motion preserved"
+    },
+    "facts": {
+      "priceIndex": {
+        "latest": 42948.91,
+        "previous": 43307.54,
+        "date": "2026-11-04",
+        "history": "3 actual November daily observations"
+      },
+      "totalReturnIndex": {
+        "latest": 99315.03,
+        "previous": 100144.27,
+        "date": "2026-11-04",
+        "history": "3 actual November daily observations; reinvested distributions"
+      },
+      "license": "Open Government Data License 1.0; TWSE 2026 attribution with links",
+      "scope": "Taiwan listed-equity index context only; two related measures of the same market, not independent votes or US ETF outcome prices"
+    },
+    "constraints": [
+      "Keep both indices distinct, date and index-point units visible. Do not compare absolute levels on a shared scale.",
+      "No directional scores or US projections arise from this context. Other global regions and all missing US prices remain gaps.",
+      "Only saved signals appear in historical editions; earlier archives stay byte-identical.",
+      "Each feed can fail independently. Show unavailable/stale/retained notices using original dates.",
+      "Do not add provider scripts, external widgets, paid APIs or decorative unsupported market graphics."
+    ]
+  },
+  "questions": {
+    "layout": {
+      "type": "choice",
+      "instructions": "Choose the clearest compact presentation of these two related Taiwan indices in the existing expanded policy/capital section.",
+      "criteria": {
+        "paired_rows": "One full-width panel with two independently scaled sparkline rows, each showing name, dated level and observed-session change; stack row contents naturally on phones.",
+        "paired_cards": "Two compact side-by-side cards that stack on phones; each has its own dated level, change and independently scaled sparkline.",
+        "table": "One accessible table with two index rows, latest/prior levels and dates, with a single separate price-index sparkline.",
+        "expand_candidates": "None fits; expand the candidates."
+      }
+    },
+    "placement": {
+      "type": "choice",
+      "instructions": "Choose where this nonvoting Taiwan equity context belongs within the existing disclosure.",
+      "criteria": {
+        "after_policy": "Directly after the four central-bank policy rates and before institutional positioning/news.",
+        "after_news": "After the institutional positioning/news pair and before institutional holdings/capital details.",
+        "expand_candidates": "Neither position fits; expand the candidates."
+      }
+    }
+  }
+}

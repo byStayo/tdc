@@ -1,0 +1,73 @@
+{
+  "verifiedAt": "2026-11-03T04:41:41.432Z",
+  "environment": "local production build at 127.0.0.1:3107",
+  "reports": [
+    {
+      "label": "QQQ Nasdaq-100",
+      "headings": [
+        "~\t\t\t219 heading QQQ: a smaller asset-manager long balance., Value: 2",
+        "+\t\t\t319 heading Supporting view, Value: 3",
+        "+\t\t\t325 heading Counterpoints, Value: 3",
+        "+\t\t\t331 heading What to watch, Value: 3",
+        "~\t\t\t250 heading QQQ · Market view, Value: 2",
+        "+\t\t\t\t388 heading Effective federal funds rate, Value: 3"
+      ],
+      "unavailable": false
+    },
+    {
+      "label": "IWM Russell 2000",
+      "headings": [
+        "~\t\t\t219 heading IWM: less net short, but no broad agreement., Value: 2",
+        "~\t\t\t250 heading IWM · Market view, Value: 2",
+        "+\t\t\t\t389 heading Effective federal funds rate, Value: 3",
+        "+\t\t\t\t396 heading Bank prime loan rate, Value: 3",
+        "+\t\t\t\t403 heading Household & nonprofit net worth, Value: 3"
+      ],
+      "unavailable": false
+    },
+    {
+      "label": "DIA Dow",
+      "headings": [
+        "~\t\t\t219 heading DIA: a small sign change needs context., Value: 2",
+        "~\t\t\t250 heading DIA · Market view, Value: 2"
+      ],
+      "unavailable": false
+    },
+    {
+      "label": "TLT Long Treasuries",
+      "headings": [
+        "~\t\t\t219 heading TLT: separate Treasury exposure from rate policy., Value: 2",
+        "+\t\t\t334 heading What to watch, Value: 3",
+        "~\t\t\t250 heading TLT · Market view, Value: 2",
+        "+\t\t\t\t392 heading Effective federal funds rate, Value: 3",
+        "+\t\t\t\t399 heading Bank prime loan rate, Value: 3",
+        "+\t\t\t\t406 heading Household & nonprofit net worth, Value: 3"
+      ],
+      "unavailable": false
+    }
+  ],
+  "widgetKindsVerified": [
+    "chart",
+    "technical",
+    "profile",
+    "news"
+  ],
+  "rapidNavigationCycles": 2,
+  "browserErrorsSince": "2026-11-03T04:39:57.185Z",
+  "browserErrors": [],
+  "previousChecks": {
+    "mobileWidth": 390,
+    "documentWidth": 390,
+    "buttonHeightMinimum": 63,
+    "keyboardSelection": "Enter selects TLT",
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "unsupportedTicker": "AAPL shows no publication and no market fallback"
+  },
+  "limits": [
+    "Previous navigation warned when provider script completed after unmount; final isolated-document checks above produced no new errors.",
+    "Production verification is separate."
+  ]
+}

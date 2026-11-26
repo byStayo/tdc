@@ -1,0 +1,81 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "intent": "Visual morning market consensus, coffee-time glance then inspect any source. User explicitly rejects prose-first research desk. All requested sources, daily/weekly/monthly/history/evaluation.",
+    "originalReference": {
+      "visuals": [
+        "factor conviction bars",
+        "bullish versus bearish balance",
+        "support/resistance map",
+        "combined consensus"
+      ],
+      "warning": "Historical conviction percentages have not been validated; do not copy numbers or claim profit probability."
+    },
+    "stack": "Next.js16 React19 TypeScript, CSS tokens, lucide icons, SVG charts. Existing saved publications and hosted TradingView widgets.",
+    "tokens": {
+      "darkBackground": "#0b1220",
+      "panel": "#111c2c",
+      "text": "#edf4ff",
+      "positive": "#41c59a",
+      "negative": "#ed8292",
+      "accent": "#79a9ff"
+    },
+    "catalog": [
+      "consensus dial with centered lean and adjacent data-coverage bar",
+      "diverging per-family contribution bars",
+      "compact signal cards with sparklines/status/date",
+      "yield-curve line chart",
+      "FX return matrix",
+      "catalyst timeline",
+      "price level ladder",
+      "source detail drawer",
+      "historical daily strips",
+      "calibration and outcome charts"
+    ],
+    "constraints": [
+      "All visuals must use real source-backed state or explicit unavailable states.",
+      "No guarantee of profitable trading; agreement is separate from predictive confidence.",
+      "Default morning dashboard is visual. No chatbot or full-width prose lead.",
+      "Mobile390px keyboard accessible, reduced motion.",
+      "Every data source remains independently inspectable."
+    ]
+  },
+  "questions": {
+    "hierarchy": {
+      "type": "choice",
+      "instructions": "Select the overall morning information hierarchy that best satisfies the explicit intent and constraints.",
+      "criteria": {
+        "consensus_then_drivers": "Top consensus dial, coverage and catalyst rail; independent family contribution bars below; signal grid and levels follow.",
+        "world_then_consensus": "World/FX/bond overview first, then consensus and signals.",
+        "signal_matrix_first": "A large signal matrix first, consensus in a right rail; drill down from matrix."
+      }
+    },
+    "hero_visual": {
+      "type": "choice",
+      "instructions": "Select a primary visual for combined direction, keeping coverage and probability clearly separate.",
+      "criteria": {
+        "semicircle_and_balance": "Semicircle direction dial from bearish to bullish, textual lean, separate agreement/coverage labels and supporting/opposing bars.",
+        "diverging_stack": "Large horizontal opposing-supporting bar, explicit mixed/abstain label, separate coverage.",
+        "radar": "Radar of independent family scores, combined lean in center, separate coverage."
+      }
+    },
+    "source_inspection": {
+      "type": "choice",
+      "instructions": "Select how a reader should inspect a signal, its dated raw values, formula, exclusions and primary links without losing morning context.",
+      "criteria": {
+        "side_drawer": "Accessible modal side drawer on desktop and full-width sheet on mobile.",
+        "inline_expand": "Each signal card expands inline in the grid.",
+        "separate_page": "Separate detailed source page with back navigation."
+      }
+    },
+    "density": {
+      "type": "choice",
+      "instructions": "Select the signal grid density; readable scan speed is more important than maximizing tile count.",
+      "criteria": {
+        "four_two_one": "Four columns on wide desktop, two on medium, one on narrow mobile; main charts stay larger.",
+        "three_two_one": "Three desktop columns, two tablet, one mobile, larger source cards.",
+        "six_three_two": "Six desktop columns, three tablet and two phone compact cells."
+      }
+    }
+  }
+}

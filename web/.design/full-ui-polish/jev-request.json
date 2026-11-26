@@ -1,0 +1,97 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "task": "Polish the entire existing Daily Consensus public research UI without changing market data, history, product scope, claims or source rights.",
+    "brand": {
+      "fonts": [
+        "Manrope body",
+        "Space Grotesk display"
+      ],
+      "accent": "sage green",
+      "dark": {
+        "background": "#0d1214",
+        "panel": "#141d20",
+        "text": "#f0f3ed"
+      },
+      "light": {
+        "background": "#f4f5f1",
+        "panel": "#ffffff",
+        "text": "#1a302b"
+      },
+      "tone": "restrained editorial financial research; no gradients, promotional badges or AI dashboard decoration"
+    },
+    "componentCatalog": [
+      "Brand: four vertical sage strokes and two-line wordmark",
+      "MorningLayout header: brand + Morning view/Research desk/Archive links + theme toggle",
+      "ResearchDesk:216px navigation sidebar, topbar, main content and optional context rail",
+      "MorningBoard: equal-family verdict, coverage, dated chart panels, source drawer, three tabs, instrument/horizon/history controls",
+      "Archive index/article: older inconsistent DC square brand and no theme toggle",
+      "Methodology: no shared header, long two-column prose panels",
+      "TradingViewWidget: opaque hosted frame, parent loading/error status, source attribution; load event cannot prove child content rendered"
+    ],
+    "observedCodeIssues": [
+      "Utility tokens currently10/11/12px; many morning captions9px; compressed mobile table labels",
+      "Archive and article brand/navigation inconsistent with home and research desk; methodology lacks shared header",
+      "Essential research nav/link/disclosure targets sometimes under44px",
+      "Light muted text contrast4.18-4.33 on raised/hover backgrounds",
+      "A real prior production screenshot showed an empty hosted chart after load; parent cannot inspect cross-origin frame"
+    ],
+    "constraints": [
+      "Keep existing component stack and local fonts",
+      "375,768,1280px; light and dark; keyboard/reduced motion",
+      "Never hide dates, sample limitations or missing-state meaning",
+      "No fake charts or readings to fill empty spaces",
+      "No provider iframe extraction or sandbox relaxation",
+      "No persistent security or account settings",
+      "Codex independently implements selected decisions; all combinations validated and rendered checks required"
+    ],
+    "reviewEvidence": "Fresh comprehensive browser audit is executing; these independent design decisions concern confirmed component/code structure. No claim that code alone proves visual quality."
+  },
+  "questions": {
+    "reading_scale": {
+      "type": "choice",
+      "instructions": "Choose the shared reading scale for this dense research product. Preserve scanability and real source detail while making mobile text readable. Explicit essential44px targets are mandatory for every choice.",
+      "criteria": {
+        "balanced_editorial": "Use14px body,12px secondary and11px compact metadata; use16px long prose and mobile text inputs; raise legacy9px captions to11px where practical and keep charts dense through responsive layout.",
+        "large_everywhere": "Use16px for all body,labels,source notes and tables, leaving only headings larger; accept substantially longer pages.",
+        "minimal_scale": "Keep12px body and10px metadata; adjust spacing and colors only."
+      }
+    },
+    "publication_navigation": {
+      "type": "choice",
+      "instructions": "Choose a coherent navigation/brand structure for morning, archive, article and methodology surfaces while retaining the research desk sidebar.",
+      "criteria": {
+        "shared_editorial_header": "Reuse one Brand+primary navigation+theme header across morning/archive/article/methodology; mark active section, wrap nav to a second row on narrow phones; research desk keeps its purposeful sidebar.",
+        "separate_polished_headers": "Keep four existing header structures but align typography and enlarge links; add separate theme toggles.",
+        "sidebar_everywhere": "Convert all content pages to the research desk sidebar layout, including long archive articles."
+      }
+    },
+    "methodology_layout": {
+      "type": "choice",
+      "instructions": "Select how to present the existing detailed methodology document without hiding required facts or rewriting them.",
+      "criteria": {
+        "reading_sections": "Readable content column with16px prose, clear section rhythm and a compact in-page contents list that wraps on mobile; source definitions can stay structured.",
+        "dense_cards": "Keep all equally weighted two-column prose cards and raise only font size.",
+        "collapsed_all": "Collapse every methodology section behind an accordion by default."
+      }
+    },
+    "hosted_view_recovery": {
+      "type": "choice",
+      "instructions": "An opaque provider iframe sometimes loads blank while its load event fires. Without inspecting or modifying provider data, choose always-available recovery controls that avoid pretending we know whether the chart is visible.",
+      "criteria": {
+        "inline_recovery": "Below the existing chart, retain attribution and add unobtrusive Reload view and Open provider controls plus explicit third-party scope. Keep actual timeout/error state and avoid inferring success from visible child content.",
+        "persistent_overlay": "Keep a large troubleshooting overlay on top of the chart until the reader confirms it loaded.",
+        "external_only": "Remove embedded provider charts and replace all with outbound links."
+      }
+    },
+    "research_density": {
+      "type": "choice",
+      "instructions": "Choose the Research Desk polish direction given existing sidebar/main/rail layout, small source labels and long reports.",
+      "criteria": {
+        "refine_existing_shell": "Keep the shell, improve text scale and44px controls, consistent panel padding, responsive rail stacking, section title spacing and clear reading width.",
+        "single_column_everywhere": "Remove the context rail and sidebar for all users and display every view as one long column.",
+        "add_dashboard_summary": "Add new summary metrics, recommendation tiles and decorative charts above each report."
+      }
+    }
+  }
+}

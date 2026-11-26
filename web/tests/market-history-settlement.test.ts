@@ -1,0 +1,236 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { access, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { durableJSON } from "../lib/publication-storage.ts";
+import { ETF_CASH_SOURCES } from "../lib/consensus/corporate-adjustment.ts";
+import { evaluateOutcome } from "../lib/consensus/evaluation.ts";
+import { exchangeSession, exchangeSessions } from "../lib/consensus/exchange-calendar.ts";
+import { digest } from "../lib/consensus/history.ts";
+import { nasdaqDaily } from "../lib/consensus/kibot-session-witnesses.ts";
+import { KIBOT_PRICE_CITATION, kibotHistorySource, parseKibotDaily } from "../lib/consensus/kibot.ts";
+import { tltHourSource } from "../lib/consensus/market-history-hourly-access.ts";
+import { contiguousTltWindows } from "../lib/consensus/market-history-boundaries.ts";
+import { MARKET_HISTORY_SOURCE, recordTltSettlement, tltSettlementPriceEvidence, type TltSettlementReview } from "../lib/consensus/market-history-settlement.ts";
+import { defaultEvaluationPrices } from "../lib/consensus/marketparquet-settlement.ts";
+import { loadTltClosingTrend, prepareTltClosingTrend } from "../lib/consensus/tlt-close-preparation.ts";
+import { outcomeIndex } from "../lib/consensus/outcome-ledger.ts";
+import type { Snapshot } from "../lib/consensus/types.ts";
+
+const days = ["2026-10-30", "2026-11-02"], asOf = "2026-11-03T03:00:00.000Z";
+const sha = (input: string) => createHash("sha256").update(input).digest("hex");
+async function sealHistorical(dir: string, review: TltSettlementReview, reviewedAt: string) {
+  const record = { review, reviewedAt };
+  await durableJSON(join(dir, "settlements", [review.windowThrough, review.windowFrom, digest(review)].join("_") + ".json"),
+    { ...record, sha256: digest(record) }, true);
+}
+test("ordinary TLT settlement withholds before consuming a free bar or writing when only legacy controls exist", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-paid-scope-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const script = "scripts/research-market-history-boundaries.ts";
+  await mkdir(join(root, "scripts"));
+  await symlink(new URL("../lib", import.meta.url), join(root, "lib"));
+  await copyFile(new URL("../" + script, import.meta.url), join(root, script));
+  const result = spawnSync(process.execPath, ["--experimental-strip-types", "--import",
+    "data:text/javascript,globalThis.fetch%3Dasync()%3D%3E%7Bthrow%20Error('Unexpected%20network')%7D",
+    script, "2026-11-16", "2026-11-17", "--collect", "--settle-verified"], { cwd: root, encoding: "utf8" });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Error: New TLT settlements require independent production-permitted/);
+  await assert.rejects(access(join(root, ".consensus")));
+});
+async function fixture(root: string, sessions = days, retrieved = "2026-11-03T02:00:00.000Z") {
+  const dir = join(root, ".consensus/private-market-history/tlt-settlement"), witnesses = join(root, ".consensus/private-kibot/sources");
+  const from = sessions[0], through = sessions.at(-1)!;
+  const curve = sessions.map((_, i) => i === 0 ? { open: 100, close: 100.5 } : { open: 99.8, close: 100.3 });
+  const controls: TltSettlementReview["controls"] = [];
+  for (const [i, day] of sessions.entries()) {
+    const us = day.slice(5, 7) + "/" + day.slice(8) + "/" + day.slice(0, 4), { open, close } = curve[i];
+    const csv = [us, open, 102, 98, close, 500].join(",") + "\n", common = { first: day, through: day, symbol: "TLT",
+      source: KIBOT_PRICE_CITATION, capturedAt: retrieved, sha256: sha(csv), csv };
+    await durableJSON(join(witnesses, day, "TLT-kibot.json"), { ...common, unadjusted: true });
+    await durableJSON(join(dir, "controls", day, "TLT-splits.json"), { ...common, unadjusted: false, splitAdjusted: true });
+    const text = JSON.stringify({ status: { rCode: 200 }, data: { symbol: "TLT", tradesTable: {
+      headers: { date: "Date", open: "Open", close: "Close/Last", high: "High", low: "Low" },
+      rows: [{ date: us, open: String(open), close: String(close), high: "102", low: "98" }] } } });
+    await durableJSON(join(witnesses, day, "TLT-daily.json"), { url: nasdaqDaily("TLT", day, day), kind: "daily", status: 200,
+      symbol: "TLT", requestedAt: retrieved, capturedAt: retrieved, body: Buffer.from(text).toString("base64"), sha256: sha(text) });
+    controls.push({ session: day, raw: { kind: "kibot", sha256: common.sha256, capturedAt: retrieved },
+      split: { kind: "qualification", sha256: common.sha256, capturedAt: retrieved },
+      listed: { kind: "kibot", sha256: sha(text), capturedAt: retrieved } });
+  }
+  const issuerText = JSON.stringify(Object.fromEntries([["exDate", [20260901, 20261102]], ["totalDistribution", [0.4, 0.343177]]]
+    .map(([name, value]) => [name, { name, fullName: "performance.distributions.table." + name, value }])));
+  const issuerFolder = join(witnesses, through, "issuer-post-close/TLT");
+  await durableJSON(join(issuerFolder, "issuer-TLT.json"), { url: ETF_CASH_SOURCES.TLT, capturedAt: retrieved.replace(/Z$/, "+00:00"), sha256: sha(issuerText) });
+  await writeFile(join(issuerFolder, "issuer-TLT.bin"), issuerText, { mode: 0o600 });
+  async function hourly(grid: "exchange" | "Asia/Kolkata") {
+    const text = sessions.map((day, i) => {
+      const clock = exchangeSession(day)!;
+      const timestamp = grid === "exchange" ? new Date(Date.parse(clock.closeAt) - 3_600_000).toISOString() : clock.openAt;
+      return JSON.stringify({ timestamp, symbol: "TLT", symbol_id: 11418, ...curve[i], high: 102, low: 98,
+        volume: 500, vwap: 100, trade_count: 10, is_gap: false, gap_fill_method: 0 });
+    }).join("\n") + "\n";
+    const page = { source: tltHourSource(from, through, grid), status: 200, text, sha256: sha(text),
+      headers: { date: new Date(retrieved).toUTCString(), "content-type": "application/x-ndjson", "x-row-count": String(sessions.length),
+        "x-feed": "consolidated", "x-bars-charged": "100", "x-bars-remaining": "20000", "x-bars-paid-remaining": "0",
+        "x-data-through": through + "T22:30:00Z", "x-session": grid === "exchange" ? "exchange America/New_York 00:00" : "Asia/Kolkata 00:00" } };
+    const id = digest(page); await durableJSON(join(dir, id + ".json"), page); return id;
+  }
+  const review: TltSettlementReview = { schema: 1, from, through, windowFrom: from, windowThrough: through, opening: await hourly("Asia/Kolkata"),
+    closing: await hourly("exchange"), issuer: { kind: "kibot", session: through, sha256: sha(issuerText), capturedAt: retrieved }, controls };
+  return { dir, review };
+}
+
+test("qualified dated originals feed the normal evaluator after replay and only derived identities leave the ledger", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-settlement-")); t.after(() => rm(root, { recursive: true, force: true }));
+  const { dir, review } = await fixture(root), warnings: string[] = [];
+  assert.deepEqual(await defaultEvaluationPrices(root, asOf, message => warnings.push(message)), []);
+  await assert.rejects(recordTltSettlement(root, review, asOf), /independent production-permitted/);
+  await assert.rejects(access(join(dir, "settlements")));
+  await sealHistorical(dir, review, asOf);
+  const staged = await recordTltSettlement(root, review, asOf);
+  assert.deepEqual(await defaultEvaluationPrices(root, "2026-11-03T02:59:59.000Z", message => warnings.push(message)), []);
+  const [evidence] = await defaultEvaluationPrices(root, asOf, message => warnings.push(message));
+  assert.deepEqual(evidence, staged);
+  assert.equal(evidence.instrument, "TLT");
+  assert.equal(evidence.source, MARKET_HISTORY_SOURCE);
+  assert.ok(Math.abs(evidence.sessions[0].open - 100 * (100.5 - 0.343177) / 100.5) < 1e-10);
+  const archive: Snapshot = JSON.parse(await readFile(new URL("../public/consensus/2026-11-03T08-48-02-469Z.json", import.meta.url), "utf8"));
+  const snapshot = { ...archive, issuedAt: "2026-10-30T12:00:00.000Z" };
+  const outcome = evaluateOutcome(snapshot, evidence, "daily", asOf)!;
+  assert.equal(outcome.source, MARKET_HISTORY_SOURCE);
+  assert.ok(Math.abs(outcome.returnPct - 0.5) < 1e-8);
+  assert.equal(evaluateOutcome(snapshot, evidence, "weekly", asOf), null);
+  assert.deepEqual(Object.keys(outcomeIndex([outcome])[0]).sort(), ["engineVersion", "horizon", "instrument", "snapshotId"]);
+  assert.deepEqual(warnings, []);
+});
+
+test("incomplete, mixed, stale, anonymous or changed source originals cannot enter settlement", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-rejected-")); t.after(() => rm(root, { recursive: true, force: true }));
+  const { dir, review } = await fixture(root);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, controls: review.controls.slice(1) }, asOf), /every dated/);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, closing: review.opening }, asOf), /Invalid/);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, windowFrom: days[1], controls: review.controls.slice(1) }, asOf), /preceding session/);
+  const mixed = structuredClone(review); mixed.controls[0].split = mixed.controls[0].raw;
+  await assert.rejects(tltSettlementPriceEvidence(root, mixed, asOf), /share-basis/);
+  const recast = structuredClone(review); recast.controls[0].listed.capturedAt = asOf;
+  await assert.rejects(tltSettlementPriceEvidence(root, recast, asOf), /historical response/);
+  await assert.rejects(tltSettlementPriceEvidence(root, review, "2026-11-02T21:01:00.000Z"));
+  const original = JSON.parse(await readFile(join(dir, review.opening + ".json"), "utf8"));
+  delete original.headers["x-bars-paid-remaining"];
+  const altered = digest(original); await durableJSON(join(dir, altered + ".json"), original);
+  await assert.rejects(tltSettlementPriceEvidence(root, { ...review, opening: altered }, asOf), /free-only/);
+  await sealHistorical(dir, review, asOf);
+  await recordTltSettlement(root, review, asOf);
+  await rm(join(dir, "controls", days[1], "TLT-splits.json"));
+  const warnings: string[] = [];
+  assert.deepEqual(await defaultEvaluationPrices(root, asOf, msg => warnings.push(msg)), []);
+  assert.equal(warnings.length, 1);
+});
+
+test("the weekday closing trend replays the original settlement and issuer cash once, with witnessed and approval clocks", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-trend-origin-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(asOf) });
+  const network = t.mock.method(globalThis, "fetch", () => { throw new Error("Unexpected network"); });
+  const {dir, review} = await fixture(root);
+  await sealHistorical(dir, review, asOf);
+  assert.equal(await loadTltClosingTrend(root, "2026-11-03T02:59:59.999Z"), null);
+  const reading = (await loadTltClosingTrend(root, asOf))!;
+  assert.equal(reading.source.url, MARKET_HISTORY_SOURCE);
+  assert.deepEqual([reading.source.observedAt, reading.source.retrievedAt, reading.source.approvedAt],
+    ["2026-11-02T21:00:00.000Z", "2026-11-03T02:00:00.000Z", asOf]);
+  assert.deepEqual(reading.metrics.map(row => row.value), [Number(((100.3 / (100.5 - 0.343177) - 1) * 100).toFixed(1))]);
+  assert.deepEqual(reading.directionalInstruments, []);
+  assert.deepEqual(await prepareTltClosingTrend(root), {status: "verified_settlement_closing_trend", through: days[1],
+    origin: MARKET_HISTORY_SOURCE, retrievedAt: reading.source.retrievedAt, approvedAt: asOf, metrics: 1});
+  await assert.rejects(access(join(root, ".consensus/private-market-history/tlt-closing-trend")));
+  const incoming = join(root, ".consensus/private-market-history/tlt-closing-trend/incoming-hourly.json");
+  await durableJSON(incoming, {unrelated: "obsolete manual import"});
+  assert.equal((await prepareTltClosingTrend(root)).status, "verified_settlement_closing_trend");
+  await rm(join(dir, "controls", days[1], "TLT-splits.json"));
+  t.mock.method(console, "warn", () => {});
+  assert.equal(await loadTltClosingTrend(root, asOf), null);
+  assert.equal(network.mock.callCount(), 0);
+});
+
+test("November's unproven early-close auction withholds the short day and crossing weekly target; both flanking windows settle", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-short-session-")); t.after(() => rm(root, { recursive: true, force: true }));
+  const dates = exchangeSessions("2026-11-23", "2026-12-02"), asOf = "2026-12-03T04:00:00.000Z";
+  const { dir, review } = await fixture(root, dates, "2026-12-03T02:00:00.000Z");
+  await assert.rejects(tltSettlementPriceEvidence(root, review, asOf), /short_session_auction_missing/);
+  const rows = dates.map(day => ({ day, raw: { close: 100 }, boundary: { close: 100 },
+    status: day === "2026-11-27" ? "short_session_auction_missing" : "matched" }));
+  const windows = contiguousTltWindows(rows, []);
+  assert.deepEqual(windows.map(w => [w[0].day, w.at(-1)!.day]), [["2026-11-23", "2026-11-25"], ["2026-11-30", "2026-12-02"]]);
+  for (const window of windows) {
+    const windowFrom = window[0].day, windowThrough = window.at(-1)!.day;
+    const approved = { ...review, windowFrom, windowThrough, controls: review.controls.filter(row => row.session >= windowFrom && row.session <= windowThrough) };
+    await sealHistorical(dir, approved, asOf);
+    await recordTltSettlement(root, approved, asOf);
+  }
+  const sources = await defaultEvaluationPrices(root, asOf);
+  assert.equal(sources.length, 2);
+  const snapshot: Snapshot = JSON.parse(await readFile(new URL("../public/consensus/2026-11-03T08-48-02-469Z.json", import.meta.url), "utf8"));
+  const hasOutcome = (day: string, horizon: "daily" | "weekly") => sources.some(p =>
+    !!evaluateOutcome({ ...snapshot, issuedAt: day + "T12:00:00.000Z" }, p, horizon, asOf));
+  assert.equal(hasOutcome("2026-11-25", "daily"), true);
+  assert.equal(hasOutcome("2026-11-27", "daily"), false);
+  assert.equal(hasOutcome("2026-11-30", "daily"), true);
+  assert.equal(hasOutcome("2026-11-23", "weekly"), false);
+  const afterExDate = contiguousTltWindows(rows, [{ session: "2026-11-30", amount: 0.5 }]);
+  assert.equal(afterExDate[1][0].day, "2026-12-01");
+});
+
+test("a newer signed and independently controlled manual delivery advances an unexpired native trend; the native source wins a date tie", async t => {
+  const root = await mkdtemp(join(tmpdir(), "tlt-manual-successor-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const now = "2026-11-20T12:00:00.000Z", fetched = "2026-11-20T07:00:00.000Z", approved = "2026-11-20T08:00:00.000Z";
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(now) });
+  const network = t.mock.method(globalThis, "fetch", () => { throw new Error("Unexpected network"); });
+  const from = "2026-10-15", through = "2026-11-19", dates = exchangeSessions(from, through);
+  const { dir, review } = await fixture(root, dates, fetched);
+  const previous = { ...review, windowFrom: "2026-11-16", windowThrough: "2026-11-18",
+    controls: review.controls.filter(row => row.session >= "2026-11-16" && row.session <= "2026-11-18") };
+  await sealHistorical(dir, previous, approved);
+  const initial = await loadTltClosingTrend(root, now);
+  assert.equal(initial?.source.approvedAt, approved);
+
+  const standalone = join(root, ".consensus/private-market-history/tlt-closing-trend");
+  const delivery = JSON.parse(await readFile(join(dir, review.closing + ".json"), "utf8"));
+  await durableJSON(join(standalone, "incoming-hourly.json"), delivery);
+  const issuers = Object.entries(ETF_CASH_SOURCES).map(([symbol, source]) => ({ symbol, source, sha256: "b".repeat(64),
+    capturedAt: fetched, cash: symbol === "TLT" ? [{ session: "2026-11-02", amount: 0.343177 }] : [] }));
+  const approval = { schemaVersion: 1, through, issuers, approvedAt: approved };
+  await durableJSON(join(root, ".consensus/private-firstrate/approved.json"), { approval, sha256: digest(approval) });
+  // A newer candidate without its subscriber proof cannot replace the existing native market observation.
+  assert.equal((await prepareTltClosingTrend(root)).through, previous.windowThrough);
+  await assert.rejects(access(join(standalone, "latest.json")));
+
+  const originals = await Promise.all(dates.map(day => readFile(join(root, ".consensus/private-kibot/sources", day, "TLT-kibot.json"), "utf8")));
+  const csv = originals.map(text => JSON.parse(text).csv.trim()).join("\n");
+  const sessions = parseKibotDaily(csv, dates, exchangeSession);
+  const login = "200 OK\nAuthorizations\n=====================\nAll Stocks,1/1/1998,1\n";
+  for (const basis of ["raw", "splits"] as const) {
+    await durableJSON(join(standalone, `subscriber-TLT-2026-${from}-${through}-${basis}.json`), {
+      instrument: "TLT", from, through, sessions, sha256: sha(csv), priceDigest: digest(sessions),
+      paid: { basis, csv, source: kibotHistorySource("TLT", from, through, basis), capturedAt: fetched,
+        authorization: { source: "https://api.kibot.com/?action=login", capturedAt: fetched, body: login, sha256: sha(login) } }
+    });
+  }
+  const advanced = await prepareTltClosingTrend(root);
+  assert.equal(advanced.status, "verified_closing_trend");
+  assert.equal(advanced.through, through);
+  const selected = await loadTltClosingTrend(root, now);
+  assert.equal(selected?.series[0].date, through);
+  assert.equal(selected?.source.url, "https://getmarkethistory.com/docs/bars/");
+
+  const throughDate = { ...review, windowFrom: "2026-11-16", controls: review.controls.filter(row => row.session >= "2026-11-16") };
+  await sealHistorical(dir, throughDate, approved);
+  assert.equal((await prepareTltClosingTrend(root)).status, "verified_settlement_closing_trend");
+  assert.equal((await loadTltClosingTrend(root, now))?.source.url, MARKET_HISTORY_SOURCE);
+  assert.equal(network.mock.callCount(), 0);
+});

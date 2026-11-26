@@ -1,0 +1,76 @@
+{
+  "verifiedAt": "2026-11-03T04:17:03.801485+00:00",
+  "evidenceCollectedAt": "2026-11-03T04:14:53.528Z",
+  "sourceChecks": [
+    {
+      "symbol": "SPY",
+      "sourceId": "CFTC_ES",
+      "citationUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=13874A&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "directFieldChecks": 14,
+      "netBalanceChecks": 4,
+      "checksPassed": true
+    },
+    {
+      "symbol": "QQQ",
+      "sourceId": "CFTC_NQ",
+      "citationUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=209742&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "directFieldChecks": 14,
+      "netBalanceChecks": 4,
+      "checksPassed": true
+    },
+    {
+      "symbol": "IWM",
+      "sourceId": "CFTC_RTY",
+      "citationUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=239742&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "directFieldChecks": 14,
+      "netBalanceChecks": 4,
+      "checksPassed": true
+    },
+    {
+      "symbol": "DIA",
+      "sourceId": "CFTC_DOW",
+      "citationUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=124603&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "directFieldChecks": 14,
+      "netBalanceChecks": 4,
+      "checksPassed": true
+    },
+    {
+      "symbol": "TLT",
+      "sourceId": "CFTC_BOND",
+      "citationUrl": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?cftc_contract_market_code=020601&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&%24order=report_date_as_yyyy_mm_dd+DESC",
+      "observationDates": [
+        "2026-10-27",
+        "2026-10-20"
+      ],
+      "directFieldChecks": 14,
+      "netBalanceChecks": 4,
+      "checksPassed": true
+    }
+  ],
+  "fredRateChecks": {
+    "2026-10-01": 3.88,
+    "2026-09-01": 3.75
+  },
+  "allSourceChecksPassed": true,
+  "limits": [
+    "Checks verify the cited source values and arithmetic, not price predictions or investment outcomes.",
+    "Related futures positions are not ETF flows.",
+    "UI, publication atomicity and production deployment are verified separately."
+  ]
+}

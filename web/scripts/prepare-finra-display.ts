@@ -1,0 +1,12 @@
+import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { brotliCompressSync } from "node:zlib";
+import { resolve } from "node:path";
+import { decodeFinraDisplay } from "../lib/finra-display.ts";
+const directory=resolve(import.meta.dirname,"../.consensus/finra-private");
+const input=JSON.parse(await readFile(resolve(directory,"latest.json"),"utf8"));
+const snapshot={cutoff:input.cutoff,retrievedAt:input.retrievedAt,sha256:input.sha256,weeks:input.weeks};
+const encoded=brotliCompressSync(Buffer.from(JSON.stringify(snapshot))).toString("base64");
+if(!decodeFinraDisplay(encoded))throw Error("FINRA snapshot is invalid or expired; nothing staged");
+await mkdir(directory,{recursive:true,mode:0o700});
+await writeFile(resolve(directory,"display-snapshot.txt"),encoded,{mode:0o600});
+console.log(JSON.stringify({status:"staged-privately",weeks:snapshot.weeks.length,bytes:encoded.length,uploaded:false,published:false}));

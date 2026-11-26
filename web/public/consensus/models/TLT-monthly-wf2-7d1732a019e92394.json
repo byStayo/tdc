@@ -1,0 +1,16 @@
+{
+  "status": "insufficient_data",
+  "engineVersion": "consensus-rules-2.0.0",
+  "samples": 0,
+  "minimum": 500,
+  "datasetHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "promoted": false,
+  "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
+  "promotionEvidence": null,
+  "instrument": "TLT",
+  "horizon": "monthly",
+  "priceAdjustment": "total-return-adjusted",
+  "evaluatedAt": "2026-11-03T15:40:20.415Z",
+  "activated": false,
+  "featureSchema": "family-score-plus-observation-mask-v1"
+}

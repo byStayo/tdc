@@ -1,0 +1,55 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "QQQ",
+  "createdAt": "2026-11-03T04:16:34.455Z",
+  "model": "Codex editorial workflow",
+  "message": "Published QQQ research using the linked public evidence. The futures reporting dates are shown in the analysis; refreshing this page does not generate a new report.",
+  "data": {
+    "headline": "QQQ: a smaller asset-manager long balance.",
+    "summary": "Related Nasdaq-100 futures offer a mixed picture. Asset managers remained net long but reduced that balance in the October 27 report; leveraged funds held a slightly larger net long balance. These category changes describe different books, not a unified forecast for QQQ.",
+    "bull": [
+      {
+        "text": "Leveraged funds held 51,171 long and 48,870 short Nasdaq Mini futures contracts on October 27, leaving a net long balance of 2,301. That compares with 950 one week earlier. A positive balance alone is not evidence of a durable bullish trend.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Asset managers’ net long balance declined from 77,790 contracts on October 20 to 65,381 on October 27, a reduction of 12,409. Their long positions declined while shorts increased; the report does not explain the purpose of each position.",
+        "sourceIds": [
+          "CFTC_NQ"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Open interest fell from 272,462 to 268,508 contracts. Read participation and both trader categories together, and keep this weekly futures snapshot separate from QQQ’s current chart or daily fund flows.",
+        "sourceIds": [
+          "CFTC_NQ",
+          "CFTC_METHOD"
+        ]
+      }
+    ],
+    "limitations": [
+      "CFTC observations are for October 27 and October 20, 2026. These are weekly futures-only reports released after their observation dates, not live positions.",
+      "The related futures contract is not the ETF. Trader-category net positions are long-minus-short contract counts; they are not ETF fund flows, dollar exposure or evidence of investor intent.",
+      "No current support/resistance levels, options chain, gamma levels or dark-pool signal were collected for this report. Hosted charts remain separate from the editorial evidence.",
+      "This AI-assisted report presents supporting observations and counterpoints, without a validated price forecast or conviction score. It is general research, not a buy or sell instruction."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_NQ",
+      "title": "CFTC · NASDAQ MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=209742"
+    },
+    {
+      "id": "CFTC_METHOD",
+      "title": "CFTC · Commitments of Traders methodology",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "fed-household-equity-transactions",
+  "family": "retail",
+  "title": "Household and nonprofit equity transactions",
+  "shortLabel": "Household equity transactions",
+  "instruments": [
+    "MARKET",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA"
+  ],
+  "directionalInstruments": [],
+  "status": "available",
+  "summary": "The Fed estimated 1352.7 $bn SAAR of household-and-nonprofit corporate-equity transactions for the quarter ended 2026-06-30.",
+  "source": {
+    "name": "Federal Reserve \u00b7 Financial Accounts S1M.t",
+    "url": "https://www.federalreserve.gov/releases/z1/20260911/html/S1M_t.htm",
+    "retrievedAt": "2026-11-19T16:05:28.052Z",
+    "observedAt": "2026-06-30",
+    "releasedAt": "2026-09-11",
+    "frequency": "quarterly",
+    "attribution": "Board of Governors of the Federal Reserve System, Financial Accounts of the United States",
+    "usage": "Board-produced public-domain data, with source attribution. No third-party microdata, Board seal or endorsement is reproduced.",
+    "sha256": "c587ea0cd97de0c840bffa2a202bf494f8dc532ab8d1c421dc2175e6f46efd99"
+  },
+  "methodology": "FA153064105.Q: household-and-nonprofit net corporate-equity asset transactions, calculated residually from total equity assets less other identified sectors. Billions of dollars at a seasonally adjusted annual rate (SAAR), not cash moved during the quarter or a change in market value. Only the latest quarter of the reviewed original release is admitted. No directional vote.",
+  "limitation": "Combined households and nonprofit institutions, private-equity funds and personal trusts; a residual national-account estimate, not retail brokerage orders, all individual investors or ETF clicks. Includes directly held corporate equities and the fund shares defined by the Fed. The September 11, 2026 release separates hedge funds and revises the household definition from 2012Q4. Earlier current-vintage rows are not earlier publication observations.",
+  "series": [
+    {
+      "date": "2026-06-30",
+      "value": 1352.7
+    }
+  ],
+  "metrics": [
+    {
+      "label": "Net corporate-equity asset transactions",
+      "date": "2026-06-30",
+      "value": 1352.7,
+      "unit": "$bn SAAR"
+    }
+  ],
+  "scores": {
+    "daily": null,
+    "weekly": null,
+    "monthly": null
+  },
+  "staleAfterDays": 210,
+  "unit": "$bn SAAR",
+  "householdEquity": {
+    "reviewVersion": "fed-household-equity-v1",
+    "seriesId": "FA153064105.Q",
+    "quarter": "2026:Q2",
+    "publicationClock": "date-only",
+    "firstObservedAt": "2026-11-19T16:05:28.052Z",
+    "firstObservedSHA256": "c587ea0cd97de0c840bffa2a202bf494f8dc532ab8d1c421dc2175e6f46efd99",
+    "methodBreakRelease": "2026-09-11",
+    "revisedDefinitionFrom": "2012-10-01"
+  }
+}

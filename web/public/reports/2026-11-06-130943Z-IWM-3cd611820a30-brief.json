@@ -1,0 +1,57 @@
+{
+  "status": "ok",
+  "scope": "instrument",
+  "symbol": "IWM",
+  "createdAt": "2026-11-06T13:09:43.944Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "IWM’s overnight benchmark held steady as the two-year fell",
+    "summary": "The effective federal funds rate held at 3.88% on November 4 while the two-year Treasury yield declined to 4.58%. Small-company borrowing costs depend on contractual reference rates, lender spreads and reset dates. A lower two-year benchmark alone cannot establish a lower payment on an existing floating-rate loan.",
+    "bull": [
+      {
+        "text": "The two-year Treasury yield declined from 4.61% to 4.58% between November 3 and 4. A lower short-maturity Treasury benchmark can help a new funding quote if its credit spread and other pricing terms hold fixed.",
+        "sourceIds": [
+          "FRED_DGS2"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "The effective federal funds rate was 3.88% on both November 3 and 4. This overnight market benchmark supplies no observed easing over the interval for loans whose pricing follows it.",
+        "sourceIds": [
+          "FRED_EFFR"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "October 27 Russell e-mini futures had asset managers net long 19,602 contracts and leveraged funds net short 48,081. Compare this dated positioning context with actual company refinancing terms when available.",
+        "sourceIds": [
+          "CFTC_RTY"
+        ]
+      }
+    ],
+    "limitations": [
+      "Federal funds, Treasury yields and individual loan reference rates have different definitions. Company credit spreads, loan contracts, delinquencies and IWM returns remain unmeasured.",
+      "Russell futures category positions are weekly. They do not identify present IWM buying or selling, and the report contains no measured intraday price or options setup."
+    ]
+  },
+  "sources": [
+    {
+      "id": "CFTC_RTY",
+      "title": "CFTC · RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE · 2026-10-27",
+      "url": "https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24order=report_date_as_yyyy_mm_dd+DESC&%24where=report_date_as_yyyy_mm_dd+in+%28%272026-10-27T00%3A00%3A00.000%27%2C%272026-10-20T00%3A00%3A00.000%27%29&cftc_contract_market_code=239742"
+    },
+    {
+      "id": "FRED_DGS2",
+      "title": "2-year Treasury",
+      "url": "https://fred.stlouisfed.org/series/DGS2"
+    },
+    {
+      "id": "FRED_EFFR",
+      "title": "Effective federal funds rate",
+      "url": "https://fred.stlouisfed.org/series/EFFR"
+    }
+  ]
+}

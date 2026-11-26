@@ -1,0 +1,281 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { zipSync, strToU8 } from "fflate";
+import {
+  fomcEvents,
+  treasuryEvents,
+  expirationEvents,
+  collectMarketCalendars,
+} from "../lib/consensus/calendars.ts";
+import { eventUpcoming } from "../lib/consensus/time.ts";
+import {
+  parseGkg,
+  gdeltManifest,
+  unpackGkg,
+  gdeltTime,
+  collectNews,
+} from "../lib/consensus/news.ts";
+
+const cutoff = "2026-11-03T06:00:00.000Z";
+test("official calendars preserve date-only events and holiday-adjusted expiries", () => {
+  const html =
+    '<h4>2026 FOMC Meetings</h4><div class="fomc-meeting__month"><strong>December</strong></div><div class="fomc-meeting__date">8-9*</div><h4>2025 FOMC Meetings</h4><div class="fomc-meeting__month"><strong>December</strong></div><div class="fomc-meeting__date">9-10*</div>';
+  const fed = fomcEvents(html, cutoff);
+  assert.equal(fed.length, 1);
+  assert.equal(fed[0].at, "2026-12-09");
+  const expiry = expirationEvents(
+    {
+      legend: [
+        {
+          type: "monthly",
+          title:
+            "Monthly equity, index, and cash-settled currency options expiration date",
+        },
+      ],
+      data: [{ date: "2026-06-18T00:00:00", events: [{ type: "monthly" }] }],
+    },
+    "2026-06-01T06:00:00.000Z",
+  );
+  assert.equal(expiry[0].at, "2026-06-18");
+  assert.equal(expiry[0].kind, "expiry");
+  assert.ok(eventUpcoming("2026-11-03", "2026-11-04T04:30:00.000Z"));
+  assert.ok(!eventUpcoming("2026-11-03", "2026-11-04T05:01:00.000Z"));
+});
+test("Treasury auctions require announced evidence and convert Eastern deadline without inventing times", () => {
+  const row = {
+    cusip: "912797VH7",
+    securityType: "Bill",
+    securityTerm: "6-Week",
+    competitiveAuctionCloseDate: "2026-11-03T00:00:00",
+    competitiveAuctionCloseTime: "11:30 AM",
+    announcementDate: "2026-10-29T00:00:00",
+    offeringAmount: "100000000000",
+  };
+  const events = treasuryEvents(
+    [
+      row,
+      { ...row, cusip: "912797VH8", announcementDate: "2026-11-04T00:00:00" },
+      { ...row, cusip: "912797VH9", competitiveAuctionCloseTime: "" },
+    ],
+    cutoff,
+  );
+  assert.equal(events.length, 1);
+  assert.equal(events[0].at, "2026-11-03T16:30:00.000Z");
+  assert.match(events[0].title, /\$100bn/);
+});
+test("Treasury coupon reopenings retain original tenor, remaining maturity and the dated announcement", () => {
+  const reopen = {
+    cusip: "912810UX4", type: "Bond", securityType: "Bond", securityTerm: "19-Year 10-Month",
+    originalSecurityTerm: "20-Year", reopening: "Yes", inflationProtected: "No", floatingRate: "No",
+    announcementDate: "2026-10-15T00:00:00", competitiveAuctionCloseDate: "2026-10-21T00:00:00",
+    competitiveAuctionCloseTime: "01:00 PM", offeringAmount: "13000000000",
+    treasuryOfferingAnnouncementPressReleaseFileName: "A_20261015_3.pdf",
+  };
+  const cutoff = "2026-10-19T12:00:00.000Z";
+  const [event] = treasuryEvents([reopen], cutoff);
+  assert.equal(event.title, "Treasury 20-Year bond reopening auction · 19-Year 10-Month remaining · $13bn offered");
+  assert.equal(event.at, "2026-10-21T17:00:00.000Z");
+  assert.equal(event.url, "https://www.treasurydirect.gov/instit/annceresult/press/preanre/2026/A_20261015_3.pdf");
+  const invalid = [
+    { ...reopen, reopening: "No" }, { ...reopen, originalSecurityTerm: "10-Year" },
+    { ...reopen, securityTerm: "19-Year 13-Month" }, { ...reopen, securityTerm: "unknown" },
+    { ...reopen, type: "Note" }, { ...reopen, announcementDate: "2026-10-20T00:00:00" },
+  ];
+  assert.deepEqual(treasuryEvents(invalid, cutoff), []);
+  assert.equal(treasuryEvents([reopen, reopen], cutoff).length, 1);
+});
+
+test("Treasury floating-rate, inflation-protected and cash-management offerings keep their native category", () => {
+  const base = {
+    cusip: "91282CSA0", securityType: "Note", securityTerm: "2-Year", reopening: "No",
+    announcementDate: "2026-11-19T00:00:00", competitiveAuctionCloseDate: "2026-11-25T00:00:00",
+    competitiveAuctionCloseTime: "11:30 AM", offeringAmount: "44000000000",
+  };
+  const input = [
+    { ...base, type: "FRN", floatingRate: "Yes" },
+    { ...base, cusip: "91282CSA1", type: "TIPS", inflationProtected: "Yes", securityTerm: "5-Year" },
+    { ...base, cusip: "91282CSA2", type: "CMB", cashManagementBill: "Yes", securityType: "Bill", securityTerm: "9-Day" },
+    { ...base, cusip: "91282CSA3", type: "FRN", floatingRate: "No" },
+    { ...base, cusip: "91282CSA4", type: "TIPS", inflationProtected: "Yes", floatingRate: "Yes" },
+    { ...base, cusip: "91282CSA5", type: "Note", securityTerm: "7-Year", treasuryOfferingAnnouncementPressReleaseFileName: "../A_20261119_8.pdf" },
+  ];
+  const events = treasuryEvents(input, "2026-11-24T12:00:00.000Z");
+  assert.deepEqual(events.map((event) => event.title), [
+    "Treasury 2-Year floating-rate note auction · $44bn offered", "Treasury 5-Year TIPS auction · $44bn offered",
+    "Treasury 9-Day cash management bill auction · $44bn offered", "Treasury 7-Year note auction · $44bn offered",
+  ]);
+  assert.equal(events[2].importance, "context");
+  assert.equal(events[3].url, "https://www.treasurydirect.gov/auctions/upcoming/");
+  assert.ok(events.every((event) => event.at === "2026-11-25T16:30:00.000Z"));
+});
+
+test("the ordinary calendar collector uses the native reopening as a dated event", async () => {
+  const retrievedAt = "2026-11-24T12:48:48.373Z";
+  const result = await collectMarketCalendars(async (url) => {
+    if (!url.startsWith("https://www.treasurydirect.gov/")) throw new Error("missing fixture");
+    const row = {
+      cusip: "91282CRS2",
+      type: "FRN",
+      securityType: "Note",
+      floatingRate: "Yes",
+      reopening: "Yes",
+      originalSecurityTerm: "2-Year",
+      securityTerm: "1-Year 11-Month",
+      announcementDate: "2026-11-19T00:00:00",
+      competitiveAuctionCloseDate: "2026-11-24T00:00:00",
+      competitiveAuctionCloseTime: "01:00 PM",
+      offeringAmount: "28000000000",
+      treasuryOfferingAnnouncementPressReleaseFileName: "A_20261119_5.pdf",
+    };
+    return { text: JSON.stringify([row]), retrievedAt, sha256: "a".repeat(64) };
+  });
+  const signal = result.signals.find((item) => item.id === "treasury-calendar");
+  assert.equal(signal?.status, "available");
+  assert.equal(signal.metrics[0].value, 1);
+  assert.equal(signal.source.observedAt, retrievedAt);
+  assert.equal(signal.source.releasedAt, null);
+  assert.deepEqual(signal.scores, { daily: null, weekly: null, monthly: null });
+  assert.equal(result.catalysts[0].at, "2026-11-24T18:00:00.000Z");
+});
+
+test("failed calendar sources stay unavailable without directional scores", async () => {
+  const r = await collectMarketCalendars(async () => {
+    throw new Error("offline");
+  });
+  assert.equal(r.catalysts.length, 0);
+  assert.equal(r.signals.length, 6);
+  assert.ok(
+    r.signals.every(
+      (x) =>
+        x.status === "unavailable" &&
+        Object.values(x.scores).every((v) => v === null),
+    ),
+  );
+});
+const batch = "2026-11-03T05:45:00.000Z",
+  source = "https://data.gdeltproject.org/gdeltv2/20261103054500.gkg.csv.zip";
+function gkg(
+  url: string,
+  title: string,
+  tone = "2,3,1,4,10,0,300",
+  published = "20261103050000",
+  theme = "ECON_STOCKMARKET",
+) {
+  const cols = Array<string>(27).fill("");
+  cols[0] = "20261103054500-1";
+  cols[1] = "20261103054500";
+  cols[2] = "1";
+  cols[3] = "news.example";
+  cols[4] = url;
+  cols[7] = theme + ";";
+  cols[15] = tone;
+  cols[26] = `<PAGE_TITLE>${title}</PAGE_TITLE><PAGE_PRECISEPUBTIMESTAMP>${published}</PAGE_PRECISEPUBTIMESTAMP>`;
+  return cols.join("\t");
+}
+test("news filters false topics, future/old articles, invalid tone and unsafe links; collapses syndication", () => {
+  const lines = [
+    gkg("https://a.example/a", "Stocks rise as earnings grow"),
+    gkg("https://b.example/a", "Stocks rise as earnings grow"),
+    gkg("https://a.example/a?utm_campaign=x", "Stocks rise as earnings grow"),
+    gkg("https://b.example/b", "Bond yields fall", "-2,1,3,4,10,0,500"),
+    gkg("https://c.example/c", "Local wildlife returns"),
+    gkg(
+      "https://c.example/d",
+      "Stocks tomorrow",
+      "2,3,1,4,10,0,300",
+      "20261104050000",
+    ),
+    gkg(
+      "https://c.example/e",
+      "Old stock earnings",
+      "2,3,1,4,10,0,300",
+      "20261001050000",
+    ),
+    gkg("javascript:alert(1)", "Stocks unsafe"),
+    gkg("https://c.example/f", "Stocks missing tone", ",3,1,4,10,0,300"),
+  ];
+  const p = parseGkg(lines.join("\n"), batch, source, "a".repeat(64), cutoff);
+  assert.equal(p.matchedArticles, 3);
+  assert.equal(p.storyCount, 2);
+  assert.equal(p.positive, 1);
+  assert.equal(p.negative, 1);
+  assert.equal(p.balanced, 0);
+  assert.equal(p.meanTone, 0);
+  assert.equal(
+    p.stories.reduce((n, s) => n + s.mentions, 0),
+    3,
+  );
+  assert.throws(
+    () =>
+      parseGkg(
+        lines[0],
+        "2026-11-04T05:45:00.000Z",
+        source,
+        "a".repeat(64),
+        cutoff,
+      ),
+    /future/,
+  );
+});
+test("news manifest and ZIP enforce source, freshness, checksum shape and extraction limits", () => {
+  const line = `123 ${"a".repeat(32)} http://data.gdeltproject.org/gdeltv2/20261103054500.gkg.csv.zip`;
+  assert.equal(gdeltManifest(line, cutoff).url, source);
+  assert.throws(() =>
+    gdeltManifest(
+      line.replace("data.gdeltproject.org", "evil.example"),
+      cutoff,
+    ),
+  );
+  assert.throws(() =>
+    gdeltManifest(line.replace("20261103054500", "20261104054500"), cutoff),
+  );
+  assert.equal(gdeltTime("20260230054500"), null);
+  const name = "20261103054500.gkg.csv";
+  assert.equal(
+    unpackGkg(zipSync({ [name]: strToU8("sample") }), name),
+    "sample",
+  );
+  assert.throws(() =>
+    unpackGkg(zipSync({ "../bad": strToU8("sample") }), name),
+  );
+});
+test("news outage never becomes neutral sentiment", async () => {
+  const result = await collectNews(
+    async () => new Response("rate limited", { status: 429 }),
+  );
+  assert.equal(result.pulse, null);
+  assert.equal(result.signal.status, "unavailable");
+  assert.ok(Object.values(result.signal.scores).every((s) => s === null));
+});
+
+test("news collection skips future and not-yet-uploaded batches in the bounded official index", async () => {
+  const { createHash } = await import("node:crypto");
+  const stamp = (offset: number) => new Date(Date.now() + offset * 60_000).toISOString().replace(/\D/g, "").slice(0, 14);
+  const published = stamp(-46), ready = stamp(-45), missing = stamp(-30), future = stamp(15);
+  const zip = zipSync({
+    [ready + ".gkg.csv"]: strToU8(
+      gkg("https://a.example/a", "Stocks rise as earnings grow", undefined, published)
+        .replaceAll("20261103054500", ready),
+    ),
+  });
+  const archive = (value: string) => "https://data.gdeltproject.org/gdeltv2/" + value + ".gkg.csv.zip";
+  const entry = (value: string) => zip.length + " " + createHash("md5").update(zip).digest("hex") + " " + archive(value);
+  const index = ["truncated first row", entry(ready), entry(missing), entry(future), ""].join("\n");
+  const requests: string[] = [];
+  const result = await collectNews(async (url, init) => {
+    requests.push(url);
+    if (url.endsWith("/masterfilelist.txt")) {
+      assert.equal(new Headers(init?.headers).get("range"), "bytes=-16384");
+      return new Response(index, { status: 206, headers: { "Content-Range": "bytes 1-" + index.length + "/" + (index.length + 1) } });
+    }
+    if (url === archive(missing)) return new Response(null, { status: 404 });
+    assert.equal(url, archive(ready));
+    return new Response(new Uint8Array(zip));
+  });
+  assert.deepEqual(requests.map(url => url.split("/").at(-1)), [
+    "masterfilelist.txt", missing + ".gkg.csv.zip", ready + ".gkg.csv.zip",
+  ]);
+  assert.equal(result.signal.status, "available");
+  assert.equal(result.pulse?.sourceUrl, archive(ready));
+  assert.ok(Object.values(result.signal.scores).every(score => score === null));
+});

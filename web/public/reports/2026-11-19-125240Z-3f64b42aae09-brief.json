@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "scope": "market",
+  "createdAt": "2026-11-19T12:52:40.522Z",
+  "model": "Codex editorial workflow",
+  "message": "Reviewed against dated primary sources.",
+  "data": {
+    "headline": "Walmart raises its outlook as inventory grows faster than sales",
+    "summary": "Walmart reported $188.8 billion of third-quarter revenue before Thursday’s opening bell. Sales grew 5.2% from a year earlier and inventory rose 8.1%. Management raised its outlook for full-year earnings and constant-currency sales.",
+    "bull": [
+      {
+        "text": "Walmart reported a 16% increase in operating income and a 17% rise in global e-commerce sales.",
+        "sourceIds": [
+          "SEC_WMT"
+        ]
+      }
+    ],
+    "bear": [
+      {
+        "text": "Inventory reached $70.6 billion. Walmart attributed the increase to strategic initiatives, seasonal timing and cost inflation. Those factors complicate a direct comparison with sales growth.",
+        "sourceIds": [
+          "SEC_WMT"
+        ]
+      }
+    ],
+    "watch": [
+      {
+        "text": "Management now expects fiscal-year net sales to grow 4.9% to 5.2% in constant currency. That forecast uses a different currency basis from the quarter’s reported revenue growth.",
+        "sourceIds": [
+          "SEC_WMT"
+        ]
+      }
+    ],
+    "limitations": [
+      "Walmart reports one retailer’s performance. Its outlook is management guidance. A comparable pre-release analyst estimate remains unavailable."
+    ]
+  },
+  "sources": [
+    {
+      "id": "SEC_WMT",
+      "title": "SEC EDGAR · Walmart’s November 19 results filing",
+      "url": "https://data.sec.gov/submissions/CIK0000104169.json"
+    }
+  ]
+}

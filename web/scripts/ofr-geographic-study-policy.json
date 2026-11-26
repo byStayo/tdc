@@ -1,0 +1,24 @@
+{
+  "method": "prelaunch-ofr-international-stress-dia-v1",
+  "registeredAt": "2026-11-24T11:14:51.706Z",
+  "family": "international",
+  "instrument": "DIA",
+  "firstProspectiveIssue": "2026-11-03T06:28:30.460Z",
+  "issue": "At 07:48 America/New_York on the first exchange session strictly after the New York calendar day of a provable capture. Dates 2022-01-03 through 2026-11-02. Omit shortened and after-exit dates. No live forecasts, no real prospective outcomes.",
+  "question": "Does an increase in combined non-US financial stress reduce the likelihood that the Dow large-cap ETF finishes its following full U.S. session above its regular open, conditional on the U.S. regional stress contribution?",
+  "features": [
+    "negative of change in U.S. contribution (separate US-only control)",
+    "negative of change in sum of other advanced plus emerging-market contributions (expected coefficient positive)"
+  ],
+  "source": "Financialresearch.gov native latest consecutive observations in timestamped CSV/JSON or first-party Treasury values at four-decimal precision carried in the independently timestamped named PersonalFiance mirror. Never fill absent columns or derive them from aggregate. Use the frozen geographically unselected 7c2608afbed7bd9fa23a0f5a5ca4455a07366fcb4d821ac6b6441ef8b390839b source collection. Check each official schema, six fields and capture time, exact mapping/rounding of all three fields in each eligible mirror collector, and exact contemporaneous agreement on every overlapping economic date at four decimal places. Exclude entire overlapping dates with geographic field differences, including conflicting native vintages. Exclude dataset clock, field or basis violations and report them. Use JS Number.toFixed(4) consistently before differencing.",
+  "selection": "Reuse Treasury 2-federal-business-day minimum and 7-calendar-day maximum vintage lag, consecutive latest observations within 7 calendar days; latest observed reference date and latest capture of it before the target; distinct economic dates and target days. Confirm two-day source lag. Calendar and clocks identical to checked historical Treasury studies. Only if all 3 regional inputs exist, internal sum to original FSI after 4-decimal rounding within .0003 at both source points, and independent timestamped original overlap >= 10 distinct economic days. Target and input selection must be sealed before pricing.",
+  "labels": "Research-only earlier completed ordinary DIA regular-session open to close, validated separately against real native as-traded and split-only Kibot research receipts. Positive when close greater than open, equal is 0. Reject missing/nonpositive/wrong session or differing economic signs. Use exactly the same dates for both models. No prices may be opened unless at least 120 distinct source-qualified targets already exist, and no scores if eligible matched pairs fall below 120.",
+  "model": "Repository trainCandidate with existing pre-processing, 60%/20%/remaining 20% chronological split, validation-only L2 selection and published engine controls. Matched one-feature control, fixed training up-rate and 50/50. Need positive coefficient for negative non-US change and Brier gain strictly greater than 0.01 against every comparison. Single prespecified model, asset and horizon. Paired non-circular 3-session moving block percentile interval, 10,000 replicates with existing ofrControlInterval seed via exact published helper, descriptive only. Do not promote or substitute. This is one retrospective test on study periods that overlap existing research and never substitutes for forward records.",
+  "sources": [
+    "https://www.financialresearch.gov/financial-stress-index/",
+    "https://www.financialresearch.gov/financial-stress-index/data/fsi.csv",
+    "https://github.com/oid87/PersonalFiance",
+    "https://www.kibot.com/api/history-request.html",
+    "https://www.kibot.com/license.html"
+  ]
+}

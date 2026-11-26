@@ -1,0 +1,297 @@
+import { createHash } from "node:crypto";
+import { resolve } from "node:path";
+import { durableDirectory, durableJSON } from "../publication-storage.ts";
+import { officialCashLocation, type CashDistribution } from "./corporate-adjustment.ts";
+import { exchangeSession, exchangeSessions } from "./exchange-calendar.ts";
+import type { PriceEvidence } from "./evaluation.ts";
+import { loadFirstRatePrices } from "./firstrate.ts";
+import { digest } from "./history.ts";
+import { collectKibotSeries, KIBOT_PRICE_CITATION, MAX_KIBOT_RANGE_MS, MAX_KIBOT_RESPONSE_BYTES, parseKibotDaily } from "./kibot.ts";
+import { KIBOT_SUBSCRIBER_REQUIRED, verifyKibotSubscriberProof, type KibotSubscriber, type KibotSubscriberProof } from "./kibot-subscriber.ts";
+import { ETF_SYMBOLS, marketParquetEvidence, reconcileMarketParquet, type MarketParquetDay, type ReferenceBars } from "./marketparquet.ts";
+import { marketParquetHourlyControls, type MarketParquetHourlyReference,
+  type MarketParquetIssuerCash } from "./marketparquet-market-history.ts";
+import { readResearchReceipt } from "./research-price-capture.ts";
+import { loadTltSettlement } from "./market-history-settlement.ts";
+
+type ETF = typeof ETF_SYMBOLS[number];
+const origin = "https://marketparquet.com";
+export type LicensedCapture = {
+  entitlement: { source: string; capturedAt: string; document: string; sha256: string };
+  downloads: { session: string; source: string; objectHost: string; authorizedAt: string; retrievedAt: string;
+    size: number; sha256: string; authorizationSha256: string; pricesSha256: string }[];
+};
+type Issuer = { symbol: ETF; source: string; responseUrl: string; capturedAt: string; sha256: string; actionsSha256: string; cash: CashDistribution[] };
+export type LicensedMarketParquetLedger = { schemaVersion: number; capturedAt: string; expectedSessions: string[]; bars: MarketParquetDay[];
+  distributions: Issuer[]; licensedCapture: LicensedCapture };
+type ControlResponses = { hashes: Record<string, string>; csv: Record<ETF, string> };
+type ControlCapture = { source: string; capturedAt: string };
+export type LicensedControlChunk = ControlResponses & { from: string; through: string; capturedAt: string };
+export type LicensedSettlement = { mode: string; through: string; reconciledAt: string; ledgerSha256: string;
+  ledgerText: string; earlyClosesVerified: string[] } & (
+  { schemaVersion: 1; reference: ControlCapture & ControlResponses } |
+  { schemaVersion: 2; reference: ControlCapture & { chunks: LicensedControlChunk[] } } |
+  { schemaVersion: 3; reference: ControlCapture & { chunks: LicensedControlChunk[]; subscriber: KibotSubscriberProof } } |
+  { schemaVersion: 4; reference: MarketParquetHourlyReference });
+type KibotSettlement = Exclude<LicensedSettlement, { schemaVersion: 4 }>;
+const CONTROL_CHUNK_SESSIONS = 120;
+type Pointer = { schemaVersion: number; through: string; reviewedAt: string; sha256: string };
+const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
+const sha = (v: unknown): v is string => typeof v === "string" && /^[a-f0-9]{64}$/.test(v);
+const instant = (v: unknown): v is string => typeof v === "string" && Number.isFinite(Date.parse(v)) && new Date(v).toISOString() === v;
+const ordered = (...clocks: string[]) => clocks.every((at, i) => instant(at) && (!i || clocks[i - 1] <= at));
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+const keys = (set: object) => same(Object.keys(set).sort(), [...ETF_SYMBOLS].sort());
+
+function extractedPrices(file: MarketParquetDay) {
+  const bytes = Buffer.alloc(16 * ETF_SYMBOLS.length);
+  [...ETF_SYMBOLS].sort().forEach((s, i) => {
+    const bar = file.bars[s];
+    if (!bar || !same(Object.keys(bar).sort(), ["close", "open"]) ||
+        ![bar.open, bar.close].every(value => Number.isFinite(value) && value > 0))
+      throw new Error("Invalid captured price fields");
+    bytes.writeDoubleBE(bar.open, 16 * i);
+    bytes.writeDoubleBE(bar.close, 16 * i + 8);
+  });
+  return hash(bytes);
+}
+
+function issuerActionsHash(actions: CashDistribution[]) {
+  const result = createHash("sha256");
+  for (const row of actions) {
+    const amount = Buffer.alloc(8);
+    amount.writeDoubleBE(row.amount);
+    result.update(row.session).update(amount);
+  }
+  return result.digest("hex");
+}
+
+export async function collectLicensedControls(dates: string[], subscriber: KibotSubscriber, fetcher: (url: string, init?: RequestInit) => Promise<Response> = fetch) {
+  const now = new Date().toISOString();
+  if (!ETF_SYMBOLS.every(symbol => verifyKibotSubscriberProof(subscriber?.proof, now, symbol))) throw new Error(KIBOT_SUBSCRIBER_REQUIRED);
+  if (!dates.length || !same(dates, exchangeSessions(dates[0], dates.at(-1)!)))
+    throw new Error("Independent controls require the complete reviewed calendar");
+  const chunks: LicensedControlChunk[] = [], reference = {} as ReferenceBars;
+  for (const symbol of ETF_SYMBOLS) reference[symbol] = [];
+  for (let start = 0; start < dates.length; start += CONTROL_CHUNK_SESSIONS) {
+    const sessions = dates.slice(start, start + CONTROL_CHUNK_SESSIONS);
+    const hashes: Record<string, string> = {}, csv = {} as Record<ETF, string>;
+    for (const symbol of ETF_SYMBOLS) {
+      const response = await collectKibotSeries(symbol, sessions, { unadjusted: true, fetcher, subscriber,
+        onVerifiedResponse: body => { csv[symbol] = body; } });
+      reference[symbol].push(...response.sessions);
+      hashes[symbol] = response.sha256;
+    }
+    chunks.push({ from: sessions[0], through: sessions.at(-1)!, capturedAt: new Date().toISOString(), hashes, csv });
+  }
+  return { chunks, reference };
+}
+
+function replayLicensedControls(review: KibotSettlement, dates: string[], ledgerCapturedAt: string) {
+  const control = review.reference;
+  if (control.source !== KIBOT_PRICE_CITATION || !ordered(ledgerCapturedAt, control.capturedAt, review.reconciledAt))
+    throw new Error("Invalid independent as-traded reference");
+  const chunks = review.schemaVersion === 1
+    ? [{ ...review.reference, from: dates[0], through: dates.at(-1)! }]
+    : review.reference.chunks;
+  if (!Array.isArray(chunks) || !chunks.length || chunks.length > dates.length) throw new Error("Missing independent control chunks");
+  if (review.schemaVersion === 3) {
+    const authorization = review.reference.subscriber;
+    if (!ETF_SYMBOLS.every(symbol => verifyKibotSubscriberProof(authorization, chunks[0].capturedAt, symbol)))
+      throw new Error(KIBOT_SUBSCRIBER_REQUIRED);
+  }
+  const reference = {} as ReferenceBars;
+  for (const symbol of ETF_SYMBOLS) reference[symbol] = [];
+  let start = 0, precedingCapture = ledgerCapturedAt;
+  for (const chunk of chunks) {
+    const end = dates.indexOf(chunk.through, start);
+    if (dates[start] !== chunk.from || end < start || Date.parse(chunk.through) - Date.parse(chunk.from) > MAX_KIBOT_RANGE_MS ||
+        (review.schemaVersion >= 2 && end - start + 1 > CONTROL_CHUNK_SESSIONS) || !keys(chunk.hashes) || !keys(chunk.csv) ||
+        !ordered(precedingCapture, chunk.capturedAt, control.capturedAt))
+      throw new Error("Independent control windows or capture times do not match the reviewed calendar");
+    const sessions = dates.slice(start, end + 1);
+    for (const symbol of ETF_SYMBOLS) {
+      const csv = chunk.csv[symbol];
+      if (typeof csv !== "string" || Buffer.byteLength(csv) > MAX_KIBOT_RESPONSE_BYTES || hash(csv) !== chunk.hashes[symbol])
+        throw new Error("Independent reference differs from its capture");
+      reference[symbol].push(...parseKibotDaily(csv, sessions));
+    }
+    start = end + 1;
+    precedingCapture = chunk.capturedAt;
+  }
+  if (start !== dates.length) throw new Error("Independent control does not cover the final reviewed session");
+  return reference;
+}
+
+type LedgerReview = Pick<LicensedSettlement, "mode" | "through" | "reconciledAt" | "ledgerText" | "ledgerSha256">;
+
+function verifiedLicensedLedger(review: LedgerReview, asOf: string) {
+  if (review.mode !== "licensed" || typeof review.ledgerText !== "string" || hash(review.ledgerText) !== review.ledgerSha256)
+    throw new Error("Invalid licensed ledger fingerprint");
+  const ledger: LicensedMarketParquetLedger = JSON.parse(review.ledgerText);
+  const dates = ledger.expectedSessions, first = dates[0], through = review.through;
+  const close = exchangeSession(through)?.closeAt;
+  if (ledger.schemaVersion !== 1 || !close || !same(dates, exchangeSessions(first, through)) || dates.at(-1) !== through ||
+      !same(ledger.bars.map(row => row.session), dates) || !ordered(close, ledger.capturedAt, review.reconciledAt, asOf))
+    throw new Error("Invalid licensed capture calendar or review time");
+
+  const { entitlement, downloads } = ledger.licensedCapture;
+  if (entitlement.source !== origin + "/api/v1/assets" || typeof entitlement.document !== "string" ||
+      Buffer.byteLength(entitlement.document) > 128_000 || hash(entitlement.document) !== entitlement.sha256 ||
+      !ordered(close, entitlement.capturedAt, ledger.capturedAt)) throw new Error("Invalid archive entitlement capture");
+  const grant = JSON.parse(entitlement.document);
+  if (grant.plan !== "full" || !Array.isArray(grant.assets) ||
+      !grant.assets.some((asset: { asset_type?: string; access?: string }) => asset?.asset_type === "etf_daily" && asset.access === "full") ||
+      !same(downloads.map(row => row.session), dates))
+    throw new Error("Missing authenticated daily archive entitlement or downloads");
+  for (const [i, file] of ledger.bars.entries()) {
+    const download = downloads[i];
+    if (download.source !== `${origin}/api/v1/download/etf_daily/${file.session}` ||
+        !/^[a-z0-9.-]+\.r2\.cloudflarestorage\.com$/.test(download.objectHost) ||
+        !Number.isSafeInteger(download.size) || download.size < 8 || download.size > 4_000_000 ||
+        !sha(file.sha256) || !sha(download.authorizationSha256) || file.sha256 !== download.sha256 ||
+        !ordered(entitlement.capturedAt, download.authorizedAt, download.retrievedAt, ledger.capturedAt) ||
+        !keys(file.bars) || extractedPrices(file) !== download.pricesSha256)
+      throw new Error("Licensed download differs from its authorized capture");
+  }
+  if (!same(ledger.distributions.map(row => row.symbol).sort(), [...ETF_SYMBOLS].sort()) ||
+      ledger.distributions.some(row => !sha(row.sha256) || !officialCashLocation(row.symbol, row.source, row.responseUrl) ||
+        !ordered(entitlement.capturedAt, row.capturedAt, ledger.capturedAt) || !Array.isArray(row.cash) ||
+        new Set(row.cash.map(action => action.session)).size !== row.cash.length ||
+        row.cash.some(action => !/^\d{4}-\d\d-\d\d$/.test(action.session) || !Number.isFinite(action.amount) || action.amount <= 0) ||
+        issuerActionsHash(row.cash) !== row.actionsSha256))
+    throw new Error("Invalid primary issuer capture");
+  const cash = Object.fromEntries(ledger.distributions.map(row =>
+    [row.symbol, row.cash.filter(action => action.session >= first && action.session <= through)])) as Record<ETF, CashDistribution[]>;
+  return { ledger, dates, cash };
+}
+
+/** Confirm the owner-activated archive and source evidence before spending comparison credits. */
+export function verifyMarketParquetControlEntitlement(ledgerText: string, through: string, asOf: string) {
+  return verifiedLicensedLedger({ mode: "licensed", through, reconciledAt: asOf, ledgerText, ledgerSha256: hash(ledgerText) }, asOf);
+}
+
+function referenceInputIdentity(ledger: LicensedMarketParquetLedger) {
+  return digest({ sessions: ledger.expectedSessions, fiveFundPrices: ledger.licensedCapture.downloads.map(day => day.pricesSha256),
+    actions: ledger.distributions.map(row => ({ symbol: row.symbol, actions: row.cash.filter(
+      action => action.session >= ledger.expectedSessions[0] && action.session <= ledger.expectedSessions.at(-1)!)
+      .map(action => [action.session, action.amount] as const).sort(([a], [b]) => a.localeCompare(b)),
+    })).sort((a, b) => a.symbol.localeCompare(b.symbol)) });
+}
+
+/** Seal the comparator before seeing any controls. New fetch clocks alone do not create a new input. */
+export async function reserveMarketParquetControl(directory: string, ledger: LicensedMarketParquetLedger,
+  provider: "kibot" | "market-history") {
+  const input = referenceInputIdentity(ledger);
+  const path = resolve(directory, "control-selections", input + ".json");
+  const choice = { schemaVersion: 1, input, provider };
+  const existing = await readResearchReceipt<typeof choice>(path);
+  if (existing) {
+    if (!same(existing, choice)) throw new Error("The MarketParquet comparison source was already fixed for this input");
+    return;
+  }
+  const latest = await readResearchReceipt<Pointer>(resolve(directory, "settlement-review.json"));
+  if (latest && sha(latest.sha256)) {
+    const prior = await readResearchReceipt<LicensedSettlement>(resolve(directory, "settlements", latest.sha256 + ".json"));
+    if (!prior || digest(prior) !== latest.sha256) throw new Error("The prior MarketParquet review cannot be verified");
+    if (referenceInputIdentity(JSON.parse(prior.ledgerText)) === input &&
+        (prior.schemaVersion === 4 ? "market-history" : "kibot") !== provider)
+      throw new Error("The existing MarketParquet journal selected another source for this input");
+  }
+  await durableDirectory(resolve(directory, "control-selections"), 0o700);
+  try { await durableJSON(path, choice, true); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST" || !same(await readResearchReceipt(path), choice)) throw error;
+  }
+}
+
+export class MarketParquetHorizonDisagreement extends Error {}
+
+function verifiedSettlementPrices(review: LicensedSettlement, dates: string[], files: MarketParquetDay[],
+  cash: MarketParquetIssuerCash, reference: ReferenceBars) {
+  const checked = reconcileMarketParquet(dates, files, cash, reference, { openBps: 3, closeBps: 15 }, { requireDirection: true });
+  if (!same(checked.earlyClosesVerified, review.earlyClosesVerified) || checked.symbols.some(fund =>
+    fund.matched.length !== dates.length || fund.boundaries.some(boundary => boundary.status !== "verified")))
+    throw new Error("Licensed prices, distribution boundaries or scheduled closes did not reconcile");
+  const [difference] = checked.horizonDifferences;
+  if (difference)
+    throw new MarketParquetHorizonDisagreement("Licensed adjusted horizon direction differs for " + difference.symbol +
+      " from " + difference.from + " through " + difference.through);
+  return marketParquetEvidence(dates, files, cash);
+}
+
+export function licensedSettlementPrices(review: KibotSettlement, asOf: string) {
+  if (![1, 2, 3].includes(review.schemaVersion)) throw new Error("Invalid Kibot settlement version");
+  const { ledger, dates, cash } = verifiedLicensedLedger(review, asOf);
+  return verifiedSettlementPrices(review, dates, ledger.bars, cash, replayLicensedControls(review, dates, ledger.capturedAt));
+}
+
+export async function replayLicensedSettlement(directory: string, review: LicensedSettlement, asOf: string) {
+  if (review.schemaVersion !== 4) return licensedSettlementPrices(review, asOf);
+  const { ledger, dates, cash } = verifiedLicensedLedger(review, asOf);
+  if (!ordered(ledger.capturedAt, review.reference.capturedAt, review.reconciledAt))
+    throw new Error("Invalid native Market History reference review time");
+  const root = resolve(directory, "../..");
+  const controls = await marketParquetHourlyControls(root, dates, cash, { replay: review.reference, now: () => asOf });
+  return verifiedSettlementPrices(review, dates, ledger.bars, cash, controls.reference);
+}
+
+/** Called only after an operator records a passing paid-source reconciliation under the publication lock. */
+export async function recordLicensedSettlement(directory: string, receipt: LicensedSettlement, asOf: string) {
+  const sha256 = digest(receipt), store = resolve(directory, "settlements"), file = resolve(store, sha256 + ".json");
+  const pointerPath = resolve(directory, "settlement-review.json");
+  const latest = await readResearchReceipt<Pointer>(pointerPath);
+  if (latest && (latest.through > receipt.through || latest.reviewedAt > receipt.reconciledAt))
+    throw new Error("An older MarketParquet review cannot replace a later settlement");
+  const prior = await readResearchReceipt<LicensedSettlement>(file);
+  if (prior && digest(prior) !== sha256) throw new Error("A saved settlement receipt changed");
+  if (receipt.schemaVersion !== 3 && receipt.schemaVersion !== 4) {
+    if (!prior || latest?.sha256 !== sha256 || latest.through !== receipt.through || latest.reviewedAt !== receipt.reconciledAt)
+      throw new Error(KIBOT_SUBSCRIBER_REQUIRED);
+    await replayLicensedSettlement(directory, prior, asOf);
+    return;
+  }
+  const { ledger } = verifiedLicensedLedger(receipt, asOf);
+  await reserveMarketParquetControl(directory, ledger, receipt.schemaVersion === 4 ? "market-history" : "kibot");
+  await replayLicensedSettlement(directory, receipt, asOf);
+  await durableDirectory(store, 0o700);
+  if (!prior) await durableJSON(file, receipt, true);
+  await durableJSON(pointerPath,
+    { schemaVersion: 1, through: receipt.through, reviewedAt: receipt.reconciledAt, sha256 } satisfies Pointer);
+}
+
+export async function loadLicensedSettlement(root: string, asOf: string, currentProductionReview?: {
+  through: string; reviewedAt: string; ledgerSha256: string;
+}) {
+  const directory = resolve(root, ".consensus/private-marketparquet");
+  const pointer = await readResearchReceipt<Pointer>(resolve(directory, "settlement-review.json"));
+  if (!pointer) return [];
+  if (pointer.schemaVersion !== 1 || !sha(pointer.sha256)) throw new Error("Invalid settlement pointer");
+  const receipt = await readResearchReceipt<LicensedSettlement>(resolve(directory, "settlements", pointer.sha256 + ".json"));
+  if (!receipt || digest(receipt) !== pointer.sha256 || receipt.through !== pointer.through || receipt.reconciledAt !== pointer.reviewedAt)
+    throw new Error("Private settlement differs from its reviewed fingerprint");
+  if (currentProductionReview && (![3, 4].includes(receipt.schemaVersion) || receipt.through !== currentProductionReview.through ||
+      receipt.reconciledAt !== currentProductionReview.reviewedAt || receipt.ledgerSha256 !== currentProductionReview.ledgerSha256)) return [];
+  return replayLicensedSettlement(directory, receipt, asOf);
+}
+
+export async function loadApprovedMarketParquetPrices(root: string, asOf: string, warn: (message: string) => void = console.error) {
+  const prices: PriceEvidence[] = [];
+  try { prices.push(...await loadLicensedSettlement(root, asOf)); }
+  catch { warn("Licensed MarketParquet settlement withheld. Its full-window independent reconciliation could not be verified."); }
+  try {
+    const { loadMarketParquetDaily } = await import("./marketparquet-daily.ts");
+    prices.push(...await loadMarketParquetDaily(root, asOf, warn));
+  } catch { warn("Private MarketParquet daily approvals withheld. Their registration or evidence store could not be read."); }
+  return prices;
+}
+
+export async function defaultEvaluationPrices(root: string, asOf: string, warn: (message: string) => void = console.error) {
+  let prices: PriceEvidence[] = [];
+  try { prices = await loadFirstRatePrices(root, asOf, warn); }
+  catch { warn("FirstRate settlement withheld. Its private approval or shared issuer history did not verify."); }
+  prices.push(...await loadApprovedMarketParquetPrices(root, asOf, warn));
+  try { prices.push(...await loadTltSettlement(root, asOf, warn)); }
+  catch { warn("Market History TLT settlement withheld. Its private storage or source comparison could not be verified."); }
+  return prices;
+}
