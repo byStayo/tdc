@@ -1,14 +1,14 @@
 {
   "engineVersion": "consensus-rules-2.0.0",
-  "generatedAt": "2026-11-25T13:07:22.469Z",
+  "generatedAt": "2026-11-26T13:00:38.699Z",
   "status": "tracking",
-  "resolved": 89,
+  "resolved": 97,
   "calls": 0,
-  "abstentions": 89,
+  "abstentions": 97,
   "accuracy": null,
   "brier": null,
   "scoringPolicy": "last-edition-before-entry-open-v1",
-  "superseded": 275,
+  "superseded": 319,
   "pending": [
     {
       "snapshotId": "2026-11-03T06-28-30-460Z",
@@ -973,19 +973,7 @@
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "SPY",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "SPY",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "QQQ",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -997,19 +985,7 @@
     {
       "snapshotId": "2026-11-18T02-27-05-159Z",
       "instrument": "IWM",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T02-27-05-159Z",
-      "instrument": "DIA",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1033,19 +1009,7 @@
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "SPY",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "SPY",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "QQQ",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1057,19 +1021,7 @@
     {
       "snapshotId": "2026-11-18T03-14-48-277Z",
       "instrument": "IWM",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T03-14-48-277Z",
-      "instrument": "DIA",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1093,19 +1045,7 @@
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "SPY",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "SPY",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "QQQ",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1117,19 +1057,7 @@
     {
       "snapshotId": "2026-11-18T13-10-06-464Z",
       "instrument": "IWM",
-      "horizon": "weekly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-18T13-10-06-464Z",
-      "instrument": "DIA",
-      "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1639,12 +1567,6 @@
     {
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-44-08-380Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1657,12 +1579,6 @@
     {
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-44-08-380Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1675,12 +1591,6 @@
     {
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-44-08-380Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1688,12 +1598,6 @@
       "snapshotId": "2026-11-24T01-44-08-380Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-44-08-380Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1729,12 +1633,6 @@
     {
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-49-42-081Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1747,12 +1645,6 @@
     {
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-49-42-081Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1765,12 +1657,6 @@
     {
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-49-42-081Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1778,12 +1664,6 @@
       "snapshotId": "2026-11-24T01-49-42-081Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T01-49-42-081Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1819,12 +1699,6 @@
     {
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T02-45-33-553Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1837,12 +1711,6 @@
     {
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T02-45-33-553Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1855,12 +1723,6 @@
     {
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T02-45-33-553Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1868,12 +1730,6 @@
       "snapshotId": "2026-11-24T02-45-33-553Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T02-45-33-553Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1909,12 +1765,6 @@
     {
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T03-23-41-372Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1927,12 +1777,6 @@
     {
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T03-23-41-372Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1945,12 +1789,6 @@
     {
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T03-23-41-372Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -1958,12 +1796,6 @@
       "snapshotId": "2026-11-24T03-23-41-372Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T03-23-41-372Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -1999,12 +1831,6 @@
     {
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T04-23-56-126Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2017,12 +1843,6 @@
     {
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T04-23-56-126Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2035,12 +1855,6 @@
     {
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T04-23-56-126Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2048,12 +1862,6 @@
       "snapshotId": "2026-11-24T04-23-56-126Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T04-23-56-126Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2089,12 +1897,6 @@
     {
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-07-39-416Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2107,12 +1909,6 @@
     {
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-07-39-416Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2125,12 +1921,6 @@
     {
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-07-39-416Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2138,12 +1928,6 @@
       "snapshotId": "2026-11-24T05-07-39-416Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-07-39-416Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2179,12 +1963,6 @@
     {
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-42-23-689Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2197,12 +1975,6 @@
     {
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-42-23-689Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2215,12 +1987,6 @@
     {
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-42-23-689Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2228,12 +1994,6 @@
       "snapshotId": "2026-11-24T05-42-23-689Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T05-42-23-689Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2269,12 +2029,6 @@
     {
       "snapshotId": "2026-11-24T09-39-37-253Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T09-39-37-253Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2287,12 +2041,6 @@
     {
       "snapshotId": "2026-11-24T09-39-37-253Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T09-39-37-253Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2305,12 +2053,6 @@
     {
       "snapshotId": "2026-11-24T09-39-37-253Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T09-39-37-253Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2318,12 +2060,6 @@
       "snapshotId": "2026-11-24T09-39-37-253Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T09-39-37-253Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2359,12 +2095,6 @@
     {
       "snapshotId": "2026-11-24T12-16-35-024Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T12-16-35-024Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2377,12 +2107,6 @@
     {
       "snapshotId": "2026-11-24T12-16-35-024Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T12-16-35-024Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2395,12 +2119,6 @@
     {
       "snapshotId": "2026-11-24T12-16-35-024Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T12-16-35-024Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2408,12 +2126,6 @@
       "snapshotId": "2026-11-24T12-16-35-024Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T12-16-35-024Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2449,12 +2161,6 @@
     {
       "snapshotId": "2026-11-24T13-04-12-171Z",
       "instrument": "SPY",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T13-04-12-171Z",
-      "instrument": "SPY",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2467,12 +2173,6 @@
     {
       "snapshotId": "2026-11-24T13-04-12-171Z",
       "instrument": "QQQ",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T13-04-12-171Z",
-      "instrument": "QQQ",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2485,12 +2185,6 @@
     {
       "snapshotId": "2026-11-24T13-04-12-171Z",
       "instrument": "IWM",
-      "horizon": "daily",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T13-04-12-171Z",
-      "instrument": "IWM",
       "horizon": "weekly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
@@ -2498,12 +2192,6 @@
       "snapshotId": "2026-11-24T13-04-12-171Z",
       "instrument": "IWM",
       "horizon": "monthly",
-      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
-    },
-    {
-      "snapshotId": "2026-11-24T13-04-12-171Z",
-      "instrument": "DIA",
-      "horizon": "daily",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
     },
     {
@@ -2892,6 +2580,96 @@
     },
     {
       "snapshotId": "2026-11-25T13-06-54-923Z",
+      "instrument": "TLT",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "SPY",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "SPY",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "SPY",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "QQQ",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "QQQ",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "QQQ",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "IWM",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "IWM",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "IWM",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "DIA",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "DIA",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "DIA",
+      "horizon": "monthly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "TLT",
+      "horizon": "daily",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
+      "instrument": "TLT",
+      "horizon": "weekly",
+      "reason": "Awaiting verified prices or independently reviewed calendar coverage."
+    },
+    {
+      "snapshotId": "2026-11-26T13-00-10-672Z",
       "instrument": "TLT",
       "horizon": "monthly",
       "reason": "Awaiting verified prices or independently reviewed calendar coverage."
@@ -2902,7 +2680,7 @@
       "instrument": "SPY",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 11,
+      "resolved": 12,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -2935,7 +2713,7 @@
       "instrument": "SPY",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 7,
+      "resolved": 8,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3001,7 +2779,7 @@
       "instrument": "QQQ",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 11,
+      "resolved": 12,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3034,7 +2812,7 @@
       "instrument": "QQQ",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 7,
+      "resolved": 8,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3100,7 +2878,7 @@
       "instrument": "IWM",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 11,
+      "resolved": 12,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3133,7 +2911,7 @@
       "instrument": "IWM",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 7,
+      "resolved": 8,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3199,7 +2977,7 @@
       "instrument": "DIA",
       "horizon": "daily",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 11,
+      "resolved": 12,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3232,7 +3010,7 @@
       "instrument": "DIA",
       "horizon": "weekly",
       "engineVersion": "consensus-rules-2.0.0",
-      "resolved": 7,
+      "resolved": 8,
       "calls": 0,
       "accuracy": null,
       "meanSignedReturnPct": null,
@@ -3399,13 +3177,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "SPY",
       "horizon": "daily",
-      "samples": 3,
+      "samples": 4,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/SPY-daily-wf2-7cb9383aad5594e2.json"
+      "artifact": "models/SPY-daily-wf2-d7621d2aea94b42c.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",
@@ -3435,13 +3213,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "QQQ",
       "horizon": "daily",
-      "samples": 3,
+      "samples": 4,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/QQQ-daily-wf2-1a8e817831b37606.json"
+      "artifact": "models/QQQ-daily-wf2-17c94b7628d3766c.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",
@@ -3471,13 +3249,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "IWM",
       "horizon": "daily",
-      "samples": 3,
+      "samples": 4,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/IWM-daily-wf2-df2db05ba53bca44.json"
+      "artifact": "models/IWM-daily-wf2-ff3de591d320025d.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",
@@ -3507,13 +3285,13 @@
       "engineVersion": "consensus-rules-2.0.0",
       "instrument": "DIA",
       "horizon": "daily",
-      "samples": 3,
+      "samples": 4,
       "minimum": 500,
       "status": "insufficient_data",
       "promoted": false,
       "activeModelId": null,
       "reason": "At least 500 resolved, source-backed observations per instrument and horizon are required.",
-      "artifact": "models/DIA-daily-wf2-e866a54fef5996f3.json"
+      "artifact": "models/DIA-daily-wf2-3d146909d86b3b37.json"
     },
     {
       "engineVersion": "consensus-rules-2.0.0",

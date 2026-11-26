@@ -2,36 +2,36 @@
   "schemaVersion": 14,
   "source": "https://www.kibot.com/license.html",
   "firstEdition": "2026-11-03T06-28-30-460Z",
-  "through": "2026-11-24",
+  "through": "2026-11-25",
   "daily": [
     {
       "instrument": "SPY",
-      "sessions": 13,
-      "eligibleSessions": 4,
+      "sessions": 14,
+      "eligibleSessions": 5,
       "calls": 0
     },
     {
       "instrument": "QQQ",
-      "sessions": 13,
-      "eligibleSessions": 4,
+      "sessions": 14,
+      "eligibleSessions": 5,
       "calls": 0
     },
     {
       "instrument": "IWM",
-      "sessions": 13,
-      "eligibleSessions": 4,
+      "sessions": 14,
+      "eligibleSessions": 5,
       "calls": 0
     },
     {
       "instrument": "DIA",
-      "sessions": 13,
-      "eligibleSessions": 4,
+      "sessions": 14,
+      "eligibleSessions": 5,
       "calls": 0
     },
     {
       "instrument": "TLT",
-      "sessions": 13,
-      "eligibleSessions": 4,
+      "sessions": 14,
+      "eligibleSessions": 5,
       "calls": 0
     }
   ],

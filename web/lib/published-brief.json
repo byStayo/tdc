@@ -1,38 +1,31 @@
 {
   "status": "ok",
   "scope": "market",
-  "createdAt": "2026-11-25T13:06:22.401Z",
+  "createdAt": "2026-11-26T12:59:32.196Z",
   "model": "Codex editorial workflow",
   "message": "Reviewed against dated primary sources.",
   "data": {
-    "headline": "Ten-year Treasury yield eases as thirty-year rises",
-    "summary": "On November 24 the ten-year Treasury yield slipped one basis point to 4.91% while the thirty-year rose one to 5.30%. The two-year held at 4.63%.",
+    "headline": "Treasury yields fall, led by the long end",
+    "summary": "On November 25 the ten- and thirty-year Treasury yields both fell six basis points, to 4.85% and 5.24%. The two-year yield declined two basis points to 4.61%.",
     "bull": [
       {
-        "text": "The ten-year yield fell from 4.92%. Its spread over the two-year narrowed from 29 to 28 basis points.",
+        "text": "The ten-year yield fell from 4.91% to 4.85%, lowering the benchmark for some longer-term borrowing costs.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
       }
     ],
-    "bear": [
-      {
-        "text": "The thirty-year yield moved up from 5.29%, leaving the longest benchmark with a higher borrowing rate than on November 23.",
-        "sourceIds": [
-          "TREASURY_YIELD_CURVE"
-        ]
-      }
-    ],
+    "bear": [],
     "watch": [
       {
-        "text": "The thirty-year yield finished 39 basis points above the ten-year, compared with 37 the previous session.",
+        "text": "The ten-year spread over the two-year narrowed from 28 to 24 basis points. The thirty-year spread over the ten-year stayed at 39 basis points.",
         "sourceIds": [
           "TREASURY_YIELD_CURVE"
         ]
       }
     ],
     "limitations": [
-      "The Treasury series measures constant-maturity par yields. Equity ETF returns are measured separately."
+      "Treasury reports constant-maturity par yields. The market and ETF outcomes are measured separately using verified session prices."
     ]
   },
   "sources": [

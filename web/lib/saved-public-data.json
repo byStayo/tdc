@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-11-25T12:48:42.240Z",
-  "macroRetrievedAt": "2026-11-25T12:48:19.838Z",
-  "positioningRetrievedAt": "2026-11-25T12:48:20.325Z",
+  "collectedAt": "2026-11-26T12:48:36.570Z",
+  "macroRetrievedAt": "2026-11-26T12:48:13.991Z",
+  "positioningRetrievedAt": "2026-11-26T12:48:17.896Z",
   "macro": [
     {
       "id": "FEDFUNDS",
@@ -841,8 +841,28 @@
   "filings": [
     {
       "symbol": "AAPL",
-      "retrievedAt": "2026-11-25T12:48:19.900Z",
+      "retrievedAt": "2026-11-26T12:48:14.079Z",
       "data": [
+        {
+          "id": "sec:0000320193:0001140361-26-045775",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "4",
+          "filedAt": "2026-11-25",
+          "reportDate": "2026-11-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126045775/xslF345X06/form4.xml",
+          "description": "FORM 4"
+        },
+        {
+          "id": "sec:0000320193:0001950047-26-011519",
+          "company": "Apple Inc.",
+          "cik": "0000320193",
+          "form": "144",
+          "filedAt": "2026-11-25",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000195004726011519/xsl144X01/primary_doc.xml",
+          "description": "144 filing"
+        },
         {
           "id": "sec:0000320193:0001140361-26-044952",
           "company": "Apple Inc.",
@@ -902,33 +922,23 @@
           "reportDate": "2026-11-05",
           "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042798/ef20085077_8k.htm",
           "description": "8-K filing"
-        },
-        {
-          "id": "sec:0000320193:0001140361-26-042505",
-          "company": "Apple Inc.",
-          "cik": "0000320193",
-          "form": "424B2",
-          "filedAt": "2026-11-06",
-          "reportDate": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042505/ny20084621x2_424b2.htm",
-          "description": "424B2"
-        },
-        {
-          "id": "sec:0000320193:0001140361-26-042173",
-          "company": "Apple Inc.",
-          "cik": "0000320193",
-          "form": "FWP",
-          "filedAt": "2026-11-06",
-          "reportDate": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126042173/ny20084621x3_fwp.htm",
-          "description": "FWP"
         }
       ]
     },
     {
       "symbol": "MSFT",
-      "retrievedAt": "2026-11-25T12:48:20.122Z",
+      "retrievedAt": "2026-11-26T12:48:14.282Z",
       "data": [
+        {
+          "id": "sec:0000789019:0001214659-26-014752",
+          "company": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "form": "PX14A6G",
+          "filedAt": "2026-11-25",
+          "reportDate": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000121465926014752/w1125263px14a6g.htm",
+          "description": "PX14A6G filing"
+        },
         {
           "id": "sec:0000789019:0000789019-26-000236",
           "company": "MICROSOFT CORP",
@@ -998,22 +1008,12 @@
           "reportDate": "2026-11-04",
           "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526448357/d177209d8k.htm",
           "description": "8-K"
-        },
-        {
-          "id": "sec:0000789019:0001193125-26-447173",
-          "company": "MICROSOFT CORP",
-          "cik": "0000789019",
-          "form": "8-K",
-          "filedAt": "2026-11-04",
-          "reportDate": "2026-10-29",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526447173/d178557d8k.htm",
-          "description": "8-K"
         }
       ]
     },
     {
       "symbol": "NVDA",
-      "retrievedAt": "2026-11-25T12:48:20.361Z",
+      "retrievedAt": "2026-11-26T12:48:14.512Z",
       "data": [
         {
           "id": "sec:0001045810:0001696841-26-000016",
@@ -1099,8 +1099,18 @@
     },
     {
       "symbol": "WMT",
-      "retrievedAt": "2026-11-25T12:48:20.648Z",
+      "retrievedAt": "2026-11-26T12:48:14.780Z",
       "data": [
+        {
+          "id": "sec:0000104169:0002110643-26-000023",
+          "company": "Walmart Inc.",
+          "cik": "0000104169",
+          "form": "4",
+          "filedAt": "2026-11-25",
+          "reportDate": "2026-11-23",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000211064326000023/xslF345X06/wk-form4_1795641814.xml",
+          "description": "FORM 4"
+        },
         {
           "id": "sec:0000104169:0001959173-26-008280",
           "company": "Walmart Inc.",
@@ -1170,16 +1180,6 @@
           "reportDate": "2026-11-19",
           "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000168/wmt-20261119.htm",
           "description": "8-K"
-        },
-        {
-          "id": "sec:0000104169:0001739859-26-000004",
-          "company": "Walmart Inc.",
-          "cik": "0000104169",
-          "form": "3",
-          "filedAt": "2026-11-16",
-          "reportDate": "2026-11-13",
-          "url": "https://www.sec.gov/Archives/edgar/data/104169/000173985926000004/xslF345X06/wk-form3_1794871045.xml",
-          "description": "FORM 3"
         }
       ]
     }
